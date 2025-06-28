@@ -458,6 +458,20 @@ export const useComics = () => {
       !highest || comic.purchasePrice > highest.purchasePrice ? comic : highest, 
       null as Comic | null
     ),
+    highestValuedSlabbedComic: comics
+      .filter(comic => comic.isSlabbed)
+      .reduce((highest, comic) => {
+        const comicValue = comic.currentValue || comic.purchasePrice;
+        const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
+        return comicValue > highestValue ? comic : highest;
+      }, null as Comic | null),
+    highestValuedRawComic: comics
+      .filter(comic => !comic.isSlabbed)
+      .reduce((highest, comic) => {
+        const comicValue = comic.currentValue || comic.purchasePrice;
+        const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
+        return comicValue > highestValue ? comic : highest;
+      }, null as Comic | null),
     biggestGainer,
     biggestLoser,
     rawComics: comics.filter(comic => !comic.isSlabbed).length,

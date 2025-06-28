@@ -25,6 +25,8 @@ export interface ComicStats {
   totalPurchaseValue: number;
   totalCurrentValue: number;
   highestValuedComic: Comic | null;
+  highestValuedSlabbedComic: Comic | null;
+  highestValuedRawComic: Comic | null;
   biggestGainer: Comic | null;
   biggestLoser: Comic | null;
   rawComics: number;
