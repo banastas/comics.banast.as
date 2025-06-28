@@ -213,12 +213,6 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                       {comic.isSlabbed ? 'Slabbed' : 'Raw'}
                     </span>
                       
-                    {comic.signedBy && (
-                        <span className="inline-block px-3 py-1 bg-rose-500/20 text-rose-300 text-sm font-medium rounded border border-rose-500/30">
-                        <PenTool size={12} className="mr-1" />
-                        Signed
-                      </span>
-                    )}
                     </div>
                     
                     {comic.signedBy && (
