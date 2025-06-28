@@ -12,7 +12,8 @@ import {
   TrendingDown,
   BarChart3,
   Grid,
-  List
+  List,
+  Edit
 } from 'lucide-react';
 
 interface SeriesDetailProps {
