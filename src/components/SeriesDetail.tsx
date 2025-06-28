@@ -26,6 +26,8 @@ interface SeriesDetailProps {
   onView: (comic: Comic) => void;
   onViewSeries?: (seriesName: string) => void;
   onViewStorageLocation?: (storageLocation: string) => void;
+  onViewCoverArtist?: (coverArtist: string) => void;
+  onViewTag?: (tag: string) => void;
 }
 
 export const SeriesDetail: React.FC<SeriesDetailProps> = ({ 
@@ -37,7 +39,9 @@ export const SeriesDetail: React.FC<SeriesDetailProps> = ({
   onDelete,
   onView,
   onViewSeries,
-  onViewStorageLocation
+  onViewStorageLocation,
+  onViewCoverArtist,
+  onViewTag
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'issue' | 'grade' | 'value' | 'date'>('issue');

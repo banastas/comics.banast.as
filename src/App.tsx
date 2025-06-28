@@ -8,6 +8,8 @@ import { DataManager } from './components/DataManager';
 import { ComicDetail } from './components/ComicDetail';
 import { SeriesDetail } from './components/SeriesDetail';
 import { StorageLocationDetail } from './components/StorageLocationDetail';
+import { CoverArtistDetail } from './components/CoverArtistDetail';
+import { TagDetail } from './components/TagDetail';
 import { Comic } from './types/Comic';
 import { BookOpen, Plus, Settings, BarChart3 } from 'lucide-react';
 
@@ -37,6 +39,8 @@ function App() {
   const [selectedComic, setSelectedComic] = useState<Comic | null>(null);
   const [selectedSeries, setSelectedSeries] = useState<string | null>(null);
   const [selectedStorageLocation, setSelectedStorageLocation] = useState<string | null>(null);
+  const [selectedCoverArtist, setSelectedCoverArtist] = useState<string | null>(null);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
   // Get unique values for filters
   const allSeries = Array.from(new Set(allComics.map(comic => comic.seriesName))).sort();
@@ -72,24 +76,48 @@ function App() {
     setSelectedComic(comic);
     setSelectedSeries(null);
     setSelectedStorageLocation(null);
+    setSelectedCoverArtist(null);
+    setSelectedTag(null);
   };
 
   const handleBackToCollection = () => {
     setSelectedComic(null);
     setSelectedSeries(null);
     setSelectedStorageLocation(null);
+    setSelectedCoverArtist(null);
+    setSelectedTag(null);
   };
 
   const handleViewSeries = (seriesName: string) => {
     setSelectedSeries(seriesName);
     setSelectedComic(null);
     setSelectedStorageLocation(null);
+    setSelectedCoverArtist(null);
+    setSelectedTag(null);
   };
 
   const handleViewStorageLocation = (storageLocation: string) => {
     setSelectedStorageLocation(storageLocation);
     setSelectedComic(null);
     setSelectedSeries(null);
+    setSelectedCoverArtist(null);
+    setSelectedTag(null);
+  };
+
+  const handleViewCoverArtist = (coverArtist: string) => {
+    setSelectedCoverArtist(coverArtist);
+    setSelectedComic(null);
+    setSelectedSeries(null);
+    setSelectedStorageLocation(null);
+    setSelectedTag(null);
+  };
+
+  const handleViewTag = (tag: string) => {
+    setSelectedTag(tag);
+    setSelectedComic(null);
+    setSelectedSeries(null);
+    setSelectedStorageLocation(null);
+    setSelectedCoverArtist(null);
   };
 
   if (loading) {
@@ -115,6 +143,8 @@ function App() {
         onView={handleViewComic}
         onViewSeries={handleViewSeries}
         onViewStorageLocation={handleViewStorageLocation}
+        onViewCoverArtist={handleViewCoverArtist}
+        onViewTag={handleViewTag}
       />
     );
   }
@@ -133,6 +163,8 @@ function App() {
         onView={handleViewComic}
         onViewSeries={handleViewSeries}
         onViewStorageLocation={handleViewStorageLocation}
+        onViewCoverArtist={handleViewCoverArtist}
+        onViewTag={handleViewTag}
       />
     );
   }
@@ -151,6 +183,48 @@ function App() {
         onView={handleViewComic}
         onViewSeries={handleViewSeries}
         onViewStorageLocation={handleViewStorageLocation}
+        onViewCoverArtist={handleViewCoverArtist}
+        onViewTag={handleViewTag}
+      />
+    );
+  }
+
+  // Show cover artist detail page if a cover artist is selected
+  if (selectedCoverArtist) {
+    const artistComics = allComics.filter(comic => comic.coverArtist === selectedCoverArtist);
+    return (
+      <CoverArtistDetail
+        coverArtist={selectedCoverArtist}
+        artistComics={artistComics}
+        allComics={allComics}
+        onBack={handleBackToCollection}
+        onEdit={handleEditComic}
+        onDelete={handleDeleteComic}
+        onView={handleViewComic}
+        onViewSeries={handleViewSeries}
+        onViewStorageLocation={handleViewStorageLocation}
+        onViewCoverArtist={handleViewCoverArtist}
+        onViewTag={handleViewTag}
+      />
+    );
+  }
+
+  // Show tag detail page if a tag is selected
+  if (selectedTag) {
+    const tagComics = allComics.filter(comic => comic.tags.includes(selectedTag));
+    return (
+      <TagDetail
+        tag={selectedTag}
+        tagComics={tagComics}
+        allComics={allComics}
+        onBack={handleBackToCollection}
+        onEdit={handleEditComic}
+        onDelete={handleDeleteComic}
+        onView={handleViewComic}
+        onViewSeries={handleViewSeries}
+        onViewStorageLocation={handleViewStorageLocation}
+        onViewCoverArtist={handleViewCoverArtist}
+        onViewTag={handleViewTag}
       />
     );
   }

@@ -26,6 +26,8 @@ interface ComicDetailProps {
   onView: (comic: Comic) => void;
   onViewSeries?: (seriesName: string) => void;
   onViewStorageLocation?: (storageLocation: string) => void;
+  onViewCoverArtist?: (coverArtist: string) => void;
+  onViewTag?: (tag: string) => void;
 }
 
 export const ComicDetail: React.FC<ComicDetailProps> = ({ 
@@ -36,7 +38,9 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
   onDelete,
   onView,
   onViewSeries,
-  onViewStorageLocation
+  onViewStorageLocation,
+  onViewCoverArtist,
+  onViewTag
 }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
@@ -285,7 +289,12 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                         <Palette size={16} className="text-purple-400 mt-0.5" />
                         <div>
                           <span className="text-sm text-gray-400">Cover Artist</span>
-                          <p className="text-white font-medium">{comic.coverArtist}</p>
+                          <p 
+                            className="text-white font-medium hover:text-blue-400 cursor-pointer transition-colors"
+                            onClick={() => onViewCoverArtist?.(comic.coverArtist)}
+                          >
+                            {comic.coverArtist}
+                          </p>
                         </div>
                       </div>
                     )}
@@ -318,7 +327,8 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                       {comic.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="px-3 py-1 bg-blue-500/20 text-blue-300 text-sm rounded border border-blue-500/30"
+                          className="px-3 py-1 bg-blue-500/20 text-blue-300 text-sm rounded border border-blue-500/30 cursor-pointer hover:bg-blue-500/30 transition-colors"
+                          onClick={() => onViewTag?.(tag)}
                         >
                           {tag}
                         </span>
