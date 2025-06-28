@@ -3,6 +3,22 @@ import { Comic, ComicStats, SortField, SortDirection, FilterOptions } from '../t
 
 const STORAGE_KEY = 'comic-collection';
 
+// Clear any existing data to force reload of new sample data
+const clearOldData = () => {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored) {
+    try {
+      const parsedComics = JSON.parse(stored);
+      // Check if the first comic has currentValue - if not, clear the data
+      if (parsedComics.length > 0 && parsedComics[0].currentValue === undefined) {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    } catch (error) {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  }
+};
+
 const sampleComics: Comic[] = [
   {
     id: 'sample-1',
@@ -268,11 +284,18 @@ export const useComics = () => {
 
   // Load comics from localStorage
   useEffect(() => {
+    clearOldData(); // Clear old data without currentValue
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsedComics = JSON.parse(stored);
-        setComics(parsedComics);
+        // Verify the data has current values, otherwise use sample data
+        if (parsedComics.length > 0 && parsedComics[0].currentValue !== undefined) {
+          setComics(parsedComics);
+        } else {
+          setComics(sampleComics);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(sampleComics));
+        }
       } else {
         // If no data exists, populate with sample data
         setComics(sampleComics);
