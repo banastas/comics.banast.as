@@ -90,41 +90,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ stats, showDetailed = fals
 
   return (
     <div className={showDetailed ? "space-y-8" : "mb-8"}>
-      {/* Performance Overview */}
-      {stats.comicsWithCurrentValue > 0 && (
-        <div className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-lg p-6 border border-gray-600 shadow-xl">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold text-white">Collection Performance</h3>
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-              stats.totalGainLoss >= 0 
-                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' 
-                : 'bg-red-500/20 text-red-300 border border-red-500/30'
-            }`}>
-              {formatPercentage(stats.totalGainLossPercentage)}
-            </span>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <p className="text-sm text-gray-400 mb-1">Total Invested</p>
-              <p className="text-2xl font-bold text-white">{formatCurrency(stats.totalPurchaseValue)}</p>
-            </div>
-            <div className="text-center">
-              <p className="text-sm text-gray-400 mb-1">Current Value</p>
-              <p className="text-2xl font-bold text-white">{formatCurrency(stats.totalCurrentValue)}</p>
-              <p className="text-xs text-gray-400">({stats.comicsWithCurrentValue} of {stats.totalComics} comics valued)</p>
-            </div>
-            <div className="text-center">
-              <p className="text-sm text-gray-400 mb-1">Net Gain/Loss</p>
-              <p className={`text-2xl font-bold ${
-                stats.totalGainLoss >= 0 ? 'text-emerald-400' : 'text-red-400'
-              }`}>
-                {stats.totalGainLoss >= 0 ? '+' : ''}{formatCurrency(stats.totalGainLoss)}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
 
       <div className={`grid grid-cols-2 md:grid-cols-3 gap-4 ${showDetailed ? 'lg:grid-cols-4' : 'lg:grid-cols-6'} mb-6`}>
         {statsCards.map((stat) => (
