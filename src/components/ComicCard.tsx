@@ -107,18 +107,18 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView, onEdit, onD
           #{comic.issueNumber} ({new Date(comic.releaseDate).getFullYear()})
         </p>
 
-        {/* Grade */}
-        <div className="flex items-center space-x-1 mb-2">
-          <Star size={12} className="text-amber-400" />
-          <span className="text-sm font-semibold text-white">{comic.grade}</span>
-        </div>
-
-        {/* Current Value */}
-        <div className="flex items-center space-x-1">
-          <DollarSign size={12} className="text-green-400" />
-          <span className="text-sm font-semibold text-white">
-            {comic.currentValue ? formatCurrency(comic.currentValue) : formatCurrency(comic.purchasePrice)}
-          </span>
+        {/* Grade and Value on same line */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-1">
+            <Star size={12} className="text-amber-400" />
+            <span className="text-sm font-semibold text-white">{comic.grade}</span>
+          </div>
+          <div className="flex items-center space-x-1">
+            <DollarSign size={12} className="text-green-400" />
+            <span className="text-sm font-semibold text-white">
+              {comic.currentValue ? formatCurrency(comic.currentValue) : formatCurrency(comic.purchasePrice)}
+            </span>
+          </div>
         </div>
       </div>
     </div>
