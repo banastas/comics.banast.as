@@ -166,77 +166,84 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
 
               {/* Title and Basic Info */}
               <div className="flex-1">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">
-                      {comic.seriesName} #{comic.issueNumber}
-                    </h1>
-                    <h2 className="text-xl text-gray-300 mb-4">{comic.title}</h2>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Star size={24} className="text-amber-400" />
-                    <span className="text-2xl font-bold text-white">{comic.grade}</span>
-                  </div>
+                {/* Title and Issue */}
+                <div className="mb-6">
+                  <h1 className="text-3xl font-bold text-white mb-2">
+                    {comic.seriesName} #{comic.issueNumber}
+                  </h1>
+                  <h2 className="text-xl text-gray-300">{comic.title}</h2>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-3">
-                      <Calendar size={20} className="text-blue-400" />
-                      <div>
-                        <p className="text-sm text-gray-400">Release Date</p>
-                        <p className="text-white font-medium">{formatDate(comic.releaseDate)}</p>
-                      </div>
+                {/* Key Information Grid */}
+                <div className="space-y-4">
+                  {/* Release Date */}
+                  <div className="flex items-center space-x-3">
+                    <Calendar size={20} className="text-blue-400" />
+                    <div>
+                      <p className="text-sm text-gray-400">Release Date</p>
+                      <p className="text-white font-medium">{formatDate(comic.releaseDate)}</p>
                     </div>
-                    
-                    {comic.coverArtist && (
-                      <div className="flex items-center space-x-3">
-                        <Palette size={20} className="text-purple-400" />
-                        <div>
-                          <p className="text-sm text-gray-400">Cover Artist</p>
-                          <p className="text-white font-medium">{comic.coverArtist}</p>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {comic.signedBy && (
-                      <div className="flex items-center space-x-3">
-                        <PenTool size={20} className="text-rose-400" />
-                        <div>
-                          <p className="text-sm text-gray-400">Signed By</p>
-                          <p className="text-white font-medium">{comic.signedBy}</p>
-                        </div>
-                      </div>
-                    )}
                   </div>
                   
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-3">
-                      <DollarSign size={20} className="text-green-400" />
-                      <div>
-                        <p className="text-sm text-gray-400">Purchase Price</p>
-                        <p className="text-white font-medium text-xl">{formatCurrency(comic.purchasePrice)}</p>
-                      </div>
+                  {/* Purchase Price */}
+                  <div className="flex items-center space-x-3">
+                    <DollarSign size={20} className="text-green-400" />
+                    <div>
+                      <p className="text-sm text-gray-400">Purchase Price</p>
+                      <p className="text-white font-medium text-xl">{formatCurrency(comic.purchasePrice)}</p>
                     </div>
-                    
-                    <div className="flex items-center space-x-3">
-                      <Calendar size={20} className="text-blue-400" />
-                      <div>
-                        <p className="text-sm text-gray-400">Purchase Date</p>
-                        <p className="text-white font-medium">{formatDate(comic.purchaseDate)}</p>
-                      </div>
-                    </div>
-                    
-                    {comic.storageLocation && (
-                      <div className="flex items-center space-x-3">
-                        <MapPin size={20} className="text-orange-400" />
-                        <div>
-                          <p className="text-sm text-gray-400">Storage Location</p>
-                          <p className="text-white font-medium">{comic.storageLocation}</p>
-                        </div>
-                      </div>
-                    )}
                   </div>
+                  
+                  {/* Purchase Date */}
+                  <div className="flex items-center space-x-3">
+                    <Calendar size={20} className="text-blue-400" />
+                    <div>
+                      <p className="text-sm text-gray-400">Purchase Date</p>
+                      <p className="text-white font-medium">{formatDate(comic.purchaseDate)}</p>
+                    </div>
+                  </div>
+                  
+                  {/* Storage Location */}
+                  {comic.storageLocation && (
+                    <div className="flex items-center space-x-3">
+                      <MapPin size={20} className="text-orange-400" />
+                      <div>
+                        <p className="text-sm text-gray-400">Storage Location</p>
+                        <p className="text-white font-medium">{comic.storageLocation}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Grade/Rating */}
+                  <div className="flex items-center space-x-3">
+                    <Star size={20} className="text-amber-400" />
+                    <div>
+                      <p className="text-sm text-gray-400">Grade</p>
+                      <p className="text-white font-medium text-xl">{comic.grade}</p>
+                    </div>
+                  </div>
+                  
+                  {/* Cover Artist */}
+                  {comic.coverArtist && (
+                    <div className="flex items-center space-x-3">
+                      <Palette size={20} className="text-purple-400" />
+                      <div>
+                        <p className="text-sm text-gray-400">Cover Artist</p>
+                        <p className="text-white font-medium">{comic.coverArtist}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Signed By */}
+                  {comic.signedBy && (
+                    <div className="flex items-center space-x-3">
+                      <PenTool size={20} className="text-rose-400" />
+                      <div>
+                        <p className="text-sm text-gray-400">Signed By</p>
+                        <p className="text-white font-medium">{comic.signedBy}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
