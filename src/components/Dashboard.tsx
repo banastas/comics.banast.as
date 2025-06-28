@@ -40,15 +40,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
       bgColor: 'bg-blue-500/10',
       borderColor: 'border-blue-500/30',
     },
-    {
+    ...(showDetailed ? [{
       title: 'Purchase Value',
       value: formatCurrency(stats.totalPurchaseValue),
       icon: DollarSign,
       color: 'bg-green-500',
       bgColor: 'bg-green-500/10',
       borderColor: 'border-green-500/30',
-    },
-    ...(stats.comicsWithCurrentValue > 0 ? [{
+    }] : []),
+    ...(showDetailed && stats.comicsWithCurrentValue > 0 ? [{
       title: 'Current Value',
       value: formatCurrency(stats.totalCurrentValue),
       icon: TrendingUp,
@@ -56,7 +56,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       bgColor: 'bg-blue-500/10',
       borderColor: 'border-blue-500/30',
     }] : []),
-    ...(stats.comicsWithCurrentValue > 0 ? [{
+    ...(showDetailed && stats.comicsWithCurrentValue > 0 ? [{
       title: 'Total Gain/Loss',
       value: `${stats.totalGainLoss >= 0 ? '+' : ''}${formatCurrency(stats.totalGainLoss)}`,
       icon: stats.totalGainLoss >= 0 ? TrendingUp : TrendingDown,
@@ -64,14 +64,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
       bgColor: stats.totalGainLoss >= 0 ? 'bg-emerald-500/10' : 'bg-red-500/10',
       borderColor: stats.totalGainLoss >= 0 ? 'border-emerald-500/30' : 'border-red-500/30',
     }] : []),
-    {
+    ...(showDetailed ? [{
       title: 'Average Grade',
       value: stats.averageGrade.toFixed(1),
       icon: Star,
       color: 'bg-amber-500',
       bgColor: 'bg-amber-500/10',
       borderColor: 'border-amber-500/30',
-    },
+    }] : []),
     {
       title: 'Slabbed Comics',
       value: stats.slabbedComics.toLocaleString(),
@@ -101,7 +101,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   return (
     <div className={showDetailed ? "space-y-8" : "mb-8"}>
 
-      <div className={`grid grid-cols-2 md:grid-cols-3 gap-4 ${showDetailed ? 'lg:grid-cols-4' : 'lg:grid-cols-6'} mb-6`}>
+      <div className={`grid grid-cols-2 md:grid-cols-3 gap-4 ${showDetailed ? 'lg:grid-cols-4' : 'lg:grid-cols-4'} mb-6`}>
         {statsCards.map((stat) => (
           <div
             key={stat.title}
