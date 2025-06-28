@@ -88,9 +88,11 @@ function App() {
     return (
       <ComicDetail
         comic={selectedComic}
+        allComics={allComics}
         onBack={handleBackToCollection}
         onEdit={handleEditComic}
         onDelete={handleDeleteComic}
+        onView={handleViewComic}
       />
     );
   }

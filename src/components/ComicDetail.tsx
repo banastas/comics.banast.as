@@ -19,16 +19,20 @@ import {
 
 interface ComicDetailProps {
   comic: Comic;
+  allComics: Comic[];
   onBack: () => void;
   onEdit: (comic: Comic) => void;
   onDelete: (id: string) => void;
+  onView: (comic: Comic) => void;
 }
 
 export const ComicDetail: React.FC<ComicDetailProps> = ({ 
   comic, 
+  allComics,
   onBack, 
   onEdit, 
-  onDelete 
+  onDelete,
+  onView
 }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
@@ -66,6 +70,16 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
     }
   };
 
+  // Get related comics from the same series
+  const relatedComics = allComics
+    .filter(c => c.id !== comic.id && c.seriesName === comic.seriesName)
+    .sort((a, b) => a.issueNumber - b.issueNumber);
+
+  // Get consecutive issues (within 5 issues before/after)
+  const consecutiveIssues = relatedComics.filter(c => 
+    Math.abs(c.issueNumber - comic.issueNumber) <= 5
+  );
+
   return (
     <div className="min-h-screen bg-gray-900">
       {/* Header */}
@@ -102,14 +116,14 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Cover Image */}
           <div className="lg:col-span-1">
             <div className="sticky top-8">
-              <div className="relative aspect-[2/3] bg-gray-800 rounded-lg overflow-hidden shadow-2xl border border-gray-700">
+              <div className="relative aspect-[2/3] bg-gray-800 rounded-lg overflow-hidden shadow-xl border border-gray-700 max-w-sm mx-auto">
                 {imageLoading && (
                   <div className="absolute inset-0 bg-gray-700 animate-pulse flex items-center justify-center">
-                    <div className="w-12 h-12 border-4 border-gray-600 border-t-blue-400 rounded-full animate-spin"></div>
+                    <div className="w-8 h-8 border-4 border-gray-600 border-t-blue-400 rounded-full animate-spin"></div>
                   </div>
                 )}
                 {!imageError && comic.coverImageUrl ? (
@@ -125,22 +139,22 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
                     <div className="text-center text-gray-400">
-                      <Award size={64} className="mx-auto mb-4" />
-                      <p className="text-lg font-medium">No Cover Available</p>
+                      <Award size={48} className="mx-auto mb-2" />
+                      <p className="text-sm font-medium">No Cover Available</p>
                     </div>
                   </div>
                 )}
                 
                 {/* Status Badges */}
-                <div className="absolute top-4 left-4 flex flex-col space-y-2">
+                <div className="absolute top-2 left-2 flex flex-col space-y-1">
                   {comic.isSlabbed && (
-                    <span className="px-3 py-1 bg-purple-500 text-white text-sm font-medium rounded shadow-lg backdrop-blur-sm">
+                    <span className="px-2 py-1 bg-purple-500 text-white text-xs font-medium rounded shadow-lg backdrop-blur-sm">
                       Slabbed
                     </span>
                   )}
                   {comic.signedBy && (
-                    <span className="px-3 py-1 bg-rose-500 text-white text-sm font-medium rounded flex items-center shadow-lg backdrop-blur-sm">
-                      <PenTool size={12} className="mr-1" />
+                    <span className="px-2 py-1 bg-rose-500 text-white text-xs font-medium rounded flex items-center shadow-lg backdrop-blur-sm">
+                      <PenTool size={10} className="mr-1" />
                       Signed
                     </span>
                   )}
@@ -150,7 +164,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
           </div>
 
           {/* Details */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-3 space-y-8">
             {/* Title Section */}
             <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
               <div className="flex items-start justify-between mb-4">
@@ -306,6 +320,76 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                 </div>
               </div>
             </div>
+
+            {/* Related Issues */}
+            {relatedComics.length > 0 && (
+              <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                  <Award size={20} className="mr-2 text-yellow-400" />
+                  Related Issues from {comic.seriesName}
+                </h3>
+                
+                {/* Consecutive Issues */}
+                {consecutiveIssues.length > 0 && (
+                  <div className="mb-6">
+                    <h4 className="text-md font-medium text-gray-300 mb-3">Consecutive Issues</h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                      {consecutiveIssues.map((relatedComic) => (
+                        <div
+                          key={relatedComic.id}
+                          onClick={() => onView(relatedComic)}
+                          className="bg-gray-700/50 rounded-lg p-3 border border-gray-600 hover:border-blue-500 transition-all cursor-pointer group"
+                        >
+                          <div className="aspect-[2/3] bg-gray-600 rounded mb-2 overflow-hidden">
+                            {relatedComic.coverImageUrl ? (
+                              <img
+                                src={relatedComic.coverImageUrl}
+                                alt={`${relatedComic.seriesName} #${relatedComic.issueNumber}`}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Award size={24} className="text-gray-500" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="text-center">
+                            <p className="text-sm font-medium text-white">#{relatedComic.issueNumber}</p>
+                            <p className="text-xs text-gray-400">Grade: {relatedComic.grade}</p>
+                            <p className="text-xs text-green-400">{formatCurrency(relatedComic.purchasePrice)}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* All Series Issues */}
+                {relatedComics.length > consecutiveIssues.length && (
+                  <div>
+                    <h4 className="text-md font-medium text-gray-300 mb-3">
+                      All Issues in Collection ({relatedComics.length} total)
+                    </h4>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+                      {relatedComics.map((relatedComic) => (
+                        <div
+                          key={relatedComic.id}
+                          onClick={() => onView(relatedComic)}
+                          className={`bg-gray-700/50 rounded-lg p-2 border transition-all cursor-pointer text-center ${
+                            consecutiveIssues.some(c => c.id === relatedComic.id)
+                              ? 'border-blue-500/50 bg-blue-500/10'
+                              : 'border-gray-600 hover:border-gray-500'
+                          }`}
+                        >
+                          <p className="text-sm font-medium text-white">#{relatedComic.issueNumber}</p>
+                          <p className="text-xs text-gray-400">{relatedComic.grade}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
