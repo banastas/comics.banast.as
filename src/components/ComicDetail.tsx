@@ -24,6 +24,8 @@ interface ComicDetailProps {
   onEdit: (comic: Comic) => void;
   onDelete: (id: string) => void;
   onView: (comic: Comic) => void;
+  onViewSeries?: (seriesName: string) => void;
+  onViewStorageLocation?: (storageLocation: string) => void;
 }
 
 export const ComicDetail: React.FC<ComicDetailProps> = ({ 
@@ -32,7 +34,9 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
   onBack, 
   onEdit, 
   onDelete,
-  onView
+  onView,
+  onViewSeries,
+  onViewStorageLocation
 }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
@@ -278,7 +282,12 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                         <MapPin size={16} className="text-orange-400 mt-0.5" />
                         <div>
                           <span className="text-sm text-gray-400">Storage Location</span>
-                          <p className="text-white font-medium">{comic.storageLocation}</p>
+                          <p 
+                            className="text-white font-medium hover:text-blue-400 cursor-pointer transition-colors"
+                            onClick={() => onViewStorageLocation?.(comic.storageLocation)}
+                          >
+                            {comic.storageLocation}
+                          </p>
                         </div>
                       </div>
                     )}
@@ -343,7 +352,10 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
             {/* Related Issues */}
             {relatedComics.length > 0 && (
               <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                <h3 
+                  className="text-lg font-semibold text-white mb-4 flex items-center hover:text-blue-400 cursor-pointer transition-colors"
+                  onClick={() => onViewSeries?.(comic.seriesName)}
+                >
                   <Award size={20} className="mr-2 text-yellow-400" />
                   Related Issues from {comic.seriesName}
                 </h3>
