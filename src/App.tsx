@@ -5,6 +5,7 @@ import { ComicCard } from './components/ComicCard';
 import { FilterControls } from './components/FilterControls';
 import { ComicForm } from './components/ComicForm';
 import { DataManager } from './components/DataManager';
+import { ComicDetail } from './components/ComicDetail';
 import { Comic } from './types/Comic';
 import { BookOpen, Plus, Settings, BarChart3 } from 'lucide-react';
 
@@ -31,6 +32,7 @@ function App() {
   const [editingComic, setEditingComic] = useState<Comic | null>(null);
   const [showDataManager, setShowDataManager] = useState(false);
   const [activeTab, setActiveTab] = useState<'collection' | 'stats' | 'data'>('collection');
+  const [selectedComic, setSelectedComic] = useState<Comic | null>(null);
 
   // Get unique values for filters
   const allSeries = Array.from(new Set(allComics.map(comic => comic.seriesName))).sort();
@@ -62,6 +64,14 @@ function App() {
     importData(new File(['[]'], 'empty.json', { type: 'application/json' }), false);
   };
 
+  const handleViewComic = (comic: Comic) => {
+    setSelectedComic(comic);
+  };
+
+  const handleBackToCollection = () => {
+    setSelectedComic(null);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
@@ -70,6 +80,18 @@ function App() {
           <p className="text-gray-300">Loading your collection...</p>
         </div>
       </div>
+    );
+  }
+
+  // Show comic detail page if a comic is selected
+  if (selectedComic) {
+    return (
+      <ComicDetail
+        comic={selectedComic}
+        onBack={handleBackToCollection}
+        onEdit={handleEditComic}
+        onDelete={handleDeleteComic}
+      />
     );
   }
 
@@ -197,6 +219,7 @@ function App() {
                   <ComicCard
                     key={comic.id}
                     comic={comic}
+                    onView={handleViewComic}
                     onEdit={handleEditComic}
                     onDelete={handleDeleteComic}
                   />

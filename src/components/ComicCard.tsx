@@ -4,11 +4,12 @@ import { Calendar, Star, DollarSign, MapPin, Edit, Trash2, Award, PenTool, Palet
 
 interface ComicCardProps {
   comic: Comic;
+  onView: (comic: Comic) => void;
   onEdit: (comic: Comic) => void;
   onDelete: (id: string) => void;
 }
 
-export const ComicCard: React.FC<ComicCardProps> = ({ comic, onEdit, onDelete }) => {
+export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView, onEdit, onDelete }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
 
@@ -39,9 +40,9 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onEdit, onDelete })
   };
 
   return (
-    <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden hover:shadow-xl hover:border-gray-600 transition-all duration-300 group">
+    <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden hover:shadow-xl hover:border-gray-600 transition-all duration-300 group cursor-pointer">
       {/* Cover Image */}
-      <div className="relative aspect-[2/3] bg-gray-700">
+      <div className="relative aspect-[2/3] bg-gray-700" onClick={() => onView(comic)}>
         {imageLoading && (
           <div className="absolute inset-0 bg-gray-700 animate-pulse flex items-center justify-center">
             <div className="w-8 h-8 border-4 border-gray-600 border-t-blue-400 rounded-full animate-spin"></div>
@@ -67,7 +68,7 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onEdit, onDelete })
         )}
         
         {/* Action Buttons */}
-        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200" onClick={(e) => e.stopPropagation()}>
           <div className="flex space-x-1">
             <button
               onClick={() => onEdit(comic)}
@@ -101,7 +102,7 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onEdit, onDelete })
       </div>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="p-4" onClick={() => onView(comic)}>
         {/* Title and Issue */}
         <div className="mb-3">
           <h3 className="font-bold text-white text-sm mb-1 line-clamp-2">
