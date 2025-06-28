@@ -181,7 +181,9 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                   >
                     {comic.seriesName}
                   </h2>
-                  <h3 className="text-lg text-gray-400">{comic.title}</h3>
+                  {comic.title && comic.title !== comic.seriesName && (
+                    <h3 className="text-lg text-gray-400">{comic.title}</h3>
+                  )}
                 </div>
 
                 {/* Information Grid */}
