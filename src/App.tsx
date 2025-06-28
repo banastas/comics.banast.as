@@ -70,6 +70,8 @@ function App() {
 
   const handleViewComic = (comic: Comic) => {
     setSelectedComic(comic);
+    setSelectedSeries(null);
+    setSelectedStorageLocation(null);
   };
 
   const handleBackToCollection = () => {
@@ -80,10 +82,14 @@ function App() {
 
   const handleViewSeries = (seriesName: string) => {
     setSelectedSeries(seriesName);
+    setSelectedComic(null);
+    setSelectedStorageLocation(null);
   };
 
   const handleViewStorageLocation = (storageLocation: string) => {
     setSelectedStorageLocation(storageLocation);
+    setSelectedComic(null);
+    setSelectedSeries(null);
   };
 
   if (loading) {
