@@ -11,6 +11,7 @@ const sampleComics: Comic[] = [
     issueNumber: 300,
     releaseDate: '1988-05-01',
     coverImageUrl: 'https://images.pexels.com/photos/6373478/pexels-photo-6373478.jpeg?auto=compress&cs=tinysrgb&w=400',
+    coverArtist: 'Todd McFarlane',
     grade: 9.6,
     purchasePrice: 850,
     purchaseDate: '2023-03-15',
@@ -29,6 +30,7 @@ const sampleComics: Comic[] = [
     issueNumber: 1,
     releaseDate: '1988-03-01',
     coverImageUrl: 'https://images.pexels.com/photos/6373479/pexels-photo-6373479.jpeg?auto=compress&cs=tinysrgb&w=400',
+    coverArtist: 'Brian Bolland',
     grade: 9.8,
     purchasePrice: 1200,
     purchaseDate: '2023-01-20',
@@ -47,6 +49,7 @@ const sampleComics: Comic[] = [
     issueNumber: 141,
     releaseDate: '1981-01-01',
     coverImageUrl: 'https://images.pexels.com/photos/6373480/pexels-photo-6373480.jpeg?auto=compress&cs=tinysrgb&w=400',
+    coverArtist: 'John Byrne',
     grade: 8.5,
     purchasePrice: 450,
     purchaseDate: '2023-02-10',
@@ -65,6 +68,7 @@ const sampleComics: Comic[] = [
     issueNumber: 1,
     releaseDate: '1986-09-01',
     coverImageUrl: 'https://images.pexels.com/photos/6373481/pexels-photo-6373481.jpeg?auto=compress&cs=tinysrgb&w=400',
+    coverArtist: 'Dave Gibbons',
     grade: 9.4,
     purchasePrice: 320,
     purchaseDate: '2023-04-05',
@@ -83,6 +87,7 @@ const sampleComics: Comic[] = [
     issueNumber: 1,
     releaseDate: '2003-10-01',
     coverImageUrl: 'https://images.pexels.com/photos/6373482/pexels-photo-6373482.jpeg?auto=compress&cs=tinysrgb&w=400',
+    coverArtist: 'Tony Moore',
     grade: 9.0,
     purchasePrice: 2800,
     purchaseDate: '2023-05-12',
@@ -101,6 +106,7 @@ const sampleComics: Comic[] = [
     issueNumber: 1,
     releaseDate: '2012-03-14',
     coverImageUrl: 'https://images.pexels.com/photos/6373483/pexels-photo-6373483.jpeg?auto=compress&cs=tinysrgb&w=400',
+    coverArtist: 'Fiona Staples',
     grade: 9.8,
     purchasePrice: 180,
     purchaseDate: '2023-06-08',
@@ -119,6 +125,7 @@ const sampleComics: Comic[] = [
     issueNumber: 181,
     releaseDate: '1974-11-01',
     coverImageUrl: 'https://images.pexels.com/photos/6373484/pexels-photo-6373484.jpeg?auto=compress&cs=tinysrgb&w=400',
+    coverArtist: 'Herb Trimpe',
     grade: 7.5,
     purchasePrice: 1500,
     purchaseDate: '2023-07-22',
@@ -137,6 +144,7 @@ const sampleComics: Comic[] = [
     issueNumber: 1,
     releaseDate: '1989-01-01',
     coverImageUrl: 'https://images.pexels.com/photos/6373485/pexels-photo-6373485.jpeg?auto=compress&cs=tinysrgb&w=400',
+    coverArtist: 'Sam Kieth',
     grade: 9.2,
     purchasePrice: 280,
     purchaseDate: '2023-08-14',
@@ -155,6 +163,7 @@ const sampleComics: Comic[] = [
     issueNumber: 1,
     releaseDate: '1992-05-01',
     coverImageUrl: 'https://images.pexels.com/photos/6373486/pexels-photo-6373486.jpeg?auto=compress&cs=tinysrgb&w=400',
+    coverArtist: 'Todd McFarlane',
     grade: 8.0,
     purchasePrice: 95,
     purchaseDate: '2023-09-03',
@@ -173,6 +182,7 @@ const sampleComics: Comic[] = [
     issueNumber: 1,
     releaseDate: '1984-05-01',
     coverImageUrl: 'https://images.pexels.com/photos/6373487/pexels-photo-6373487.jpeg?auto=compress&cs=tinysrgb&w=400',
+    coverArtist: 'Kevin Eastman',
     grade: 6.5,
     purchasePrice: 3200,
     purchaseDate: '2023-10-18',
@@ -191,6 +201,7 @@ const sampleComics: Comic[] = [
     issueNumber: 1,
     releaseDate: '2003-01-22',
     coverImageUrl: 'https://images.pexels.com/photos/6373488/pexels-photo-6373488.jpeg?auto=compress&cs=tinysrgb&w=400',
+    coverArtist: 'Cory Walker',
     grade: 9.6,
     purchasePrice: 420,
     purchaseDate: '2023-11-07',
@@ -209,6 +220,7 @@ const sampleComics: Comic[] = [
     issueNumber: 1,
     releaseDate: '2002-09-01',
     coverImageUrl: 'https://images.pexels.com/photos/6373489/pexels-photo-6373489.jpeg?auto=compress&cs=tinysrgb&w=400',
+    coverArtist: 'Pia Guerra',
     grade: 9.4,
     purchasePrice: 150,
     purchaseDate: '2023-12-01',
@@ -312,7 +324,8 @@ export const useComics = () => {
         comic.title.toLowerCase().includes(searchLower) ||
         comic.seriesName.toLowerCase().includes(searchLower) ||
         comic.notes.toLowerCase().includes(searchLower) ||
-        comic.signedBy.toLowerCase().includes(searchLower)
+        comic.signedBy.toLowerCase().includes(searchLower) ||
+        comic.coverArtist.toLowerCase().includes(searchLower)
       );
     }
 
