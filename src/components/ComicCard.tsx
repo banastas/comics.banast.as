@@ -69,20 +69,12 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView, onEdit, onD
         
         {/* Action Buttons */}
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200" onClick={(e) => e.stopPropagation()}>
-          <div className="flex space-x-1">
-            <button
-              onClick={() => onEdit(comic)}
-              className="p-1.5 bg-gray-900/80 text-white rounded hover:bg-gray-900/90 transition-colors backdrop-blur-sm"
-            >
-              <Edit size={14} />
-            </button>
-            <button
-              onClick={() => onDelete(comic.id)}
-              className="p-1.5 bg-red-500/80 text-white rounded hover:bg-red-500/90 transition-colors backdrop-blur-sm"
-            >
-              <Trash2 size={14} />
-            </button>
-          </div>
+          <button
+            onClick={() => onEdit(comic)}
+            className="p-1.5 bg-gray-900/80 text-white rounded hover:bg-gray-900/90 transition-colors backdrop-blur-sm"
+          >
+            <Edit size={14} />
+          </button>
         </div>
 
         {/* Slabbed Indicator */}
