@@ -141,9 +141,6 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                   type="text"
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
-                  className={`w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.title ? 'border-red-400 bg-gray-700' : 'border-gray-600 bg-gray-700'
-                  }`}
                   className={`w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 ${
                     errors.title ? 'border-red-400 bg-gray-700' : 'border-gray-600 bg-gray-700'
                   }`}
@@ -162,9 +159,6 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                   list="series-list"
                   value={formData.seriesName}
                   onChange={(e) => handleInputChange('seriesName', e.target.value)}
-                  className={`w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.seriesName ? 'border-red-400 bg-gray-700' : 'border-gray-600 bg-gray-700'
-                  }`}
                   className={`w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 ${
                     errors.seriesName ? 'border-red-400 bg-gray-700' : 'border-gray-600 bg-gray-700'
                   }`}
@@ -188,9 +182,6 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                   min="0"
                   value={formData.issueNumber}
                   onChange={(e) => handleInputChange('issueNumber', parseInt(e.target.value) || 0)}
-                  className={`w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.issueNumber ? 'border-red-400 bg-gray-700' : 'border-gray-600 bg-gray-700'
-                  }`}
                   className={`w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white ${
                     errors.issueNumber ? 'border-red-400 bg-gray-700' : 'border-gray-600 bg-gray-700'
                   }`}
@@ -207,9 +198,6 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                   type="date"
                   value={formData.releaseDate}
                   onChange={(e) => handleInputChange('releaseDate', e.target.value)}
-                  className={`w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.releaseDate ? 'border-red-400 bg-gray-700' : 'border-gray-600 bg-gray-700'
-                  }`}
                   className={`w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white ${
                     errors.releaseDate ? 'border-red-400 bg-gray-700' : 'border-gray-600 bg-gray-700'
                   }`}
@@ -255,9 +243,6 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                 <select
                   value={formData.grade}
                   onChange={(e) => handleInputChange('grade', parseFloat(e.target.value))}
-                  className={`w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.grade ? 'border-red-400 bg-gray-700' : 'border-gray-600 bg-gray-700'
-                  }`}
                   className={`w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white ${
                     errors.grade ? 'border-red-400 bg-gray-700' : 'border-gray-600 bg-gray-700'
                   }`}
@@ -283,9 +268,6 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                   step="0.01"
                   value={formData.purchasePrice}
                   onChange={(e) => handleInputChange('purchasePrice', parseFloat(e.target.value) || 0)}
-                  className={`w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.purchasePrice ? 'border-red-400 bg-gray-700' : 'border-gray-600 bg-gray-700'
-                  }`}
                   className={`w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white ${
                     errors.purchasePrice ? 'border-red-400 bg-gray-700' : 'border-gray-600 bg-gray-700'
                   }`}
@@ -302,9 +284,6 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                   type="date"
                   value={formData.purchaseDate}
                   onChange={(e) => handleInputChange('purchaseDate', e.target.value)}
-                  className={`w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.purchaseDate ? 'border-red-400 bg-gray-700' : 'border-gray-600 bg-gray-700'
-                  }`}
                   className={`w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white ${
                     errors.purchaseDate ? 'border-red-400 bg-gray-700' : 'border-gray-600 bg-gray-700'
                   }`}
