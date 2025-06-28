@@ -48,7 +48,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       bgColor: 'bg-green-500/10',
       borderColor: 'border-green-500/30',
     }] : []),
-    ...(showDetailed && stats.comicsWithCurrentValue > 0 ? [{
+    ...(stats.comicsWithCurrentValue > 0 ? [{
       title: 'Current Value',
       value: formatCurrency(stats.totalCurrentValue),
       icon: TrendingUp,
@@ -88,14 +88,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
       bgColor: 'bg-indigo-500/10',
       borderColor: 'border-indigo-500/30',
     },
-    {
+    ...(showDetailed ? [{
       title: 'Signed Comics',
       value: stats.signedComics.toLocaleString(),
       icon: PenTool,
       color: 'bg-rose-500',
       bgColor: 'bg-rose-500/10',
       borderColor: 'border-rose-500/30',
-    },
+    }] : []),
   ];
 
   return (
