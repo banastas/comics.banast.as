@@ -1,4 +1,5 @@
 import React from 'react';
+import { Comic } from '../types/Comic';
 import { ComicStats } from '../types/Comic';
 import { BookOpen, DollarSign, Award, PenTool, Archive, Star, TrendingUp, TrendingDown } from 'lucide-react';
 
