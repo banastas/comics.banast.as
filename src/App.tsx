@@ -6,6 +6,7 @@ import { FilterControls } from './components/FilterControls';
 import { ComicForm } from './components/ComicForm';
 import { DataManager } from './components/DataManager';
 import { ComicDetail } from './components/ComicDetail';
+import { SeriesDetail } from './components/SeriesDetail';
 import { Comic } from './types/Comic';
 import { BookOpen, Plus, Settings, BarChart3 } from 'lucide-react';
 
@@ -33,6 +34,7 @@ function App() {
   const [showDataManager, setShowDataManager] = useState(false);
   const [activeTab, setActiveTab] = useState<'collection' | 'stats' | 'data'>('collection');
   const [selectedComic, setSelectedComic] = useState<Comic | null>(null);
+  const [selectedSeries, setSelectedSeries] = useState<string | null>(null);
 
   // Get unique values for filters
   const allSeries = Array.from(new Set(allComics.map(comic => comic.seriesName))).sort();
@@ -70,6 +72,11 @@ function App() {
 
   const handleBackToCollection = () => {
     setSelectedComic(null);
+    setSelectedSeries(null);
+  };
+
+  const handleViewSeries = (seriesName: string) => {
+    setSelectedSeries(seriesName);
   };
 
   if (loading) {
@@ -88,6 +95,22 @@ function App() {
     return (
       <ComicDetail
         comic={selectedComic}
+        allComics={allComics}
+        onBack={handleBackToCollection}
+        onEdit={handleEditComic}
+        onDelete={handleDeleteComic}
+        onView={handleViewComic}
+      />
+    );
+  }
+
+  // Show series detail page if a series is selected
+  if (selectedSeries) {
+    const seriesComics = allComics.filter(comic => comic.seriesName === selectedSeries);
+    return (
+      <SeriesDetail
+        seriesName={selectedSeries}
+        seriesComics={seriesComics}
         allComics={allComics}
         onBack={handleBackToCollection}
         onEdit={handleEditComic}
@@ -266,7 +289,11 @@ function App() {
                         .sort((a, b) => Math.abs(b.gainLossPercentage) - Math.abs(a.gainLossPercentage))
                         .slice(0, 8)
                         .map(series => (
-                          <div key={series.name} className="flex items-center justify-between">
+                          <div 
+                            key={series.name} 
+                            className="flex items-center justify-between cursor-pointer hover:bg-gray-700/50 rounded-lg p-2 transition-colors"
+                            onClick={() => handleViewSeries(series.name)}
+                          >
                             <div>
                               <p className="font-medium text-white">{series.name}</p>
                               <p className="text-sm text-gray-400">
@@ -309,7 +336,11 @@ function App() {
                       .sort((a, b) => b.count - a.count)
                       .slice(0, 10)
                       .map(series => (
-                        <div key={series.name} className="flex items-center justify-between">
+                        <div 
+                          key={series.name} 
+                          className="flex items-center justify-between cursor-pointer hover:bg-gray-700/50 rounded-lg p-2 transition-colors"
+                          onClick={() => handleViewSeries(series.name)}
+                        >
                           <div>
                             <p className="font-medium text-white">{series.name}</p>
                             <p className="text-sm text-gray-400">{series.count} comics</p>
