@@ -233,13 +233,69 @@ function App() {
 
         {activeTab === 'stats' && (
           <div className="space-y-8">
-            <Dashboard stats={stats} />
+            <Dashboard stats={stats} showDetailed={true} />
             
             {/* Additional Stats */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Value Performance by Series */}
+              {stats.comicsWithCurrentValue > 0 && (
+                <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
+                  <h3 className="text-lg font-semibold text-white mb-4">Series Performance</h3>
+                  {allSeries.length > 0 ? (
+                    <div className="space-y-3">
+                      {allSeries
+                        .map(series => {
+                          const seriesComics = allComics.filter(comic => comic.seriesName === series);
+                          const seriesComicsWithValue = seriesComics.filter(comic => comic.currentValue !== undefined);
+                          const purchaseValue = seriesComicsWithValue.reduce((sum, comic) => sum + comic.purchasePrice, 0);
+                          const currentValue = seriesComicsWithValue.reduce((sum, comic) => sum + (comic.currentValue || 0), 0);
+                          const gainLoss = currentValue - purchaseValue;
+                          const gainLossPercentage = purchaseValue > 0 ? (gainLoss / purchaseValue) * 100 : 0;
+                          
+                          return {
+                            name: series,
+                            count: seriesComics.length,
+                            countWithValue: seriesComicsWithValue.length,
+                            purchaseValue,
+                            currentValue,
+                            gainLoss,
+                            gainLossPercentage
+                          };
+                        })
+                        .filter(series => series.countWithValue > 0)
+                        .sort((a, b) => Math.abs(b.gainLossPercentage) - Math.abs(a.gainLossPercentage))
+                        .slice(0, 8)
+                        .map(series => (
+                          <div key={series.name} className="flex items-center justify-between">
+                            <div>
+                              <p className="font-medium text-white">{series.name}</p>
+                              <p className="text-sm text-gray-400">
+                                {series.countWithValue} of {series.count} comics valued
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-semibold text-white">
+                                {series.currentValue.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
+                              </p>
+                              <p className={`text-sm font-medium ${
+                                series.gainLoss >= 0 ? 'text-emerald-400' : 'text-red-400'
+                              }`}>
+                                {series.gainLoss >= 0 ? '+' : ''}{series.gainLoss.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })} 
+                                ({series.gainLossPercentage >= 0 ? '+' : ''}{series.gainLossPercentage.toFixed(1)}%)
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-400">No series performance data available</p>
+                  )}
+                </div>
+              )}
+
               {/* Series Breakdown */}
               <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">Top Series</h3>
+                <h3 className="text-lg font-semibold text-white mb-4">Top Series by Count</h3>
                 {allSeries.length > 0 ? (
                   <div className="space-y-3">
                     {allSeries
@@ -258,8 +314,8 @@ function App() {
                             <p className="font-medium text-white">{series.name}</p>
                             <p className="text-sm text-gray-400">{series.count} comics</p>
                           </div>
-                          <p className="font-semibold text-blue-400">
-                            ${series.value.toLocaleString()}
+                          <p className="font-semibold text-white">
+                            {series.value.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
                           </p>
                         </div>
                       ))}
@@ -287,9 +343,18 @@ function App() {
                               Added {new Date(comic.createdAt).toLocaleDateString()}
                             </p>
                           </div>
-                          <p className="font-semibold text-blue-400">
-                            ${comic.purchasePrice.toLocaleString()}
+                          <div className="text-right">
+                            <p className="font-semibold text-white">
+                              {comic.purchasePrice.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
+                            </p>
+                            {comic.currentValue && (
+                              <p className={`text-xs ${
+                                comic.currentValue >= comic.purchasePrice ? 'text-emerald-400' : 'text-red-400'
+                              }`}>
+                                Now: {comic.currentValue.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
                           </p>
+                            )}
+                          </div>
                         </div>
                       ))}
                   </div>

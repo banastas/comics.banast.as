@@ -22,11 +22,18 @@ export interface Comic {
 export interface ComicStats {
   totalComics: number;
   totalValue: number;
+  totalPurchaseValue: number;
+  totalCurrentValue: number;
   highestValuedComic: Comic | null;
+  biggestGainer: Comic | null;
+  biggestLoser: Comic | null;
   rawComics: number;
   slabbedComics: number;
   signedComics: number;
   averageGrade: number;
+  totalGainLoss: number;
+  totalGainLossPercentage: number;
+  comicsWithCurrentValue: number;
 }
 
 export type SortField = 'title' | 'seriesName' | 'issueNumber' | 'releaseDate' | 'grade' | 'purchaseDate' | 'purchasePrice';
