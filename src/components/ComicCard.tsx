@@ -40,7 +40,7 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView, onEdit, onD
   };
 
   return (
-    <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden hover:shadow-xl hover:border-gray-600 transition-all duration-300 group cursor-pointer">
+    <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden hover:shadow-xl hover:border-gray-600 transition-all duration-300 group cursor-pointer w-full">
       {/* Cover Image */}
       <div className="relative aspect-[2/3] bg-gray-700" onClick={() => onView(comic)}>
         {imageLoading && (
@@ -71,16 +71,16 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView, onEdit, onD
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => onEdit(comic)}
-            className="p-1.5 bg-gray-900/80 text-white rounded hover:bg-gray-900/90 transition-colors backdrop-blur-sm"
+            className="p-1 sm:p-1.5 bg-gray-900/80 text-white rounded hover:bg-gray-900/90 transition-colors backdrop-blur-sm"
           >
-            <Edit size={14} />
+            <Edit size={12} className="sm:w-3.5 sm:h-3.5" />
           </button>
         </div>
 
         {/* Slabbed Indicator */}
         {comic.isSlabbed && (
-          <div className="absolute top-2 left-2">
-            <span className="px-2 py-1 bg-purple-500 text-white text-xs font-medium rounded shadow-lg backdrop-blur-sm">
+          <div className="absolute top-1 sm:top-2 left-1 sm:left-2">
+            <span className="px-1 sm:px-2 py-0.5 sm:py-1 bg-purple-500 text-white text-xs font-medium rounded shadow-lg backdrop-blur-sm">
               Slabbed
             </span>
           </div>
@@ -88,26 +88,26 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView, onEdit, onD
       </div>
 
       {/* Content */}
-      <div className="p-3" onClick={() => onView(comic)}>
+      <div className="p-2 sm:p-3" onClick={() => onView(comic)}>
         {/* Series Title */}
-        <h3 className="font-bold text-white text-sm mb-1 line-clamp-2">
+        <h3 className="font-bold text-white text-xs sm:text-sm mb-1 line-clamp-2">
           {comic.seriesName}
         </h3>
         
         {/* Issue # and Year */}
-        <p className="text-xs text-gray-400 mb-2">
+        <p className="text-xs text-gray-400 mb-1 sm:mb-2">
           #{comic.issueNumber} ({new Date(comic.releaseDate).getFullYear()})
         </p>
 
         {/* Grade and Value on same line */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1">
-            <Star size={12} className="text-amber-400" />
-            <span className="text-sm font-semibold text-white">{comic.grade}</span>
+            <Star size={10} className="text-amber-400 sm:w-3 sm:h-3" />
+            <span className="text-xs sm:text-sm font-semibold text-white">{comic.grade}</span>
           </div>
           <div className="flex items-center space-x-1">
-            <DollarSign size={12} className="text-green-400" />
-            <span className="text-sm font-semibold text-white">
+            <DollarSign size={10} className="text-green-400 sm:w-3 sm:h-3" />
+            <span className="text-xs sm:text-sm font-semibold text-white">
               {comic.currentValue ? formatCurrency(comic.currentValue) : formatCurrency(comic.purchasePrice)}
             </span>
           </div>

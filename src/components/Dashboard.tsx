@@ -106,6 +106,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     <div className={showDetailed ? "space-y-8" : "mb-8"}>
 
       <div className={`grid grid-cols-2 md:grid-cols-3 gap-4 ${showDetailed ? 'lg:grid-cols-4' : 'lg:grid-cols-4'} mb-6`}>
+      <div className={`grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 ${showDetailed ? 'lg:grid-cols-4 xl:grid-cols-5' : 'lg:grid-cols-4 xl:grid-cols-6'} mb-4 sm:mb-6`}>
         {statsCards.map((stat) => (
           <div
             key={stat.title}
@@ -120,13 +121,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
               }
             }}
           >
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-400 mb-1">{stat.title}</p>
-                <p className="text-xl font-bold text-white">{stat.value}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-400 mb-1">{stat.title}</p>
+                <p className="text-lg sm:text-xl font-bold text-white">{stat.value}</p>
               </div>
-              <div className={`${stat.color} p-2 rounded-lg shadow-lg`}>
-                <stat.icon size={20} className="text-white" />
+              <div className={`${stat.color} p-1.5 sm:p-2 rounded-lg shadow-lg self-end sm:self-auto mt-2 sm:mt-0`}>
+                <stat.icon size={16} className="text-white sm:w-5 sm:h-5" />
               </div>
             </div>
           </div>
@@ -135,31 +136,31 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       {/* Performance Highlights */}
       {showDetailed && stats.comicsWithCurrentValue > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Biggest Gainer */}
           {stats.biggestGainer && (
             <div 
-              className="bg-gradient-to-r from-emerald-600 to-green-600 rounded-lg p-6 text-white shadow-xl border border-emerald-500/30 cursor-pointer hover:shadow-2xl transition-all"
+              className="bg-gradient-to-r from-emerald-600 to-green-600 rounded-lg p-4 sm:p-6 text-white shadow-xl border border-emerald-500/30 cursor-pointer hover:shadow-2xl transition-all"
               onClick={() => onViewComic?.(stats.biggestGainer!)}
             >
-              <h3 className="text-lg font-semibold mb-2 flex items-center">
-                <TrendingUp size={20} className="mr-2" />
+              <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3 flex items-center">
+                <TrendingUp size={18} className="mr-2 sm:w-5 sm:h-5" />
                 Biggest Gainer
               </h3>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                 <div>
-                  <p className="text-xl font-bold">
+                  <p className="text-lg sm:text-xl font-bold">
                     {stats.biggestGainer.seriesName} #{stats.biggestGainer.issueNumber}
                   </p>
-                  <p className="text-emerald-100 opacity-90">{stats.biggestGainer.title}</p>
+                  <p className="text-emerald-100 opacity-90 text-sm sm:text-base truncate">{stats.biggestGainer.title}</p>
                   <p className="text-sm text-emerald-200 mt-1 opacity-80">
                     Grade: {stats.biggestGainer.grade} • {stats.biggestGainer.isSlabbed ? 'Slabbed' : 'Raw'}
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm text-emerald-200">Purchased: {formatCurrency(stats.biggestGainer.purchasePrice)}</p>
-                  <p className="text-xl font-bold">Current: {formatCurrency(stats.biggestGainer.currentValue || 0)}</p>
-                  <p className="text-sm font-medium">
+                <div className="text-left sm:text-right">
+                  <p className="text-xs sm:text-sm text-emerald-200">Purchased: {formatCurrency(stats.biggestGainer.purchasePrice)}</p>
+                  <p className="text-lg sm:text-xl font-bold">Current: {formatCurrency(stats.biggestGainer.currentValue || 0)}</p>
+                  <p className="text-xs sm:text-sm font-medium">
                     +{formatCurrency((stats.biggestGainer.currentValue || 0) - stats.biggestGainer.purchasePrice)} 
                     ({formatPercentage(((stats.biggestGainer.currentValue || 0) - stats.biggestGainer.purchasePrice) / stats.biggestGainer.purchasePrice * 100)})
                   </p>
@@ -171,27 +172,27 @@ export const Dashboard: React.FC<DashboardProps> = ({
           {/* Biggest Loser */}
           {stats.biggestLoser && (stats.biggestLoser.currentValue || 0) < stats.biggestLoser.purchasePrice && (
             <div 
-              className="bg-gradient-to-r from-red-600 to-rose-600 rounded-lg p-6 text-white shadow-xl border border-red-500/30 cursor-pointer hover:shadow-2xl transition-all"
+              className="bg-gradient-to-r from-red-600 to-rose-600 rounded-lg p-4 sm:p-6 text-white shadow-xl border border-red-500/30 cursor-pointer hover:shadow-2xl transition-all"
               onClick={() => onViewComic?.(stats.biggestLoser!)}
             >
-              <h3 className="text-lg font-semibold mb-2 flex items-center">
-                <TrendingDown size={20} className="mr-2" />
+              <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3 flex items-center">
+                <TrendingDown size={18} className="mr-2 sm:w-5 sm:h-5" />
                 Biggest Decline
               </h3>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                 <div>
-                  <p className="text-xl font-bold">
+                  <p className="text-lg sm:text-xl font-bold">
                     {stats.biggestLoser.seriesName} #{stats.biggestLoser.issueNumber}
                   </p>
-                  <p className="text-red-100 opacity-90">{stats.biggestLoser.title}</p>
+                  <p className="text-red-100 opacity-90 text-sm sm:text-base truncate">{stats.biggestLoser.title}</p>
                   <p className="text-sm text-red-200 mt-1 opacity-80">
                     Grade: {stats.biggestLoser.grade} • {stats.biggestLoser.isSlabbed ? 'Slabbed' : 'Raw'}
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm text-red-200">Purchased: {formatCurrency(stats.biggestLoser.purchasePrice)}</p>
-                  <p className="text-xl font-bold">Current: {formatCurrency(stats.biggestLoser.currentValue || 0)}</p>
-                  <p className="text-sm font-medium">
+                <div className="text-left sm:text-right">
+                  <p className="text-xs sm:text-sm text-red-200">Purchased: {formatCurrency(stats.biggestLoser.purchasePrice)}</p>
+                  <p className="text-lg sm:text-xl font-bold">Current: {formatCurrency(stats.biggestLoser.currentValue || 0)}</p>
+                  <p className="text-xs sm:text-sm font-medium">
                     {formatCurrency((stats.biggestLoser.currentValue || 0) - stats.biggestLoser.purchasePrice)} 
                     ({formatPercentage(((stats.biggestLoser.currentValue || 0) - stats.biggestLoser.purchasePrice) / stats.biggestLoser.purchasePrice * 100)})
                   </p>
@@ -204,29 +205,29 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       {/* Most Valuable Comics - Split into Slabbed and Raw */}
       {(stats.highestValuedSlabbedComic || stats.highestValuedRawComic) && (
-        <div className={`grid grid-cols-1 lg:grid-cols-2 gap-6 ${showDetailed ? 'mt-6' : ''}`}>
+        <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 ${showDetailed ? 'mt-4 sm:mt-6' : ''}`}>
           {/* Most Valuable Slabbed Comic */}
           {stats.highestValuedSlabbedComic && (
             <div 
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg p-6 text-white shadow-xl border border-purple-500/30 cursor-pointer hover:shadow-2xl transition-all"
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg p-4 sm:p-6 text-white shadow-xl border border-purple-500/30 cursor-pointer hover:shadow-2xl transition-all"
               onClick={() => onViewComic?.(stats.highestValuedSlabbedComic!)}
             >
-              <h3 className="text-lg font-semibold mb-2 flex items-center">
-                <Award size={20} className="mr-2" />
+              <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3 flex items-center">
+                <Award size={18} className="mr-2 sm:w-5 sm:h-5" />
                 Most Valuable Slabbed
               </h3>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                 <div>
-                  <p className="text-xl font-bold">
+                  <p className="text-lg sm:text-xl font-bold">
                     {stats.highestValuedSlabbedComic.seriesName} #{stats.highestValuedSlabbedComic.issueNumber}
                   </p>
-                  <p className="text-purple-100 opacity-90">{stats.highestValuedSlabbedComic.title}</p>
+                  <p className="text-purple-100 opacity-90 text-sm sm:text-base truncate">{stats.highestValuedSlabbedComic.title}</p>
                   <p className="text-sm text-purple-200 mt-1 opacity-80">
                     Grade: {stats.highestValuedSlabbedComic.grade}
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="text-2xl font-bold">{formatCurrency(stats.highestValuedSlabbedComic.currentValue || stats.highestValuedSlabbedComic.purchasePrice)}</p>
+                <div className="text-left sm:text-right">
+                  <p className="text-xl sm:text-2xl font-bold">{formatCurrency(stats.highestValuedSlabbedComic.currentValue || stats.highestValuedSlabbedComic.purchasePrice)}</p>
                 </div>
               </div>
             </div>
@@ -235,25 +236,25 @@ export const Dashboard: React.FC<DashboardProps> = ({
           {/* Most Valuable Raw Comic */}
           {stats.highestValuedRawComic && (
             <div 
-              className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg p-6 text-white shadow-xl border border-blue-500/30 cursor-pointer hover:shadow-2xl transition-all"
+              className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg p-4 sm:p-6 text-white shadow-xl border border-blue-500/30 cursor-pointer hover:shadow-2xl transition-all"
               onClick={() => onViewComic?.(stats.highestValuedRawComic!)}
             >
-              <h3 className="text-lg font-semibold mb-2 flex items-center">
-                <BookOpen size={20} className="mr-2" />
+              <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3 flex items-center">
+                <BookOpen size={18} className="mr-2 sm:w-5 sm:h-5" />
                 Most Valuable Raw
               </h3>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                 <div>
-                  <p className="text-xl font-bold">
+                  <p className="text-lg sm:text-xl font-bold">
                     {stats.highestValuedRawComic.seriesName} #{stats.highestValuedRawComic.issueNumber}
                   </p>
-                  <p className="text-blue-100 opacity-90">{stats.highestValuedRawComic.title}</p>
+                  <p className="text-blue-100 opacity-90 text-sm sm:text-base truncate">{stats.highestValuedRawComic.title}</p>
                   <p className="text-sm text-blue-200 mt-1 opacity-80">
                     Grade: {stats.highestValuedRawComic.grade}
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="text-2xl font-bold">{formatCurrency(stats.highestValuedRawComic.currentValue || stats.highestValuedRawComic.purchasePrice)}</p>
+                <div className="text-left sm:text-right">
+                  <p className="text-xl sm:text-2xl font-bold">{formatCurrency(stats.highestValuedRawComic.currentValue || stats.highestValuedRawComic.purchasePrice)}</p>
                 </div>
               </div>
             </div>

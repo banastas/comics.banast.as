@@ -308,25 +308,26 @@ function App() {
     <div className="min-h-screen bg-gray-900">
       {/* Header */}
       <header className="bg-gray-800 shadow-lg border-b border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
               <div className="p-2 bg-blue-500 rounded-lg shadow-lg">
                 <BookOpen size={24} className="text-white" />
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-white">Comic Collection Manager</h1>
-                <p className="text-sm text-gray-300">{stats.totalComics} comics</p>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-lg sm:text-xl font-bold text-white truncate">Comic Collection Manager</h1>
+                <p className="text-xs sm:text-sm text-gray-300">{stats.totalComics} comics</p>
               </div>
             </div>
             
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
               <button
                 onClick={() => setShowForm(true)}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors shadow-lg"
+                className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors shadow-lg"
               >
                 <Plus size={16} />
-                <span>Add Comic</span>
+                <span className="hidden sm:inline">Add Comic</span>
+                <span className="sm:hidden">Add</span>
               </button>
             </div>
           </div>
@@ -335,8 +336,8 @@ function App() {
 
       {/* Navigation Tabs */}
       <div className="bg-gray-800 border-b border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex space-x-8">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+          <nav className="flex space-x-4 sm:space-x-8 overflow-x-auto">
             <button
               onClick={() => setActiveTab('collection')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
@@ -345,7 +346,7 @@ function App() {
                   : 'border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-600'
               } transition-colors`}
             >
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1 sm:space-x-2 whitespace-nowrap">
                 <BookOpen size={16} />
                 <span>Collection</span>
               </div>
@@ -358,7 +359,7 @@ function App() {
                   : 'border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-600'
               } transition-colors`}
             >
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1 sm:space-x-2 whitespace-nowrap">
                 <BarChart3 size={16} />
                 <span>Statistics</span>
               </div>
@@ -371,9 +372,10 @@ function App() {
                   : 'border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-600'
               } transition-colors`}
             >
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1 sm:space-x-2 whitespace-nowrap">
                 <Settings size={16} />
-                <span>Data Management</span>
+                <span className="hidden sm:inline">Data Management</span>
+                <span className="sm:hidden">Data</span>
               </div>
             </button>
           </nav>
@@ -381,7 +383,7 @@ function App() {
       </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         {activeTab === 'collection' && (
           <>
             <Dashboard 
@@ -408,12 +410,12 @@ function App() {
 
             {/* Comics Grid */}
             {comics.length === 0 ? (
-              <div className="text-center py-12">
+              <div className="text-center py-8 sm:py-12">
                 <BookOpen size={48} className="mx-auto text-gray-500 mb-4" />
-                <h3 className="text-lg font-medium text-white mb-2">
+                <h3 className="text-base sm:text-lg font-medium text-white mb-2">
                   {allComics.length === 0 ? 'No comics in your collection' : 'No comics match your filters'}
                 </h3>
-                <p className="text-gray-400 mb-6">
+                <p className="text-sm sm:text-base text-gray-400 mb-4 sm:mb-6 px-4">
                   {allComics.length === 0 
                     ? 'Start building your collection by adding your first comic!'
                     : 'Try adjusting your search criteria or filters.'
@@ -422,7 +424,7 @@ function App() {
                 {allComics.length === 0 && (
                   <button
                     onClick={() => setShowForm(true)}
-                    className="flex items-center space-x-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors mx-auto shadow-lg"
+                    className="flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors mx-auto shadow-lg"
                   >
                     <Plus size={20} />
                     <span>Add Your First Comic</span>
@@ -430,7 +432,7 @@ function App() {
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
                 {comics.map((comic) => (
                   <ComicCard
                     key={comic.id}

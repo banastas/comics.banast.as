@@ -66,27 +66,27 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
   ];
 
   return (
-    <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6 mb-6">
+    <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-4 sm:p-6 mb-4 sm:mb-6">
       {/* Search and Basic Controls */}
-      <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
         {/* Search */}
         <div className="relative flex-1">
-          <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+          <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 sm:w-5 sm:h-5" />
           <input
             type="text"
             placeholder="Search comics, series, notes..."
             value={filters.searchTerm}
             onChange={(e) => handleFilterChange('searchTerm', e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400"
+            className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm sm:text-base"
           />
         </div>
 
         {/* Sort Controls */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 flex-shrink-0">
           <select
             value={sortField}
             onChange={(e) => handleSortClick(e.target.value as SortField)}
-            className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
+            className="bg-gray-700 border border-gray-600 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
           >
             {sortFields.map(({ field, label }) => (
               <option key={field} value={field}>{label}</option>
@@ -94,20 +94,20 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
           </select>
           <button
             onClick={() => handleSortClick(sortField)}
-            className="p-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors text-gray-300"
+            className="p-1.5 sm:p-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors text-gray-300"
           >
-            {sortDirection === 'asc' ? <SortAsc size={16} /> : <SortDesc size={16} />}
+            {sortDirection === 'asc' ? <SortAsc size={14} className="sm:w-4 sm:h-4" /> : <SortDesc size={14} className="sm:w-4 sm:h-4" />}
           </button>
         </div>
 
         {/* Filter Toggle */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 flex-shrink-0">
           <button
             onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-            className="flex items-center space-x-2 px-4 py-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors text-gray-300"
+            className="flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors text-gray-300"
           >
-            <Filter size={16} />
-            <span className="text-sm">Filters</span>
+            <Filter size={14} className="sm:w-4 sm:h-4" />
+            <span className="text-xs sm:text-sm">Filters</span>
             {hasActiveFilters && (
               <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
             )}
@@ -115,10 +115,10 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
           {hasActiveFilters && (
             <button
               onClick={clearFilters}
-              className="p-2 text-gray-500 hover:text-gray-300 transition-colors"
+              className="p-1.5 sm:p-2 text-gray-500 hover:text-gray-300 transition-colors"
               title="Clear all filters"
             >
-              <X size={16} />
+              <X size={14} className="sm:w-4 sm:h-4" />
             </button>
           )}
         </div>
@@ -126,15 +126,15 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
 
       {/* Advanced Filters */}
       {showAdvancedFilters && (
-        <div className="border-t border-gray-700 pt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="border-t border-gray-700 pt-3 sm:pt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {/* Series Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Series</label>
+              <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">Series</label>
               <select
                 value={filters.seriesName}
                 onChange={(e) => handleFilterChange('seriesName', e.target.value)}
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
               >
                 <option value="">All Series</option>
                 {allSeries.map((series) => (
@@ -145,7 +145,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
 
             {/* Grade Range */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Grade Range</label>
+              <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">Grade Range</label>
               <div className="flex items-center space-x-2">
                 <input
                   type="number"
@@ -154,9 +154,9 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
                   step="0.1"
                   value={filters.minGrade}
                   onChange={(e) => handleFilterChange('minGrade', parseFloat(e.target.value))}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
                 />
-                <span className="text-gray-400">to</span>
+                <span className="text-gray-400 text-xs sm:text-sm">to</span>
                 <input
                   type="number"
                   min="0.5"
@@ -164,40 +164,40 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
                   step="0.1"
                   value={filters.maxGrade}
                   onChange={(e) => handleFilterChange('maxGrade', parseFloat(e.target.value))}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
                 />
               </div>
             </div>
 
             {/* Price Range */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Price Range</label>
+              <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">Price Range</label>
               <div className="flex items-center space-x-2">
                 <input
                   type="number"
                   min="0"
                   value={filters.minPrice}
                   onChange={(e) => handleFilterChange('minPrice', parseFloat(e.target.value) || 0)}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
                 />
-                <span className="text-gray-400">to</span>
+                <span className="text-gray-400 text-xs sm:text-sm">to</span>
                 <input
                   type="number"
                   min="0"
                   value={filters.maxPrice}
                   onChange={(e) => handleFilterChange('maxPrice', parseFloat(e.target.value) || 10000)}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
                 />
               </div>
             </div>
 
             {/* Slabbed Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Condition</label>
+              <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">Condition</label>
               <select
                 value={filters.isSlabbed === null ? '' : filters.isSlabbed.toString()}
                 onChange={(e) => handleFilterChange('isSlabbed', e.target.value === '' ? null : e.target.value === 'true')}
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
               >
                 <option value="">All</option>
                 <option value="true">Slabbed</option>
@@ -207,11 +207,11 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
 
             {/* Signed Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Signed</label>
+              <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">Signed</label>
               <select
                 value={filters.isSigned === null ? '' : filters.isSigned.toString()}
                 onChange={(e) => handleFilterChange('isSigned', e.target.value === '' ? null : e.target.value === 'true')}
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
+                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
               >
                 <option value="">All</option>
                 <option value="true">Signed</option>
