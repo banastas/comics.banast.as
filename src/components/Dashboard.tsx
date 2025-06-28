@@ -5,9 +5,18 @@ import { BookOpen, DollarSign, Award, PenTool, Archive, Star, TrendingUp, Trendi
 interface DashboardProps {
   stats: ComicStats;
   showDetailed?: boolean;
+  onViewComic?: (comic: Comic) => void;
+  onViewSeries?: (seriesName: string) => void;
+  onViewStorageLocation?: (storageLocation: string) => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ stats, showDetailed = false }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ 
+  stats, 
+  showDetailed = false, 
+  onViewComic,
+  onViewSeries,
+  onViewStorageLocation 
+}) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -115,7 +124,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ stats, showDetailed = fals
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Biggest Gainer */}
           {stats.biggestGainer && (
-            <div className="bg-gradient-to-r from-emerald-600 to-green-600 rounded-lg p-6 text-white shadow-xl border border-emerald-500/30">
+            <div 
+              className="bg-gradient-to-r from-emerald-600 to-green-600 rounded-lg p-6 text-white shadow-xl border border-emerald-500/30 cursor-pointer hover:shadow-2xl transition-all"
+              onClick={() => onViewComic?.(stats.biggestGainer!)}
+            >
               <h3 className="text-lg font-semibold mb-2 flex items-center">
                 <TrendingUp size={20} className="mr-2" />
                 Biggest Gainer
@@ -144,7 +156,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ stats, showDetailed = fals
 
           {/* Biggest Loser */}
           {stats.biggestLoser && (stats.biggestLoser.currentValue || 0) < stats.biggestLoser.purchasePrice && (
-            <div className="bg-gradient-to-r from-red-600 to-rose-600 rounded-lg p-6 text-white shadow-xl border border-red-500/30">
+            <div 
+              className="bg-gradient-to-r from-red-600 to-rose-600 rounded-lg p-6 text-white shadow-xl border border-red-500/30 cursor-pointer hover:shadow-2xl transition-all"
+              onClick={() => onViewComic?.(stats.biggestLoser!)}
+            >
               <h3 className="text-lg font-semibold mb-2 flex items-center">
                 <TrendingDown size={20} className="mr-2" />
                 Biggest Decline
@@ -174,7 +189,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ stats, showDetailed = fals
       )}
 
       {stats.highestValuedComic && (
-        <div className={`bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white shadow-xl border border-blue-500/30 ${showDetailed ? 'mt-6' : ''}`}>
+        <div 
+          className={`bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white shadow-xl border border-blue-500/30 cursor-pointer hover:shadow-2xl transition-all ${showDetailed ? 'mt-6' : ''}`}
+          onClick={() => onViewComic?.(stats.highestValuedComic!)}
+        >
           <h3 className="text-lg font-semibold mb-2">Most Valuable Comic</h3>
           <div className="flex items-center justify-between">
             <div>

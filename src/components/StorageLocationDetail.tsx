@@ -25,6 +25,8 @@ interface StorageLocationDetailProps {
   onEdit: (comic: Comic) => void;
   onDelete: (id: string) => void;
   onView: (comic: Comic) => void;
+  onViewSeries?: (seriesName: string) => void;
+  onViewStorageLocation?: (storageLocation: string) => void;
 }
 
 export const StorageLocationDetail: React.FC<StorageLocationDetailProps> = ({ 
@@ -34,7 +36,9 @@ export const StorageLocationDetail: React.FC<StorageLocationDetailProps> = ({
   onBack, 
   onEdit, 
   onDelete,
-  onView
+  onView,
+  onViewSeries,
+  onViewStorageLocation
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'series' | 'issue' | 'grade' | 'value' | 'date'>('series');
@@ -294,7 +298,11 @@ export const StorageLocationDetail: React.FC<StorageLocationDetailProps> = ({
                       .reduce((sum, comic) => sum + (comic.currentValue || comic.purchasePrice), 0);
                     
                     return (
-                      <div key={series} className="bg-gray-700/30 rounded-lg p-3 border border-gray-600">
+                      <div 
+                        key={series} 
+                        className="bg-gray-700/30 rounded-lg p-3 border border-gray-600 cursor-pointer hover:border-blue-500 transition-colors"
+                        onClick={() => onViewSeries?.(series)}
+                      >
                         <p className="font-medium text-white text-sm truncate">{series}</p>
                         <p className="text-xs text-gray-400">{seriesCount} issue{seriesCount !== 1 ? 's' : ''}</p>
                         <p className="text-xs text-green-400">{formatCurrency(seriesValue)}</p>

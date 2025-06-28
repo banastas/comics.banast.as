@@ -123,6 +123,8 @@ function App() {
         onEdit={handleEditComic}
         onDelete={handleDeleteComic}
         onView={handleViewComic}
+        onViewSeries={handleViewSeries}
+        onViewStorageLocation={handleViewStorageLocation}
       />
     );
   }
@@ -139,6 +141,8 @@ function App() {
         onEdit={handleEditComic}
         onDelete={handleDeleteComic}
         onView={handleViewComic}
+        onViewSeries={handleViewSeries}
+        onViewStorageLocation={handleViewStorageLocation}
       />
     );
   }

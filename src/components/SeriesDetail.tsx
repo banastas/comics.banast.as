@@ -23,6 +23,8 @@ interface SeriesDetailProps {
   onEdit: (comic: Comic) => void;
   onDelete: (id: string) => void;
   onView: (comic: Comic) => void;
+  onViewSeries?: (seriesName: string) => void;
+  onViewStorageLocation?: (storageLocation: string) => void;
 }
 
 export const SeriesDetail: React.FC<SeriesDetailProps> = ({ 
@@ -32,7 +34,9 @@ export const SeriesDetail: React.FC<SeriesDetailProps> = ({
   onBack, 
   onEdit, 
   onDelete,
-  onView
+  onView,
+  onViewSeries,
+  onViewStorageLocation
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'issue' | 'grade' | 'value' | 'date'>('issue');
