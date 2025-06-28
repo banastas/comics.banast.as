@@ -226,10 +226,29 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                     <div className="flex items-start space-x-2">
                       <DollarSign size={16} className="text-green-400 mt-0.5" />
                       <div>
-                        <span className="text-sm text-gray-400">Purchase Price</span>
+                        <span className="text-sm text-gray-400">Purchased Price</span>
                         <p className="text-white font-medium text-lg">{formatCurrency(comic.purchasePrice)}</p>
                       </div>
                     </div>
+                    
+                    {comic.currentValue && (
+                      <div className="flex items-start space-x-2">
+                        <DollarSign size={16} className="text-blue-400 mt-0.5" />
+                        <div>
+                          <span className="text-sm text-gray-400">Current Value</span>
+                          <p className="text-white font-medium text-lg">{formatCurrency(comic.currentValue)}</p>
+                          {comic.currentValue !== comic.purchasePrice && (
+                            <p className={`text-xs font-medium ${
+                              comic.currentValue > comic.purchasePrice ? 'text-green-400' : 'text-red-400'
+                            }`}>
+                              {comic.currentValue > comic.purchasePrice ? '+' : ''}
+                              {formatCurrency(comic.currentValue - comic.purchasePrice)} 
+                              ({((comic.currentValue - comic.purchasePrice) / comic.purchasePrice * 100).toFixed(1)}%)
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
                     
                     <div className="flex items-start space-x-2">
                       <Calendar size={16} className="text-blue-400 mt-0.5" />

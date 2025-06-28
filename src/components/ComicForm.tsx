@@ -31,6 +31,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
     grade: 9.0,
     purchasePrice: 0,
     purchaseDate: new Date().toISOString().split('T')[0],
+    currentValue: undefined,
     notes: '',
     signedBy: '',
     storageLocation: '',
@@ -53,6 +54,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
         grade: comic.grade,
         purchasePrice: comic.purchasePrice,
         purchaseDate: comic.purchaseDate,
+        currentValue: comic.currentValue,
         notes: comic.notes,
         signedBy: comic.signedBy,
         storageLocation: comic.storageLocation,
@@ -275,6 +277,22 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                   }`}
                 />
                 {errors.purchasePrice && <p className="text-red-400 text-sm mt-1">{errors.purchasePrice}</p>}
+              </div>
+
+              {/* Current Value */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Current Value (USD)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={formData.currentValue || ''}
+                  onChange={(e) => handleInputChange('currentValue', e.target.value ? parseFloat(e.target.value) : undefined)}
+                  className="w-full border border-gray-600 bg-gray-700 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
+                  placeholder="Enter current market value"
+                />
               </div>
 
               {/* Purchase Date */}

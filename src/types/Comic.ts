@@ -9,6 +9,7 @@ export interface Comic {
   grade: number;
   purchasePrice: number;
   purchaseDate: string;
+  currentValue?: number;
   notes: string;
   signedBy: string;
   storageLocation: string;
