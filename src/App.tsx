@@ -10,6 +10,8 @@ import { SeriesDetail } from './components/SeriesDetail';
 import { StorageLocationDetail } from './components/StorageLocationDetail';
 import { CoverArtistDetail } from './components/CoverArtistDetail';
 import { TagDetail } from './components/TagDetail';
+import { RawComicsDetail } from './components/RawComicsDetail';
+import { SlabbedComicsDetail } from './components/SlabbedComicsDetail';
 import { Comic } from './types/Comic';
 import { BookOpen, Plus, Settings, BarChart3 } from 'lucide-react';
 
@@ -41,6 +43,7 @@ function App() {
   const [selectedStorageLocation, setSelectedStorageLocation] = useState<string | null>(null);
   const [selectedCoverArtist, setSelectedCoverArtist] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [selectedCondition, setSelectedCondition] = useState<'raw' | 'slabbed' | null>(null);
 
   // Get unique values for filters
   const allSeries = Array.from(new Set(allComics.map(comic => comic.seriesName))).sort();
@@ -78,6 +81,7 @@ function App() {
     setSelectedStorageLocation(null);
     setSelectedCoverArtist(null);
     setSelectedTag(null);
+    setSelectedCondition(null);
   };
 
   const handleBackToCollection = () => {
@@ -86,6 +90,7 @@ function App() {
     setSelectedStorageLocation(null);
     setSelectedCoverArtist(null);
     setSelectedTag(null);
+    setSelectedCondition(null);
   };
 
   const handleViewSeries = (seriesName: string) => {
@@ -94,6 +99,7 @@ function App() {
     setSelectedStorageLocation(null);
     setSelectedCoverArtist(null);
     setSelectedTag(null);
+    setSelectedCondition(null);
   };
 
   const handleViewStorageLocation = (storageLocation: string) => {
@@ -102,6 +108,7 @@ function App() {
     setSelectedSeries(null);
     setSelectedCoverArtist(null);
     setSelectedTag(null);
+    setSelectedCondition(null);
   };
 
   const handleViewCoverArtist = (coverArtist: string) => {
@@ -110,6 +117,7 @@ function App() {
     setSelectedSeries(null);
     setSelectedStorageLocation(null);
     setSelectedTag(null);
+    setSelectedCondition(null);
   };
 
   const handleViewTag = (tag: string) => {
@@ -118,6 +126,25 @@ function App() {
     setSelectedSeries(null);
     setSelectedStorageLocation(null);
     setSelectedCoverArtist(null);
+    setSelectedCondition(null);
+  };
+
+  const handleViewRawComics = () => {
+    setSelectedCondition('raw');
+    setSelectedComic(null);
+    setSelectedSeries(null);
+    setSelectedStorageLocation(null);
+    setSelectedCoverArtist(null);
+    setSelectedTag(null);
+  };
+
+  const handleViewSlabbedComics = () => {
+    setSelectedCondition('slabbed');
+    setSelectedComic(null);
+    setSelectedSeries(null);
+    setSelectedStorageLocation(null);
+    setSelectedCoverArtist(null);
+    setSelectedTag(null);
   };
 
   if (loading) {
@@ -145,6 +172,8 @@ function App() {
         onViewStorageLocation={handleViewStorageLocation}
         onViewCoverArtist={handleViewCoverArtist}
         onViewTag={handleViewTag}
+        onViewRawComics={handleViewRawComics}
+        onViewSlabbedComics={handleViewSlabbedComics}
       />
     );
   }
@@ -165,6 +194,8 @@ function App() {
         onViewStorageLocation={handleViewStorageLocation}
         onViewCoverArtist={handleViewCoverArtist}
         onViewTag={handleViewTag}
+        onViewRawComics={handleViewRawComics}
+        onViewSlabbedComics={handleViewSlabbedComics}
       />
     );
   }
@@ -185,6 +216,8 @@ function App() {
         onViewStorageLocation={handleViewStorageLocation}
         onViewCoverArtist={handleViewCoverArtist}
         onViewTag={handleViewTag}
+        onViewRawComics={handleViewRawComics}
+        onViewSlabbedComics={handleViewSlabbedComics}
       />
     );
   }
@@ -205,6 +238,8 @@ function App() {
         onViewStorageLocation={handleViewStorageLocation}
         onViewCoverArtist={handleViewCoverArtist}
         onViewTag={handleViewTag}
+        onViewRawComics={handleViewRawComics}
+        onViewSlabbedComics={handleViewSlabbedComics}
       />
     );
   }
@@ -216,6 +251,46 @@ function App() {
       <TagDetail
         tag={selectedTag}
         tagComics={tagComics}
+        allComics={allComics}
+        onBack={handleBackToCollection}
+        onEdit={handleEditComic}
+        onDelete={handleDeleteComic}
+        onView={handleViewComic}
+        onViewSeries={handleViewSeries}
+        onViewStorageLocation={handleViewStorageLocation}
+        onViewCoverArtist={handleViewCoverArtist}
+        onViewTag={handleViewTag}
+        onViewRawComics={handleViewRawComics}
+        onViewSlabbedComics={handleViewSlabbedComics}
+      />
+    );
+  }
+
+  // Show raw comics detail page if selected
+  if (selectedCondition === 'raw') {
+    const rawComics = allComics.filter(comic => !comic.isSlabbed);
+    return (
+      <RawComicsDetail
+        rawComics={rawComics}
+        allComics={allComics}
+        onBack={handleBackToCollection}
+        onEdit={handleEditComic}
+        onDelete={handleDeleteComic}
+        onView={handleViewComic}
+        onViewSeries={handleViewSeries}
+        onViewStorageLocation={handleViewStorageLocation}
+        onViewCoverArtist={handleViewCoverArtist}
+        onViewTag={handleViewTag}
+      />
+    );
+  }
+
+  // Show slabbed comics detail page if selected
+  if (selectedCondition === 'slabbed') {
+    const slabbedComics = allComics.filter(comic => comic.isSlabbed);
+    return (
+      <SlabbedComicsDetail
+        slabbedComics={slabbedComics}
         allComics={allComics}
         onBack={handleBackToCollection}
         onEdit={handleEditComic}
@@ -314,6 +389,8 @@ function App() {
               onViewComic={handleViewComic}
               onViewSeries={handleViewSeries}
               onViewStorageLocation={handleViewStorageLocation}
+              onViewRawComics={handleViewRawComics}
+              onViewSlabbedComics={handleViewSlabbedComics}
             />
             
             <FilterControls
@@ -376,6 +453,8 @@ function App() {
               onViewComic={handleViewComic}
               onViewSeries={handleViewSeries}
               onViewStorageLocation={handleViewStorageLocation}
+              onViewRawComics={handleViewRawComics}
+              onViewSlabbedComics={handleViewSlabbedComics}
             />
             
             {/* Additional Stats */}

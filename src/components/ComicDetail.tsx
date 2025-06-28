@@ -28,6 +28,8 @@ interface ComicDetailProps {
   onViewStorageLocation?: (storageLocation: string) => void;
   onViewCoverArtist?: (coverArtist: string) => void;
   onViewTag?: (tag: string) => void;
+  onViewRawComics?: () => void;
+  onViewSlabbedComics?: () => void;
 }
 
 export const ComicDetail: React.FC<ComicDetailProps> = ({ 
@@ -41,6 +43,8 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
   onViewStorageLocation,
   onViewCoverArtist,
   onViewTag
+  onViewRawComics,
+  onViewSlabbedComics
 }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
@@ -208,8 +212,15 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                     
                     <div className="space-y-2">
                       <span className={`inline-block px-3 py-1 text-sm font-medium rounded ${
-                      comic.isSlabbed ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-gray-600/30 text-gray-300 border border-gray-600/50'
-                    }`}>
+                      comic.isSlabbed ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30 cursor-pointer hover:bg-purple-500/30' : 'bg-gray-600/30 text-gray-300 border border-gray-600/50 cursor-pointer hover:bg-gray-600/50'
+                    } transition-colors`}
+                    onClick={() => {
+                      if (comic.isSlabbed) {
+                        onViewSlabbedComics?.();
+                      } else {
+                        onViewRawComics?.();
+                      }
+                    }}>
                       {comic.isSlabbed ? 'Slabbed' : 'Raw'}
                     </span>
                       

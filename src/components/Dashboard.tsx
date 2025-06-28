@@ -9,6 +9,8 @@ interface DashboardProps {
   onViewComic?: (comic: Comic) => void;
   onViewSeries?: (seriesName: string) => void;
   onViewStorageLocation?: (storageLocation: string) => void;
+  onViewRawComics?: () => void;
+  onViewSlabbedComics?: () => void;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ 
@@ -17,6 +19,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onViewComic,
   onViewSeries,
   onViewStorageLocation 
+  onViewRawComics,
+  onViewSlabbedComics
 }) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -105,7 +109,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
         {statsCards.map((stat) => (
           <div
             key={stat.title}
-            className={`bg-gray-800 rounded-lg shadow-lg border ${stat.borderColor} p-4 hover:shadow-xl transition-all duration-200 ${stat.bgColor}`}
+            className={`bg-gray-800 rounded-lg shadow-lg border ${stat.borderColor} p-4 hover:shadow-xl transition-all duration-200 ${stat.bgColor} ${
+              (stat.title === 'Slabbed Comics' || stat.title === 'Raw Comics') ? 'cursor-pointer' : ''
+            }`}
+            onClick={() => {
+              if (stat.title === 'Slabbed Comics') {
+                onViewSlabbedComics?.();
+              } else if (stat.title === 'Raw Comics') {
+                onViewRawComics?.();
+              }
+            }}
           >
             <div className="flex items-center justify-between">
               <div>
