@@ -227,7 +227,12 @@ function App() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'collection' && (
           <>
-            <Dashboard stats={stats} />
+            <Dashboard 
+              stats={stats} 
+              onViewComic={handleViewComic}
+              onViewSeries={handleViewSeries}
+              onViewStorageLocation={handleViewStorageLocation}
+            />
             
             <FilterControls
               filters={filters}
@@ -283,7 +288,13 @@ function App() {
 
         {activeTab === 'stats' && (
           <div className="space-y-8">
-            <Dashboard stats={stats} showDetailed={true} />
+            <Dashboard 
+              stats={stats} 
+              showDetailed={true} 
+              onViewComic={handleViewComic}
+              onViewSeries={handleViewSeries}
+              onViewStorageLocation={handleViewStorageLocation}
+            />
             
             {/* Additional Stats */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -392,9 +403,19 @@ function App() {
                       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                       .slice(0, 5)
                       .map(comic => (
-                        <div key={comic.id} className="flex items-center justify-between">
+                        <div 
+                          key={comic.id} 
+                          className="flex items-center justify-between cursor-pointer hover:bg-gray-700/50 rounded-lg p-2 transition-colors"
+                          onClick={() => handleViewComic(comic)}
+                        >
                           <div>
-                            <p className="font-medium text-white">
+                            <p 
+                              className="font-medium text-white hover:text-blue-400 transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewSeries(comic.seriesName);
+                              }}
+                            >
                               {comic.seriesName} #{comic.issueNumber}
                             </p>
                             <p className="text-sm text-gray-400">
