@@ -173,15 +173,15 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                 {/* Title */}
                 <div className="mb-6">
                   <h1 className="text-3xl font-bold text-white">
-                    <span 
-                      className="hover:text-blue-400 cursor-pointer transition-colors"
-                      onClick={() => onViewSeries?.(comic.seriesName)}
-                    >
-                      {comic.seriesName}
-                    </span>
-                    {' '}#{comic.issueNumber}
+                    #{comic.issueNumber}
                   </h1>
-                  <h2 className="text-xl text-gray-300">{comic.title}</h2>
+                  <h2 
+                    className="text-xl text-gray-300 hover:text-blue-400 cursor-pointer transition-colors"
+                    onClick={() => onViewSeries?.(comic.seriesName)}
+                  >
+                    {comic.seriesName}
+                  </h2>
+                  <h3 className="text-lg text-gray-400">{comic.title}</h3>
                 </div>
 
                 {/* Information Grid */}
