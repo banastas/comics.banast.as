@@ -7,6 +7,7 @@ import { ComicForm } from './components/ComicForm';
 import { DataManager } from './components/DataManager';
 import { ComicDetail } from './components/ComicDetail';
 import { SeriesDetail } from './components/SeriesDetail';
+import { StorageLocationDetail } from './components/StorageLocationDetail';
 import { Comic } from './types/Comic';
 import { BookOpen, Plus, Settings, BarChart3 } from 'lucide-react';
 
@@ -35,6 +36,7 @@ function App() {
   const [activeTab, setActiveTab] = useState<'collection' | 'stats' | 'data'>('collection');
   const [selectedComic, setSelectedComic] = useState<Comic | null>(null);
   const [selectedSeries, setSelectedSeries] = useState<string | null>(null);
+  const [selectedStorageLocation, setSelectedStorageLocation] = useState<string | null>(null);
 
   // Get unique values for filters
   const allSeries = Array.from(new Set(allComics.map(comic => comic.seriesName))).sort();
@@ -73,10 +75,15 @@ function App() {
   const handleBackToCollection = () => {
     setSelectedComic(null);
     setSelectedSeries(null);
+    setSelectedStorageLocation(null);
   };
 
   const handleViewSeries = (seriesName: string) => {
     setSelectedSeries(seriesName);
+  };
+
+  const handleViewStorageLocation = (storageLocation: string) => {
+    setSelectedStorageLocation(storageLocation);
   };
 
   if (loading) {
@@ -111,6 +118,22 @@ function App() {
       <SeriesDetail
         seriesName={selectedSeries}
         seriesComics={seriesComics}
+        allComics={allComics}
+        onBack={handleBackToCollection}
+        onEdit={handleEditComic}
+        onDelete={handleDeleteComic}
+        onView={handleViewComic}
+      />
+    );
+  }
+
+  // Show storage location detail page if a storage location is selected
+  if (selectedStorageLocation) {
+    const locationComics = allComics.filter(comic => comic.storageLocation === selectedStorageLocation);
+    return (
+      <StorageLocationDetail
+        storageLocation={selectedStorageLocation}
+        locationComics={locationComics}
         allComics={allComics}
         onBack={handleBackToCollection}
         onEdit={handleEditComic}
@@ -391,6 +414,42 @@ function App() {
                   </div>
                 ) : (
                   <p className="text-gray-400">No comics added yet</p>
+                )}
+              </div>
+
+              {/* Storage Locations */}
+              <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
+                <h3 className="text-lg font-semibold text-white mb-4">Storage Locations</h3>
+                {allStorageLocations.length > 0 ? (
+                  <div className="space-y-3">
+                    {allStorageLocations
+                      .map(location => ({
+                        name: location,
+                        count: allComics.filter(comic => comic.storageLocation === location).length,
+                        value: allComics
+                          .filter(comic => comic.storageLocation === location)
+                          .reduce((sum, comic) => sum + (comic.currentValue || comic.purchasePrice), 0)
+                      }))
+                      .sort((a, b) => b.value - a.value)
+                      .slice(0, 8)
+                      .map(location => (
+                        <div 
+                          key={location.name} 
+                          className="flex items-center justify-between cursor-pointer hover:bg-gray-700/50 rounded-lg p-2 transition-colors"
+                          onClick={() => handleViewStorageLocation(location.name)}
+                        >
+                          <div>
+                            <p className="font-medium text-white">{location.name}</p>
+                            <p className="text-sm text-gray-400">{location.count} comics</p>
+                          </div>
+                          <p className="font-semibold text-white">
+                            {location.value.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
+                          </p>
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-400">No storage locations specified</p>
                 )}
               </div>
             </div>
