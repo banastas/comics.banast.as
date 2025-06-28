@@ -116,130 +116,131 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Cover Image */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-8">
-              <div className="relative aspect-[2/3] bg-gray-800 rounded-lg overflow-hidden shadow-xl border border-gray-700 max-w-sm mx-auto">
-                {imageLoading && (
-                  <div className="absolute inset-0 bg-gray-700 animate-pulse flex items-center justify-center">
-                    <div className="w-8 h-8 border-4 border-gray-600 border-t-blue-400 rounded-full animate-spin"></div>
-                  </div>
-                )}
-                {!imageError && comic.coverImageUrl ? (
-                  <img
-                    src={comic.coverImageUrl}
-                    alt={`${comic.seriesName} #${comic.issueNumber}`}
-                    className={`w-full h-full object-cover transition-opacity duration-300 ${
-                      imageLoading ? 'opacity-0' : 'opacity-100'
-                    }`}
-                    onLoad={handleImageLoad}
-                    onError={handleImageError}
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
-                    <div className="text-center text-gray-400">
-                      <Award size={48} className="mx-auto mb-2" />
-                      <p className="text-sm font-medium">No Cover Available</p>
+        <div className="space-y-8">
+          {/* Title Section with Cover */}
+          <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Cover Image */}
+              <div className="flex-shrink-0">
+                <div className="relative aspect-[2/3] w-48 bg-gray-700 rounded-lg overflow-hidden shadow-xl border border-gray-600">
+                  {imageLoading && (
+                    <div className="absolute inset-0 bg-gray-700 animate-pulse flex items-center justify-center">
+                      <div className="w-6 h-6 border-4 border-gray-600 border-t-blue-400 rounded-full animate-spin"></div>
                     </div>
+                  )}
+                  {!imageError && comic.coverImageUrl ? (
+                    <img
+                      src={comic.coverImageUrl}
+                      alt={`${comic.seriesName} #${comic.issueNumber}`}
+                      className={`w-full h-full object-cover transition-opacity duration-300 ${
+                        imageLoading ? 'opacity-0' : 'opacity-100'
+                      }`}
+                      onLoad={handleImageLoad}
+                      onError={handleImageError}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
+                      <div className="text-center text-gray-400">
+                        <Award size={32} className="mx-auto mb-2" />
+                        <p className="text-xs font-medium">No Cover</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Status Badges */}
+                  <div className="absolute top-2 left-2 flex flex-col space-y-1">
+                    {comic.isSlabbed && (
+                      <span className="px-1.5 py-0.5 bg-purple-500 text-white text-xs font-medium rounded shadow-lg backdrop-blur-sm">
+                        Slabbed
+                      </span>
+                    )}
+                    {comic.signedBy && (
+                      <span className="px-1.5 py-0.5 bg-rose-500 text-white text-xs font-medium rounded flex items-center shadow-lg backdrop-blur-sm">
+                        <PenTool size={8} className="mr-1" />
+                        Signed
+                      </span>
+                    )}
                   </div>
-                )}
+                </div>
+              </div>
+
+              {/* Title and Basic Info */}
+              <div className="flex-1">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h1 className="text-3xl font-bold text-white mb-2">
+                      {comic.seriesName} #{comic.issueNumber}
+                    </h1>
+                    <h2 className="text-xl text-gray-300 mb-4">{comic.title}</h2>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Star size={24} className="text-amber-400" />
+                    <span className="text-2xl font-bold text-white">{comic.grade}</span>
+                  </div>
+                </div>
                 
-                {/* Status Badges */}
-                <div className="absolute top-2 left-2 flex flex-col space-y-1">
-                  {comic.isSlabbed && (
-                    <span className="px-2 py-1 bg-purple-500 text-white text-xs font-medium rounded shadow-lg backdrop-blur-sm">
-                      Slabbed
-                    </span>
-                  )}
-                  {comic.signedBy && (
-                    <span className="px-2 py-1 bg-rose-500 text-white text-xs font-medium rounded flex items-center shadow-lg backdrop-blur-sm">
-                      <PenTool size={10} className="mr-1" />
-                      Signed
-                    </span>
-                  )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-3">
+                      <Calendar size={20} className="text-blue-400" />
+                      <div>
+                        <p className="text-sm text-gray-400">Release Date</p>
+                        <p className="text-white font-medium">{formatDate(comic.releaseDate)}</p>
+                      </div>
+                    </div>
+                    
+                    {comic.coverArtist && (
+                      <div className="flex items-center space-x-3">
+                        <Palette size={20} className="text-purple-400" />
+                        <div>
+                          <p className="text-sm text-gray-400">Cover Artist</p>
+                          <p className="text-white font-medium">{comic.coverArtist}</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {comic.signedBy && (
+                      <div className="flex items-center space-x-3">
+                        <PenTool size={20} className="text-rose-400" />
+                        <div>
+                          <p className="text-sm text-gray-400">Signed By</p>
+                          <p className="text-white font-medium">{comic.signedBy}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-3">
+                      <DollarSign size={20} className="text-green-400" />
+                      <div>
+                        <p className="text-sm text-gray-400">Purchase Price</p>
+                        <p className="text-white font-medium text-xl">{formatCurrency(comic.purchasePrice)}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3">
+                      <Calendar size={20} className="text-blue-400" />
+                      <div>
+                        <p className="text-sm text-gray-400">Purchase Date</p>
+                        <p className="text-white font-medium">{formatDate(comic.purchaseDate)}</p>
+                      </div>
+                    </div>
+                    
+                    {comic.storageLocation && (
+                      <div className="flex items-center space-x-3">
+                        <MapPin size={20} className="text-orange-400" />
+                        <div>
+                          <p className="text-sm text-gray-400">Storage Location</p>
+                          <p className="text-white font-medium">{comic.storageLocation}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-
-          {/* Details */}
-          <div className="lg:col-span-3 space-y-8">
-            {/* Title Section */}
-            <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h1 className="text-3xl font-bold text-white mb-2">
-                    {comic.seriesName} #{comic.issueNumber}
-                  </h1>
-                  <h2 className="text-xl text-gray-300 mb-4">{comic.title}</h2>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Star size={24} className="text-amber-400" />
-                  <span className="text-2xl font-bold text-white">{comic.grade}</span>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <Calendar size={20} className="text-blue-400" />
-                    <div>
-                      <p className="text-sm text-gray-400">Release Date</p>
-                      <p className="text-white font-medium">{formatDate(comic.releaseDate)}</p>
-                    </div>
-                  </div>
-                  
-                  {comic.coverArtist && (
-                    <div className="flex items-center space-x-3">
-                      <Palette size={20} className="text-purple-400" />
-                      <div>
-                        <p className="text-sm text-gray-400">Cover Artist</p>
-                        <p className="text-white font-medium">{comic.coverArtist}</p>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {comic.signedBy && (
-                    <div className="flex items-center space-x-3">
-                      <PenTool size={20} className="text-rose-400" />
-                      <div>
-                        <p className="text-sm text-gray-400">Signed By</p>
-                        <p className="text-white font-medium">{comic.signedBy}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <DollarSign size={20} className="text-green-400" />
-                    <div>
-                      <p className="text-sm text-gray-400">Purchase Price</p>
-                      <p className="text-white font-medium text-xl">{formatCurrency(comic.purchasePrice)}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3">
-                    <Calendar size={20} className="text-blue-400" />
-                    <div>
-                      <p className="text-sm text-gray-400">Purchase Date</p>
-                      <p className="text-white font-medium">{formatDate(comic.purchaseDate)}</p>
-                    </div>
-                  </div>
-                  
-                  {comic.storageLocation && (
-                    <div className="flex items-center space-x-3">
-                      <MapPin size={20} className="text-orange-400" />
-                      <div>
-                        <p className="text-sm text-gray-400">Storage Location</p>
-                        <p className="text-white font-medium">{comic.storageLocation}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
 
             {/* Condition & Status */}
             <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
@@ -391,7 +392,6 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
               </div>
             )}
           </div>
-        </div>
       </div>
     </div>
   );
