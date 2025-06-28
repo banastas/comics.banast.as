@@ -18,7 +18,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   showDetailed = false, 
   onViewComic,
   onViewSeries,
-  onViewStorageLocation 
+ onViewStorageLocation,
   onViewRawComics,
   onViewSlabbedComics
 }) => {

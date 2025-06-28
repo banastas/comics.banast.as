@@ -42,7 +42,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
   onViewSeries,
   onViewStorageLocation,
   onViewCoverArtist,
-  onViewTag
+ onViewTag,
   onViewRawComics,
   onViewSlabbedComics
 }) => {
