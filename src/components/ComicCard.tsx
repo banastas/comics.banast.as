@@ -85,86 +85,41 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView, onEdit, onD
           </div>
         </div>
 
-        {/* Status Badges */}
-        <div className="absolute top-2 left-2 flex flex-col space-y-1">
-          {comic.isSlabbed && (
+        {/* Slabbed Indicator */}
+        {comic.isSlabbed && (
+          <div className="absolute top-2 left-2">
             <span className="px-2 py-1 bg-purple-500 text-white text-xs font-medium rounded shadow-lg backdrop-blur-sm">
               Slabbed
             </span>
-          )}
-          {comic.signedBy && (
-            <span className="px-2 py-1 bg-rose-500 text-white text-xs font-medium rounded flex items-center shadow-lg backdrop-blur-sm">
-              <PenTool size={10} className="mr-1" />
-              Signed
-            </span>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Content */}
-      <div className="p-4" onClick={() => onView(comic)}>
-        {/* Title and Issue */}
-        <div className="mb-3">
-          <h3 className="font-bold text-white text-sm mb-1 line-clamp-2">
-            {comic.seriesName} #{comic.issueNumber}
-          </h3>
-          <p className="text-xs text-gray-400 line-clamp-2">{comic.title}</p>
-        </div>
+      <div className="p-3" onClick={() => onView(comic)}>
+        {/* Series Title */}
+        <h3 className="font-bold text-white text-sm mb-1 line-clamp-2">
+          {comic.seriesName}
+        </h3>
+        
+        {/* Issue # and Year */}
+        <p className="text-xs text-gray-400 mb-2">
+          #{comic.issueNumber} ({new Date(comic.releaseDate).getFullYear()})
+        </p>
 
-        {/* Grade and Price */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center space-x-1">
-            <Star size={14} className="text-amber-400" />
-            <span className="text-sm font-semibold text-white">{comic.grade}</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <DollarSign size={14} className="text-green-400" />
-            <span className="text-sm font-semibold text-white">
-              {formatCurrency(comic.purchasePrice)}
-            </span>
-          </div>
-        </div>
-
-        {/* Release Date */}
+        {/* Grade */}
         <div className="flex items-center space-x-1 mb-2">
-          <Calendar size={12} className="text-gray-500" />
-          <span className="text-xs text-gray-400">{formatDate(comic.releaseDate)}</span>
+          <Star size={12} className="text-amber-400" />
+          <span className="text-sm font-semibold text-white">{comic.grade}</span>
         </div>
 
-        {/* Cover Artist */}
-        {comic.coverArtist && (
-          <div className="flex items-center space-x-1 mb-2">
-            <Palette size={12} className="text-gray-500" />
-            <span className="text-xs text-gray-400 truncate">{comic.coverArtist}</span>
-          </div>
-        )}
-
-        {/* Storage Location */}
-        {comic.storageLocation && (
-          <div className="flex items-center space-x-1 mb-3">
-            <MapPin size={12} className="text-gray-500" />
-            <span className="text-xs text-gray-400 truncate">{comic.storageLocation}</span>
-          </div>
-        )}
-
-        {/* Tags */}
-        {comic.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {comic.tags.slice(0, 2).map((tag) => (
-              <span
-                key={tag}
-                className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded border border-blue-500/30"
-              >
-                {tag}
-              </span>
-            ))}
-            {comic.tags.length > 2 && (
-              <span className="px-2 py-1 bg-gray-600/30 text-gray-300 text-xs rounded border border-gray-600/50">
-                +{comic.tags.length - 2}
-              </span>
-            )}
-          </div>
-        )}
+        {/* Current Value */}
+        <div className="flex items-center space-x-1">
+          <DollarSign size={12} className="text-green-400" />
+          <span className="text-sm font-semibold text-white">
+            {comic.currentValue ? formatCurrency(comic.currentValue) : formatCurrency(comic.purchasePrice)}
+          </span>
+        </div>
       </div>
     </div>
   );
