@@ -3,19 +3,21 @@ import { Comic, ComicStats, SortField, SortDirection, FilterOptions } from '../t
 
 const STORAGE_KEY = 'comic-collection';
 
-// Clear any existing data to force reload of new sample data
-const clearOldData = () => {
+// Check if we need to update sample data
+const shouldUpdateSampleData = () => {
   const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored) {
-    try {
-      const parsedComics = JSON.parse(stored);
-      // Check if the first comic has currentValue - if not, clear the data
-      if (parsedComics.length > 0 && parsedComics[0].currentValue === undefined) {
-        localStorage.removeItem(STORAGE_KEY);
-      }
-    } catch (error) {
-      localStorage.removeItem(STORAGE_KEY);
-    }
+  if (!stored) return true;
+  
+  try {
+    const parsedComics = JSON.parse(stored);
+    // Check if we have the new Amazing Spider-Man #301 comic
+    const hasNewComic = parsedComics.some((comic: any) => 
+      comic.id === 'sample-spiderman-301' || 
+      (comic.seriesName === 'The Amazing Spider-Man' && comic.issueNumber === 301)
+    );
+    return !hasNewComic;
+  } catch (error) {
+    return true;
   }
 };
 
@@ -39,6 +41,26 @@ const sampleComics: Comic[] = [
     isSlabbed: true,
     createdAt: '2023-03-15T10:30:00Z',
     updatedAt: '2023-03-15T10:30:00Z',
+  },
+  {
+    id: 'sample-spiderman-301',
+    title: 'The Amazing Spider-Man',
+    seriesName: 'The Amazing Spider-Man',
+    issueNumber: 301,
+    releaseDate: '1988-06-01',
+    coverImageUrl: 'https://images.pexels.com/photos/6373490/pexels-photo-6373490.jpeg?auto=compress&cs=tinysrgb&w=400',
+    coverArtist: 'Todd McFarlane',
+    grade: 9.2,
+    purchasePrice: 125,
+    purchaseDate: '2023-04-10',
+    currentValue: 180,
+    notes: 'Classic Todd McFarlane Spider-Man art. Great condition.',
+    signedBy: '',
+    storageLocation: 'Box A-1',
+    tags: ['spider-man', 'todd mcfarlane', 'classic'],
+    isSlabbed: false,
+    createdAt: '2023-04-10T11:15:00Z',
+    updatedAt: '2023-04-10T11:15:00Z',
   },
   {
     id: 'sample-2',
@@ -284,20 +306,13 @@ export const useComics = () => {
 
   // Load comics from localStorage
   useEffect(() => {
-    clearOldData(); // Clear old data without currentValue
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
+      if (stored && !shouldUpdateSampleData()) {
         const parsedComics = JSON.parse(stored);
-        // Verify the data has current values, otherwise use sample data
-        if (parsedComics.length > 0 && parsedComics[0].currentValue !== undefined) {
-          setComics(parsedComics);
-        } else {
-          setComics(sampleComics);
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(sampleComics));
-        }
+        setComics(parsedComics);
       } else {
-        // If no data exists, populate with sample data
+        // Update with new sample data
         setComics(sampleComics);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(sampleComics));
       }
