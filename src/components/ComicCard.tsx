@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Comic } from '../types/Comic';
-import { Calendar, Star, DollarSign, MapPin, Edit, Trash2, Award, PenTool } from 'lucide-react';
+import { Calendar, Star, DollarSign, MapPin, Edit, Trash2, Award, PenTool, Palette } from 'lucide-react';
 
 interface ComicCardProps {
   comic: Comic;
@@ -129,6 +129,14 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onEdit, onDelete })
           <Calendar size={12} className="text-gray-500" />
           <span className="text-xs text-gray-400">{formatDate(comic.releaseDate)}</span>
         </div>
+
+        {/* Cover Artist */}
+        {comic.coverArtist && (
+          <div className="flex items-center space-x-1 mb-2">
+            <Palette size={12} className="text-gray-500" />
+            <span className="text-xs text-gray-400 truncate">{comic.coverArtist}</span>
+          </div>
+        )}
 
         {/* Storage Location */}
         {comic.storageLocation && (

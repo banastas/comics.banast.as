@@ -5,6 +5,7 @@ export interface Comic {
   issueNumber: number;
   releaseDate: string;
   coverImageUrl: string;
+  coverArtist: string;
   grade: number;
   purchasePrice: number;
   purchaseDate: string;

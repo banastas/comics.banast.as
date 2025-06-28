@@ -27,6 +27,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
     issueNumber: 1,
     releaseDate: '',
     coverImageUrl: '',
+    coverArtist: '',
     grade: 9.0,
     purchasePrice: 0,
     purchaseDate: new Date().toISOString().split('T')[0],
@@ -48,6 +49,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
         issueNumber: comic.issueNumber,
         releaseDate: comic.releaseDate,
         coverImageUrl: comic.coverImageUrl,
+        coverArtist: comic.coverArtist,
         grade: comic.grade,
         purchasePrice: comic.purchasePrice,
         purchaseDate: comic.purchaseDate,
@@ -379,6 +381,20 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                     ))}
                   </div>
                 )}
+              </div>
+
+              {/* Cover Artist */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Cover Artist
+                </label>
+                <input
+                  type="text"
+                  value={formData.coverArtist}
+                  onChange={(e) => handleInputChange('coverArtist', e.target.value)}
+                  className="w-full border border-gray-600 bg-gray-700 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400"
+                  placeholder="Enter cover artist name"
+                />
               </div>
 
               {/* Notes */}
