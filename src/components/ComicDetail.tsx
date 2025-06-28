@@ -175,6 +175,17 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                   <div className="flex items-center space-x-2">
                     <Star size={20} className="text-amber-400" />
                     <span className="text-xl font-bold text-white">Grade: {comic.grade}</span>
+                    <span className={`ml-4 px-2 py-1 text-sm font-medium rounded ${
+                      comic.isSlabbed ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-gray-600/30 text-gray-300 border border-gray-600/50'
+                    }`}>
+                      {comic.isSlabbed ? 'Slabbed' : 'Raw'}
+                    </span>
+                    {comic.signedBy && (
+                      <span className="px-2 py-1 bg-rose-500/20 text-rose-300 text-sm font-medium rounded border border-rose-500/30 flex items-center">
+                        <PenTool size={12} className="mr-1" />
+                        Signed
+                      </span>
+                    )}
                   </div>
                   
                   <div className="flex items-center space-x-3">
@@ -230,71 +241,43 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                       </div>
                     </div>
                   )}
+
+                  {/* Tags */}
+                  {comic.tags.length > 0 && (
+                    <div className="pt-2">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Tag size={16} className="text-blue-400" />
+                        <span className="text-sm text-gray-400">Tags:</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {comic.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="px-2 py-1 bg-blue-500/20 text-blue-300 text-sm rounded border border-blue-500/30"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Notes */}
+                  {comic.notes && (
+                    <div className="pt-2">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <FileText size={16} className="text-green-400" />
+                        <span className="text-sm text-gray-400">Notes:</span>
+                      </div>
+                      <div className="bg-gray-700/50 rounded-lg p-3 border border-gray-600">
+                        <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">{comic.notes}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           </div>
-
-            {/* Condition & Status */}
-            <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-                <Archive size={20} className="mr-2 text-indigo-400" />
-                Condition & Status
-              </h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-gray-700/50 rounded-lg border border-gray-600">
-                  <Star size={24} className="mx-auto mb-2 text-amber-400" />
-                  <p className="text-sm text-gray-400 mb-1">Grade</p>
-                  <p className="text-xl font-bold text-white">{comic.grade}</p>
-                </div>
-                
-                <div className="text-center p-4 bg-gray-700/50 rounded-lg border border-gray-600">
-                  <Archive size={24} className={`mx-auto mb-2 ${comic.isSlabbed ? 'text-purple-400' : 'text-gray-500'}`} />
-                  <p className="text-sm text-gray-400 mb-1">Condition</p>
-                  <p className="text-lg font-semibold text-white">{comic.isSlabbed ? 'Slabbed' : 'Raw'}</p>
-                </div>
-                
-                <div className="text-center p-4 bg-gray-700/50 rounded-lg border border-gray-600">
-                  <PenTool size={24} className={`mx-auto mb-2 ${comic.signedBy ? 'text-rose-400' : 'text-gray-500'}`} />
-                  <p className="text-sm text-gray-400 mb-1">Signature</p>
-                  <p className="text-lg font-semibold text-white">{comic.signedBy ? 'Signed' : 'Not Signed'}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Tags */}
-            {comic.tags.length > 0 && (
-              <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-                  <Tag size={20} className="mr-2 text-blue-400" />
-                  Tags
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {comic.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-3 py-1 bg-blue-500/20 text-blue-300 text-sm rounded-full border border-blue-500/30 hover:bg-blue-500/30 transition-colors"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Notes */}
-            {comic.notes && (
-              <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-                  <FileText size={20} className="mr-2 text-green-400" />
-                  Notes
-                </h3>
-                <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
-                  <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">{comic.notes}</p>
-                </div>
-              </div>
-            )}
 
             {/* Metadata */}
             <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
