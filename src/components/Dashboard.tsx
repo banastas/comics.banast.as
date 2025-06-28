@@ -18,7 +18,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   showDetailed = false, 
   onViewComic,
   onViewSeries,
- onViewStorageLocation,
+  onViewStorageLocation,
   onViewRawComics,
   onViewSlabbedComics
 }) => {
@@ -104,34 +104,34 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   return (
     <div className={showDetailed ? "space-y-8" : "mb-8"}>
-
       <div className={`grid grid-cols-2 md:grid-cols-3 gap-4 ${showDetailed ? 'lg:grid-cols-4' : 'lg:grid-cols-4'} mb-6`}>
-      <div className={`grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 ${showDetailed ? 'lg:grid-cols-4 xl:grid-cols-5' : 'lg:grid-cols-4 xl:grid-cols-6'} mb-4 sm:mb-6`}>
-        {statsCards.map((stat) => (
-          <div
-            key={stat.title}
-            className={`bg-gray-800 rounded-lg shadow-lg border ${stat.borderColor} p-4 hover:shadow-xl transition-all duration-200 ${stat.bgColor} ${
-              (stat.title === 'Slabbed Comics' || stat.title === 'Raw Comics') ? 'cursor-pointer' : ''
-            }`}
-            onClick={() => {
-              if (stat.title === 'Slabbed Comics') {
-                onViewSlabbedComics?.();
-              } else if (stat.title === 'Raw Comics') {
-                onViewRawComics?.();
-              }
-            }}
-          >
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-xs sm:text-sm font-medium text-gray-400 mb-1">{stat.title}</p>
-                <p className="text-lg sm:text-xl font-bold text-white">{stat.value}</p>
-              </div>
-              <div className={`${stat.color} p-1.5 sm:p-2 rounded-lg shadow-lg self-end sm:self-auto mt-2 sm:mt-0`}>
-                <stat.icon size={16} className="text-white sm:w-5 sm:h-5" />
+        <div className={`grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 ${showDetailed ? 'lg:grid-cols-4 xl:grid-cols-5' : 'lg:grid-cols-4 xl:grid-cols-6'} mb-4 sm:mb-6`}>
+          {statsCards.map((stat) => (
+            <div
+              key={stat.title}
+              className={`bg-gray-800 rounded-lg shadow-lg border ${stat.borderColor} p-4 hover:shadow-xl transition-all duration-200 ${stat.bgColor} ${
+                (stat.title === 'Slabbed Comics' || stat.title === 'Raw Comics') ? 'cursor-pointer' : ''
+              }`}
+              onClick={() => {
+                if (stat.title === 'Slabbed Comics') {
+                  onViewSlabbedComics?.();
+                } else if (stat.title === 'Raw Comics') {
+                  onViewRawComics?.();
+                }
+              }}
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-xs sm:text-sm font-medium text-gray-400 mb-1">{stat.title}</p>
+                  <p className="text-lg sm:text-xl font-bold text-white">{stat.value}</p>
+                </div>
+                <div className={`${stat.color} p-1.5 sm:p-2 rounded-lg shadow-lg self-end sm:self-auto mt-2 sm:mt-0`}>
+                  <stat.icon size={16} className="text-white sm:w-5 sm:h-5" />
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* Performance Highlights */}
