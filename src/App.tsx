@@ -13,7 +13,7 @@ import { TagDetail } from './components/TagDetail';
 import { RawComicsDetail } from './components/RawComicsDetail';
 import { SlabbedComicsDetail } from './components/SlabbedComicsDetail';
 import { Comic } from './types/Comic';
-import { BookOpen, Plus, BarChart3 } from 'lucide-react';
+import { BookOpen, Plus, BarChart3, Settings } from 'lucide-react';
 
 function App() {
   const {
@@ -587,7 +587,7 @@ function App() {
                                 comic.currentValue >= comic.purchasePrice ? 'text-emerald-400' : 'text-red-400'
                               }`}>
                                 Now: {comic.currentValue.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
-                          </p>
+                              </p>
                             )}
                           </div>
                         </div>
@@ -637,8 +637,21 @@ function App() {
           </div>
         )}
 
-        />
-      )}
+        {activeTab === 'data' && (
+          <DataManager />
+        )}
+
+        {showForm && (
+          <ComicForm
+            comic={editingComic}
+            onSave={handleSaveComic}
+            onClose={() => {
+              setShowForm(false);
+              setEditingComic(null);
+            }}
+          />
+        )}
+      </main>
     </div>
   );
 }
