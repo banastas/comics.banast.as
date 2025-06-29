@@ -35,7 +35,6 @@ function App() {
   const [showForm, setShowForm] = useState(false);
   const [editingComic, setEditingComic] = useState<Comic | null>(null);
   const [activeTab, setActiveTab] = useState<'collection' | 'stats' | 'data'>('collection');
-  const [activeTab, setActiveTab] = useState<'collection' | 'stats'>('collection');
   const [selectedComic, setSelectedComic] = useState<Comic | null>(null);
   const [selectedSeries, setSelectedSeries] = useState<string | null>(null);
   const [selectedStorageLocation, setSelectedStorageLocation] = useState<string | null>(null);
