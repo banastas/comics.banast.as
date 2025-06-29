@@ -15,7 +15,7 @@ import { Comic } from './types/Comic';
 import { BookOpen, Plus, BarChart3, Settings } from 'lucide-react';
 
 function App() {
-  const { comics, addComic, updateComic, deleteComic } = useComics();
+  const { comics, addComic, updateComic, deleteComic, stats, allComics } = useComics();
   const [currentView, setCurrentView] = useState<string>('dashboard');
   const [selectedComic, setSelectedComic] = useState<Comic | null>(null);
   const [selectedSeries, setSelectedSeries] = useState<string>('');
@@ -25,6 +25,10 @@ function App() {
   const [showForm, setShowForm] = useState(false);
   const [editingComic, setEditingComic] = useState<Comic | null>(null);
   const [filteredComics, setFilteredComics] = useState<Comic[]>(comics);
+
+  // Derive series and storage locations for ComicForm
+  const allSeries = Array.from(new Set(allComics.map(comic => comic.series).filter(Boolean)));
+  const allStorageLocations = Array.from(new Set(allComics.map(comic => comic.storageLocation).filter(Boolean)));
 
   const handleSaveComic = (comic: Comic) => {
     if (editingComic) {
@@ -45,12 +49,20 @@ function App() {
     deleteComic(id);
   };
 
+  const handleViewComic = (comic: Comic) => {
+    setSelectedComic(comic);
+    setCurrentView('detail');
+  };
+
   const renderContent = () => {
     switch (currentView) {
       case 'dashboard':
         return (
           <Dashboard
             comics={comics}
+            stats={stats}
+            showDetailed={true}
+            onViewComic={handleViewComic}
             onViewSeries={(series) => {
               setSelectedSeries(series);
               setCurrentView('series');
@@ -95,12 +107,32 @@ function App() {
         return selectedComic ? (
           <ComicDetail
             comic={selectedComic}
+            allComics={allComics}
+            onView={handleViewComic}
             onBack={() => setCurrentView('comics')}
             onEdit={() => handleEditComic(selectedComic)}
             onDelete={() => {
               handleDeleteComic(selectedComic.id);
               setCurrentView('comics');
             }}
+            onViewSeries={(series) => {
+              setSelectedSeries(series);
+              setCurrentView('series');
+            }}
+            onViewStorageLocation={(location) => {
+              setSelectedLocation(location);
+              setCurrentView('location');
+            }}
+            onViewCoverArtist={(artist) => {
+              setSelectedArtist(artist);
+              setCurrentView('artist');
+            }}
+            onViewTag={(tag) => {
+              setSelectedTag(tag);
+              setCurrentView('tag');
+            }}
+            onViewRawComics={() => setCurrentView('raw')}
+            onViewSlabbedComics={() => setCurrentView('slabbed')}
           />
         ) : null;
       case 'series':
@@ -174,7 +206,7 @@ function App() {
           />
         );
       default:
-        return <Dashboard comics={comics} onViewSeries={() => {}} onViewLocation={() => {}} onViewArtist={() => {}} onViewTag={() => {}} onViewRawComics={() => {}} onViewSlabbedComics={() => {}} />;
+        return <Dashboard comics={comics} stats={stats} showDetailed={false} onViewComic={() => {}} onViewSeries={() => {}} onViewLocation={() => {}} onViewArtist={() => {}} onViewTag={() => {}} onViewRawComics={() => {}} onViewSlabbedComics={() => {}} />;
     }
   };
 
@@ -228,6 +260,8 @@ function App() {
         {showForm && (
           <ComicForm
             comic={editingComic}
+            allSeries={allSeries}
+            allStorageLocations={allStorageLocations}
             onSave={handleSaveComic}
             onCancel={() => {
               setShowForm(false);
