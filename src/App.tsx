@@ -30,13 +30,10 @@ function App() {
     setFilters,
     setSortField,
     setSortDirection,
-    exportData,
-    importData,
   } = useComics();
 
   const [showForm, setShowForm] = useState(false);
   const [editingComic, setEditingComic] = useState<Comic | null>(null);
-  const [showDataManager, setShowDataManager] = useState(false);
   const [activeTab, setActiveTab] = useState<'collection' | 'stats' | 'data'>('collection');
   const [selectedComic, setSelectedComic] = useState<Comic | null>(null);
   const [selectedSeries, setSelectedSeries] = useState<string | null>(null);
@@ -71,9 +68,6 @@ function App() {
     }
   };
 
-  const handleClearAll = () => {
-    importData(new File(['[]'], 'empty.json', { type: 'application/json' }), false);
-  };
 
   const handleViewComic = (comic: Comic) => {
     setSelectedComic(comic);
@@ -374,8 +368,7 @@ function App() {
             >
               <div className="flex items-center space-x-1 sm:space-x-2 whitespace-nowrap">
                 <Settings size={16} />
-                <span className="hidden sm:inline">Data Management</span>
-                <span className="sm:hidden">Data</span>
+                <span>Settings</span>
               </div>
             </button>
           </nav>
@@ -645,12 +638,13 @@ function App() {
         )}
 
         {activeTab === 'data' && (
-          <DataManager
-            onExport={exportData}
-            onImport={importData}
-            onClearAll={handleClearAll}
-            totalComics={allComics.length}
-          />
+          <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">Settings</h3>
+            <p className="text-gray-400">
+              Comic data is managed directly in the code. To add or modify comics, 
+              update the comics.json file in the src/data directory.
+            </p>
+          </div>
         )}
       </main>
 
