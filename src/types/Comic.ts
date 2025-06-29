@@ -15,6 +15,8 @@ export interface Comic {
   storageLocation: string;
   tags: string[];
   isSlabbed: boolean;
+  isVariant?: boolean;
+  isGraphicNovel?: boolean;
   createdAt: string;
   updatedAt: string;
 }

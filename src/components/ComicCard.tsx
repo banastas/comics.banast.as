@@ -85,6 +85,20 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView, onEdit, onD
             </span>
           </div>
         )}
+
+        {/* Variant and Graphic Novel Indicators */}
+        <div className="absolute bottom-1 sm:bottom-2 left-1 sm:left-2 flex flex-col space-y-1">
+          {comic.isVariant && (
+            <span className="px-1 sm:px-2 py-0.5 sm:py-1 bg-orange-500 text-white text-xs font-medium rounded shadow-lg backdrop-blur-sm">
+              Variant
+            </span>
+          )}
+          {comic.isGraphicNovel && (
+            <span className="px-1 sm:px-2 py-0.5 sm:py-1 bg-emerald-500 text-white text-xs font-medium rounded shadow-lg backdrop-blur-sm">
+              GN
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Content */}

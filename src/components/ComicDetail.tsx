@@ -224,6 +224,17 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                       {comic.isSlabbed ? 'Slabbed' : 'Raw'}
                     </span>
                       
+                      {comic.isVariant && (
+                        <span className="inline-block px-3 py-1 bg-orange-500/20 text-orange-300 text-sm font-medium rounded border border-orange-500/30">
+                          Variant Cover
+                        </span>
+                      )}
+                      
+                      {comic.isGraphicNovel && (
+                        <span className="inline-block px-3 py-1 bg-emerald-500/20 text-emerald-300 text-sm font-medium rounded border border-emerald-500/30">
+                          Graphic Novel
+                        </span>
+                      )}
                     </div>
                     
                     {comic.signedBy && (

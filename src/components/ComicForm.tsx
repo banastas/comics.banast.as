@@ -37,6 +37,8 @@ export const ComicForm: React.FC<ComicFormProps> = ({
     storageLocation: '',
     tags: [] as string[],
     isSlabbed: false,
+    isVariant: false,
+    isGraphicNovel: false,
   });
 
   const [tagInput, setTagInput] = useState('');
@@ -60,6 +62,8 @@ export const ComicForm: React.FC<ComicFormProps> = ({
         storageLocation: comic.storageLocation,
         tags: [...comic.tags],
         isSlabbed: comic.isSlabbed,
+        isVariant: comic.isVariant || false,
+        isGraphicNovel: comic.isGraphicNovel || false,
       });
     }
   }, [comic]);
@@ -355,6 +359,32 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                     className="rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-400 w-4 h-4"
                   />
                   <span className="text-xs sm:text-sm font-medium text-gray-300">Slabbed</span>
+                </label>
+              </div>
+
+              {/* Is Variant */}
+              <div>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.isVariant}
+                    onChange={(e) => handleInputChange('isVariant', e.target.checked)}
+                    className="rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-400 w-4 h-4"
+                  />
+                  <span className="text-xs sm:text-sm font-medium text-gray-300">Variant Cover</span>
+                </label>
+              </div>
+
+              {/* Is Graphic Novel */}
+              <div>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.isGraphicNovel}
+                    onChange={(e) => handleInputChange('isGraphicNovel', e.target.checked)}
+                    className="rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-400 w-4 h-4"
+                  />
+                  <span className="text-xs sm:text-sm font-medium text-gray-300">Graphic Novel</span>
                 </label>
               </div>
 
