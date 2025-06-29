@@ -6,7 +6,6 @@ import {
   Star, 
   DollarSign, 
   MapPin, 
-  Trash2, 
   Award, 
   PenTool, 
   Palette,
@@ -109,17 +108,6 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
               <ArrowLeft size={20} />
               <span>Back to Collection</span>
             </button>
-            
-            <div className="flex items-center space-x-4">
-              {/* Edit button removed */}
-              <button
-                onClick={handleDelete}
-                className="flex items-center space-x-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors shadow-lg"
-              >
-                <Trash2 size={16} />
-                <span>Delete</span>
-              </button>
-            </div>
           </div>
         </div>
       </div>
