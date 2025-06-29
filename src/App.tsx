@@ -574,7 +574,7 @@ function App() {
                               {comic.seriesName} #{comic.issueNumber}
                             </p>
                             <p className="text-sm text-gray-400">
-                              Added {new Date(comic.createdAt).toLocaleDateString()}
+                              {series.purchaseValue > 0 && ` (${series.gainLossPercentage >= 0 ? '+' : ''}${series.gainLossPercentage.toFixed(1)}%)`}
                             </p>
                           </div>
                           <div className="text-right">
@@ -586,6 +586,7 @@ function App() {
                                 comic.currentValue >= comic.purchasePrice ? 'text-emerald-400' : 'text-red-400'
                               }`}>
                                 Now: {comic.currentValue.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
+                                {comic.purchasePrice > 0 && ` (${((comic.currentValue - comic.purchasePrice) / comic.purchasePrice * 100).toFixed(1)}%)`}
                           </p>
                             )}
                           </div>

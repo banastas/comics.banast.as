@@ -210,7 +210,7 @@ export const SeriesDetail: React.FC<SeriesDetailProps> = ({
                       {gainLoss >= 0 ? '+' : ''}{formatCurrency(gainLoss)}
                     </p>
                     <p className={`text-xs ${gainLoss >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                      ({gainLossPercentage >= 0 ? '+' : ''}{gainLossPercentage.toFixed(1)}%)
+                      {totalValue > 0 && `(${gainLossPercentage >= 0 ? '+' : ''}${gainLossPercentage.toFixed(1)}%)`}
                     </p>
                   </div>
                   {gainLoss >= 0 ? (
@@ -402,6 +402,7 @@ export const SeriesDetail: React.FC<SeriesDetailProps> = ({
                             }`}>
                               {comic.currentValue > comic.purchasePrice ? '+' : ''}
                               {formatCurrency(comic.currentValue - comic.purchasePrice)}
+                              {comic.purchasePrice > 0 && ` (${((comic.currentValue - comic.purchasePrice) / comic.purchasePrice * 100).toFixed(1)}%)`}
                             </p>
                           )}
                         </div>

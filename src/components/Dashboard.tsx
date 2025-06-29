@@ -160,7 +160,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   <p className="text-lg sm:text-xl font-bold">Current: {formatCurrency(stats.biggestGainer.currentValue || 0)}</p>
                   <p className="text-xs sm:text-sm font-medium">
                     +{formatCurrency((stats.biggestGainer.currentValue || 0) - stats.biggestGainer.purchasePrice)} 
-                    ({formatPercentage(((stats.biggestGainer.currentValue || 0) - stats.biggestGainer.purchasePrice) / stats.biggestGainer.purchasePrice * 100)})
+                    {stats.biggestGainer.purchasePrice > 0 && ` (${formatPercentage(((stats.biggestGainer.currentValue || 0) - stats.biggestGainer.purchasePrice) / stats.biggestGainer.purchasePrice * 100)})`}
                   </p>
                 </div>
               </div>
@@ -192,7 +192,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   <p className="text-lg sm:text-xl font-bold">Current: {formatCurrency(stats.biggestLoser.currentValue || 0)}</p>
                   <p className="text-xs sm:text-sm font-medium">
                     {formatCurrency((stats.biggestLoser.currentValue || 0) - stats.biggestLoser.purchasePrice)} 
-                    ({formatPercentage(((stats.biggestLoser.currentValue || 0) - stats.biggestLoser.purchasePrice) / stats.biggestLoser.purchasePrice * 100)})
+                    {stats.biggestLoser.purchasePrice > 0 && ` (${formatPercentage(((stats.biggestLoser.currentValue || 0) - stats.biggestLoser.purchasePrice) / stats.biggestLoser.purchasePrice * 100)})`}
                   </p>
                 </div>
               </div>

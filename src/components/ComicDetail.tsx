@@ -273,7 +273,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                             }`}>
                               {comic.currentValue > comic.purchasePrice ? '+' : ''}
                               {formatCurrency(comic.currentValue - comic.purchasePrice)} 
-                              ({((comic.currentValue - comic.purchasePrice) / comic.purchasePrice * 100).toFixed(1)}%)
+                              {comic.purchasePrice > 0 && ` (${((comic.currentValue - comic.purchasePrice) / comic.purchasePrice * 100).toFixed(1)}%)`}
                             </p>
                           )}
                         </div>
