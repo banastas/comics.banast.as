@@ -13,7 +13,7 @@ import { TagDetail } from './components/TagDetail';
 import { RawComicsDetail } from './components/RawComicsDetail';
 import { SlabbedComicsDetail } from './components/SlabbedComicsDetail';
 import { Comic } from './types/Comic';
-import { BookOpen, Plus, Settings, BarChart3 } from 'lucide-react';
+import { BookOpen, Plus, BarChart3 } from 'lucide-react';
 
 function App() {
   const {
@@ -35,6 +35,7 @@ function App() {
   const [showForm, setShowForm] = useState(false);
   const [editingComic, setEditingComic] = useState<Comic | null>(null);
   const [activeTab, setActiveTab] = useState<'collection' | 'stats' | 'data'>('collection');
+  const [activeTab, setActiveTab] = useState<'collection' | 'stats'>('collection');
   const [selectedComic, setSelectedComic] = useState<Comic | null>(null);
   const [selectedSeries, setSelectedSeries] = useState<string | null>(null);
   const [selectedStorageLocation, setSelectedStorageLocation] = useState<string | null>(null);
@@ -637,28 +638,6 @@ function App() {
           </div>
         )}
 
-        {activeTab === 'data' && (
-          <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Settings</h3>
-            <p className="text-gray-400">
-              Comic data is managed directly in the code. To add or modify comics, 
-              update the comics.json file in the src/data directory.
-            </p>
-          </div>
-        )}
-      </main>
-
-      {/* Comic Form Modal */}
-      {showForm && (
-        <ComicForm
-          comic={editingComic}
-          onSave={handleSaveComic}
-          onCancel={() => {
-            setShowForm(false);
-            setEditingComic(null);
-          }}
-          allSeries={allSeries}
-          allStorageLocations={allStorageLocations}
         />
       )}
     </div>
