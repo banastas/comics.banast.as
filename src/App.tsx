@@ -13,7 +13,7 @@ import { TagDetail } from './components/TagDetail';
 import { RawComicsDetail } from './components/RawComicsDetail';
 import { SlabbedComicsDetail } from './components/SlabbedComicsDetail';
 import { Comic } from './types/Comic';
-import { BookOpen, Plus, Settings, BarChart3 } from 'lucide-react';
+import { BookOpen, Plus, BarChart3 } from 'lucide-react';
 
 function App() {
   const {
@@ -34,7 +34,7 @@ function App() {
 
   const [showForm, setShowForm] = useState(false);
   const [editingComic, setEditingComic] = useState<Comic | null>(null);
-  const [activeTab, setActiveTab] = useState<'collection' | 'stats' | 'data'>('collection');
+  const [activeTab, setActiveTab] = useState<'collection' | 'stats'>('collection');
   const [selectedComic, setSelectedComic] = useState<Comic | null>(null);
   const [selectedSeries, setSelectedSeries] = useState<string | null>(null);
   const [selectedStorageLocation, setSelectedStorageLocation] = useState<string | null>(null);
@@ -315,14 +315,14 @@ function App() {
             </div>
             
             <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
-              <button
+              {/* <button
                 onClick={() => setShowForm(true)}
                 className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors shadow-lg"
               >
                 <Plus size={16} />
                 <span className="hidden sm:inline">Add Comic</span>
                 <span className="sm:hidden">Add</span>
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
@@ -358,7 +358,7 @@ function App() {
                 <span>Statistics</span>
               </div>
             </button>
-            <button
+            {/* <button
               onClick={() => setActiveTab('data')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'data'
@@ -370,7 +370,7 @@ function App() {
                 <Settings size={16} />
                 <span>Settings</span>
               </div>
-            </button>
+            </button> */}
           </nav>
         </div>
       </div>
@@ -637,7 +637,7 @@ function App() {
           </div>
         )}
 
-        {activeTab === 'data' && (
+        {/* {activeTab === 'data' && (
           <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
             <h3 className="text-lg font-semibold text-white mb-4">Settings</h3>
             <p className="text-gray-400">
@@ -645,7 +645,7 @@ function App() {
               update the comics.json file in the src/data directory.
             </p>
           </div>
-        )}
+        )} */}
       </main>
 
       {/* Comic Form Modal */}
