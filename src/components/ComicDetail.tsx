@@ -6,7 +6,6 @@ import {
   Star, 
   DollarSign, 
   MapPin, 
-  Edit, 
   Trash2, 
   Award, 
   PenTool, 
@@ -112,13 +111,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
             </button>
             
             <div className="flex items-center space-x-4">
-              <button
-                onClick={() => onEdit(comic)}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors shadow-lg"
-              >
-                <Edit size={16} />
-                <span>Edit</span>
-              </button>
+              {/* Edit button removed */}
               <button
                 onClick={handleDelete}
                 className="flex items-center space-x-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors shadow-lg"

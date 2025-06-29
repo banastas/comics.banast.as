@@ -13,7 +13,6 @@ import {
   BarChart3,
   Grid,
   List,
-  Edit,
   Package
 } from 'lucide-react';
 
@@ -358,16 +357,7 @@ export const StorageLocationDetail: React.FC<StorageLocationDetailProps> = ({
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex space-x-1">
-                          <button
-                            onClick={() => onEdit(comic)}
-                            className="p-1 bg-gray-900/80 text-white rounded hover:bg-gray-900/90 transition-colors backdrop-blur-sm"
-                          >
-                            <Edit size={12} />
-                          </button>
-                        </div>
-                      </div>
+                      {/* Action Buttons - Edit button removed */}
                     </div>
                     
                     <div className="p-3">
@@ -455,12 +445,7 @@ export const StorageLocationDetail: React.FC<StorageLocationDetailProps> = ({
                         </div>
                         
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            onClick={() => onEdit(comic)}
-                            className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                          >
-                            <Edit size={14} />
-                          </button>
+                          {/* Edit button removed */}
                         </div>
                       </div>
                     </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Comic } from '../types/Comic';
-import { Calendar, Star, DollarSign, MapPin, Edit, Trash2, Award, PenTool, Palette } from 'lucide-react';
+import { Calendar, Star, DollarSign, MapPin, Trash2, Award, PenTool, Palette } from 'lucide-react';
 
 interface ComicCardProps {
   comic: Comic;
@@ -68,14 +68,7 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView, onEdit, onD
         )}
         
         {/* Action Buttons */}
-        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200" onClick={(e) => e.stopPropagation()}>
-          <button
-            onClick={() => onEdit(comic)}
-            className="p-1 sm:p-1.5 bg-gray-900/80 text-white rounded hover:bg-gray-900/90 transition-colors backdrop-blur-sm"
-          >
-            <Edit size={12} className="sm:w-3.5 sm:h-3.5" />
-          </button>
-        </div>
+        {/* Action Buttons - Edit button removed */}
 
         {/* Slabbed Indicator */}
         {comic.isSlabbed && (
