@@ -501,8 +501,7 @@ function App() {
                               <p className={`text-sm font-medium ${
                                 series.gainLoss >= 0 ? 'text-emerald-400' : 'text-red-400'
                               }`}>
-                                {series.gainLoss >= 0 ? '+' : ''}{series.gainLoss.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })} 
-                                ({series.gainLossPercentage >= 0 ? '+' : ''}{series.gainLossPercentage.toFixed(1)}%)
+                                {series.gainLoss >= 0 ? '+' : ''}{series.gainLoss.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })} ({series.gainLossPercentage >= 0 ? '+' : ''}{series.gainLossPercentage.toFixed(1)}%)
                               </p>
                             </div>
                           </div>
