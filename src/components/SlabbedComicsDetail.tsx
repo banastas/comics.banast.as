@@ -1,6 +1,14 @@
+Here's the fixed version with all missing brackets added:
+
 import React, { useState } from 'react';
+import { 
+  ArrowLeft, 
+  Archive,
+  Grid,
+  List,
   Star,
   Award,
+} from 'lucide-react';
 import { Comic, ComicStats } from '../types/Comic';
 import { Dashboard } from './Dashboard';
 import { Dashboard } from './Dashboard';
@@ -70,45 +78,6 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
     const biggestGain = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : -Infinity;
     return gain > biggestGain ? comic : biggest;
   }, null as Comic | null);
-    const gain = (comic.currentValue || 0) - comic.purchasePrice;
-    const biggestGain = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : -Infinity;
-    return gain > biggestGain ? comic : biggest;
-  }, null as Comic | null);
-
-  const biggestLoser = slabbedComicsWithCurrentValue.reduce((biggest, comic) => {
-    const loss = (comic.currentValue || 0) - comic.purchasePrice;
-    const biggestLoss = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : Infinity;
-    return loss < biggestLoss ? comic : biggest;
-  }, null as Comic | null);
-
-  const slabbedComicsStats: ComicStats = {
-    totalComics: slabbedComics.length,
-    totalValue: totalPurchaseValue,
-    totalPurchaseValue,
-    totalCurrentValue,
-    highestValuedComic: slabbedComics.reduce((highest, comic) => {
-      const comicValue = comic.currentValue || comic.purchasePrice;
-      const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
-      return comicValue > highestValue ? comic : highest;
-    }, null as Comic | null),
-    highestValuedSlabbedComic: slabbedComics.reduce((highest, comic) => {
-      const comicValue = comic.currentValue || comic.purchasePrice;
-      const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
-      return comicValue > highestValue ? comic : highest;
-    }, null as Comic | null),
-    highestValuedRawComic: null, // No raw comics in slabbed view
-    biggestGainer,
-    biggestLoser,
-    rawComics: 0, // No raw comics in slabbed view
-    slabbedComics: slabbedComics.length,
-    signedComics: slabbedComics.filter(comic => comic.signedBy.trim() !== '').length,
-    averageGrade: slabbedComics.length > 0 ? slabbedComics.reduce((sum, comic) => sum + comic.grade, 0) / slabbedComics.length : 0,
-    totalGainLoss,
-    totalGainLossPercentage: slabbedComicsWithCurrentValue.length > 0 && slabbedComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0) > 0
-      ? (totalGainLoss / slabbedComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0)) * 100 
-      : 0,
-    comicsWithCurrentValue: slabbedComicsWithCurrentValue.length,
-  };
 
   const biggestLoser = slabbedComicsWithCurrentValue.reduce((biggest, comic) => {
     const loss = (comic.currentValue || 0) - comic.purchasePrice;
@@ -251,8 +220,11 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
                         • {uniqueSeries.length} series
                       </span>
                     )}
+                  </p>
+                </div>
+              </div>
+            </div>
 
-            <Dashboard 
             <Dashboard 
               stats={slabbedComicsStats} 
               showDetailed={true}
@@ -262,61 +234,61 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
               onViewRawComics={() => {}} // No raw comics in this view
               onViewSlabbedComics={() => {}} // Already in slabbed comics view
             />
-              <div className="mt-6 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg p-4 text-white">
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                {sortedComics.map((comic) => (
-                  <div
-                    key={comic.id}
-                    className="bg-gray-700/50 rounded-lg border border-gray-600 overflow-hidden hover:border-blue-500 transition-all cursor-pointer group"
-                    onClick={() => onView(comic)}
-                  >
-                    <div className="relative aspect-[2/3] bg-gray-600">
-                      {comic.coverImageUrl ? (
-                        <img
-                          src={comic.coverImageUrl}
-                          alt={`${comic.seriesName} #${comic.issueNumber}`}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Award size={32} className="text-gray-500" />
-                        </div>
-                      )}
-                      
-                      {/* Status Badges */}
-                      <div className="absolute top-1 left-1 flex flex-col space-y-1">
-                        <span className="px-1 py-0.5 bg-purple-500 text-white text-xs font-medium rounded">
-                          Slabbed
-                        </span>
-                        {comic.signedBy && (
-                          <span className="px-1 py-0.5 bg-rose-500 text-white text-xs font-medium rounded">
-                            Signed
-                          </span>
-                        )}
-                      </div>
 
-                      {/* Action Buttons */}
-                      {/* Action Buttons - Edit button removed */}
-                    </div>
-                    
-                    <div className="p-3">
-                      <p className="font-medium text-white text-sm truncate mb-1">{comic.seriesName}</p>
-                      <div className="flex items-center justify-between mb-1">
-                        <p className="text-xs text-gray-400">#{comic.issueNumber}</p>
-                        <div className="flex items-center space-x-1">
-                          <Star size={10} className="text-amber-400" />
-                          <span className="text-xs text-white">{comic.grade}</span>
+            {viewMode === 'grid' ? (
+              <div className="mt-6 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg p-4 text-white">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  {sortedComics.map((comic) => (
+                    <div
+                      key={comic.id}
+                      className="bg-gray-700/50 rounded-lg border border-gray-600 overflow-hidden hover:border-blue-500 transition-all cursor-pointer group"
+                      onClick={() => onView(comic)}
+                    >
+                      <div className="relative aspect-[2/3] bg-gray-600">
+                        {comic.coverImageUrl ? (
+                          <img
+                            src={comic.coverImageUrl}
+                            alt={`${comic.seriesName} #${comic.issueNumber}`}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Award size={32} className="text-gray-500" />
+                          </div>
+                        )}
+                        
+                        {/* Status Badges */}
+                        <div className="absolute top-1 left-1 flex flex-col space-y-1">
+                          <span className="px-1 py-0.5 bg-purple-500 text-white text-xs font-medium rounded">
+                            Slabbed
+                          </span>
+                          {comic.signedBy && (
+                            <span className="px-1 py-0.5 bg-rose-500 text-white text-xs font-medium rounded">
+                              Signed
+                            </span>
+                          )}
                         </div>
                       </div>
-                      <p className="text-xs text-gray-400 mb-1">
-                        {new Date(comic.releaseDate).getFullYear()}
-                      </p>
-                      <p className="text-xs font-semibold text-green-400">
-                        {formatCurrency(comic.currentValue || comic.purchasePrice)}
-                      </p>
+                      
+                      <div className="p-3">
+                        <p className="font-medium text-white text-sm truncate mb-1">{comic.seriesName}</p>
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="text-xs text-gray-400">#{comic.issueNumber}</p>
+                          <div className="flex items-center space-x-1">
+                            <Star size={10} className="text-amber-400" />
+                            <span className="text-xs text-white">{comic.grade}</span>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-400 mb-1">
+                          {new Date(comic.releaseDate).getFullYear()}
+                        </p>
+                        <p className="text-xs font-semibold text-green-400">
+                          {formatCurrency(comic.currentValue || comic.purchasePrice)}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="space-y-2">
@@ -383,9 +355,16 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
                         </div>
                         
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
-                          {/* Edit button removed */}
                         </div>
                       </div>
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
