@@ -14,8 +14,8 @@ import { TagDetail } from './components/TagDetail';
 import { RawComicsDetail } from './components/RawComicsDetail';
 import { SlabbedComicsDetail } from './components/SlabbedComicsDetail';
 import { Comic } from './types/Comic';
-import { BookOpen, Plus, BarChart3, Grid, List, SortAsc, SortDesc } from 'lucide-react';
-import { SortField } from './types/Comic';
+import { BookOpen, Plus, BarChart3, Grid, List, SortAsc, SortDesc, Search, Filter, X } from 'lucide-react';
+import { SortField, FilterOptions } from './types/Comic';
 
 function App() {
   const {
@@ -44,11 +44,33 @@ function App() {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [selectedCondition, setSelectedCondition] = useState<'raw' | 'slabbed' | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   // Get unique values for filters
   const allSeries = Array.from(new Set(allComics.map(comic => comic.seriesName))).sort();
   const allStorageLocations = Array.from(new Set(allComics.map(comic => comic.storageLocation).filter(Boolean))).sort();
   const allTags = Array.from(new Set(allComics.flatMap(comic => comic.tags))).sort();
+
+  // Check if filters are active
+  const hasActiveFilters = filters.searchTerm || filters.seriesName || 
+    filters.minGrade > 0.5 || filters.maxGrade < 10.0 || 
+    filters.minPrice > 0 || filters.maxPrice < 10000 ||
+    filters.isSlabbed !== null || filters.isSigned !== null || 
+    filters.tags.length > 0;
+
+  const clearFilters = () => {
+    setFilters({
+      searchTerm: '',
+      seriesName: '',
+      minGrade: 0.5,
+      maxGrade: 10.0,
+      minPrice: 0,
+      maxPrice: 10000,
+      isSlabbed: null,
+      isSigned: null,
+      tags: [],
+    });
+  };
 
   const handleSaveComic = (comicData: Omit<Comic, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (editingComic) {
@@ -317,6 +339,46 @@ function App() {
               </div>
             </div>
             
+            {/* Search and Controls - Only show on collection tab */}
+            {activeTab === 'collection' && (
+              <div className="flex items-center space-x-2 sm:space-x-4 flex-1 max-w-2xl mx-4">
+                {/* Search */}
+                <div className="relative flex-1 max-w-md">
+                  <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                  <input
+                    type="text"
+                    placeholder="Search comics..."
+                    value={filters.searchTerm}
+                    onChange={(e) => setFilters({ ...filters, searchTerm: e.target.value })}
+                    className="w-full pl-9 pr-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm"
+                  />
+                </div>
+
+                {/* Filter Toggle */}
+                <button
+                  onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                  className="flex items-center space-x-1 px-3 py-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors text-gray-300"
+                >
+                  <Filter size={14} />
+                  <span className="text-sm hidden sm:inline">Filters</span>
+                  {hasActiveFilters && (
+                    <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
+                  )}
+                </button>
+
+                {/* Clear Filters */}
+                {hasActiveFilters && (
+                  <button
+                    onClick={clearFilters}
+                    className="p-2 text-gray-500 hover:text-gray-300 transition-colors"
+                    title="Clear all filters"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+            )}
+            
             <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
               {activeTab === 'collection' && (
                 <>
@@ -437,18 +499,15 @@ function App() {
               onViewSlabbedComics={handleViewSlabbedComics}
             />
             
-            <FilterControls
-              filters={filters}
-              sortField={sortField}
-              sortDirection={sortDirection}
-              onFiltersChange={setFilters}
-              onSortChange={(field, direction) => {
-                setSortField(field);
-                setSortDirection(direction);
-              }}
-              allSeries={allSeries}
-              allTags={allTags}
-            />
+            {/* Advanced Filters */}
+            {showAdvancedFilters && (
+              <FilterControls
+                filters={filters}
+                onFiltersChange={setFilters}
+                allSeries={allSeries}
+                allTags={allTags}
+              />
+            )}
 
             {/* Comics Grid */}
             {comics.length === 0 ? (
