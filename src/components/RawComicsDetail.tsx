@@ -6,6 +6,7 @@ import {
   BookOpen,
   Grid,
   List,
+  Star,
 } from 'lucide-react';
 
 interface RawComicsDetailProps {
