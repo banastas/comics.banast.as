@@ -260,7 +260,7 @@ function App() {
             
             {/* Search and Controls - Only show on collection tab */}
             {activeTab === 'collection' && (
-              <div className="flex items-center space-x-2 sm:space-x-4 flex-1 max-w-2xl mx-4">
+              <div className="hidden sm:flex items-center space-x-2 sm:space-x-4 flex-1 max-w-2xl mx-4">
                 {/* Search */}
                 <div className="relative flex-1 max-w-md">
                   <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
@@ -275,7 +275,7 @@ function App() {
               </div>
             )}
             
-            <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
+            <div className="hidden sm:flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
               {activeTab === 'collection' && (
                 <>
                   {/* View Mode Toggle */}
