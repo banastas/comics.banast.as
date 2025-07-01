@@ -4,9 +4,16 @@ import { Dashboard } from './Dashboard';
 import { Dashboard } from './Dashboard';
 import { 
   ArrowLeft, 
+  Grid,
+  List,
+  Tag
 } from 'lucide-react';
+
+interface TagDetailProps {
+  tag: string;
   tagComics: Comic[];
   allComics: Comic[];
+  onBack: () => void;
   Star,
   Award,
   onEdit: (comic: Comic) => void;
@@ -63,52 +70,6 @@ export const TagDetail: React.FC<TagDetailProps> = ({
     const biggestGain = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : -Infinity;
     return gain > biggestGain ? comic : biggest;
   }, null as Comic | null);
-    const biggestGain = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : -Infinity;
-    return gain > biggestGain ? comic : biggest;
-  }, null as Comic | null);
-
-  const biggestLoser = tagComicsWithCurrentValue.reduce((biggest, comic) => {
-    const loss = (comic.currentValue || 0) - comic.purchasePrice;
-    const biggestLoss = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : Infinity;
-    return loss < biggestLoss ? comic : biggest;
-  }, null as Comic | null);
-
-  const tagComicsStats: ComicStats = {
-    totalComics: tagComics.length,
-    totalValue: totalPurchaseValue,
-    totalPurchaseValue,
-    totalCurrentValue,
-    highestValuedComic: tagComics.reduce((highest, comic) => {
-      const comicValue = comic.currentValue || comic.purchasePrice;
-      const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
-      return comicValue > highestValue ? comic : highest;
-    }, null as Comic | null),
-    highestValuedSlabbedComic: tagComics
-      .filter(comic => comic.isSlabbed)
-      .reduce((highest, comic) => {
-        const comicValue = comic.currentValue || comic.purchasePrice;
-        const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
-        return comicValue > highestValue ? comic : highest;
-      }, null as Comic | null),
-    highestValuedRawComic: tagComics
-      .filter(comic => !comic.isSlabbed)
-      .reduce((highest, comic) => {
-        const comicValue = comic.currentValue || comic.purchasePrice;
-        const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
-        return comicValue > highestValue ? comic : highest;
-      }, null as Comic | null),
-    biggestGainer,
-    biggestLoser,
-    rawComics: tagComics.filter(comic => !comic.isSlabbed).length,
-    slabbedComics: tagComics.filter(comic => comic.isSlabbed).length,
-    signedComics: tagComics.filter(comic => comic.signedBy.trim() !== '').length,
-    averageGrade: tagComics.length > 0 ? tagComics.reduce((sum, comic) => sum + comic.grade, 0) / tagComics.length : 0,
-    totalGainLoss,
-    totalGainLossPercentage: tagComicsWithCurrentValue.length > 0 && tagComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0) > 0
-      ? (totalGainLoss / tagComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0)) * 100 
-      : 0,
-    comicsWithCurrentValue: tagComicsWithCurrentValue.length,
-  };
 
   const biggestLoser = tagComicsWithCurrentValue.reduce((biggest, comic) => {
     const loss = (comic.currentValue || 0) - comic.purchasePrice;
@@ -264,8 +225,11 @@ export const TagDetail: React.FC<TagDetailProps> = ({
                         • {uniqueSeries.length} series
                       </span>
                     )}
+                  </p>
+                </div>
+              </div>
+            </div>
 
-            <Dashboard 
             <Dashboard 
               stats={tagComicsStats} 
               showDetailed={true}
@@ -275,12 +239,6 @@ export const TagDetail: React.FC<TagDetailProps> = ({
               onViewRawComics={onViewRawComics}
               onViewSlabbedComics={onViewSlabbedComics}
             />
-              <div className="mt-6 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-4 text-white">
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
 
           {/* Comics Grid/List */}
@@ -321,9 +279,6 @@ export const TagDetail: React.FC<TagDetailProps> = ({
                           </span>
                         )}
                       </div>
-
-                      {/* Action Buttons */}
-                      {/* Action Buttons - Edit button removed */}
                     </div>
                     
                     <div className="p-3">
@@ -428,7 +383,6 @@ export const TagDetail: React.FC<TagDetailProps> = ({
                         </div>
                         
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
-                          {/* Edit button removed */}
                         </div>
                       </div>
                     </div>
