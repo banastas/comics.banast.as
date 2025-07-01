@@ -112,12 +112,9 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView, onEdit, onD
             <Star size={10} className="text-amber-400 sm:w-3 sm:h-3" />
             <span className="text-xs sm:text-sm font-semibold text-white">{comic.grade}</span>
           </div>
-          <div className="flex items-center space-x-1">
-            <DollarSign size={10} className="text-green-400 sm:w-3 sm:h-3" />
-            <span className="text-xs sm:text-sm font-semibold text-white">
-              {comic.currentValue ? formatCurrency(comic.currentValue) : formatCurrency(comic.purchasePrice)}
-            </span>
-          </div>
+          <span className="text-xs sm:text-sm font-semibold text-green-400">
+            {comic.currentValue ? formatCurrency(comic.currentValue) : formatCurrency(comic.purchasePrice)}
+          </span>
         </div>
       </div>
     </div>
