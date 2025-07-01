@@ -213,7 +213,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {showDetailed && (stats.highestValuedSlabbedComic || stats.highestValuedRawComic) && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {/* Most Valuable Slabbed Comic */}
-          {stats.highestValuedSlabbedComic && (
+          <div className={stats.highestValuedSlabbedComic ? '' : 'hidden md:block'}>
+            {stats.highestValuedSlabbedComic ? (
             <div 
               className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg p-4 sm:p-6 text-white shadow-xl border border-purple-500/30 cursor-pointer hover:shadow-2xl transition-all"
               onClick={() => onViewComic?.(stats.highestValuedSlabbedComic!)}
@@ -237,10 +238,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 </div>
               </div>
             </div>
-          )}
+            ) : (
+              <div></div>
+            )}
+          </div>
 
           {/* Most Valuable Raw Comic */}
-          {stats.highestValuedRawComic && (
+          <div className={stats.highestValuedRawComic ? '' : 'hidden md:block'}>
+            {stats.highestValuedRawComic ? (
             <div 
               className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg p-4 sm:p-6 text-white shadow-xl border border-blue-500/30 cursor-pointer hover:shadow-2xl transition-all"
               onClick={() => onViewComic?.(stats.highestValuedRawComic!)}
@@ -264,7 +269,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 </div>
               </div>
             </div>
-          )}
+            ) : (
+              <div></div>
+            )}
+          </div>
         </div>
       )}
     </div>

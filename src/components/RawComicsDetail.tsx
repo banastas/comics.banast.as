@@ -223,28 +223,6 @@ export const RawComicsDetail: React.FC<RawComicsDetailProps> = ({
               onViewSlabbedComics={() => {}} // No slabbed comics in this view
             />
 
-            {/* Most Valuable Raw Comic */}
-            {mostValuable && (
-              <div className="mt-6 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-lg p-4 text-white">
-                <h3 className="text-lg font-semibold mb-2">Most Valuable Raw Comic</h3>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xl font-bold">
-                      {mostValuable.seriesName} #{mostValuable.issueNumber}
-                    </p>
-                    <p className="text-indigo-100 opacity-90">{mostValuable.title}</p>
-                    <p className="text-sm text-indigo-200 opacity-80">
-                      Grade: {mostValuable.grade}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold">
-                      {formatCurrency(mostValuable.currentValue || mostValuable.purchasePrice)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Series Breakdown */}
             {uniqueSeries.length > 0 && (

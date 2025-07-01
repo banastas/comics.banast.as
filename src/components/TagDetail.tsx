@@ -239,28 +239,6 @@ export const TagDetail: React.FC<TagDetailProps> = ({
               onViewSlabbedComics={onViewSlabbedComics}
             />
 
-            {/* Most Valuable Comic */}
-            {mostValuable && (
-              <div className="mt-6 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-4 text-white">
-                <h3 className="text-lg font-semibold mb-2">Most Valuable Comic with #{tag}</h3>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xl font-bold">
-                      {mostValuable.seriesName} #{mostValuable.issueNumber}
-                    </p>
-                    <p className="text-blue-100 opacity-90">{mostValuable.title}</p>
-                    <p className="text-sm text-blue-200 opacity-80">
-                      Grade: {mostValuable.grade} • {mostValuable.isSlabbed ? 'Slabbed' : 'Raw'}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold">
-                      {formatCurrency(mostValuable.currentValue || mostValuable.purchasePrice)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Series and Related Tags */}
             <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">

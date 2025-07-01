@@ -231,26 +231,6 @@ export const SeriesDetail: React.FC<SeriesDetailProps> = ({
               onViewSlabbedComics={onViewSlabbedComics}
             />
 
-            {/* Most Valuable Issue */}
-            {mostValuable && (
-              <div className="mt-6 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-4 text-white">
-                <h3 className="text-lg font-semibold mb-2">Most Valuable Issue</h3>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xl font-bold">#{mostValuable.issueNumber}</p>
-                    <p className="text-blue-100 opacity-90">{mostValuable.title}</p>
-                    <p className="text-sm text-blue-200 opacity-80">
-                      Grade: {mostValuable.grade} • {mostValuable.isSlabbed ? 'Slabbed' : 'Raw'}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold">
-                      {formatCurrency(mostValuable.currentValue || mostValuable.purchasePrice)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Issues Grid/List */}
