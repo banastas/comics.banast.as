@@ -224,60 +224,64 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
               onViewSlabbedComics={() => {}} // Already in slabbed comics view
             />
 
+          </div>
+
+          {/* Comics Grid/List */}
+          <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">Slabbed Comics</h3>
+            
             {viewMode === 'grid' ? (
-              <div className="mt-6 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg p-4 text-white">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                  {sortedComics.map((comic) => (
-                    <div
-                      key={comic.id}
-                      className="bg-gray-700/50 rounded-lg border border-gray-600 overflow-hidden hover:border-blue-500 transition-all cursor-pointer group"
-                      onClick={() => onView(comic)}
-                    >
-                      <div className="relative aspect-[2/3] bg-gray-600">
-                        {comic.coverImageUrl ? (
-                          <img
-                            src={comic.coverImageUrl}
-                            alt={`${comic.seriesName} #${comic.issueNumber}`}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Award size={32} className="text-gray-500" />
-                          </div>
-                        )}
-                        
-                        {/* Status Badges */}
-                        <div className="absolute top-1 left-1 flex flex-col space-y-1">
-                          <span className="px-1 py-0.5 bg-purple-500 text-white text-xs font-medium rounded">
-                            Slabbed
-                          </span>
-                          {comic.signedBy && (
-                            <span className="px-1 py-0.5 bg-rose-500 text-white text-xs font-medium rounded">
-                              Signed
-                            </span>
-                          )}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                {sortedComics.map((comic) => (
+                  <div
+                    key={comic.id}
+                    className="bg-gray-700/50 rounded-lg border border-gray-600 overflow-hidden hover:border-blue-500 transition-all cursor-pointer group"
+                    onClick={() => onView(comic)}
+                  >
+                    <div className="relative aspect-[2/3] bg-gray-600">
+                      {comic.coverImageUrl ? (
+                        <img
+                          src={comic.coverImageUrl}
+                          alt={`${comic.seriesName} #${comic.issueNumber}`}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Award size={32} className="text-gray-500" />
                         </div>
-                      </div>
+                      )}
                       
-                      <div className="p-3">
-                        <p className="font-medium text-white text-sm truncate mb-1">{comic.seriesName}</p>
-                        <div className="flex items-center justify-between mb-1">
-                          <p className="text-xs text-gray-400">#{comic.issueNumber}</p>
-                          <div className="flex items-center space-x-1">
-                            <Star size={10} className="text-amber-400" />
-                            <span className="text-xs text-white">{comic.grade}</span>
-                          </div>
-                        </div>
-                        <p className="text-xs text-gray-400 mb-1">
-                          {new Date(comic.releaseDate).getFullYear()}
-                        </p>
-                        <p className="text-xs font-semibold text-green-400">
-                          {formatCurrency(comic.currentValue || comic.purchasePrice)}
-                        </p>
+                      {/* Status Badges */}
+                      <div className="absolute top-1 left-1 flex flex-col space-y-1">
+                        <span className="px-1 py-0.5 bg-purple-500 text-white text-xs font-medium rounded">
+                          Slabbed
+                        </span>
+                        {comic.signedBy && (
+                          <span className="px-1 py-0.5 bg-rose-500 text-white text-xs font-medium rounded">
+                            Signed
+                          </span>
+                        )}
                       </div>
                     </div>
-                  ))}
-                </div>
+                    
+                    <div className="p-3">
+                      <p className="font-medium text-white text-sm truncate mb-1">{comic.seriesName}</p>
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-xs text-gray-400">#{comic.issueNumber}</p>
+                        <div className="flex items-center space-x-1">
+                          <Star size={10} className="text-amber-400" />
+                          <span className="text-xs text-white">{comic.grade}</span>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-400 mb-1">
+                        {new Date(comic.releaseDate).getFullYear()}
+                      </p>
+                      <p className="text-xs font-semibold text-green-400">
+                        {formatCurrency(comic.currentValue || comic.purchasePrice)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : (
               <div className="space-y-2">
@@ -341,9 +345,6 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
                               {comic.purchasePrice > 0 && ` (${((comic.currentValue - comic.purchasePrice) / comic.purchasePrice * 100).toFixed(1)}%)`}
                             </p>
                           )}
-                        </div>
-                        
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
                         </div>
                       </div>
                     </div>

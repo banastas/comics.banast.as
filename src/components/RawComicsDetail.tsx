@@ -225,6 +225,128 @@ export const RawComicsDetail: React.FC<RawComicsDetailProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Comics Grid/List */}
+      <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
+        <h3 className="text-lg font-semibold text-white mb-4">Raw Comics</h3>
+        
+        {viewMode === 'grid' ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            {sortedComics.map((comic) => (
+              <div
+                key={comic.id}
+                className="bg-gray-700/50 rounded-lg border border-gray-600 overflow-hidden hover:border-blue-500 transition-all cursor-pointer group"
+                onClick={() => onView(comic)}
+              >
+                <div className="relative aspect-[2/3] bg-gray-600">
+                  {comic.coverImageUrl ? (
+                    <img
+                      src={comic.coverImageUrl}
+                      alt={`${comic.seriesName} #${comic.issueNumber}`}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Award size={32} className="text-gray-500" />
+                    </div>
+                  )}
+                  
+                  {/* Status Badges */}
+                  <div className="absolute top-1 left-1 flex flex-col space-y-1">
+                    {comic.signedBy && (
+                      <span className="px-1 py-0.5 bg-rose-500 text-white text-xs font-medium rounded">
+                        Signed
+                      </span>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="p-3">
+                  <p className="font-medium text-white text-sm truncate mb-1">{comic.seriesName}</p>
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-xs text-gray-400">#{comic.issueNumber}</p>
+                    <div className="flex items-center space-x-1">
+                      <Star size={10} className="text-amber-400" />
+                      <span className="text-xs text-white">{comic.grade}</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-400 mb-1">
+                    {new Date(comic.releaseDate).getFullYear()}
+                  </p>
+                  <p className="text-xs font-semibold text-green-400">
+                    {formatCurrency(comic.currentValue || comic.purchasePrice)}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {sortedComics.map((comic) => (
+              <div
+                key={comic.id}
+                className="bg-gray-700/50 rounded-lg border border-gray-600 p-4 hover:border-blue-500 transition-all cursor-pointer group"
+                onClick={() => onView(comic)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-16 bg-gray-600 rounded overflow-hidden flex-shrink-0">
+                      {comic.coverImageUrl ? (
+                        <img
+                          src={comic.coverImageUrl}
+                          alt={`${comic.seriesName} #${comic.issueNumber}`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Award size={16} className="text-gray-500" />
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div>
+                      <div className="flex items-center space-x-3">
+                        <h4 className="font-bold text-white">{comic.seriesName} #{comic.issueNumber}</h4>
+                        <div className="flex items-center space-x-1">
+                          <Star size={12} className="text-amber-400" />
+                          <span className="text-sm text-white">{comic.grade}</span>
+                        </div>
+                        {comic.signedBy && (
+                          <span className="px-2 py-0.5 bg-rose-500/20 text-rose-300 text-xs rounded border border-rose-500/30">
+                            Signed
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-300">{comic.title}</p>
+                      <p className="text-xs text-gray-400">
+                        {formatDate(comic.releaseDate)}
+                        {comic.coverArtist && ` • ${comic.coverArtist}`}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-4">
+                    <div className="text-right">
+                      <p className="font-semibold text-white">
+                        {formatCurrency(comic.currentValue || comic.purchasePrice)}
+                      </p>
+                      {comic.currentValue && comic.currentValue !== comic.purchasePrice && (
+                        <p className={`text-xs ${
+                          comic.currentValue > comic.purchasePrice ? 'text-emerald-400' : 'text-red-400'
+                        }`}>
+                          {comic.currentValue > comic.purchasePrice ? '+' : ''}
+                          {formatCurrency(comic.currentValue - comic.purchasePrice)}
+                          {comic.purchasePrice > 0 && ` (${((comic.currentValue - comic.purchasePrice) / comic.purchasePrice * 100).toFixed(1)}%)`}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
