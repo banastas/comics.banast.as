@@ -259,6 +259,8 @@ function App() {
         onViewTag={handleViewTag}
         onViewRawComics={handleViewRawComics}
         onViewSlabbedComics={handleViewSlabbedComics}
+        onViewRawComics={handleViewRawComics}
+        onViewSlabbedComics={handleViewSlabbedComics}
       />
     );
   }
