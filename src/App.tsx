@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useComics } from './hooks/useComics';
 import { Dashboard } from './components/Dashboard';
 import { ComicCard } from './components/ComicCard';
+import { ComicListView } from './components/ComicListView';
 import { FilterControls } from './components/FilterControls';
 import { ComicForm } from './components/ComicForm';
 import { DataManager } from './components/DataManager';
@@ -13,7 +14,8 @@ import { TagDetail } from './components/TagDetail';
 import { RawComicsDetail } from './components/RawComicsDetail';
 import { SlabbedComicsDetail } from './components/SlabbedComicsDetail';
 import { Comic } from './types/Comic';
-import { BookOpen, Plus, BarChart3 } from 'lucide-react';
+import { BookOpen, Plus, BarChart3, Grid, List, SortAsc, SortDesc } from 'lucide-react';
+import { SortField } from './types/Comic';
 
 function App() {
   const {
@@ -41,6 +43,7 @@ function App() {
   const [selectedCoverArtist, setSelectedCoverArtist] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [selectedCondition, setSelectedCondition] = useState<'raw' | 'slabbed' | null>(null);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   // Get unique values for filters
   const allSeries = Array.from(new Set(allComics.map(comic => comic.seriesName))).sort();
@@ -315,6 +318,52 @@ function App() {
             </div>
             
             <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
+              {activeTab === 'collection' && (
+                <>
+                  {/* View Mode Toggle */}
+                  <div className="flex items-center space-x-2 border border-gray-600 rounded-lg">
+                    <button
+                      onClick={() => setViewMode('grid')}
+                      className={`p-2 rounded-l-lg transition-colors ${
+                        viewMode === 'grid' ? 'bg-blue-500 text-white' : 'text-gray-300 hover:text-white'
+                      }`}
+                    >
+                      <Grid size={16} />
+                    </button>
+                    <button
+                      onClick={() => setViewMode('list')}
+                      className={`p-2 rounded-r-lg transition-colors ${
+                        viewMode === 'list' ? 'bg-blue-500 text-white' : 'text-gray-300 hover:text-white'
+                      }`}
+                    >
+                      <List size={16} />
+                    </button>
+                  </div>
+                  
+                  {/* Sort Controls */}
+                  <select
+                    value={sortField}
+                    onChange={(e) => setSortField(e.target.value as SortField)}
+                    className="bg-gray-700 border border-gray-600 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm text-white"
+                  >
+                    <option value="title">Sort by Title</option>
+                    <option value="seriesName">Sort by Series</option>
+                    <option value="issueNumber">Sort by Issue #</option>
+                    <option value="releaseDate">Sort by Release Date</option>
+                    <option value="grade">Sort by Grade</option>
+                    <option value="purchasePrice">Sort by Purchase Price</option>
+                    <option value="currentValue">Sort by Current Value</option>
+                    <option value="purchaseDate">Sort by Purchase Date</option>
+                  </select>
+                  
+                  <button
+                    onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
+                    className="p-1.5 sm:p-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors text-gray-300"
+                  >
+                    {sortDirection === 'asc' ? <SortAsc size={14} className="sm:w-4 sm:h-4" /> : <SortDesc size={14} className="sm:w-4 sm:h-4" />}
+                  </button>
+                </>
+              )}
               {/* <button
                 onClick={() => setShowForm(true)}
                 className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors shadow-lg"
@@ -425,17 +474,28 @@ function App() {
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
-                {comics.map((comic) => (
-                  <ComicCard
-                    key={comic.id}
-                    comic={comic}
+              <>
+                {viewMode === 'grid' ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
+                    {comics.map((comic) => (
+                      <ComicCard
+                        key={comic.id}
+                        comic={comic}
+                        onView={handleViewComic}
+                        onEdit={handleEditComic}
+                        onDelete={handleDeleteComic}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <ComicListView
+                    comics={comics}
                     onView={handleViewComic}
                     onEdit={handleEditComic}
                     onDelete={handleDeleteComic}
                   />
-                ))}
-              </div>
+                )}
+              </>
             )}
           </>
         )}
