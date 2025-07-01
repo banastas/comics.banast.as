@@ -76,23 +76,23 @@ export const Dashboard: React.FC<DashboardProps> = ({
       bgColor: 'bg-amber-500/10',
       borderColor: 'border-amber-500/30',
     }] : []),
-    {
+    ...(stats.slabbedComics > 0 ? [{
       title: 'Slabbed Comics',
       value: stats.slabbedComics.toLocaleString(),
       icon: Archive,
       color: 'bg-purple-500',
       bgColor: 'bg-purple-500/10',
       borderColor: 'border-purple-500/30',
-    },
-    {
+    }] : []),
+    ...(stats.rawComics > 0 ? [{
       title: 'Raw Comics',
       value: stats.rawComics.toLocaleString(),
       icon: Award,
       color: 'bg-indigo-500',
       bgColor: 'bg-indigo-500/10',
       borderColor: 'border-indigo-500/30',
-    },
-    ...(showDetailed ? [{
+    }] : []),
+    ...(showDetailed && stats.signedComics > 0 ? [{
       title: 'Signed Comics',
       value: stats.signedComics.toLocaleString(),
       icon: PenTool,
