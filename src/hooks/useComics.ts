@@ -114,7 +114,15 @@ export const useComics = () => {
       const bValue = b[sortField];
       
       let comparison = 0;
-      if (typeof aValue === 'string' && typeof bValue === 'string') {
+      
+      // Special handling for title sorting - also sort by issue number
+      if (sortField === 'title') {
+        comparison = a.title.localeCompare(b.title);
+        if (comparison === 0) {
+          // If titles are the same, sort by issue number
+          comparison = a.issueNumber - b.issueNumber;
+        }
+      } else if (typeof aValue === 'string' && typeof bValue === 'string') {
         comparison = aValue.localeCompare(bValue);
       } else if (typeof aValue === 'number' && typeof bValue === 'number') {
         comparison = aValue - bValue;
