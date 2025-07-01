@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Comic, ComicStats, SortField, SortDirection, FilterOptions } from '../types/Comic';
+import { debounce } from '../utils/performance';
 import initialComicsData from '../data/comics.json';
 
 const defaultFilters: FilterOptions = {
