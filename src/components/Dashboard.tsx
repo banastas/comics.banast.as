@@ -1,9 +1,6 @@
 import React from 'react';
 import { Comic } from '../types/Comic';
 import { ComicStats } from '../types/Comic';
-import { TouchTarget } from './TouchTarget';
-import { FluidTypography } from './FluidTypography';
-import { LoadingSkeleton } from './LoadingSkeleton';
 import { BookOpen, DollarSign, Award, PenTool, Archive, Star, TrendingUp, TrendingDown } from 'lucide-react';
 
 interface DashboardProps {
@@ -109,8 +106,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
     <div className={showDetailed ? "space-y-8" : "mb-8"}>
       <div className={`grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 ${showDetailed ? 'lg:grid-cols-4 xl:grid-cols-5' : 'lg:grid-cols-4 xl:grid-cols-6'} mb-4 sm:mb-6`}>
         {statsCards.map((stat) => (
-          <TouchTarget
+          <div
             key={stat.title}
+            className={`bg-gray-800 rounded-lg shadow-lg border ${stat.borderColor} p-3 sm:p-4 hover:shadow-xl transition-all duration-200 ${stat.bgColor} ${
+              (stat.title === 'Slabbed Comics' || stat.title === 'Raw Comics') ? 'cursor-pointer' : ''
+            }`}
             onClick={() => {
               if (stat.title === 'Slabbed Comics') {
                 onViewSlabbedComics?.();
@@ -118,32 +118,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 onViewRawComics?.();
               }
             }}
-            variant="link"
-            className={`bg-gray-800 rounded-lg shadow-lg border ${stat.borderColor} p-3 sm:p-4 hover:shadow-xl transition-all duration-200 ${stat.bgColor} ${
-              (stat.title === 'Slabbed Comics' || stat.title === 'Raw Comics') ? 'cursor-pointer' : ''
-            } min-h-0`}
-            ariaLabel={`View ${stat.title.toLowerCase()}`}
           >
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0 flex-1">
-                <FluidTypography
-                  variant="label"
-                  className="text-gray-400 mb-1 truncate"
-                >
-                  {stat.title}
-                </FluidTypography>
-                <FluidTypography
-                  variant="h3"
-                  className="font-bold text-white truncate text-base sm:text-lg lg:text-xl"
-                >
-                  {stat.value}
-                </FluidTypography>
+                <p className="text-xs sm:text-sm font-medium text-gray-400 mb-1 truncate">{stat.title}</p>
+                <p className="text-base sm:text-lg lg:text-xl font-bold text-white truncate">{stat.value}</p>
               </div>
               <div className={`${stat.color} p-1.5 sm:p-2 rounded-lg shadow-lg self-end sm:self-auto mt-2 sm:mt-0 flex-shrink-0`}>
                 <stat.icon size={14} className="text-white sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
               </div>
             </div>
-          </TouchTarget>
+          </div>
         ))}
       </div>
 
@@ -152,124 +137,66 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Biggest Gainer */}
           {stats.biggestGainer && (
-            <TouchTarget
+            <div 
+              className="bg-gradient-to-r from-emerald-600 to-green-600 rounded-lg p-4 sm:p-6 text-white shadow-xl border border-emerald-500/30 cursor-pointer hover:shadow-2xl transition-all"
               onClick={() => onViewComic?.(stats.biggestGainer!)}
-              variant="link"
-              className="bg-gradient-to-r from-emerald-600 to-green-600 rounded-lg p-4 sm:p-6 text-white shadow-xl border border-emerald-500/30 hover:shadow-2xl transition-all min-h-0"
-              ariaLabel={`View biggest gainer: ${stats.biggestGainer.seriesName} #${stats.biggestGainer.issueNumber}`}
             >
-              <FluidTypography
-                variant="h3"
-                className="font-semibold mb-2 sm:mb-3 flex items-center text-base sm:text-lg"
-              >
+              <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3 flex items-center">
                 <TrendingUp size={18} className="mr-2 sm:w-5 sm:h-5" />
                 Biggest Gainer
-              </FluidTypography>
+              </h3>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                 <div>
-                  <FluidTypography
-                    variant="h2"
-                    className="font-bold text-lg sm:text-xl"
-                  >
+                  <p className="text-lg sm:text-xl font-bold">
                     {stats.biggestGainer.seriesName} #{stats.biggestGainer.issueNumber}
-                  </FluidTypography>
-                  <FluidTypography
-                    variant="body"
-                    className="text-emerald-100 opacity-90 truncate"
-                  >
-                    {stats.biggestGainer.title}
-                  </FluidTypography>
-                  <FluidTypography
-                    variant="caption"
-                    className="text-emerald-200 mt-1 opacity-80"
-                  >
+                  </p>
+                  <p className="text-emerald-100 opacity-90 text-sm sm:text-base truncate">{stats.biggestGainer.title}</p>
+                  <p className="text-sm text-emerald-200 mt-1 opacity-80">
                     Grade: {stats.biggestGainer.grade} • {stats.biggestGainer.isSlabbed ? 'Slabbed' : 'Raw'}
-                  </FluidTypography>
+                  </p>
                 </div>
                 <div className="text-left sm:text-right">
-                  <FluidTypography
-                    variant="caption"
-                    className="text-emerald-200"
-                  >
-                    Purchased: {formatCurrency(stats.biggestGainer.purchasePrice)}
-                  </FluidTypography>
-                  <FluidTypography
-                    variant="h2"
-                    className="font-bold text-lg sm:text-xl"
-                  >
-                    Current: {formatCurrency(stats.biggestGainer.currentValue || 0)}
-                  </FluidTypography>
-                  <FluidTypography
-                    variant="caption"
-                    className="font-medium"
-                  >
+                  <p className="text-xs sm:text-sm text-emerald-200">Purchased: {formatCurrency(stats.biggestGainer.purchasePrice)}</p>
+                  <p className="text-lg sm:text-xl font-bold">Current: {formatCurrency(stats.biggestGainer.currentValue || 0)}</p>
+                  <p className="text-xs sm:text-sm font-medium">
                     +{formatCurrency((stats.biggestGainer.currentValue || 0) - stats.biggestGainer.purchasePrice)} 
                     {stats.biggestGainer.purchasePrice > 0 && ` (${formatPercentage(((stats.biggestGainer.currentValue || 0) - stats.biggestGainer.purchasePrice) / stats.biggestGainer.purchasePrice * 100)})`}
-                  </FluidTypography>
+                  </p>
                 </div>
               </div>
-            </TouchTarget>
+            </div>
           )}
 
           {/* Biggest Loser */}
           {stats.biggestLoser && (stats.biggestLoser.currentValue || 0) < stats.biggestLoser.purchasePrice && (
-            <TouchTarget
+            <div 
+              className="bg-gradient-to-r from-red-600 to-rose-600 rounded-lg p-4 sm:p-6 text-white shadow-xl border border-red-500/30 cursor-pointer hover:shadow-2xl transition-all"
               onClick={() => onViewComic?.(stats.biggestLoser!)}
-              variant="link"
-              className="bg-gradient-to-r from-red-600 to-rose-600 rounded-lg p-4 sm:p-6 text-white shadow-xl border border-red-500/30 hover:shadow-2xl transition-all min-h-0"
-              ariaLabel={`View biggest decline: ${stats.biggestLoser.seriesName} #${stats.biggestLoser.issueNumber}`}
             >
-              <FluidTypography
-                variant="h3"
-                className="font-semibold mb-2 sm:mb-3 flex items-center text-base sm:text-lg"
-              >
+              <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3 flex items-center">
                 <TrendingDown size={18} className="mr-2 sm:w-5 sm:h-5" />
                 Biggest Decline
-              </FluidTypography>
+              </h3>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                 <div>
-                  <FluidTypography
-                    variant="h2"
-                    className="font-bold text-lg sm:text-xl"
-                  >
+                  <p className="text-lg sm:text-xl font-bold">
                     {stats.biggestLoser.seriesName} #{stats.biggestLoser.issueNumber}
-                  </FluidTypography>
-                  <FluidTypography
-                    variant="body"
-                    className="text-red-100 opacity-90 truncate"
-                  >
-                    {stats.biggestLoser.title}
-                  </FluidTypography>
-                  <FluidTypography
-                    variant="caption"
-                    className="text-red-200 mt-1 opacity-80"
-                  >
+                  </p>
+                  <p className="text-red-100 opacity-90 text-sm sm:text-base truncate">{stats.biggestLoser.title}</p>
+                  <p className="text-sm text-red-200 mt-1 opacity-80">
                     Grade: {stats.biggestLoser.grade} • {stats.biggestLoser.isSlabbed ? 'Slabbed' : 'Raw'}
-                  </FluidTypography>
+                  </p>
                 </div>
                 <div className="text-left sm:text-right">
-                  <FluidTypography
-                    variant="caption"
-                    className="text-red-200"
-                  >
-                    Purchased: {formatCurrency(stats.biggestLoser.purchasePrice)}
-                  </FluidTypography>
-                  <FluidTypography
-                    variant="h2"
-                    className="font-bold text-lg sm:text-xl"
-                  >
-                    Current: {formatCurrency(stats.biggestLoser.currentValue || 0)}
-                  </FluidTypography>
-                  <FluidTypography
-                    variant="caption"
-                    className="font-medium"
-                  >
+                  <p className="text-xs sm:text-sm text-red-200">Purchased: {formatCurrency(stats.biggestLoser.purchasePrice)}</p>
+                  <p className="text-lg sm:text-xl font-bold">Current: {formatCurrency(stats.biggestLoser.currentValue || 0)}</p>
+                  <p className="text-xs sm:text-sm font-medium">
                     {formatCurrency((stats.biggestLoser.currentValue || 0) - stats.biggestLoser.purchasePrice)} 
                     {stats.biggestLoser.purchasePrice > 0 && ` (${formatPercentage(((stats.biggestLoser.currentValue || 0) - stats.biggestLoser.purchasePrice) / stats.biggestLoser.purchasePrice * 100)})`}
-                  </FluidTypography>
+                  </p>
                 </div>
               </div>
-            </TouchTarget>
+            </div>
           )}
         </div>
       )}
@@ -279,98 +206,56 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 ${showDetailed ? 'mt-4 sm:mt-6' : ''}`}>
           {/* Most Valuable Slabbed Comic */}
           {stats.highestValuedSlabbedComic && (
-            <TouchTarget
+            <div 
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg p-4 sm:p-6 text-white shadow-xl border border-purple-500/30 cursor-pointer hover:shadow-2xl transition-all"
               onClick={() => onViewComic?.(stats.highestValuedSlabbedComic!)}
-              variant="link"
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg p-4 sm:p-6 text-white shadow-xl border border-purple-500/30 hover:shadow-2xl transition-all min-h-0"
-              ariaLabel={`View most valuable slabbed comic: ${stats.highestValuedSlabbedComic.seriesName} #${stats.highestValuedSlabbedComic.issueNumber}`}
             >
-              <FluidTypography
-                variant="h3"
-                className="font-semibold mb-2 sm:mb-3 flex items-center text-base sm:text-lg"
-              >
+              <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3 flex items-center">
                 <Award size={18} className="mr-2 sm:w-5 sm:h-5" />
                 Most Valuable Slabbed
-              </FluidTypography>
+              </h3>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                 <div>
-                  <FluidTypography
-                    variant="h2"
-                    className="font-bold text-lg sm:text-xl"
-                  >
+                  <p className="text-lg sm:text-xl font-bold">
                     {stats.highestValuedSlabbedComic.seriesName} #{stats.highestValuedSlabbedComic.issueNumber}
-                  </FluidTypography>
-                  <FluidTypography
-                    variant="body"
-                    className="text-purple-100 opacity-90 truncate"
-                  >
-                    {stats.highestValuedSlabbedComic.title}
-                  </FluidTypography>
-                  <FluidTypography
-                    variant="caption"
-                    className="text-purple-200 mt-1 opacity-80"
-                  >
+                  </p>
+                  <p className="text-purple-100 opacity-90 text-sm sm:text-base truncate">{stats.highestValuedSlabbedComic.title}</p>
+                  <p className="text-sm text-purple-200 mt-1 opacity-80">
                     Grade: {stats.highestValuedSlabbedComic.grade}
-                  </FluidTypography>
+                  </p>
                 </div>
                 <div className="text-left sm:text-right">
-                  <FluidTypography
-                    variant="h1"
-                    className="font-bold text-xl sm:text-2xl"
-                  >
-                    {formatCurrency(stats.highestValuedSlabbedComic.currentValue || stats.highestValuedSlabbedComic.purchasePrice)}
-                  </FluidTypography>
+                  <p className="text-xl sm:text-2xl font-bold">{formatCurrency(stats.highestValuedSlabbedComic.currentValue || stats.highestValuedSlabbedComic.purchasePrice)}</p>
                 </div>
               </div>
-            </TouchTarget>
+            </div>
           )}
 
           {/* Most Valuable Raw Comic */}
           {stats.highestValuedRawComic && (
-            <TouchTarget
+            <div 
+              className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg p-4 sm:p-6 text-white shadow-xl border border-blue-500/30 cursor-pointer hover:shadow-2xl transition-all"
               onClick={() => onViewComic?.(stats.highestValuedRawComic!)}
-              variant="link"
-              className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg p-4 sm:p-6 text-white shadow-xl border border-blue-500/30 hover:shadow-2xl transition-all min-h-0"
-              ariaLabel={`View most valuable raw comic: ${stats.highestValuedRawComic.seriesName} #${stats.highestValuedRawComic.issueNumber}`}
             >
-              <FluidTypography
-                variant="h3"
-                className="font-semibold mb-2 sm:mb-3 flex items-center text-base sm:text-lg"
-              >
+              <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3 flex items-center">
                 <BookOpen size={18} className="mr-2 sm:w-5 sm:h-5" />
                 Most Valuable Raw
-              </FluidTypography>
+              </h3>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                 <div>
-                  <FluidTypography
-                    variant="h2"
-                    className="font-bold text-lg sm:text-xl"
-                  >
+                  <p className="text-lg sm:text-xl font-bold">
                     {stats.highestValuedRawComic.seriesName} #{stats.highestValuedRawComic.issueNumber}
-                  </FluidTypography>
-                  <FluidTypography
-                    variant="body"
-                    className="text-blue-100 opacity-90 truncate"
-                  >
-                    {stats.highestValuedRawComic.title}
-                  </FluidTypography>
-                  <FluidTypography
-                    variant="caption"
-                    className="text-blue-200 mt-1 opacity-80"
-                  >
+                  </p>
+                  <p className="text-blue-100 opacity-90 text-sm sm:text-base truncate">{stats.highestValuedRawComic.title}</p>
+                  <p className="text-sm text-blue-200 mt-1 opacity-80">
                     Grade: {stats.highestValuedRawComic.grade}
-                  </FluidTypography>
+                  </p>
                 </div>
                 <div className="text-left sm:text-right">
-                  <FluidTypography
-                    variant="h1"
-                    className="font-bold text-xl sm:text-2xl"
-                  >
-                    {formatCurrency(stats.highestValuedRawComic.currentValue || stats.highestValuedRawComic.purchasePrice)}
-                  </FluidTypography>
+                  <p className="text-xl sm:text-2xl font-bold">{formatCurrency(stats.highestValuedRawComic.currentValue || stats.highestValuedRawComic.purchasePrice)}</p>
                 </div>
               </div>
-            </TouchTarget>
+            </div>
           )}
         </div>
       )}

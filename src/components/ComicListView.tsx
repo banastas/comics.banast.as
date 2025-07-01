@@ -1,8 +1,5 @@
 import React from 'react';
 import { Comic } from '../types/Comic';
-import { TouchTarget } from './TouchTarget';
-import { FluidTypography } from './FluidTypography';
-import { ResponsiveImage } from './ResponsiveImage';
 import { Star, Award } from 'lucide-react';
 
 interface ComicListViewProps {
@@ -38,39 +35,36 @@ export const ComicListView: React.FC<ComicListViewProps> = ({
   return (
     <div className="space-y-2">
       {comics.map((comic) => (
-        <TouchTarget
+        <div
           key={comic.id}
+          className="bg-gray-800 rounded-lg border border-gray-700 p-4 hover:border-blue-500 transition-all cursor-pointer group"
           onClick={() => onView(comic)}
-          variant="link"
-          className="bg-gray-800 rounded-lg border border-gray-700 p-4 hover:border-blue-500 transition-all group w-full min-h-0"
-          ariaLabel={`View ${comic.seriesName} #${comic.issueNumber}`}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <ResponsiveImage
-                src={comic.coverImageUrl}
-                alt={`${comic.seriesName} #${comic.issueNumber} cover`}
-                className="w-12 h-16 rounded overflow-hidden flex-shrink-0"
-                aspectRatio="aspect-[3/4]"
-                sizes="48px"
-              />
+              <div className="w-12 h-16 bg-gray-600 rounded overflow-hidden flex-shrink-0">
+                {comic.coverImageUrl ? (
+                  <img
+                    src={comic.coverImageUrl}
+                    alt={`${comic.seriesName} #${comic.issueNumber}`}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Award size={16} className="text-gray-500" />
+                  </div>
+                )}
+              </div>
               
               <div className="min-w-0 flex-1">
                 <div className="flex items-center space-x-3 mb-1">
-                  <FluidTypography
-                    variant="h4"
-                    className="font-bold text-white truncate"
-                  >
-                    {comic.seriesName} #{comic.issueNumber}
-                  </FluidTypography>
+                  <h4 className="font-bold text-white truncate">{comic.seriesName} #{comic.issueNumber}</h4>
                   <div className="flex items-center space-x-1 flex-shrink-0">
                     <Star size={12} className="text-amber-400" />
-                    <FluidTypography
-                      variant="caption"
-                      className="text-white"
-                    >
-                      {comic.grade}
-                    </FluidTypography>
+                    <span className="text-sm text-white">{comic.grade}</span>
                   </div>
                   {comic.isSlabbed && (
                     <span className="px-2 py-0.5 bg-purple-500/20 text-purple-300 text-xs rounded border border-purple-500/30 flex-shrink-0">
@@ -93,35 +87,11 @@ export const ComicListView: React.FC<ComicListViewProps> = ({
                     </span>
                   )}
                 </div>
-                <FluidTypography
-                  variant="body"
-                  className="text-gray-300 truncate mb-1"
-                >
-                  {comic.title}
-                </FluidTypography>
-                <div className="flex items-center space-x-4">
-                  <FluidTypography
-                    variant="caption"
-                    className="text-gray-400"
-                  >
-                    {formatDate(comic.releaseDate)}
-                  </FluidTypography>
-                  {comic.coverArtist && (
-                    <FluidTypography
-                      variant="caption"
-                      className="text-gray-400"
-                    >
-                      • {comic.coverArtist}
-                    </FluidTypography>
-                  )}
-                  {comic.storageLocation && (
-                    <FluidTypography
-                      variant="caption"
-                      className="text-gray-400"
-                    >
-                      • {comic.storageLocation}
-                    </FluidTypography>
-                  )}
+                <p className="text-sm text-gray-300 truncate mb-1">{comic.title}</p>
+                <div className="flex items-center space-x-4 text-xs text-gray-400">
+                  <span>{formatDate(comic.releaseDate)}</span>
+                  {comic.coverArtist && <span>• {comic.coverArtist}</span>}
+                  {comic.storageLocation && <span>• {comic.storageLocation}</span>}
                 </div>
                 {comic.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-2">
@@ -145,36 +115,27 @@ export const ComicListView: React.FC<ComicListViewProps> = ({
             
             <div className="flex items-center space-x-4 flex-shrink-0">
               <div className="text-right">
-                <FluidTypography
-                  variant="h4"
-                  className="font-semibold text-white"
-                >
+                <p className="font-semibold text-white">
                   {formatCurrency(comic.currentValue || comic.purchasePrice)}
-                </FluidTypography>
+                </p>
                 {comic.currentValue && comic.currentValue !== comic.purchasePrice && (
-                  <FluidTypography
-                    variant="caption"
-                    className={`${
+                  <p className={`text-xs ${
                     comic.currentValue > comic.purchasePrice ? 'text-emerald-400' : 'text-red-400'
-                  }`}
-                  >
+                  }`}>
                     {comic.currentValue > comic.purchasePrice ? '+' : ''}
                     {formatCurrency(comic.currentValue - comic.purchasePrice)}
                     {comic.purchasePrice > 0 && ` (${((comic.currentValue - comic.purchasePrice) / comic.purchasePrice * 100).toFixed(1)}%)`}
-                  </FluidTypography>
+                  </p>
                 )}
-                <FluidTypography
-                  variant="caption"
-                  className="text-gray-400"
-                >
+                <p className="text-xs text-gray-400">
                   Paid: {formatCurrency(comic.purchasePrice)}
-                </FluidTypography>
+                </p>
               </div>
               
               {/* Action buttons removed as per current application behavior */}
             </div>
           </div>
-        </TouchTarget>
+        </div>
       ))}
     </div>
   );

@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
 import { Comic } from '../types/Comic';
-import { ResponsiveImage } from './ResponsiveImage';
-import { TouchTarget } from './TouchTarget';
-import { FluidTypography } from './FluidTypography';
 import { Calendar, Star, DollarSign, MapPin, Trash2, Award, PenTool, Palette } from 'lucide-react';
 
 interface ComicCardProps {
@@ -13,6 +10,9 @@ interface ComicCardProps {
 }
 
 export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView, onEdit, onDelete }) => {
+  const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -30,22 +30,46 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView, onEdit, onD
     });
   };
 
+  const handleImageLoad = () => {
+    setImageLoading(false);
+  };
+
+  const handleImageError = () => {
+    setImageError(true);
+    setImageLoading(false);
+  };
+
   return (
-    <TouchTarget
-      onClick={() => onView(comic)}
-      variant="link"
-      className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden hover:shadow-xl hover:border-gray-600 transition-all duration-300 group w-full p-0 min-h-0"
-      ariaLabel={`View details for ${comic.seriesName} #${comic.issueNumber}`}
-    >
+    <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden hover:shadow-xl hover:border-gray-600 transition-all duration-300 group cursor-pointer w-full">
       {/* Cover Image */}
-      <div className="relative">
-        <ResponsiveImage
-          src={comic.coverImageUrl}
-          alt={`${comic.seriesName} #${comic.issueNumber} cover`}
-          aspectRatio="aspect-[2/3]"
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-        />
+      <div className="relative aspect-[2/3] bg-gray-700" onClick={() => onView(comic)}>
+        {imageLoading && (
+          <div className="absolute inset-0 bg-gray-700 animate-pulse flex items-center justify-center">
+            <div className="w-8 h-8 border-4 border-gray-600 border-t-blue-400 rounded-full animate-spin"></div>
+          </div>
+        )}
+        {!imageError && comic.coverImageUrl ? (
+          <img
+            src={comic.coverImageUrl}
+            alt={`${comic.seriesName} #${comic.issueNumber}`}
+            className={`w-full h-full object-cover transition-opacity duration-300 ${
+              imageLoading ? 'opacity-0' : 'opacity-100'
+            }`}
+            onLoad={handleImageLoad}
+            onError={handleImageError}
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
+            <div className="text-center text-gray-400">
+              <Award size={32} className="mx-auto mb-2" />
+              <p className="text-sm font-medium">No Cover</p>
+            </div>
+          </div>
+        )}
         
+        {/* Action Buttons */}
+        {/* Action Buttons - Edit button removed */}
+
         {/* Slabbed Indicator */}
         {comic.isSlabbed && (
           <div className="absolute top-1 sm:top-2 left-1 sm:left-2">
@@ -71,22 +95,16 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView, onEdit, onD
       </div>
 
       {/* Content */}
-      <div className="p-2 sm:p-3">
+      <div className="p-2 sm:p-3" onClick={() => onView(comic)}>
         {/* Series Title */}
-        <FluidTypography
-          variant="h4"
-          className="font-bold text-white mb-1 line-clamp-2 text-xs sm:text-sm"
-        >
+        <h3 className="font-bold text-white text-xs sm:text-sm mb-1 line-clamp-2">
           {comic.seriesName}
-        </FluidTypography>
+        </h3>
         
         {/* Issue # and Year */}
-        <FluidTypography
-          variant="caption"
-          className="text-gray-400 mb-1 sm:mb-2"
-        >
+        <p className="text-xs text-gray-400 mb-1 sm:mb-2">
           #{comic.issueNumber} ({new Date(comic.releaseDate).getFullYear()})
-        </FluidTypography>
+        </p>
 
         {/* Grade and Value on same line */}
         <div className="flex items-center justify-between">
@@ -99,6 +117,6 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView, onEdit, onD
           </span>
         </div>
       </div>
-    </TouchTarget>
+    </div>
   );
 };

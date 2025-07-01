@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { useComics } from './hooks/useComics';
-import { LoadingSkeleton } from './components/LoadingSkeleton';
-import { FluidTypography } from './components/FluidTypography';
 import { Dashboard } from './components/Dashboard';
 import { ComicCard } from './components/ComicCard';
 import { ComicListView } from './components/ComicListView';
@@ -171,14 +169,9 @@ function App() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto px-4">
-          <div className="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-4 sm:w-16 sm:h-16"></div>
-          <FluidTypography
-            variant="body"
-            className="text-gray-300"
-          >
-            Loading your collection...
-          </FluidTypography>
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-300">Loading your collection...</p>
         </div>
       </div>
     );
@@ -522,21 +515,15 @@ function App() {
             {comics.length === 0 ? (
               <div className="text-center py-8 sm:py-12">
                 <BookOpen size={48} className="mx-auto text-gray-500 mb-4" />
-                <FluidTypography
-                  variant="h3"
-                  className="font-medium text-white mb-2"
-                >
+                <h3 className="text-base sm:text-lg font-medium text-white mb-2">
                   {allComics.length === 0 ? 'No comics in your collection' : 'No comics match your filters'}
-                </FluidTypography>
-                <FluidTypography
-                  variant="body"
-                  className="text-gray-400 mb-4 sm:mb-6 px-4"
-                >
+                </h3>
+                <p className="text-sm sm:text-base text-gray-400 mb-4 sm:mb-6 px-4">
                   {allComics.length === 0 
                     ? 'Start building your collection by adding your first comic!'
                     : 'Try adjusting your search criteria or filters.'
                   }
-                </FluidTypography>
+                </p>
                 {allComics.length === 0 && (
                   <button
                     onClick={() => setShowForm(true)}
@@ -550,7 +537,7 @@ function App() {
             ) : (
               <>
                 {viewMode === 'grid' ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6 comic-grid">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
                     {comics.map((comic) => (
                       <ComicCard
                         key={comic.id}
