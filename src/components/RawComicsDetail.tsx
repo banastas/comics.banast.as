@@ -154,7 +154,7 @@ export const RawComicsDetail: React.FC<RawComicsDetailProps> = ({
             </button>
             
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 border border-gray-600 rounded-lg">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
                 <button
                   onClick={() => setViewMode('grid')}
                   className={`p-2 rounded-l-lg transition-colors ${

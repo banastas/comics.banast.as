@@ -231,7 +231,7 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
             <h3 className="text-lg font-semibold text-white mb-4">Slabbed Comics</h3>
             
             {viewMode === 'grid' ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
                 {sortedComics.map((comic) => (
                   <div
                     key={comic.id}
