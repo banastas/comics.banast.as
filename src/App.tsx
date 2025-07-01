@@ -354,8 +354,8 @@ function App() {
                   />
                 </div>
 
-                {/* Filter Toggle */}
-                <button
+                {/* Filter Toggle - Commented out for now */}
+                {/* <button
                   onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
                   className="flex items-center space-x-1 px-3 py-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors text-gray-300"
                 >
@@ -364,10 +364,10 @@ function App() {
                   {hasActiveFilters && (
                     <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
                   )}
-                </button>
+                </button> */}
 
-                {/* Clear Filters */}
-                {hasActiveFilters && (
+                {/* Clear Filters - Commented out for now */}
+                {/* {hasActiveFilters && (
                   <button
                     onClick={clearFilters}
                     className="p-2 text-gray-500 hover:text-gray-300 transition-colors"
@@ -375,7 +375,7 @@ function App() {
                   >
                     <X size={14} />
                   </button>
-                )}
+                )} */}
               </div>
             )}
             
@@ -501,15 +501,15 @@ function App() {
               />
             </div>
             
-            {/* Advanced Filters */}
-            {showAdvancedFilters && (
+            {/* Advanced Filters - Commented out for now */}
+            {/* {showAdvancedFilters && (
               <FilterControls
                 filters={filters}
                 onFiltersChange={setFilters}
                 allSeries={allSeries}
                 allTags={allTags}
               />
-            )}
+            )} */}
 
             {/* Comics Grid */}
             {comics.length === 0 ? (
