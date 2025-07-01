@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
+  Star,
+  Award,
 import { Comic, ComicStats } from '../types/Comic';
+import { Dashboard } from './Dashboard';
 import { Dashboard } from './Dashboard';
 import { 
   ArrowLeft, 
@@ -67,6 +70,45 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
     const biggestGain = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : -Infinity;
     return gain > biggestGain ? comic : biggest;
   }, null as Comic | null);
+    const gain = (comic.currentValue || 0) - comic.purchasePrice;
+    const biggestGain = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : -Infinity;
+    return gain > biggestGain ? comic : biggest;
+  }, null as Comic | null);
+
+  const biggestLoser = slabbedComicsWithCurrentValue.reduce((biggest, comic) => {
+    const loss = (comic.currentValue || 0) - comic.purchasePrice;
+    const biggestLoss = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : Infinity;
+    return loss < biggestLoss ? comic : biggest;
+  }, null as Comic | null);
+
+  const slabbedComicsStats: ComicStats = {
+    totalComics: slabbedComics.length,
+    totalValue: totalPurchaseValue,
+    totalPurchaseValue,
+    totalCurrentValue,
+    highestValuedComic: slabbedComics.reduce((highest, comic) => {
+      const comicValue = comic.currentValue || comic.purchasePrice;
+      const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
+      return comicValue > highestValue ? comic : highest;
+    }, null as Comic | null),
+    highestValuedSlabbedComic: slabbedComics.reduce((highest, comic) => {
+      const comicValue = comic.currentValue || comic.purchasePrice;
+      const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
+      return comicValue > highestValue ? comic : highest;
+    }, null as Comic | null),
+    highestValuedRawComic: null, // No raw comics in slabbed view
+    biggestGainer,
+    biggestLoser,
+    rawComics: 0, // No raw comics in slabbed view
+    slabbedComics: slabbedComics.length,
+    signedComics: slabbedComics.filter(comic => comic.signedBy.trim() !== '').length,
+    averageGrade: slabbedComics.length > 0 ? slabbedComics.reduce((sum, comic) => sum + comic.grade, 0) / slabbedComics.length : 0,
+    totalGainLoss,
+    totalGainLossPercentage: slabbedComicsWithCurrentValue.length > 0 && slabbedComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0) > 0
+      ? (totalGainLoss / slabbedComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0)) * 100 
+      : 0,
+    comicsWithCurrentValue: slabbedComicsWithCurrentValue.length,
+  };
 
   const biggestLoser = slabbedComicsWithCurrentValue.reduce((biggest, comic) => {
     const loss = (comic.currentValue || 0) - comic.purchasePrice;
@@ -209,11 +251,8 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
                         • {uniqueSeries.length} series
                       </span>
                     )}
-                  </p>
-                </div>
-              </div>
-            </div>
 
+            <Dashboard 
             <Dashboard 
               stats={slabbedComicsStats} 
               showDetailed={true}
@@ -223,63 +262,7 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
               onViewRawComics={() => {}} // No raw comics in this view
               onViewSlabbedComics={() => {}} // Already in slabbed comics view
             />
-
-            {/* Most Valuable Slabbed Comic */}
-            {mostValuable && (
               <div className="mt-6 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg p-4 text-white">
-                <h3 className="text-lg font-semibold mb-2">Most Valuable Slabbed Comic</h3>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xl font-bold">
-                      {mostValuable.seriesName} #{mostValuable.issueNumber}
-                    </p>
-                    <p className="text-purple-100 opacity-90">{mostValuable.title}</p>
-                    <p className="text-sm text-purple-200 opacity-80">
-                      Grade: {mostValuable.grade}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold">
-                      {formatCurrency(mostValuable.currentValue || mostValuable.purchasePrice)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Series Breakdown */}
-            {uniqueSeries.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-lg font-semibold text-white mb-3">Slabbed Comics by Series</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                  {uniqueSeries.slice(0, 8).map(series => {
-                    const seriesCount = slabbedComics.filter(comic => comic.seriesName === series).length;
-                    const seriesValue = slabbedComics
-                      .filter(comic => comic.seriesName === series)
-                      .reduce((sum, comic) => sum + (comic.currentValue || comic.purchasePrice), 0);
-                    
-                    return (
-                      <div 
-                        key={series} 
-                        className="bg-gray-700/30 rounded-lg p-3 border border-gray-600 cursor-pointer hover:border-blue-500 transition-colors"
-                        onClick={() => onViewSeries?.(series)}
-                      >
-                        <p className="font-medium text-white text-sm truncate">{series}</p>
-                        <p className="text-xs text-gray-400">{seriesCount} issue{seriesCount !== 1 ? 's' : ''}</p>
-                        <p className="text-xs text-green-400">{formatCurrency(seriesValue)}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Comics Grid/List */}
-          <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Slabbed Comics Collection</h3>
-            
-            {viewMode === 'grid' ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                 {sortedComics.map((comic) => (
                   <div
@@ -406,11 +389,3 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
                     </div>
                   </div>
                 ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};

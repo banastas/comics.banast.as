@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+  Star,
 import { Comic, ComicStats } from '../types/Comic';
+import { Dashboard } from './Dashboard';
 import { Dashboard } from './Dashboard';
 import { 
   ArrowLeft, 
@@ -66,6 +68,45 @@ export const RawComicsDetail: React.FC<RawComicsDetailProps> = ({
     const biggestGain = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : -Infinity;
     return gain > biggestGain ? comic : biggest;
   }, null as Comic | null);
+    const gain = (comic.currentValue || 0) - comic.purchasePrice;
+    const biggestGain = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : -Infinity;
+    return gain > biggestGain ? comic : biggest;
+  }, null as Comic | null);
+
+  const biggestLoser = rawComicsWithCurrentValue.reduce((biggest, comic) => {
+    const loss = (comic.currentValue || 0) - comic.purchasePrice;
+    const biggestLoss = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : Infinity;
+    return loss < biggestLoss ? comic : biggest;
+  }, null as Comic | null);
+
+  const rawComicsStats: ComicStats = {
+    totalComics: rawComics.length,
+    totalValue: totalPurchaseValue,
+    totalPurchaseValue,
+    totalCurrentValue,
+    highestValuedComic: rawComics.reduce((highest, comic) => {
+      const comicValue = comic.currentValue || comic.purchasePrice;
+      const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
+      return comicValue > highestValue ? comic : highest;
+    }, null as Comic | null),
+    highestValuedSlabbedComic: null, // No slabbed comics in raw view
+    highestValuedRawComic: rawComics.reduce((highest, comic) => {
+      const comicValue = comic.currentValue || comic.purchasePrice;
+      const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
+      return comicValue > highestValue ? comic : highest;
+    }, null as Comic | null),
+    biggestGainer,
+    biggestLoser,
+    rawComics: rawComics.length,
+    slabbedComics: 0, // No slabbed comics in raw view
+    signedComics: rawComics.filter(comic => comic.signedBy.trim() !== '').length,
+    averageGrade: rawComics.length > 0 ? rawComics.reduce((sum, comic) => sum + comic.grade, 0) / rawComics.length : 0,
+    totalGainLoss,
+    totalGainLossPercentage: rawComicsWithCurrentValue.length > 0 && rawComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0) > 0
+      ? (totalGainLoss / rawComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0)) * 100 
+      : 0,
+    comicsWithCurrentValue: rawComicsWithCurrentValue.length,
+  };
 
   const biggestLoser = rawComicsWithCurrentValue.reduce((biggest, comic) => {
     const loss = (comic.currentValue || 0) - comic.purchasePrice;
@@ -208,11 +249,8 @@ export const RawComicsDetail: React.FC<RawComicsDetailProps> = ({
                         • {uniqueSeries.length} series
                       </span>
                     )}
-                  </p>
-                </div>
-              </div>
-            </div>
 
+            <Dashboard 
             <Dashboard 
               stats={rawComicsStats} 
               showDetailed={true}
@@ -222,63 +260,7 @@ export const RawComicsDetail: React.FC<RawComicsDetailProps> = ({
               onViewRawComics={() => {}} // Already in raw comics view
               onViewSlabbedComics={() => {}} // No slabbed comics in this view
             />
-
-            {/* Most Valuable Raw Comic */}
-            {mostValuable && (
               <div className="mt-6 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-lg p-4 text-white">
-                <h3 className="text-lg font-semibold mb-2">Most Valuable Raw Comic</h3>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xl font-bold">
-                      {mostValuable.seriesName} #{mostValuable.issueNumber}
-                    </p>
-                    <p className="text-indigo-100 opacity-90">{mostValuable.title}</p>
-                    <p className="text-sm text-indigo-200 opacity-80">
-                      Grade: {mostValuable.grade}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold">
-                      {formatCurrency(mostValuable.currentValue || mostValuable.purchasePrice)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Series Breakdown */}
-            {uniqueSeries.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-lg font-semibold text-white mb-3">Raw Comics by Series</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                  {uniqueSeries.slice(0, 8).map(series => {
-                    const seriesCount = rawComics.filter(comic => comic.seriesName === series).length;
-                    const seriesValue = rawComics
-                      .filter(comic => comic.seriesName === series)
-                      .reduce((sum, comic) => sum + (comic.currentValue || comic.purchasePrice), 0);
-                    
-                    return (
-                      <div 
-                        key={series} 
-                        className="bg-gray-700/30 rounded-lg p-3 border border-gray-600 cursor-pointer hover:border-blue-500 transition-colors"
-                        onClick={() => onViewSeries?.(series)}
-                      >
-                        <p className="font-medium text-white text-sm truncate">{series}</p>
-                        <p className="text-xs text-gray-400">{seriesCount} issue{seriesCount !== 1 ? 's' : ''}</p>
-                        <p className="text-xs text-green-400">{formatCurrency(seriesValue)}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Comics Grid/List */}
-          <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Raw Comics Collection</h3>
-            
-            {viewMode === 'grid' ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                 {sortedComics.map((comic) => (
                   <div
@@ -405,11 +387,3 @@ export const RawComicsDetail: React.FC<RawComicsDetailProps> = ({
                     </div>
                   </div>
                 ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};

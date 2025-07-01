@@ -1,20 +1,14 @@
 import React, { useState } from 'react';
 import { Comic, ComicStats } from '../types/Comic';
 import { Dashboard } from './Dashboard';
+import { Dashboard } from './Dashboard';
 import { 
   ArrowLeft, 
-  Tag,
-  Grid,
-  List,
-  Star,
-  Award,
 } from 'lucide-react';
-
-interface TagDetailProps {
-  tag: string;
   tagComics: Comic[];
   allComics: Comic[];
-  onBack: () => void;
+  Star,
+  Award,
   onEdit: (comic: Comic) => void;
   onDelete: (id: string) => void;
   onView: (comic: Comic) => void;
@@ -69,6 +63,52 @@ export const TagDetail: React.FC<TagDetailProps> = ({
     const biggestGain = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : -Infinity;
     return gain > biggestGain ? comic : biggest;
   }, null as Comic | null);
+    const biggestGain = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : -Infinity;
+    return gain > biggestGain ? comic : biggest;
+  }, null as Comic | null);
+
+  const biggestLoser = tagComicsWithCurrentValue.reduce((biggest, comic) => {
+    const loss = (comic.currentValue || 0) - comic.purchasePrice;
+    const biggestLoss = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : Infinity;
+    return loss < biggestLoss ? comic : biggest;
+  }, null as Comic | null);
+
+  const tagComicsStats: ComicStats = {
+    totalComics: tagComics.length,
+    totalValue: totalPurchaseValue,
+    totalPurchaseValue,
+    totalCurrentValue,
+    highestValuedComic: tagComics.reduce((highest, comic) => {
+      const comicValue = comic.currentValue || comic.purchasePrice;
+      const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
+      return comicValue > highestValue ? comic : highest;
+    }, null as Comic | null),
+    highestValuedSlabbedComic: tagComics
+      .filter(comic => comic.isSlabbed)
+      .reduce((highest, comic) => {
+        const comicValue = comic.currentValue || comic.purchasePrice;
+        const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
+        return comicValue > highestValue ? comic : highest;
+      }, null as Comic | null),
+    highestValuedRawComic: tagComics
+      .filter(comic => !comic.isSlabbed)
+      .reduce((highest, comic) => {
+        const comicValue = comic.currentValue || comic.purchasePrice;
+        const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
+        return comicValue > highestValue ? comic : highest;
+      }, null as Comic | null),
+    biggestGainer,
+    biggestLoser,
+    rawComics: tagComics.filter(comic => !comic.isSlabbed).length,
+    slabbedComics: tagComics.filter(comic => comic.isSlabbed).length,
+    signedComics: tagComics.filter(comic => comic.signedBy.trim() !== '').length,
+    averageGrade: tagComics.length > 0 ? tagComics.reduce((sum, comic) => sum + comic.grade, 0) / tagComics.length : 0,
+    totalGainLoss,
+    totalGainLossPercentage: tagComicsWithCurrentValue.length > 0 && tagComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0) > 0
+      ? (totalGainLoss / tagComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0)) * 100 
+      : 0,
+    comicsWithCurrentValue: tagComicsWithCurrentValue.length,
+  };
 
   const biggestLoser = tagComicsWithCurrentValue.reduce((biggest, comic) => {
     const loss = (comic.currentValue || 0) - comic.purchasePrice;
@@ -224,11 +264,8 @@ export const TagDetail: React.FC<TagDetailProps> = ({
                         • {uniqueSeries.length} series
                       </span>
                     )}
-                  </p>
-                </div>
-              </div>
-            </div>
 
+            <Dashboard 
             <Dashboard 
               stats={tagComicsStats} 
               showDetailed={true}
@@ -238,76 +275,7 @@ export const TagDetail: React.FC<TagDetailProps> = ({
               onViewRawComics={onViewRawComics}
               onViewSlabbedComics={onViewSlabbedComics}
             />
-
-            {/* Most Valuable Comic */}
-            {mostValuable && (
               <div className="mt-6 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-4 text-white">
-                <h3 className="text-lg font-semibold mb-2">Most Valuable Comic with #{tag}</h3>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xl font-bold">
-                      {mostValuable.seriesName} #{mostValuable.issueNumber}
-                    </p>
-                    <p className="text-blue-100 opacity-90">{mostValuable.title}</p>
-                    <p className="text-sm text-blue-200 opacity-80">
-                      Grade: {mostValuable.grade} • {mostValuable.isSlabbed ? 'Slabbed' : 'Raw'}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold">
-                      {formatCurrency(mostValuable.currentValue || mostValuable.purchasePrice)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Series and Related Tags */}
-            <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Series Breakdown */}
-              {uniqueSeries.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-semibold text-white mb-3">Series with #{tag}</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {uniqueSeries.slice(0, 8).map(series => {
-                      const seriesCount = tagComics.filter(comic => comic.seriesName === series).length;
-                      const seriesValue = tagComics
-                        .filter(comic => comic.seriesName === series)
-                        .reduce((sum, comic) => sum + (comic.currentValue || comic.purchasePrice), 0);
-                      
-                      return (
-                        <div 
-                          key={series} 
-                          className="bg-gray-700/30 rounded-lg p-3 border border-gray-600 cursor-pointer hover:border-blue-500 transition-colors"
-                          onClick={() => onViewSeries?.(series)}
-                        >
-                          <p className="font-medium text-white text-sm truncate">{series}</p>
-                          <p className="text-xs text-gray-400">{seriesCount} issue{seriesCount !== 1 ? 's' : ''}</p>
-                          <p className="text-xs text-green-400">{formatCurrency(seriesValue)}</p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Related Tags */}
-              {relatedTags.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-semibold text-white mb-3">Related Tags</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {relatedTags.slice(0, 12).map(relatedTag => {
-                      const tagCount = tagComics.filter(comic => comic.tags.includes(relatedTag)).length;
-                      
-                      return (
-                        <button
-                          key={relatedTag}
-                          onClick={() => onViewTag?.(relatedTag)}
-                          className="px-3 py-1 bg-gray-700/50 text-gray-300 text-sm rounded border border-gray-600 hover:border-blue-500 hover:text-blue-400 transition-colors"
-                        >
-                          #{relatedTag} ({tagCount})
-                        </button>
-                      );
                     })}
                   </div>
                 </div>
