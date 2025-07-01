@@ -1,16 +1,9 @@
 import React, { useState } from 'react';
-import { Comic } from '../types/Comic';
+import { Comic, ComicStats } from '../types/Comic';
+import { Dashboard } from './Dashboard';
 import { 
   ArrowLeft, 
-  Calendar, 
-  Star, 
-  DollarSign, 
-  Award, 
-  PenTool, 
   BookOpen,
-  TrendingUp,
-  TrendingDown,
-  BarChart3,
   Grid,
   List,
 } from 'lucide-react';
@@ -63,14 +56,60 @@ export const SeriesDetail: React.FC<SeriesDetailProps> = ({
   };
 
   // Calculate series statistics
-  const totalIssues = seriesComics.length;
-  const totalValue = seriesComics.reduce((sum, comic) => sum + comic.purchasePrice, 0);
-  const currentValue = seriesComics.reduce((sum, comic) => sum + (comic.currentValue || comic.purchasePrice), 0);
-  const gainLoss = currentValue - totalValue;
-  const gainLossPercentage = totalValue > 0 ? (gainLoss / totalValue) * 100 : 0;
-  const averageGrade = totalIssues > 0 ? seriesComics.reduce((sum, comic) => sum + comic.grade, 0) / totalIssues : 0;
-  const slabbedCount = seriesComics.filter(comic => comic.isSlabbed).length;
-  const signedCount = seriesComics.filter(comic => comic.signedBy.trim() !== '').length;
+  const seriesComicsWithCurrentValue = seriesComics.filter(comic => comic.currentValue !== undefined);
+  const totalPurchaseValue = seriesComics.reduce((sum, comic) => sum + comic.purchasePrice, 0);
+  const totalCurrentValue = seriesComicsWithCurrentValue.reduce((sum, comic) => sum + (comic.currentValue || 0), 0);
+  const totalGainLoss = totalCurrentValue - seriesComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0);
+  
+  // Find biggest gainer and loser
+  const biggestGainer = seriesComicsWithCurrentValue.reduce((biggest, comic) => {
+    const gain = (comic.currentValue || 0) - comic.purchasePrice;
+    const biggestGain = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : -Infinity;
+    return gain > biggestGain ? comic : biggest;
+  }, null as Comic | null);
+
+  const biggestLoser = seriesComicsWithCurrentValue.reduce((biggest, comic) => {
+    const loss = (comic.currentValue || 0) - comic.purchasePrice;
+    const biggestLoss = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : Infinity;
+    return loss < biggestLoss ? comic : biggest;
+  }, null as Comic | null);
+
+  const seriesComicsStats: ComicStats = {
+    totalComics: seriesComics.length,
+    totalValue: totalPurchaseValue,
+    totalPurchaseValue,
+    totalCurrentValue,
+    highestValuedComic: seriesComics.reduce((highest, comic) => {
+      const comicValue = comic.currentValue || comic.purchasePrice;
+      const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
+      return comicValue > highestValue ? comic : highest;
+    }, null as Comic | null),
+    highestValuedSlabbedComic: seriesComics
+      .filter(comic => comic.isSlabbed)
+      .reduce((highest, comic) => {
+        const comicValue = comic.currentValue || comic.purchasePrice;
+        const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
+        return comicValue > highestValue ? comic : highest;
+      }, null as Comic | null),
+    highestValuedRawComic: seriesComics
+      .filter(comic => !comic.isSlabbed)
+      .reduce((highest, comic) => {
+        const comicValue = comic.currentValue || comic.purchasePrice;
+        const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
+        return comicValue > highestValue ? comic : highest;
+      }, null as Comic | null),
+    biggestGainer,
+    biggestLoser,
+    rawComics: seriesComics.filter(comic => !comic.isSlabbed).length,
+    slabbedComics: seriesComics.filter(comic => comic.isSlabbed).length,
+    signedComics: seriesComics.filter(comic => comic.signedBy.trim() !== '').length,
+    averageGrade: seriesComics.length > 0 ? seriesComics.reduce((sum, comic) => sum + comic.grade, 0) / seriesComics.length : 0,
+    totalGainLoss,
+    totalGainLossPercentage: seriesComicsWithCurrentValue.length > 0 && seriesComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0) > 0
+      ? (totalGainLoss / seriesComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0)) * 100 
+      : 0,
+    comicsWithCurrentValue: seriesComicsWithCurrentValue.length,
+  };
 
   // Find highest and lowest issue numbers
   const issueNumbers = seriesComics.map(comic => comic.issueNumber).sort((a, b) => a - b);
@@ -160,13 +199,13 @@ export const SeriesDetail: React.FC<SeriesDetailProps> = ({
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
-          {/* Series Header */}
+          {/* Series Header and Statistics */}
           <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h1 className="text-3xl font-bold text-white mb-2">{seriesName}</h1>
                 <p className="text-gray-300">
-                  {totalIssues} issue{totalIssues !== 1 ? 's' : ''} in collection
+                  {seriesComics.length} issue{seriesComics.length !== 1 ? 's' : ''} in collection
                   {lowestIssue && highestIssue && (
                     <span className="text-gray-400 ml-2">
                       (#{lowestIssue} - #{highestIssue})
@@ -174,89 +213,17 @@ export const SeriesDetail: React.FC<SeriesDetailProps> = ({
                   )}
                 </p>
               </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold text-white">{formatCurrency(currentValue)}</p>
-                <p className="text-sm text-gray-400">Current Value</p>
-              </div>
             </div>
 
-            {/* Series Statistics */}
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-400">Total Issues</p>
-                    <p className="text-xl font-bold text-white">{totalIssues}</p>
-                  </div>
-                  <BookOpen size={20} className="text-blue-400" />
-                </div>
-              </div>
-
-              <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-400">Invested</p>
-                    <p className="text-xl font-bold text-white">{formatCurrency(totalValue)}</p>
-                  </div>
-                  <DollarSign size={20} className="text-green-400" />
-                </div>
-              </div>
-
-              <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-400">Gain/Loss</p>
-                    <p className={`text-xl font-bold ${gainLoss >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                      {gainLoss >= 0 ? '+' : ''}{formatCurrency(gainLoss)}
-                    </p>
-                    <p className={`text-xs ${gainLoss >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                      {totalValue > 0 && `(${gainLossPercentage >= 0 ? '+' : ''}${gainLossPercentage.toFixed(1)}%)`}
-                    </p>
-                  </div>
-                  {gainLoss >= 0 ? (
-                    <TrendingUp size={20} className="text-emerald-400" />
-                  ) : (
-                    <TrendingDown size={20} className="text-red-400" />
-                  )}
-                </div>
-              </div>
-
-              <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-400">Avg Grade</p>
-                    <p className="text-xl font-bold text-white">{averageGrade.toFixed(1)}</p>
-                  </div>
-                  <Star size={20} className="text-amber-400" />
-                </div>
-              </div>
-
-              <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-400">Slabbed</p>
-                    <p className="text-xl font-bold text-white">{slabbedCount}</p>
-                    <p className="text-xs text-gray-400">
-                      {totalIssues > 0 ? Math.round((slabbedCount / totalIssues) * 100) : 0}%
-                    </p>
-                  </div>
-                  <Award size={20} className="text-purple-400" />
-                </div>
-              </div>
-
-              <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-400">Signed</p>
-                    <p className="text-xl font-bold text-white">{signedCount}</p>
-                    <p className="text-xs text-gray-400">
-                      {totalIssues > 0 ? Math.round((signedCount / totalIssues) * 100) : 0}%
-                    </p>
-                  </div>
-                  <PenTool size={20} className="text-rose-400" />
-                </div>
-              </div>
-            </div>
+            <Dashboard 
+              stats={seriesComicsStats} 
+              showDetailed={true}
+              onViewComic={onView}
+              onViewSeries={onViewSeries}
+              onViewStorageLocation={onViewStorageLocation}
+              onViewRawComics={onViewRawComics}
+              onViewSlabbedComics={onViewSlabbedComics}
+            />
 
             {/* Most Valuable Issue */}
             {mostValuable && (

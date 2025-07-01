@@ -1,19 +1,11 @@
 import React, { useState } from 'react';
-import { Comic } from '../types/Comic';
+import { Comic, ComicStats } from '../types/Comic';
+import { Dashboard } from './Dashboard';
 import { 
   ArrowLeft, 
-  Calendar, 
-  Star, 
-  DollarSign, 
-  Award, 
-  PenTool, 
   Tag,
-  TrendingUp,
-  TrendingDown,
-  BarChart3,
   Grid,
   List,
-  Hash
 } from 'lucide-react';
 
 interface TagDetailProps {
@@ -64,14 +56,60 @@ export const TagDetail: React.FC<TagDetailProps> = ({
   };
 
   // Calculate tag statistics
-  const totalComics = tagComics.length;
-  const totalValue = tagComics.reduce((sum, comic) => sum + comic.purchasePrice, 0);
-  const currentValue = tagComics.reduce((sum, comic) => sum + (comic.currentValue || comic.purchasePrice), 0);
-  const gainLoss = currentValue - totalValue;
-  const gainLossPercentage = totalValue > 0 ? (gainLoss / totalValue) * 100 : 0;
-  const averageGrade = totalComics > 0 ? tagComics.reduce((sum, comic) => sum + comic.grade, 0) / totalComics : 0;
-  const slabbedCount = tagComics.filter(comic => comic.isSlabbed).length;
-  const signedCount = tagComics.filter(comic => comic.signedBy.trim() !== '').length;
+  const tagComicsWithCurrentValue = tagComics.filter(comic => comic.currentValue !== undefined);
+  const totalPurchaseValue = tagComics.reduce((sum, comic) => sum + comic.purchasePrice, 0);
+  const totalCurrentValue = tagComicsWithCurrentValue.reduce((sum, comic) => sum + (comic.currentValue || 0), 0);
+  const totalGainLoss = totalCurrentValue - tagComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0);
+  
+  // Find biggest gainer and loser
+  const biggestGainer = tagComicsWithCurrentValue.reduce((biggest, comic) => {
+    const gain = (comic.currentValue || 0) - comic.purchasePrice;
+    const biggestGain = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : -Infinity;
+    return gain > biggestGain ? comic : biggest;
+  }, null as Comic | null);
+
+  const biggestLoser = tagComicsWithCurrentValue.reduce((biggest, comic) => {
+    const loss = (comic.currentValue || 0) - comic.purchasePrice;
+    const biggestLoss = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : Infinity;
+    return loss < biggestLoss ? comic : biggest;
+  }, null as Comic | null);
+
+  const tagComicsStats: ComicStats = {
+    totalComics: tagComics.length,
+    totalValue: totalPurchaseValue,
+    totalPurchaseValue,
+    totalCurrentValue,
+    highestValuedComic: tagComics.reduce((highest, comic) => {
+      const comicValue = comic.currentValue || comic.purchasePrice;
+      const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
+      return comicValue > highestValue ? comic : highest;
+    }, null as Comic | null),
+    highestValuedSlabbedComic: tagComics
+      .filter(comic => comic.isSlabbed)
+      .reduce((highest, comic) => {
+        const comicValue = comic.currentValue || comic.purchasePrice;
+        const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
+        return comicValue > highestValue ? comic : highest;
+      }, null as Comic | null),
+    highestValuedRawComic: tagComics
+      .filter(comic => !comic.isSlabbed)
+      .reduce((highest, comic) => {
+        const comicValue = comic.currentValue || comic.purchasePrice;
+        const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
+        return comicValue > highestValue ? comic : highest;
+      }, null as Comic | null),
+    biggestGainer,
+    biggestLoser,
+    rawComics: tagComics.filter(comic => !comic.isSlabbed).length,
+    slabbedComics: tagComics.filter(comic => comic.isSlabbed).length,
+    signedComics: tagComics.filter(comic => comic.signedBy.trim() !== '').length,
+    averageGrade: tagComics.length > 0 ? tagComics.reduce((sum, comic) => sum + comic.grade, 0) / tagComics.length : 0,
+    totalGainLoss,
+    totalGainLossPercentage: tagComicsWithCurrentValue.length > 0 && tagComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0) > 0
+      ? (totalGainLoss / tagComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0)) * 100 
+      : 0,
+    comicsWithCurrentValue: tagComicsWithCurrentValue.length,
+  };
 
   // Get unique series with this tag
   const uniqueSeries = Array.from(new Set(tagComics.map(comic => comic.seriesName))).sort();
@@ -168,7 +206,7 @@ export const TagDetail: React.FC<TagDetailProps> = ({
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
-          {/* Tag Header */}
+          {/* Tag Header and Statistics */}
           <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
@@ -178,7 +216,7 @@ export const TagDetail: React.FC<TagDetailProps> = ({
                 <div>
                   <h1 className="text-3xl font-bold text-white mb-2">#{tag}</h1>
                   <p className="text-gray-300">
-                    {totalComics} comic{totalComics !== 1 ? 's' : ''} with this tag
+                    {tagComics.length} comic{tagComics.length !== 1 ? 's' : ''} with this tag
                     {uniqueSeries.length > 0 && (
                       <span className="text-gray-400 ml-2">
                         • {uniqueSeries.length} series
@@ -187,89 +225,17 @@ export const TagDetail: React.FC<TagDetailProps> = ({
                   </p>
                 </div>
               </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold text-white">{formatCurrency(currentValue)}</p>
-                <p className="text-sm text-gray-400">Current Value</p>
-              </div>
             </div>
 
-            {/* Tag Statistics */}
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-400">Total Comics</p>
-                    <p className="text-xl font-bold text-white">{totalComics}</p>
-                  </div>
-                  <Hash size={20} className="text-blue-400" />
-                </div>
-              </div>
-
-              <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-400">Invested</p>
-                    <p className="text-xl font-bold text-white">{formatCurrency(totalValue)}</p>
-                  </div>
-                  <DollarSign size={20} className="text-green-400" />
-                </div>
-              </div>
-
-              <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-400">Gain/Loss</p>
-                    <p className={`text-xl font-bold ${gainLoss >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                      {gainLoss >= 0 ? '+' : ''}{formatCurrency(gainLoss)}
-                    </p>
-                    <p className={`text-xs ${gainLoss >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                      {totalValue > 0 && `(${gainLossPercentage >= 0 ? '+' : ''}${gainLossPercentage.toFixed(1)}%)`}
-                    </p>
-                  </div>
-                  {gainLoss >= 0 ? (
-                    <TrendingUp size={20} className="text-emerald-400" />
-                  ) : (
-                    <TrendingDown size={20} className="text-red-400" />
-                  )}
-                </div>
-              </div>
-
-              <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-400">Avg Grade</p>
-                    <p className="text-xl font-bold text-white">{averageGrade.toFixed(1)}</p>
-                  </div>
-                  <Star size={20} className="text-amber-400" />
-                </div>
-              </div>
-
-              <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-400">Slabbed</p>
-                    <p className="text-xl font-bold text-white">{slabbedCount}</p>
-                    <p className="text-xs text-gray-400">
-                      {totalComics > 0 ? Math.round((slabbedCount / totalComics) * 100) : 0}%
-                    </p>
-                  </div>
-                  <Award size={20} className="text-purple-400" />
-                </div>
-              </div>
-
-              <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-400">Signed</p>
-                    <p className="text-xl font-bold text-white">{signedCount}</p>
-                    <p className="text-xs text-gray-400">
-                      {totalComics > 0 ? Math.round((signedCount / totalComics) * 100) : 0}%
-                    </p>
-                  </div>
-                  <PenTool size={20} className="text-rose-400" />
-                </div>
-              </div>
-            </div>
+            <Dashboard 
+              stats={tagComicsStats} 
+              showDetailed={true}
+              onViewComic={onView}
+              onViewSeries={onViewSeries}
+              onViewStorageLocation={onViewStorageLocation}
+              onViewRawComics={onViewRawComics}
+              onViewSlabbedComics={onViewSlabbedComics}
+            />
 
             {/* Most Valuable Comic */}
             {mostValuable && (
