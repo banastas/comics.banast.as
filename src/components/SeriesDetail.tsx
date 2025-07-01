@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Comic, ComicStats } from '../types/Comic';
 import { Dashboard } from './Dashboard';
 import { 
@@ -24,6 +24,10 @@ export const SeriesDetail: React.FC<SeriesDetailProps> = ({
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'issue' | 'grade' | 'value' | 'date'>('issue');
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
