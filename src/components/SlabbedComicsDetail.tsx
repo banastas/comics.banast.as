@@ -354,6 +354,4 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
           </div>
         </div>
       </div>
-    </div>
-  );
 };

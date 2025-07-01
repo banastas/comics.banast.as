@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Comic, ComicStats } from '../types/Comic';
 import { Dashboard } from './Dashboard';
-import { Dashboard } from './Dashboard';
 import { 
   ArrowLeft, 
   Grid,
   List,
-  Tag
+  Tag,
+  Star,
+  Award
 } from 'lucide-react';
 
 interface TagDetailProps {
@@ -14,8 +15,6 @@ interface TagDetailProps {
   tagComics: Comic[];
   allComics: Comic[];
   onBack: () => void;
-  Star,
-  Award,
   onEdit: (comic: Comic) => void;
   onDelete: (id: string) => void;
   onView: (comic: Comic) => void;
@@ -23,6 +22,8 @@ interface TagDetailProps {
   onViewStorageLocation?: (storageLocation: string) => void;
   onViewCoverArtist?: (coverArtist: string) => void;
   onViewTag?: (tag: string) => void;
+  onViewRawComics?: () => void;
+  onViewSlabbedComics?: () => void;
 }
 
 export const TagDetail: React.FC<TagDetailProps> = ({ 
@@ -236,8 +237,8 @@ export const TagDetail: React.FC<TagDetailProps> = ({
               onViewComic={onView}
               onViewSeries={onViewSeries}
               onViewStorageLocation={onViewStorageLocation}
-              onViewRawComics={onViewRawComics}
-              onViewSlabbedComics={onViewSlabbedComics}
+              onViewRawComics={() => {}}
+              onViewSlabbedComics={() => {}}
             />
           </div>
 
