@@ -40,7 +40,7 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView, onEdit, onD
   };
 
   return (
-    <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden hover:shadow-xl hover:border-gray-600 transition-all duration-300 group cursor-pointer w-full">
+    <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden hover:shadow-xl hover:border-blue-500 transition-all duration-300 group cursor-pointer w-full">
       {/* Cover Image */}
       <div className="relative aspect-[2/3] bg-gray-700" onClick={() => onView(comic)}>
         {imageLoading && (
