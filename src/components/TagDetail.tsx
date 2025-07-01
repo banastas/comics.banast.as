@@ -3,11 +3,11 @@ import { Comic, ComicStats } from '../types/Comic';
 import { Dashboard } from './Dashboard';
 import { 
   ArrowLeft, 
+  Tag,
   Grid,
   List,
-  Tag,
   Star,
-  Award
+  Award,
 } from 'lucide-react';
 
 interface TagDetailProps {
@@ -22,8 +22,6 @@ interface TagDetailProps {
   onViewStorageLocation?: (storageLocation: string) => void;
   onViewCoverArtist?: (coverArtist: string) => void;
   onViewTag?: (tag: string) => void;
-  onViewRawComics?: () => void;
-  onViewSlabbedComics?: () => void;
 }
 
 export const TagDetail: React.FC<TagDetailProps> = ({ 
@@ -237,34 +235,84 @@ export const TagDetail: React.FC<TagDetailProps> = ({
               onViewComic={onView}
               onViewSeries={onViewSeries}
               onViewStorageLocation={onViewStorageLocation}
-              onViewRawComics={() => {}}
-              onViewSlabbedComics={() => {}}
+              onViewRawComics={onViewRawComics}
+              onViewSlabbedComics={onViewSlabbedComics}
             />
 
             {/* Most Valuable Comic */}
             {mostValuable && (
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                <div className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg p-4 text-white">
-                  <h3 className="text-lg font-semibold mb-2">Most Valuable Comic</h3>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xl font-bold">
-                        {mostValuable.seriesName} #{mostValuable.issueNumber}
-                      </p>
-                      <p className="text-blue-100 opacity-90">{mostValuable.title}</p>
-                      <p className="text-sm text-blue-200 opacity-80">
-                        Grade: {mostValuable.grade} • {mostValuable.isSlabbed ? 'Slabbed' : 'Raw'}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-bold">
-                        {formatCurrency(mostValuable.currentValue || mostValuable.purchasePrice)}
-                      </p>
-                    </div>
+              <div className="mt-6 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-4 text-white">
+                <h3 className="text-lg font-semibold mb-2">Most Valuable Comic with #{tag}</h3>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xl font-bold">
+                      {mostValuable.seriesName} #{mostValuable.issueNumber}
+                    </p>
+                    <p className="text-blue-100 opacity-90">{mostValuable.title}</p>
+                    <p className="text-sm text-blue-200 opacity-80">
+                      Grade: {mostValuable.grade} • {mostValuable.isSlabbed ? 'Slabbed' : 'Raw'}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold">
+                      {formatCurrency(mostValuable.currentValue || mostValuable.purchasePrice)}
+                    </p>
                   </div>
                 </div>
               </div>
             )}
+
+            {/* Series and Related Tags */}
+            <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Series Breakdown */}
+              {uniqueSeries.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-3">Series with #{tag}</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {uniqueSeries.slice(0, 8).map(series => {
+                      const seriesCount = tagComics.filter(comic => comic.seriesName === series).length;
+                      const seriesValue = tagComics
+                        .filter(comic => comic.seriesName === series)
+                        .reduce((sum, comic) => sum + (comic.currentValue || comic.purchasePrice), 0);
+                      
+                      return (
+                        <div 
+                          key={series} 
+                          className="bg-gray-700/30 rounded-lg p-3 border border-gray-600 cursor-pointer hover:border-blue-500 transition-colors"
+                          onClick={() => onViewSeries?.(series)}
+                        >
+                          <p className="font-medium text-white text-sm truncate">{series}</p>
+                          <p className="text-xs text-gray-400">{seriesCount} issue{seriesCount !== 1 ? 's' : ''}</p>
+                          <p className="text-xs text-green-400">{formatCurrency(seriesValue)}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Related Tags */}
+              {relatedTags.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-3">Related Tags</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {relatedTags.slice(0, 12).map(relatedTag => {
+                      const tagCount = tagComics.filter(comic => comic.tags.includes(relatedTag)).length;
+                      
+                      return (
+                        <button
+                          key={relatedTag}
+                          onClick={() => onViewTag?.(relatedTag)}
+                          className="px-3 py-1 bg-gray-700/50 text-gray-300 text-sm rounded border border-gray-600 hover:border-blue-500 hover:text-blue-400 transition-colors"
+                        >
+                          #{relatedTag} ({tagCount})
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Comics Grid/List */}
@@ -272,7 +320,7 @@ export const TagDetail: React.FC<TagDetailProps> = ({
             <h3 className="text-lg font-semibold text-white mb-4">Comics tagged with #{tag}</h3>
             
             {viewMode === 'grid' ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                 {sortedComics.map((comic) => (
                   <div
                     key={comic.id}
@@ -305,6 +353,9 @@ export const TagDetail: React.FC<TagDetailProps> = ({
                           </span>
                         )}
                       </div>
+
+                      {/* Action Buttons */}
+                      {/* Action Buttons - Edit button removed */}
                     </div>
                     
                     <div className="p-3">
@@ -409,6 +460,7 @@ export const TagDetail: React.FC<TagDetailProps> = ({
                         </div>
                         
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                          {/* Edit button removed */}
                         </div>
                       </div>
                     </div>

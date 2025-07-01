@@ -238,26 +238,24 @@ export const CoverArtistDetail: React.FC<CoverArtistDetailProps> = ({
               onViewSlabbedComics={onViewSlabbedComics}
             />
 
-            {/* Most Valuable Cover */}
+            {/* Most Valuable Comic */}
             {mostValuable && (
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg p-4 text-white">
-                  <h3 className="text-lg font-semibold mb-2">Most Valuable Cover</h3>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xl font-bold">
-                        {mostValuable.seriesName} #{mostValuable.issueNumber}
-                      </p>
-                      <p className="text-purple-100 opacity-90">{mostValuable.title}</p>
-                      <p className="text-sm text-purple-200 opacity-80">
-                        Grade: {mostValuable.grade} • {mostValuable.isSlabbed ? 'Slabbed' : 'Raw'}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-bold">
-                        {formatCurrency(mostValuable.currentValue || mostValuable.purchasePrice)}
-                      </p>
-                    </div>
+              <div className="mt-6 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg p-4 text-white">
+                <h3 className="text-lg font-semibold mb-2">Most Valuable Cover</h3>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xl font-bold">
+                      {mostValuable.seriesName} #{mostValuable.issueNumber}
+                    </p>
+                    <p className="text-purple-100 opacity-90">{mostValuable.title}</p>
+                    <p className="text-sm text-purple-200 opacity-80">
+                      Grade: {mostValuable.grade} • {mostValuable.isSlabbed ? 'Slabbed' : 'Raw'}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold">
+                      {formatCurrency(mostValuable.currentValue || mostValuable.purchasePrice)}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -296,7 +294,7 @@ export const CoverArtistDetail: React.FC<CoverArtistDetailProps> = ({
             <h3 className="text-lg font-semibold text-white mb-4">Comics with {coverArtist} Cover Art</h3>
             
             {viewMode === 'grid' ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                 {sortedComics.map((comic) => (
                   <div
                     key={comic.id}
