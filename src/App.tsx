@@ -487,17 +487,19 @@ function App() {
       </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 pb-4 sm:pb-6 lg:pb-8">
         {activeTab === 'collection' && (
           <>
-            <Dashboard 
-              stats={stats} 
-              onViewComic={handleViewComic}
-              onViewSeries={handleViewSeries}
-              onViewStorageLocation={handleViewStorageLocation}
-              onViewRawComics={handleViewRawComics}
-              onViewSlabbedComics={handleViewSlabbedComics}
-            />
+            <div className={showAdvancedFilters ? '' : 'pt-4 sm:pt-6 lg:pt-8'}>
+              <Dashboard 
+                stats={stats} 
+                onViewComic={handleViewComic}
+                onViewSeries={handleViewSeries}
+                onViewStorageLocation={handleViewStorageLocation}
+                onViewRawComics={handleViewRawComics}
+                onViewSlabbedComics={handleViewSlabbedComics}
+              />
+            </div>
             
             {/* Advanced Filters */}
             {showAdvancedFilters && (
