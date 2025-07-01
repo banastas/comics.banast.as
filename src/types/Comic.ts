@@ -40,7 +40,7 @@ export interface ComicStats {
   comicsWithCurrentValue: number;
 }
 
-export type SortField = 'title' | 'seriesName' | 'issueNumber' | 'releaseDate' | 'grade' | 'purchaseDate' | 'purchasePrice';
+export type SortField = 'title' | 'seriesName' | 'issueNumber' | 'releaseDate' | 'grade' | 'purchaseDate' | 'purchasePrice' | 'currentValue';
 export type SortDirection = 'asc' | 'desc';
 
 export interface FilterOptions {

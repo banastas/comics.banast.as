@@ -110,8 +110,17 @@ export const useComics = () => {
 
     // Apply sorting
     filtered.sort((a, b) => {
-      const aValue = a[sortField];
-      const bValue = b[sortField];
+      let aValue: any;
+      let bValue: any;
+      
+      // Handle currentValue sorting specially since it might be undefined
+      if (sortField === 'currentValue') {
+        aValue = a.currentValue || a.purchasePrice;
+        bValue = b.currentValue || b.purchasePrice;
+      } else {
+        aValue = a[sortField];
+        bValue = b[sortField];
+      }
       
       let comparison = 0;
       

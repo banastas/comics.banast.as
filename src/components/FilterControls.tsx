@@ -61,7 +61,8 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
     { field: 'issueNumber', label: 'Issue #' },
     { field: 'releaseDate', label: 'Release Date' },
     { field: 'grade', label: 'Grade' },
-    { field: 'purchasePrice', label: 'Price' },
+    { field: 'purchasePrice', label: 'Purchase Price' },
+    { field: 'currentValue', label: 'Current Value' },
     { field: 'purchaseDate', label: 'Purchase Date' },
   ];
 
