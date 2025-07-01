@@ -43,6 +43,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       color: 'bg-blue-500',
       bgColor: 'bg-blue-500/10',
       borderColor: 'border-blue-500/30',
+      show: stats.totalComics > 0,
     },
     ...(showDetailed ? [{
       title: 'Purchase Value',
@@ -51,6 +52,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       color: 'bg-green-500',
       bgColor: 'bg-green-500/10',
       borderColor: 'border-green-500/30',
+      show: stats.totalPurchaseValue > 0,
     }] : []),
     ...(stats.comicsWithCurrentValue > 0 ? [{
       title: 'Current Value',
@@ -59,6 +61,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       color: 'bg-blue-500',
       bgColor: 'bg-blue-500/10',
       borderColor: 'border-blue-500/30',
+      show: stats.totalCurrentValue > 0,
     }] : []),
     ...(showDetailed && stats.comicsWithCurrentValue > 0 ? [{
       title: 'Total Gain/Loss',
@@ -67,6 +70,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       color: stats.totalGainLoss >= 0 ? 'bg-emerald-500' : 'bg-red-500',
       bgColor: stats.totalGainLoss >= 0 ? 'bg-emerald-500/10' : 'bg-red-500/10',
       borderColor: stats.totalGainLoss >= 0 ? 'border-emerald-500/30' : 'border-red-500/30',
+      show: stats.comicsWithCurrentValue > 0,
     }] : []),
     ...(showDetailed ? [{
       title: 'Average Grade',
@@ -75,6 +79,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       color: 'bg-amber-500',
       bgColor: 'bg-amber-500/10',
       borderColor: 'border-amber-500/30',
+      show: stats.totalComics > 0,
     }] : []),
     ...(stats.slabbedComics > 0 ? [{
       title: 'Slabbed Comics',
@@ -83,6 +88,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       color: 'bg-purple-500',
       bgColor: 'bg-purple-500/10',
       borderColor: 'border-purple-500/30',
+      show: stats.slabbedComics > 0,
     }] : []),
     ...(stats.rawComics > 0 ? [{
       title: 'Raw Comics',
@@ -91,6 +97,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       color: 'bg-indigo-500',
       bgColor: 'bg-indigo-500/10',
       borderColor: 'border-indigo-500/30',
+      show: stats.rawComics > 0,
     }] : []),
     ...(showDetailed && stats.signedComics > 0 ? [{
       title: 'Signed Comics',
@@ -99,8 +106,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
       color: 'bg-rose-500',
       bgColor: 'bg-rose-500/10',
       borderColor: 'border-rose-500/30',
+      show: stats.signedComics > 0,
     }] : []),
-  ];
+  ].filter(card => card.show !== false);
 
   return (
     <div className={showDetailed ? "space-y-8" : "mb-8"}>
