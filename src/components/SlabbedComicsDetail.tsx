@@ -1,5 +1,3 @@
-Here's the fixed version with all missing brackets added:
-
 import React, { useState } from 'react';
 import { 
   ArrowLeft, 
@@ -11,15 +9,6 @@ import {
 } from 'lucide-react';
 import { Comic, ComicStats } from '../types/Comic';
 import { Dashboard } from './Dashboard';
-import { Dashboard } from './Dashboard';
-import { 
-  ArrowLeft, 
-  Archive,
-  Grid,
-  List,
-  Star,
-  Award,
-} from 'lucide-react';
 
 interface SlabbedComicsDetailProps {
   slabbedComics: Comic[];

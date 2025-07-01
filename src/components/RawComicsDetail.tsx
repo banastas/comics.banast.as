@@ -8,7 +8,6 @@ import {
 } from 'lucide-react';
 import { Comic, ComicStats } from '../types/Comic';
 import { Dashboard } from './Dashboard';
-import { Dashboard } from './Dashboard';
 
 interface RawComicsDetailProps {
   rawComics: Comic[];
