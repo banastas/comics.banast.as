@@ -562,7 +562,7 @@ function App() {
         )}
 
         {activeTab === 'stats' && (
-          <div className="space-y-8">
+          <div className="space-y-8 pt-4 sm:pt-6 lg:pt-8">
             <Dashboard 
               stats={stats} 
               showDetailed={true} 
