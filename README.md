@@ -18,7 +18,7 @@ A modern, responsive web application for managing and tracking your comic book c
 - **Graphic Novel Classification**: Distinguish graphic novels from regular issues
 - **Value Tracking**: Monitor purchase price vs current market value
 - **Performance Analytics**: Track gains/losses across your collection
-- **Search & Filter**: Powerful search and filtering capabilities
+- **Search Functionality**: Quick search across comic titles, series, notes, and more
 - **Multiple View Modes**: Grid and list views for different browsing preferences
 
 ### Statistics & Analytics
@@ -33,8 +33,25 @@ A modern, responsive web application for managing and tracking your comic book c
 - **Series Detail Pages**: View all issues from a specific series
 - **Storage Location Views**: See all comics in a specific location
 - **Cover Artist Pages**: Browse comics by cover artist
-- **Tag-based Browsing**: Filter collection by tags
+- **Tag-based Browsing**: Browse collection by tags
 - **Condition Views**: Separate views for raw and slabbed comics
+
+## Dynamic Interface
+
+### Conditional Statistics Display
+The statistics dashboard automatically hides information boxes when their values are zero or null:
+- **Slabbed Comics**: Only appears when you have slabbed comics in your collection
+- **Raw Comics**: Only appears when you have raw comics in your collection  
+- **Signed Comics**: Only appears when you have signed comics (detailed statistics view only)
+- **Performance Metrics**: Gain/loss statistics only appear when comics have current value data
+
+This creates a cleaner interface that only shows relevant information based on your collection's content.
+
+### Responsive Design
+The interface adapts seamlessly across all device sizes with:
+- **Mobile-first Design**: Optimized for touch interfaces and small screens
+- **Tablet Support**: Enhanced layouts for medium-sized screens
+- **Desktop Experience**: Full-featured interface with expanded controls
 
 ## Technology Stack
 
@@ -42,7 +59,7 @@ A modern, responsive web application for managing and tracking your comic book c
 - **Styling**: Tailwind CSS for responsive design
 - **Icons**: Lucide React icon library
 - **Build Tool**: Vite for fast development and building
-- **State Management**: React hooks (useState, useEffect, useCallback)
+- **State Management**: React hooks (useState, useEffect, useCallback) with custom hooks for data management
 - **Data Storage**: JSON file-based storage (easily replaceable with database)
 
 ## Project Structure
@@ -53,8 +70,8 @@ src/
 │   ├── ComicCard.tsx    # Individual comic display card
 │   ├── ComicDetail.tsx  # Detailed comic view page
 │   ├── ComicForm.tsx    # Add/edit comic form (currently disabled)
-│   ├── Dashboard.tsx    # Statistics dashboard
-│   ├── FilterControls.tsx # Search and filter interface
+│   ├── Dashboard.tsx    # Statistics dashboard with conditional rendering
+│   ├── FilterControls.tsx # Search and filter interface (currently disabled)
 │   ├── SeriesDetail.tsx # Series-specific view
 │   ├── StorageLocationDetail.tsx # Storage location view
 │   ├── CoverArtistDetail.tsx # Cover artist view
@@ -119,6 +136,27 @@ To modify existing comics:
 3. Update the `updatedAt` timestamp
 4. Save the file
 
+## Using the Application
+
+### Browsing Your Collection
+- Use the search bar in the header to find specific comics
+- Switch between grid and list views using the view toggle buttons
+- Sort comics by various criteria using the sort dropdown
+- Click on any comic to view detailed information
+
+### Viewing Statistics
+- Navigate to the Statistics tab to see comprehensive collection analytics
+- Statistics boxes automatically hide when values are zero or null
+- Click on performance highlights to view specific comics
+- Explore series breakdowns and storage location analytics
+
+### Navigation Between Views
+- Click on series names to view all comics in that series
+- Click on storage locations to see comics stored in specific locations
+- Click on cover artist names to browse their cover art
+- Click on tags to filter by specific categories
+- Use condition badges to view all raw or slabbed comics
+
 ## Customization
 
 ### Adding New Features
@@ -133,11 +171,7 @@ To modify existing comics:
 1. Add calculation logic to `src/hooks/useComics.ts`
 2. Update the `ComicStats` interface in `src/types/Comic.ts`
 3. Display the new statistic in `src/components/Dashboard.tsx`
-
-#### New Filter Options
-1. Add filter properties to `FilterOptions` in `src/types/Comic.ts`
-2. Update filter logic in `src/hooks/useComics.ts`
-3. Add UI controls in `src/components/FilterControls.tsx`
+4. Consider adding conditional rendering for zero/null values
 
 ### Styling Customization
 
@@ -195,6 +229,14 @@ Cover images are referenced by URL in the `coverImageUrl` field. You can:
 - **No Backup System**: Data loss risk if JSON file is corrupted
 - **No Import/Export**: No CSV or other format support
 - **Form Disabled**: Add/edit functionality is currently disabled in the UI
+- **Filtering Interface**: Advanced filtering controls are currently disabled in the UI
+
+### Development Status
+Some features are temporarily disabled while the application is being refined:
+- Comic add/edit forms
+- Advanced filtering controls
+
+These features exist in the codebase but are commented out in the UI for a cleaner user experience.
 
 ### Potential Improvements
 - Database integration (PostgreSQL, MongoDB, etc.)
