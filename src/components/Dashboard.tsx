@@ -140,8 +140,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
         ))}
       </div>
 
-      {/* Performance Highlights */}
-      {showDetailed && stats.comicsWithCurrentValue > 0 && (
+      {/* Large Info Cards - Performance Highlights and Most Valuable Comics */}
+      {showDetailed && (
+        stats.comicsWithCurrentValue > 0 || 
+        stats.highestValuedSlabbedComic || 
+        stats.highestValuedRawComic
+      ) && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {/* Biggest Gainer */}
           {stats.biggestGainer && (
@@ -206,12 +210,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </div>
             </div>
           )}
-        </div>
-      )}
 
-      {/* Most Valuable Comics - Split into Slabbed and Raw */}
-      {showDetailed && (stats.highestValuedSlabbedComic || stats.highestValuedRawComic) && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {/* Most Valuable Slabbed Comic */}
           {stats.highestValuedSlabbedComic && (
             <div 
