@@ -13,28 +13,18 @@ import {
 interface TagDetailProps {
   tag: string;
   tagComics: Comic[];
-  allComics: Comic[];
   onBack: () => void;
-  onEdit: (comic: Comic) => void;
-  onDelete: (id: string) => void;
   onView: (comic: Comic) => void;
   onViewSeries?: (seriesName: string) => void;
-  onViewStorageLocation?: (storageLocation: string) => void;
-  onViewCoverArtist?: (coverArtist: string) => void;
   onViewTag?: (tag: string) => void;
 }
 
 export const TagDetail: React.FC<TagDetailProps> = ({ 
   tag,
   tagComics,
-  allComics,
   onBack, 
-  onEdit, 
-  onDelete,
   onView,
   onViewSeries,
-  onViewStorageLocation,
-  onViewCoverArtist,
   onViewTag
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -47,14 +37,6 @@ export const TagDetail: React.FC<TagDetailProps> = ({
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
   };
 
   // Calculate tag statistics
@@ -121,39 +103,32 @@ export const TagDetail: React.FC<TagDetailProps> = ({
     tagComics.flatMap(comic => comic.tags.filter(t => t !== tag))
   )).sort();
 
-  // Find most valuable comic
-  const mostValuable = tagComics.reduce((highest, comic) => {
-    const comicValue = comic.currentValue || comic.purchasePrice;
-    const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
-    return comicValue > highestValue ? comic : highest;
-  }, null as Comic | null);
-
   // Sort comics
   const sortedComics = [...tagComics].sort((a, b) => {
     switch (sortBy) {
-      case 'series':
+      case 'series': {
         const seriesCompare = a.seriesName.localeCompare(b.seriesName);
         return seriesCompare !== 0 ? seriesCompare : a.issueNumber - b.issueNumber;
-      case 'issue':
+      }
+      case 'issue': {
         return a.issueNumber - b.issueNumber;
-      case 'grade':
+      }
+      case 'grade': {
         return b.grade - a.grade;
-      case 'value':
+      }
+      case 'value': {
         const aValue = a.currentValue || a.purchasePrice;
         const bValue = b.currentValue || b.purchasePrice;
         return bValue - aValue;
-      case 'date':
+      }
+      case 'date': {
         return new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime();
-      default:
+      }
+      default: {
         return a.seriesName.localeCompare(b.seriesName);
+      }
     }
   });
-
-  const handleDelete = (comic: Comic) => {
-    if (window.confirm(`Are you sure you want to delete ${comic.seriesName} #${comic.issueNumber}?`)) {
-      onDelete(comic.id);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -191,7 +166,7 @@ export const TagDetail: React.FC<TagDetailProps> = ({
               
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
+                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
                 className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white"
               >
                 <option value="series">Sort by Series</option>
@@ -233,10 +208,6 @@ export const TagDetail: React.FC<TagDetailProps> = ({
               stats={tagComicsStats} 
               showDetailed={true}
               onViewComic={onView}
-              onViewSeries={onViewSeries}
-              onViewStorageLocation={onViewStorageLocation}
-              onViewRawComics={onViewRawComics}
-              onViewSlabbedComics={onViewSlabbedComics}
             />
 
 

@@ -7,11 +7,11 @@ export const measurePerformance = (name: string, fn: () => void) => {
   console.log(`${name} took ${end - start} milliseconds`);
 };
 
-export const debounce = <T extends (...args: any[]) => any>(
+export const debounce = <T extends (...args: unknown[]) => void>(
   func: T,
   wait: number
 ): ((...args: Parameters<T>) => void) => {
-  let timeout: NodeJS.Timeout;
+  let timeout: ReturnType<typeof setTimeout>;
   
   return (...args: Parameters<T>) => {
     clearTimeout(timeout);
@@ -19,11 +19,11 @@ export const debounce = <T extends (...args: any[]) => any>(
   };
 };
 
-export const throttle = <T extends (...args: any[]) => any>(
+export const throttle = <T extends (...args: unknown[]) => void>(
   func: T,
   limit: number
 ): ((...args: Parameters<T>) => void) => {
-  let inThrottle: boolean;
+  let inThrottle = false;
   
   return (...args: Parameters<T>) => {
     if (!inThrottle) {
@@ -63,7 +63,7 @@ export const lazyLoadImages = () => {
 };
 
 // Web Vitals monitoring
-export const reportWebVitals = (metric: any) => {
+export const reportWebVitals = (metric: unknown) => {
   // In production, you would send this to your analytics service
   console.log(metric);
 };
@@ -85,14 +85,22 @@ export const prefersReducedMotion = (): boolean => {
 
 // Network information (if available)
 export const getNetworkInfo = () => {
-  const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+  type NetworkConnection = {
+    effectiveType?: string;
+    downlink?: number;
+    rtt?: number;
+    saveData?: boolean;
+  };
+  const nav = navigator as unknown as { connection?: NetworkConnection; mozConnection?: NetworkConnection; webkitConnection?: NetworkConnection };
+  const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
   
   if (connection) {
+    const { effectiveType, downlink, rtt, saveData } = connection;
     return {
-      effectiveType: connection.effectiveType,
-      downlink: connection.downlink,
-      rtt: connection.rtt,
-      saveData: connection.saveData
+      effectiveType,
+      downlink,
+      rtt,
+      saveData
     };
   }
   

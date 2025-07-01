@@ -13,33 +13,17 @@ import {
 interface StorageLocationDetailProps {
   storageLocation: string;
   locationComics: Comic[];
-  allComics: Comic[];
   onBack: () => void;
-  onEdit: (comic: Comic) => void;
-  onDelete: (id: string) => void;
   onView: (comic: Comic) => void;
   onViewSeries?: (seriesName: string) => void;
-  onViewStorageLocation?: (storageLocation: string) => void;
-  onViewCoverArtist?: (coverArtist: string) => void;
-  onViewTag?: (tag: string) => void;
-  onViewRawComics?: () => void;
-  onViewSlabbedComics?: () => void;
 }
 
 export const StorageLocationDetail: React.FC<StorageLocationDetailProps> = ({ 
   storageLocation,
   locationComics,
-  allComics,
   onBack, 
-  onEdit, 
-  onDelete,
   onView,
-  onViewSeries,
-  onViewStorageLocation,
-  onViewCoverArtist,
-  onViewTag,
-  onViewRawComics,
-  onViewSlabbedComics
+  onViewSeries
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'series' | 'issue' | 'grade' | 'value' | 'date'>('series');
@@ -120,39 +104,32 @@ export const StorageLocationDetail: React.FC<StorageLocationDetailProps> = ({
   // Get unique series in this location
   const uniqueSeries = Array.from(new Set(locationComics.map(comic => comic.seriesName))).sort();
 
-  // Find most valuable comic
-  const mostValuable = locationComics.reduce((highest, comic) => {
-    const comicValue = comic.currentValue || comic.purchasePrice;
-    const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
-    return comicValue > highestValue ? comic : highest;
-  }, null as Comic | null);
-
   // Sort comics
   const sortedComics = [...locationComics].sort((a, b) => {
     switch (sortBy) {
-      case 'series':
+      case 'series': {
         const seriesCompare = a.seriesName.localeCompare(b.seriesName);
         return seriesCompare !== 0 ? seriesCompare : a.issueNumber - b.issueNumber;
-      case 'issue':
+      }
+      case 'issue': {
         return a.issueNumber - b.issueNumber;
-      case 'grade':
+      }
+      case 'grade': {
         return b.grade - a.grade;
-      case 'value':
+      }
+      case 'value': {
         const aValue = a.currentValue || a.purchasePrice;
         const bValue = b.currentValue || b.purchasePrice;
         return bValue - aValue;
-      case 'date':
+      }
+      case 'date': {
         return new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime();
-      default:
+      }
+      default: {
         return a.seriesName.localeCompare(b.seriesName);
+      }
     }
   });
-
-  const handleDelete = (comic: Comic) => {
-    if (window.confirm(`Are you sure you want to delete ${comic.seriesName} #${comic.issueNumber}?`)) {
-      onDelete(comic.id);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -190,7 +167,7 @@ export const StorageLocationDetail: React.FC<StorageLocationDetailProps> = ({
               
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
+                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
                 className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white"
               >
                 <option value="series">Sort by Series</option>
@@ -232,10 +209,6 @@ export const StorageLocationDetail: React.FC<StorageLocationDetailProps> = ({
               stats={locationComicsStats} 
               showDetailed={true}
               onViewComic={onView}
-              onViewSeries={onViewSeries}
-              onViewStorageLocation={onViewStorageLocation}
-              onViewRawComics={onViewRawComics}
-              onViewSlabbedComics={onViewSlabbedComics}
             />
 
 
@@ -254,7 +227,7 @@ export const StorageLocationDetail: React.FC<StorageLocationDetailProps> = ({
                       <div 
                         key={series} 
                         className="bg-gray-700/30 rounded-lg p-3 border border-gray-600 cursor-pointer hover:border-blue-500 transition-colors"
-                        onClick={() => onViewSeries?.(series)}
+                        onClick={() => onViewSeries && onViewSeries(series)}
                       >
                         <p className="font-medium text-white text-sm truncate">{series}</p>
                         <p className="text-xs text-gray-400">{seriesCount} issue{seriesCount !== 1 ? 's' : ''}</p>
@@ -374,7 +347,6 @@ export const StorageLocationDetail: React.FC<StorageLocationDetailProps> = ({
                           <p className="text-sm text-gray-300">{comic.title}</p>
                           <p className="text-xs text-gray-400">
                             {formatDate(comic.releaseDate)}
-                            {comic.coverArtist && ` • ${comic.coverArtist}`}
                           </p>
                         </div>
                       </div>

@@ -1,5 +1,18 @@
 # Comic Book Collection Manager
 
+## Recent Updates
+
+- **Improved Navigation:**
+  - Series boxes in **Raw Comics**, **Slabbed Comics**, and **Storage Location** detail pages are now clickable and will navigate to the respective series detail pages.
+  - Navigation between all major detail views (series, storage, artist, tag, condition) is now consistent and intuitive.
+  - All navigation and clickability issues have been resolved for dashboard and detail views.
+- **Type Safety & Linting:**
+  - The codebase has been refactored for improved type safety, with strict TypeScript prop typing and removal of all unused variables and props.
+  - All files now pass ESLint checks with zero errors.
+- **Maintainability:**
+  - Components and props have been cleaned up for clarity and maintainability.
+  - The codebase is easier to extend for new features and UI improvements.
+
 A modern, responsive web application for managing and tracking your comic book collection. Built with React, TypeScript, and Tailwind CSS.
 
 ## Features

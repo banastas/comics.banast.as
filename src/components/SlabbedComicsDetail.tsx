@@ -12,28 +12,16 @@ import {
 
 interface SlabbedComicsDetailProps {
   slabbedComics: Comic[];
-  allComics: Comic[];
   onBack: () => void;
-  onEdit: (comic: Comic) => void;
-  onDelete: (id: string) => void;
   onView: (comic: Comic) => void;
   onViewSeries?: (seriesName: string) => void;
-  onViewStorageLocation?: (storageLocation: string) => void;
-  onViewCoverArtist?: (coverArtist: string) => void;
-  onViewTag?: (tag: string) => void;
 }
 
 export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({ 
   slabbedComics,
-  allComics,
   onBack, 
-  onEdit, 
-  onDelete,
   onView,
-  onViewSeries,
-  onViewStorageLocation,
-  onViewCoverArtist,
-  onViewTag
+  onViewSeries
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'series' | 'issue' | 'grade' | 'value' | 'date'>('series');
@@ -106,39 +94,32 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
   // Get unique series for slabbed comics
   const uniqueSeries = Array.from(new Set(slabbedComics.map(comic => comic.seriesName))).sort();
 
-  // Find most valuable slabbed comic
-  const mostValuable = slabbedComics.reduce((highest, comic) => {
-    const comicValue = comic.currentValue || comic.purchasePrice;
-    const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
-    return comicValue > highestValue ? comic : highest;
-  }, null as Comic | null);
-
   // Sort comics
   const sortedComics = [...slabbedComics].sort((a, b) => {
     switch (sortBy) {
-      case 'series':
+      case 'series': {
         const seriesCompare = a.seriesName.localeCompare(b.seriesName);
         return seriesCompare !== 0 ? seriesCompare : a.issueNumber - b.issueNumber;
-      case 'issue':
+      }
+      case 'issue': {
         return a.issueNumber - b.issueNumber;
-      case 'grade':
+      }
+      case 'grade': {
         return b.grade - a.grade;
-      case 'value':
+      }
+      case 'value': {
         const aValue = a.currentValue || a.purchasePrice;
         const bValue = b.currentValue || b.purchasePrice;
         return bValue - aValue;
-      case 'date':
+      }
+      case 'date': {
         return new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime();
-      default:
+      }
+      default: {
         return a.seriesName.localeCompare(b.seriesName);
+      }
     }
   });
-
-  const handleDelete = (comic: Comic) => {
-    if (window.confirm(`Are you sure you want to delete ${comic.seriesName} #${comic.issueNumber}?`)) {
-      onDelete(comic.id);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -176,7 +157,7 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
               
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
+                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
                 className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white"
               >
                 <option value="series">Sort by Series</option>
@@ -218,10 +199,6 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
               stats={slabbedComicsStats} 
               showDetailed={true}
               onViewComic={onView}
-              onViewSeries={onViewSeries}
-              onViewStorageLocation={onViewStorageLocation}
-              onViewRawComics={() => {}} // No raw comics in this view
-              onViewSlabbedComics={() => {}} // Already in slabbed comics view
             />
 
 
@@ -240,7 +217,7 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
                       <div 
                         key={series} 
                         className="bg-gray-700/30 rounded-lg p-3 border border-gray-600 cursor-pointer hover:border-blue-500 transition-colors"
-                        onClick={() => onViewSeries?.(series)}
+                        onClick={() => onViewSeries && onViewSeries(series)}
                       >
                         <p className="font-medium text-white text-sm truncate">{series}</p>
                         <p className="text-xs text-gray-400">{seriesCount} issue{seriesCount !== 1 ? 's' : ''}</p>
@@ -356,7 +333,6 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
                           <p className="text-sm text-gray-300">{comic.title}</p>
                           <p className="text-xs text-gray-400">
                             {formatDate(comic.releaseDate)}
-                            {comic.coverArtist && ` • ${comic.coverArtist}`}
                           </p>
                         </div>
                       </div>

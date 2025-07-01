@@ -110,16 +110,16 @@ export const useComics = () => {
 
     // Apply sorting
     filtered.sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
+      let aValue: string | number | undefined;
+      let bValue: string | number | undefined;
       
       // Handle currentValue sorting specially since it might be undefined
       if (sortField === 'currentValue') {
         aValue = a.currentValue || a.purchasePrice;
         bValue = b.currentValue || b.purchasePrice;
       } else {
-        aValue = a[sortField];
-        bValue = b[sortField];
+        aValue = a[sortField as keyof Comic] as string | number | undefined;
+        bValue = b[sortField as keyof Comic] as string | number | undefined;
       }
       
       let comparison = 0;

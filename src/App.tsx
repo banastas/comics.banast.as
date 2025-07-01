@@ -3,9 +3,7 @@ import { useComics } from './hooks/useComics';
 import { Dashboard } from './components/Dashboard';
 import { ComicCard } from './components/ComicCard';
 import { ComicListView } from './components/ComicListView';
-import { FilterControls } from './components/FilterControls';
 import { ComicForm } from './components/ComicForm';
-import { DataManager } from './components/DataManager';
 import { ComicDetail } from './components/ComicDetail';
 import { SeriesDetail } from './components/SeriesDetail';
 import { StorageLocationDetail } from './components/StorageLocationDetail';
@@ -14,8 +12,8 @@ import { TagDetail } from './components/TagDetail';
 import { RawComicsDetail } from './components/RawComicsDetail';
 import { SlabbedComicsDetail } from './components/SlabbedComicsDetail';
 import { Comic } from './types/Comic';
-import { BookOpen, Plus, BarChart3, Grid, List, SortAsc, SortDesc, Search, Filter, X } from 'lucide-react';
-import { SortField, FilterOptions } from './types/Comic';
+import { BookOpen, Plus, BarChart3, Grid, List, SortAsc, SortDesc, Search } from 'lucide-react';
+import { SortField } from './types/Comic';
 
 function App() {
   const {
@@ -28,49 +26,25 @@ function App() {
     loading,
     addComic,
     updateComic,
-    deleteComic,
     setFilters,
     setSortField,
     setSortDirection,
   } = useComics();
 
   const [showForm, setShowForm] = useState(false);
-  const [editingComic, setEditingComic] = useState<Comic | null>(null);
+  const [editingComic, setEditingComic] = useState<Comic | undefined>(undefined);
   const [activeTab, setActiveTab] = useState<'collection' | 'stats'>('collection');
-  const [selectedComic, setSelectedComic] = useState<Comic | null>(null);
+  const [selectedComic, setSelectedComic] = useState<Comic | undefined>(undefined);
   const [selectedSeries, setSelectedSeries] = useState<string | null>(null);
   const [selectedStorageLocation, setSelectedStorageLocation] = useState<string | null>(null);
   const [selectedCoverArtist, setSelectedCoverArtist] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [selectedCondition, setSelectedCondition] = useState<'raw' | 'slabbed' | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   // Get unique values for filters
   const allSeries = Array.from(new Set(allComics.map(comic => comic.seriesName))).sort();
   const allStorageLocations = Array.from(new Set(allComics.map(comic => comic.storageLocation).filter(Boolean))).sort();
-  const allTags = Array.from(new Set(allComics.flatMap(comic => comic.tags))).sort();
-
-  // Check if filters are active
-  const hasActiveFilters = filters.searchTerm || filters.seriesName || 
-    filters.minGrade > 0.5 || filters.maxGrade < 10.0 || 
-    filters.minPrice > 0 || filters.maxPrice < 10000 ||
-    filters.isSlabbed !== null || filters.isSigned !== null || 
-    filters.tags.length > 0;
-
-  const clearFilters = () => {
-    setFilters({
-      searchTerm: '',
-      seriesName: '',
-      minGrade: 0.5,
-      maxGrade: 10.0,
-      minPrice: 0,
-      maxPrice: 10000,
-      isSlabbed: null,
-      isSigned: null,
-      tags: [],
-    });
-  };
 
   const handleSaveComic = (comicData: Omit<Comic, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (editingComic) {
@@ -79,20 +53,8 @@ function App() {
       addComic(comicData);
     }
     setShowForm(false);
-    setEditingComic(null);
+    setEditingComic(undefined);
   };
-
-  const handleEditComic = (comic: Comic) => {
-    setEditingComic(comic);
-    setShowForm(true);
-  };
-
-  const handleDeleteComic = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this comic?')) {
-      deleteComic(id);
-    }
-  };
-
 
   const handleViewComic = (comic: Comic) => {
     setSelectedComic(comic);
@@ -104,7 +66,7 @@ function App() {
   };
 
   const handleBackToCollection = () => {
-    setSelectedComic(null);
+    setSelectedComic(undefined);
     setSelectedSeries(null);
     setSelectedStorageLocation(null);
     setSelectedCoverArtist(null);
@@ -114,7 +76,7 @@ function App() {
 
   const handleViewSeries = (seriesName: string) => {
     setSelectedSeries(seriesName);
-    setSelectedComic(null);
+    setSelectedComic(undefined);
     setSelectedStorageLocation(null);
     setSelectedCoverArtist(null);
     setSelectedTag(null);
@@ -123,7 +85,7 @@ function App() {
 
   const handleViewStorageLocation = (storageLocation: string) => {
     setSelectedStorageLocation(storageLocation);
-    setSelectedComic(null);
+    setSelectedComic(undefined);
     setSelectedSeries(null);
     setSelectedCoverArtist(null);
     setSelectedTag(null);
@@ -132,7 +94,7 @@ function App() {
 
   const handleViewCoverArtist = (coverArtist: string) => {
     setSelectedCoverArtist(coverArtist);
-    setSelectedComic(null);
+    setSelectedComic(undefined);
     setSelectedSeries(null);
     setSelectedStorageLocation(null);
     setSelectedTag(null);
@@ -141,7 +103,7 @@ function App() {
 
   const handleViewTag = (tag: string) => {
     setSelectedTag(tag);
-    setSelectedComic(null);
+    setSelectedComic(undefined);
     setSelectedSeries(null);
     setSelectedStorageLocation(null);
     setSelectedCoverArtist(null);
@@ -150,7 +112,7 @@ function App() {
 
   const handleViewRawComics = () => {
     setSelectedCondition('raw');
-    setSelectedComic(null);
+    setSelectedComic(undefined);
     setSelectedSeries(null);
     setSelectedStorageLocation(null);
     setSelectedCoverArtist(null);
@@ -159,7 +121,7 @@ function App() {
 
   const handleViewSlabbedComics = () => {
     setSelectedCondition('slabbed');
-    setSelectedComic(null);
+    setSelectedComic(undefined);
     setSelectedSeries(null);
     setSelectedStorageLocation(null);
     setSelectedCoverArtist(null);
@@ -181,11 +143,9 @@ function App() {
   if (selectedComic) {
     return (
       <ComicDetail
-        comic={selectedComic}
+        comic={selectedComic as Comic}
         allComics={allComics}
         onBack={handleBackToCollection}
-        onEdit={handleEditComic}
-        onDelete={handleDeleteComic}
         onView={handleViewComic}
         onViewSeries={handleViewSeries}
         onViewStorageLocation={handleViewStorageLocation}
@@ -202,19 +162,10 @@ function App() {
     const seriesComics = allComics.filter(comic => comic.seriesName === selectedSeries);
     return (
       <SeriesDetail
-        seriesName={selectedSeries}
+        seriesName={selectedSeries || ''}
         seriesComics={seriesComics}
-        allComics={allComics}
         onBack={handleBackToCollection}
-        onEdit={handleEditComic}
-        onDelete={handleDeleteComic}
         onView={handleViewComic}
-        onViewSeries={handleViewSeries}
-        onViewStorageLocation={handleViewStorageLocation}
-        onViewCoverArtist={handleViewCoverArtist}
-        onViewTag={handleViewTag}
-        onViewRawComics={handleViewRawComics}
-        onViewSlabbedComics={handleViewSlabbedComics}
       />
     );
   }
@@ -224,19 +175,11 @@ function App() {
     const locationComics = allComics.filter(comic => comic.storageLocation === selectedStorageLocation);
     return (
       <StorageLocationDetail
-        storageLocation={selectedStorageLocation}
+        storageLocation={selectedStorageLocation || ''}
         locationComics={locationComics}
-        allComics={allComics}
         onBack={handleBackToCollection}
-        onEdit={handleEditComic}
-        onDelete={handleDeleteComic}
         onView={handleViewComic}
         onViewSeries={handleViewSeries}
-        onViewStorageLocation={handleViewStorageLocation}
-        onViewCoverArtist={handleViewCoverArtist}
-        onViewTag={handleViewTag}
-        onViewRawComics={handleViewRawComics}
-        onViewSlabbedComics={handleViewSlabbedComics}
       />
     );
   }
@@ -246,17 +189,12 @@ function App() {
     const artistComics = allComics.filter(comic => comic.coverArtist === selectedCoverArtist);
     return (
       <CoverArtistDetail
-        coverArtist={selectedCoverArtist}
+        coverArtist={selectedCoverArtist || ''}
         artistComics={artistComics}
-        allComics={allComics}
         onBack={handleBackToCollection}
-        onEdit={handleEditComic}
-        onDelete={handleDeleteComic}
         onView={handleViewComic}
         onViewSeries={handleViewSeries}
         onViewStorageLocation={handleViewStorageLocation}
-        onViewCoverArtist={handleViewCoverArtist}
-        onViewTag={handleViewTag}
         onViewRawComics={handleViewRawComics}
         onViewSlabbedComics={handleViewSlabbedComics}
       />
@@ -265,22 +203,15 @@ function App() {
 
   // Show tag detail page if a tag is selected
   if (selectedTag) {
-    const tagComics = allComics.filter(comic => comic.tags.includes(selectedTag));
+    const tagComics = allComics.filter(comic => comic.tags.includes(selectedTag || ''));
     return (
       <TagDetail
-        tag={selectedTag}
+        tag={selectedTag || ''}
         tagComics={tagComics}
-        allComics={allComics}
         onBack={handleBackToCollection}
-        onEdit={handleEditComic}
-        onDelete={handleDeleteComic}
         onView={handleViewComic}
         onViewSeries={handleViewSeries}
-        onViewStorageLocation={handleViewStorageLocation}
-        onViewCoverArtist={handleViewCoverArtist}
         onViewTag={handleViewTag}
-        onViewRawComics={handleViewRawComics}
-        onViewSlabbedComics={handleViewSlabbedComics}
       />
     );
   }
@@ -291,15 +222,9 @@ function App() {
     return (
       <RawComicsDetail
         rawComics={rawComics}
-        allComics={allComics}
         onBack={handleBackToCollection}
-        onEdit={handleEditComic}
-        onDelete={handleDeleteComic}
         onView={handleViewComic}
         onViewSeries={handleViewSeries}
-        onViewStorageLocation={handleViewStorageLocation}
-        onViewCoverArtist={handleViewCoverArtist}
-        onViewTag={handleViewTag}
       />
     );
   }
@@ -310,15 +235,9 @@ function App() {
     return (
       <SlabbedComicsDetail
         slabbedComics={slabbedComics}
-        allComics={allComics}
         onBack={handleBackToCollection}
-        onEdit={handleEditComic}
-        onDelete={handleDeleteComic}
         onView={handleViewComic}
         onViewSeries={handleViewSeries}
-        onViewStorageLocation={handleViewStorageLocation}
-        onViewCoverArtist={handleViewCoverArtist}
-        onViewTag={handleViewTag}
       />
     );
   }
@@ -353,29 +272,6 @@ function App() {
                     className="w-full pl-9 pr-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm"
                   />
                 </div>
-
-                {/* Filter Toggle - Commented out for now */}
-                {/* <button
-                  onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                  className="flex items-center space-x-1 px-3 py-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors text-gray-300"
-                >
-                  <Filter size={14} />
-                  <span className="text-sm hidden sm:inline">Filters</span>
-                  {hasActiveFilters && (
-                    <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
-                  )}
-                </button> */}
-
-                {/* Clear Filters - Commented out for now */}
-                {/* {hasActiveFilters && (
-                  <button
-                    onClick={clearFilters}
-                    className="p-2 text-gray-500 hover:text-gray-300 transition-colors"
-                    title="Clear all filters"
-                  >
-                    <X size={14} />
-                  </button>
-                )} */}
               </div>
             )}
             
@@ -426,14 +322,6 @@ function App() {
                   </button>
                 </>
               )}
-              {/* <button
-                onClick={() => setShowForm(true)}
-                className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors shadow-lg"
-              >
-                <Plus size={16} />
-                <span className="hidden sm:inline">Add Comic</span>
-                <span className="sm:hidden">Add</span>
-              </button> */}
             </div>
           </div>
         </div>
@@ -469,19 +357,6 @@ function App() {
                 <span>Statistics</span>
               </div>
             </button>
-            {/* <button
-              onClick={() => setActiveTab('data')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'data'
-                  ? 'border-blue-400 text-blue-400'
-                  : 'border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-600'
-              } transition-colors`}
-            >
-              <div className="flex items-center space-x-1 sm:space-x-2 whitespace-nowrap">
-                <Settings size={16} />
-                <span>Settings</span>
-              </div>
-            </button> */}
           </nav>
         </div>
       </div>
@@ -490,26 +365,14 @@ function App() {
       <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 pb-4 sm:pb-6 lg:pb-8">
         {activeTab === 'collection' && (
           <>
-            <div className={showAdvancedFilters ? '' : 'pt-4 sm:pt-6 lg:pt-8'}>
+            <div className="pt-4 sm:pt-6 lg:pt-8">
               <Dashboard 
                 stats={stats} 
                 onViewComic={handleViewComic}
-                onViewSeries={handleViewSeries}
-                onViewStorageLocation={handleViewStorageLocation}
                 onViewRawComics={handleViewRawComics}
                 onViewSlabbedComics={handleViewSlabbedComics}
               />
             </div>
-            
-            {/* Advanced Filters - Commented out for now */}
-            {/* {showAdvancedFilters && (
-              <FilterControls
-                filters={filters}
-                onFiltersChange={setFilters}
-                allSeries={allSeries}
-                allTags={allTags}
-              />
-            )} */}
 
             {/* Comics Grid */}
             {comics.length === 0 ? (
@@ -543,8 +406,6 @@ function App() {
                         key={comic.id}
                         comic={comic}
                         onView={handleViewComic}
-                        onEdit={handleEditComic}
-                        onDelete={handleDeleteComic}
                       />
                     ))}
                   </div>
@@ -552,8 +413,6 @@ function App() {
                   <ComicListView
                     comics={comics}
                     onView={handleViewComic}
-                    onEdit={handleEditComic}
-                    onDelete={handleDeleteComic}
                   />
                 )}
               </>
@@ -565,12 +424,8 @@ function App() {
           <div className="space-y-8 pt-4 sm:pt-6 lg:pt-8">
             <Dashboard 
               stats={stats} 
-              showDetailed={true} 
+              showDetailed={activeTab === 'stats'}
               onViewComic={handleViewComic}
-              onViewSeries={handleViewSeries}
-              onViewStorageLocation={handleViewStorageLocation}
-              onViewRawComics={handleViewRawComics}
-              onViewSlabbedComics={handleViewSlabbedComics}
             />
             
             {/* Additional Stats */}
@@ -757,16 +612,6 @@ function App() {
             </div>
           </div>
         )}
-
-        {/* {activeTab === 'data' && (
-          <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Settings</h3>
-            <p className="text-gray-400">
-              Comic data is managed directly in the code. To add or modify comics, 
-              update the comics.json file in the src/data directory.
-            </p>
-          </div>
-        )} */}
       </main>
 
       {/* Comic Form Modal */}
@@ -776,7 +621,7 @@ function App() {
           onSave={handleSaveComic}
           onCancel={() => {
             setShowForm(false);
-            setEditingComic(null);
+            setEditingComic(undefined);
           }}
           allSeries={allSeries}
           allStorageLocations={allStorageLocations}

@@ -13,15 +13,10 @@ import {
 interface CoverArtistDetailProps {
   coverArtist: string;
   artistComics: Comic[];
-  allComics: Comic[];
   onBack: () => void;
-  onEdit: (comic: Comic) => void;
-  onDelete: (id: string) => void;
   onView: (comic: Comic) => void;
   onViewSeries?: (seriesName: string) => void;
   onViewStorageLocation?: (storageLocation: string) => void;
-  onViewCoverArtist?: (coverArtist: string) => void;
-  onViewTag?: (tag: string) => void;
   onViewRawComics?: () => void;
   onViewSlabbedComics?: () => void;
 }
@@ -29,15 +24,10 @@ interface CoverArtistDetailProps {
 export const CoverArtistDetail: React.FC<CoverArtistDetailProps> = ({ 
   coverArtist,
   artistComics,
-  allComics,
   onBack, 
-  onEdit, 
-  onDelete,
   onView,
   onViewSeries,
   onViewStorageLocation,
-  onViewCoverArtist,
-  onViewTag,
   onViewRawComics,
   onViewSlabbedComics
 }) => {
@@ -120,39 +110,32 @@ export const CoverArtistDetail: React.FC<CoverArtistDetailProps> = ({
   // Get unique series by this artist
   const uniqueSeries = Array.from(new Set(artistComics.map(comic => comic.seriesName))).sort();
 
-  // Find most valuable comic
-  const mostValuable = artistComics.reduce((highest, comic) => {
-    const comicValue = comic.currentValue || comic.purchasePrice;
-    const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
-    return comicValue > highestValue ? comic : highest;
-  }, null as Comic | null);
-
   // Sort comics
   const sortedComics = [...artistComics].sort((a, b) => {
     switch (sortBy) {
-      case 'series':
+      case 'series': {
         const seriesCompare = a.seriesName.localeCompare(b.seriesName);
         return seriesCompare !== 0 ? seriesCompare : a.issueNumber - b.issueNumber;
-      case 'issue':
+      }
+      case 'issue': {
         return a.issueNumber - b.issueNumber;
-      case 'grade':
+      }
+      case 'grade': {
         return b.grade - a.grade;
-      case 'value':
+      }
+      case 'value': {
         const aValue = a.currentValue || a.purchasePrice;
         const bValue = b.currentValue || b.purchasePrice;
         return bValue - aValue;
-      case 'date':
+      }
+      case 'date': {
         return new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime();
-      default:
+      }
+      default: {
         return a.seriesName.localeCompare(b.seriesName);
+      }
     }
   });
-
-  const handleDelete = (comic: Comic) => {
-    if (window.confirm(`Are you sure you want to delete ${comic.seriesName} #${comic.issueNumber}?`)) {
-      onDelete(comic.id);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -190,7 +173,7 @@ export const CoverArtistDetail: React.FC<CoverArtistDetailProps> = ({
               
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
+                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
                 className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white"
               >
                 <option value="series">Sort by Series</option>

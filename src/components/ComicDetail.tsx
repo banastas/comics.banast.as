@@ -11,7 +11,6 @@ import {
   Palette,
   Tag,
   FileText,
-  Archive,
   User
 } from 'lucide-react';
 
@@ -19,8 +18,6 @@ interface ComicDetailProps {
   comic: Comic;
   allComics: Comic[];
   onBack: () => void;
-  onEdit: (comic: Comic) => void;
-  onDelete: (id: string) => void;
   onView: (comic: Comic) => void;
   onViewSeries?: (seriesName: string) => void;
   onViewStorageLocation?: (storageLocation: string) => void;
@@ -34,13 +31,11 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
   comic, 
   allComics,
   onBack, 
-  onEdit, 
-  onDelete,
   onView,
   onViewSeries,
   onViewStorageLocation,
   onViewCoverArtist,
- onViewTag,
+  onViewTag,
   onViewRawComics,
   onViewSlabbedComics
 }) => {
@@ -76,13 +71,6 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
   const handleImageError = () => {
     setImageError(true);
     setImageLoading(false);
-  };
-
-  const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this comic?')) {
-      onDelete(comic.id);
-      onBack();
-    }
   };
 
   // Get related comics from the same series

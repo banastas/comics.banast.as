@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Comic } from '../types/Comic';
-import { X, Save, ImageIcon } from 'lucide-react';
+import { X, Save } from 'lucide-react';
 
 interface ComicFormProps {
   comic?: Comic;
@@ -21,7 +21,25 @@ export const ComicForm: React.FC<ComicFormProps> = ({
   allSeries,
   allStorageLocations,
 }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    title: string;
+    seriesName: string;
+    issueNumber: number;
+    releaseDate: string;
+    coverImageUrl: string;
+    coverArtist: string;
+    grade: number;
+    purchasePrice: number;
+    purchaseDate: string;
+    currentValue?: number;
+    notes: string;
+    signedBy: string;
+    storageLocation: string;
+    tags: string[];
+    isSlabbed: boolean;
+    isVariant: boolean;
+    isGraphicNovel: boolean;
+  }>({
     title: '',
     seriesName: '',
     issueNumber: 1,
@@ -35,7 +53,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
     notes: '',
     signedBy: '',
     storageLocation: '',
-    tags: [] as string[],
+    tags: [],
     isSlabbed: false,
     isVariant: false,
     isGraphicNovel: false,
@@ -68,7 +86,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
     }
   }, [comic]);
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: string | number | boolean | undefined) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));

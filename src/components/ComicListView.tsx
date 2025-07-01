@@ -5,16 +5,9 @@ import { Star, Award } from 'lucide-react';
 interface ComicListViewProps {
   comics: Comic[];
   onView: (comic: Comic) => void;
-  onEdit: (comic: Comic) => void;
-  onDelete: (id: string) => void;
 }
 
-export const ComicListView: React.FC<ComicListViewProps> = ({ 
-  comics, 
-  onView, 
-  onEdit, 
-  onDelete 
-}) => {
+export const ComicListView: React.FC<ComicListViewProps> = ({ comics, onView }) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',

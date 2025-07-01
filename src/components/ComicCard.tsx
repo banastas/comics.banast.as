@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
 import { Comic } from '../types/Comic';
-import { Calendar, Star, DollarSign, MapPin, Trash2, Award, PenTool, Palette } from 'lucide-react';
+import { Star, Award } from 'lucide-react';
 
 interface ComicCardProps {
   comic: Comic;
   onView: (comic: Comic) => void;
-  onEdit: (comic: Comic) => void;
-  onDelete: (id: string) => void;
 }
 
-export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView, onEdit, onDelete }) => {
+export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
 
@@ -20,14 +18,6 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView, onEdit, onD
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
   };
 
   const handleImageLoad = () => {

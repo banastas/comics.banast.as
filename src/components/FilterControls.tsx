@@ -5,17 +5,15 @@ interface FilterControlsProps {
   filters: FilterOptions;
   onFiltersChange: (filters: FilterOptions) => void;
   allSeries: string[];
-  allTags: string[];
 }
 
 export const FilterControls: React.FC<FilterControlsProps> = ({
   filters,
   onFiltersChange,
   allSeries,
-  allTags,
 }) => {
 
-  const handleFilterChange = (key: keyof FilterOptions, value: any) => {
+  const handleFilterChange = (key: keyof FilterOptions, value: string | number | boolean | undefined) => {
     onFiltersChange({ ...filters, [key]: value });
   };
 
@@ -91,7 +89,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
           <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">Condition</label>
           <select
             value={filters.isSlabbed === null ? '' : filters.isSlabbed.toString()}
-            onChange={(e) => handleFilterChange('isSlabbed', e.target.value === '' ? null : e.target.value === 'true')}
+            onChange={(e) => handleFilterChange('isSlabbed', e.target.value === '' ? undefined : e.target.value === 'true')}
             className="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
           >
             <option value="">All</option>
@@ -105,7 +103,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
           <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">Signed</label>
           <select
             value={filters.isSigned === null ? '' : filters.isSigned.toString()}
-            onChange={(e) => handleFilterChange('isSigned', e.target.value === '' ? null : e.target.value === 'true')}
+            onChange={(e) => handleFilterChange('isSigned', e.target.value === '' ? undefined : e.target.value === 'true')}
             className="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
           >
             <option value="">All</option>

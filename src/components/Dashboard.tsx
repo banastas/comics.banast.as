@@ -7,8 +7,6 @@ interface DashboardProps {
   stats: ComicStats;
   showDetailed?: boolean;
   onViewComic?: (comic: Comic) => void;
-  onViewSeries?: (seriesName: string) => void;
-  onViewStorageLocation?: (storageLocation: string) => void;
   onViewRawComics?: () => void;
   onViewSlabbedComics?: () => void;
 }
@@ -17,8 +15,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
   stats, 
   showDetailed = false, 
   onViewComic,
-  onViewSeries,
-  onViewStorageLocation,
   onViewRawComics,
   onViewSlabbedComics
 }) => {
