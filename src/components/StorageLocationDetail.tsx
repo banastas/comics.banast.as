@@ -37,7 +37,7 @@ export const StorageLocationDetail: React.FC<StorageLocationDetailProps> = ({
   onViewSeries,
   onViewStorageLocation,
   onViewCoverArtist,
-  onViewTag
+  onViewTag,
   onViewRawComics,
   onViewSlabbedComics
 }) => {
