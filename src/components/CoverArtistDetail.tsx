@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Comic, ComicStats } from '../types/Comic';
 import { Dashboard } from './Dashboard';
 import { 
@@ -33,6 +33,10 @@ export const CoverArtistDetail: React.FC<CoverArtistDetailProps> = ({
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'series' | 'issue' | 'grade' | 'value' | 'date'>('series');
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -215,10 +219,6 @@ export const CoverArtistDetail: React.FC<CoverArtistDetailProps> = ({
               stats={artistComicsStats} 
               showDetailed={true}
               onViewComic={onView}
-              onViewSeries={onViewSeries}
-              onViewStorageLocation={onViewStorageLocation}
-              onViewRawComics={onViewRawComics}
-              onViewSlabbedComics={onViewSlabbedComics}
             />
 
 
