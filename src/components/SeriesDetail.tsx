@@ -6,6 +6,8 @@ import {
   BookOpen,
   Grid,
   List,
+  Star,
+  Award,
 } from 'lucide-react';
 
 interface SeriesDetailProps {

@@ -6,6 +6,8 @@ import {
   Palette,
   Grid,
   List,
+  Star,
+  Award,
 } from 'lucide-react';
 
 interface CoverArtistDetailProps {

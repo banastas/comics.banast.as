@@ -6,6 +6,8 @@ import {
   Archive,
   Grid,
   List,
+  Star,
+  Award,
 } from 'lucide-react';
 
 interface SlabbedComicsDetailProps {

@@ -6,6 +6,8 @@ import {
   Tag,
   Grid,
   List,
+  Star,
+  Award,
 } from 'lucide-react';
 
 interface TagDetailProps {
