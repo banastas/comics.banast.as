@@ -52,7 +52,7 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView, onEdit, onD
           <img
             src={comic.coverImageUrl}
             alt={`${comic.seriesName} #${comic.issueNumber}`}
-            className={`w-full h-full object-cover transition-opacity duration-300 ${
+            className={`w-full h-full object-cover transition-all duration-300 group-hover:scale-105 ${
               imageLoading ? 'opacity-0' : 'opacity-100'
             }`}
             onLoad={handleImageLoad}
