@@ -146,7 +146,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                   )}
                   
                   {/* Status Badges */}
-                  <div className="absolute top-2 left-2 flex flex-col space-y-1">
+                  <div className="absolute top-2 left-2 flex flex-col space-y-2">
                     {comic.isSlabbed && (
                       <span className="px-1.5 py-0.5 bg-purple-500 text-white text-xs font-medium rounded shadow-lg backdrop-blur-sm">
                         Slabbed
@@ -191,7 +191,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                       <span className="text-lg font-bold text-white">{comic.grade}</span>
                     </div>
                     
-                    <div className="space-y-2">
+                    <div className="flex flex-wrap gap-2">
                       <span className={`inline-block px-3 py-1 text-sm font-medium rounded ${
                       comic.isSlabbed ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30 cursor-pointer hover:bg-purple-500/30' : 'bg-gray-600/30 text-gray-300 border border-gray-600/50 cursor-pointer hover:bg-gray-600/50'
                     } transition-colors`}
