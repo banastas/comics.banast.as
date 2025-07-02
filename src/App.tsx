@@ -225,9 +225,6 @@ function App() {
         onBack={handleBackToCollection}
         onView={handleViewComic}
         onViewSeries={handleViewSeries}
-        onViewStorageLocation={handleViewStorageLocation}
-        onViewRawComics={handleViewRawComics}
-        onViewSlabbedComics={handleViewSlabbedComics}
       />
     );
   }
@@ -459,6 +456,8 @@ function App() {
               stats={stats} 
               showDetailed={activeTab === 'stats'}
               onViewComic={handleViewComic}
+              onViewRawComics={handleViewRawComics}
+              onViewSlabbedComics={handleViewSlabbedComics}
               onViewVirtualBoxes={handleViewVirtualBoxes}
               virtualBoxesCount={allVirtualBoxes.length}
             />
