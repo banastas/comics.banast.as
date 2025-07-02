@@ -128,23 +128,23 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
                     className="bg-gray-700/50 rounded-lg border border-gray-600 p-4 hover:border-orange-500 transition-all cursor-pointer group"
                     onClick={() => onViewStorageLocation(location.name)}
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                      <div className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
                         <div className="p-3 bg-orange-500/20 rounded-lg border border-orange-500/30">
                           <MapPin size={20} className="text-orange-400" />
                         </div>
                         
-                        <div>
+                        <div className="min-w-0 flex-1">
                           <h4 className="font-bold text-white text-lg group-hover:text-orange-400 transition-colors">
                             {location.name}
                           </h4>
-                          <div className="flex items-center space-x-4 text-sm text-gray-400 mt-1">
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-gray-400 mt-1">
                             <span>{location.count} comics</span>
-                            <span>•</span>
+                            <span className="hidden sm:inline">•</span>
                             <span>Avg Grade: {location.averageGrade.toFixed(1)}</span>
                             {location.slabbedCount > 0 && (
                               <>
-                                <span>•</span>
+                                <span className="hidden sm:inline">•</span>
                                 <div className="flex items-center space-x-1">
                                   <Archive size={12} className="text-purple-400" />
                                   <span>{location.slabbedCount} slabbed</span>
@@ -153,7 +153,7 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
                             )}
                             {location.rawCount > 0 && (
                               <>
-                                <span>•</span>
+                                <span className="hidden sm:inline">•</span>
                                 <span>{location.rawCount} raw</span>
                               </>
                             )}
@@ -161,7 +161,7 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
                         </div>
                       </div>
                       
-                      <div className="text-right">
+                      <div className="text-left sm:text-right flex-shrink-0">
                         <p className="text-xl font-bold text-white">
                           {formatCurrency(location.totalValue)}
                         </p>
