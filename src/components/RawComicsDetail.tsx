@@ -202,6 +202,7 @@ export const RawComicsDetail: React.FC<RawComicsDetailProps> = ({
               stats={rawComicsStats} 
               showDetailed={true}
               onViewComic={onView}
+              hideRawCard={true}
             />
 
 

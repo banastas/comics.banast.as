@@ -11,6 +11,8 @@ interface DashboardProps {
   onViewSlabbedComics?: () => void;
   onViewVirtualBoxes?: () => void;
   virtualBoxesCount?: number;
+  hideSlabbedCard?: boolean;
+  hideRawCard?: boolean;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ 
@@ -20,7 +22,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onViewRawComics,
   onViewSlabbedComics,
   onViewVirtualBoxes,
-  virtualBoxesCount = 0
+  virtualBoxesCount = 0,
+  hideSlabbedCard = false,
+  hideRawCard = false
 }) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -81,7 +85,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       borderColor: 'border-amber-500/30',
       show: stats.totalComics > 0,
     }] : []),
-    ...(stats.slabbedComics > 0 ? [{
+    ...(stats.slabbedComics > 0 && !hideSlabbedCard ? [{
       title: 'Slabbed Comics',
       value: stats.slabbedComics.toLocaleString(),
       icon: Archive,
@@ -90,7 +94,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       borderColor: 'border-purple-500/30',
       show: stats.slabbedComics > 0,
     }] : []),
-    ...(stats.rawComics > 0 ? [{
+    ...(stats.rawComics > 0 && !hideRawCard ? [{
       title: 'Raw Comics',
       value: stats.rawComics.toLocaleString(),
       icon: Award,

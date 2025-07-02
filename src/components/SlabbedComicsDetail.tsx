@@ -203,6 +203,7 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
               stats={slabbedComicsStats} 
               showDetailed={true}
               onViewComic={onView}
+              hideSlabbedCard={true}
             />
 
 

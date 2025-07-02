@@ -252,7 +252,6 @@ function App() {
         rawComics={rawComics}
         onBack={handleBackToCollection}
         onView={handleViewComic}
-        onViewSeries={handleViewSeries}
       />
     );
   }
@@ -265,7 +264,6 @@ function App() {
         slabbedComics={slabbedComics}
         onBack={handleBackToCollection}
         onView={handleViewComic}
-        onViewSeries={handleViewSeries}
       />
     );
   }
@@ -460,6 +458,8 @@ function App() {
               onViewSlabbedComics={handleViewSlabbedComics}
               onViewVirtualBoxes={handleViewVirtualBoxes}
               virtualBoxesCount={allVirtualBoxes.length}
+              hideSlabbedCard={selectedCondition === 'slabbed'}
+              hideRawCard={selectedCondition === 'raw'}
             />
             
             {/* Additional Stats */}
