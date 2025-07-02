@@ -41,13 +41,14 @@ function App() {
   const [selectedStorageLocation, setSelectedStorageLocation] = useState<string | null>(null);
   const [selectedCoverArtist, setSelectedCoverArtist] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [selectedCondition, setSelectedCondition] = useState<'raw' | 'slabbed' | null>(null);
+  const [selectedCondition, setSelectedCondition] = useState<'raw' | 'slabbed' | 'variants' | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showVirtualBoxes, setShowVirtualBoxes] = useState(false);
 
   // Get unique values for filters
   const allSeries = Array.from(new Set(allComics.map(comic => comic.seriesName))).sort();
   const allVirtualBoxes = Array.from(new Set(allComics.map(comic => comic.storageLocation).filter(Boolean))).sort();
+  const variantsCount = allComics.filter(comic => comic.isVariant).length;
 
   const handleSaveComic = (comicData: Omit<Comic, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (editingComic) {
@@ -131,6 +132,16 @@ function App() {
 
   const handleViewSlabbedComics = () => {
     setSelectedCondition('slabbed');
+    setSelectedComic(undefined);
+    setSelectedSeries(null);
+    setSelectedStorageLocation(null);
+    setSelectedCoverArtist(null);
+    setSelectedTag(null);
+    setShowVirtualBoxes(false);
+  };
+
+  const handleViewVariants = () => {
+    setSelectedCondition('variants');
     setSelectedComic(undefined);
     setSelectedSeries(null);
     setSelectedStorageLocation(null);
@@ -269,6 +280,18 @@ function App() {
     );
   }
 
+  // Show variants detail page if selected
+  if (selectedCondition === 'variants') {
+    const variantComics = allComics.filter(comic => comic.isVariant);
+    return (
+      <VariantsDetail
+        variantComics={variantComics}
+        onBack={handleBackToCollection}
+        onView={handleViewComic}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-900">
       {/* Header */}
@@ -398,8 +421,10 @@ function App() {
                 onViewComic={handleViewComic}
                 onViewRawComics={handleViewRawComics}
                 onViewSlabbedComics={handleViewSlabbedComics}
+                onViewVariants={handleViewVariants}
                 onViewVirtualBoxes={handleViewVirtualBoxes}
                 virtualBoxesCount={allVirtualBoxes.length}
+                variantsCount={variantsCount}
               />
             </div>
 
@@ -457,8 +482,10 @@ function App() {
               onViewComic={handleViewComic}
               onViewRawComics={handleViewRawComics}
               onViewSlabbedComics={handleViewSlabbedComics}
+              onViewVariants={handleViewVariants}
               onViewVirtualBoxes={handleViewVirtualBoxes}
               virtualBoxesCount={allVirtualBoxes.length}
+              variantsCount={variantsCount}
               hideSlabbedCard={selectedCondition === 'slabbed'}
               hideRawCard={selectedCondition === 'raw'}
             />
