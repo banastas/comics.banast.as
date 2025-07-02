@@ -9,8 +9,8 @@ interface DashboardProps {
   onViewComic?: (comic: Comic) => void;
   onViewRawComics?: () => void;
   onViewSlabbedComics?: () => void;
-  onViewStorageLocations?: () => void;
-  storageLocationsCount?: number;
+  onViewVirtualBoxes?: () => void;
+  virtualBoxesCount?: number;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ 
@@ -19,8 +19,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onViewComic,
   onViewRawComics,
   onViewSlabbedComics,
-  onViewStorageLocations,
-  storageLocationsCount = 0
+  onViewVirtualBoxes,
+  virtualBoxesCount = 0
 }) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -99,14 +99,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
       borderColor: 'border-indigo-500/30',
       show: stats.rawComics > 0,
     }] : []),
-    ...(storageLocationsCount > 0 ? [{
-      title: 'Storage Locations',
-      value: storageLocationsCount.toLocaleString(),
+    ...(virtualBoxesCount > 0 ? [{
+      title: 'Virtual Boxes',
+      value: virtualBoxesCount.toLocaleString(),
       icon: MapPin,
       color: 'bg-orange-500',
       bgColor: 'bg-orange-500/10',
       borderColor: 'border-orange-500/30',
-      show: storageLocationsCount > 0,
+      show: virtualBoxesCount > 0,
     }] : []),
     ...(showDetailed && stats.signedComics > 0 ? [{
       title: 'Signed Comics',
@@ -126,15 +126,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div
             key={stat.title}
             className={`bg-gray-800 rounded-lg shadow-lg border ${stat.borderColor} p-3 sm:p-4 hover:shadow-xl transition-all duration-200 ${stat.bgColor} ${
-              (stat.title === 'Slabbed Comics' || stat.title === 'Raw Comics' || stat.title === 'Storage Locations') ? 'cursor-pointer' : ''
+              (stat.title === 'Slabbed Comics' || stat.title === 'Raw Comics' || stat.title === 'Virtual Boxes') ? 'cursor-pointer' : ''
             }`}
             onClick={() => {
               if (stat.title === 'Slabbed Comics') {
                 onViewSlabbedComics?.();
               } else if (stat.title === 'Raw Comics') {
                 onViewRawComics?.();
-              } else if (stat.title === 'Storage Locations') {
-                onViewStorageLocations?.();
+              } else if (stat.title === 'Virtual Boxes') {
+                onViewVirtualBoxes?.();
               }
             }}
           >

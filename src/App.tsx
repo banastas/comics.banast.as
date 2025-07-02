@@ -42,11 +42,11 @@ function App() {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [selectedCondition, setSelectedCondition] = useState<'raw' | 'slabbed' | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [showStorageLocations, setShowStorageLocations] = useState(false);
+  const [showVirtualBoxes, setShowVirtualBoxes] = useState(false);
 
   // Get unique values for filters
   const allSeries = Array.from(new Set(allComics.map(comic => comic.seriesName))).sort();
-  const allStorageLocations = Array.from(new Set(allComics.map(comic => comic.storageLocation).filter(Boolean))).sort();
+  const allVirtualBoxes = Array.from(new Set(allComics.map(comic => comic.storageLocation).filter(Boolean))).sort();
 
   const handleSaveComic = (comicData: Omit<Comic, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (editingComic) {
@@ -65,7 +65,7 @@ function App() {
     setSelectedCoverArtist(null);
     setSelectedTag(null);
     setSelectedCondition(null);
-    setShowStorageLocations(false);
+    setShowVirtualBoxes(false);
   };
 
   const handleBackToCollection = () => {
@@ -75,7 +75,7 @@ function App() {
     setSelectedCoverArtist(null);
     setSelectedTag(null);
     setSelectedCondition(null);
-    setShowStorageLocations(false);
+    setShowVirtualBoxes(false);
   };
 
   const handleViewSeries = (seriesName: string) => {
@@ -85,7 +85,7 @@ function App() {
     setSelectedCoverArtist(null);
     setSelectedTag(null);
     setSelectedCondition(null);
-    setShowStorageLocations(false);
+    setShowVirtualBoxes(false);
   };
 
   const handleViewStorageLocation = (storageLocation: string) => {
@@ -95,7 +95,7 @@ function App() {
     setSelectedCoverArtist(null);
     setSelectedTag(null);
     setSelectedCondition(null);
-    setShowStorageLocations(false);
+    setShowVirtualBoxes(false);
   };
 
   const handleViewCoverArtist = (coverArtist: string) => {
@@ -105,7 +105,7 @@ function App() {
     setSelectedStorageLocation(null);
     setSelectedTag(null);
     setSelectedCondition(null);
-    setShowStorageLocations(false);
+    setShowVirtualBoxes(false);
   };
 
   const handleViewTag = (tag: string) => {
@@ -115,7 +115,7 @@ function App() {
     setSelectedStorageLocation(null);
     setSelectedCoverArtist(null);
     setSelectedCondition(null);
-    setShowStorageLocations(false);
+    setShowVirtualBoxes(false);
   };
 
   const handleViewRawComics = () => {
@@ -125,7 +125,7 @@ function App() {
     setSelectedStorageLocation(null);
     setSelectedCoverArtist(null);
     setSelectedTag(null);
-    setShowStorageLocations(false);
+    setShowVirtualBoxes(false);
   };
 
   const handleViewSlabbedComics = () => {
@@ -135,11 +135,11 @@ function App() {
     setSelectedStorageLocation(null);
     setSelectedCoverArtist(null);
     setSelectedTag(null);
-    setShowStorageLocations(false);
+    setShowVirtualBoxes(false);
   };
 
-  const handleViewStorageLocations = () => {
-    setShowStorageLocations(true);
+  const handleViewVirtualBoxes = () => {
+    setShowVirtualBoxes(true);
     setSelectedComic(undefined);
     setSelectedSeries(null);
     setSelectedStorageLocation(null);
@@ -159,8 +159,8 @@ function App() {
     );
   }
 
-  // Show storage locations listing if selected
-  if (showStorageLocations) {
+  // Show virtual boxes listing if selected
+  if (showVirtualBoxes) {
     return (
       <StorageLocationsListing
         allComics={allComics}
@@ -402,8 +402,8 @@ function App() {
                 onViewComic={handleViewComic}
                 onViewRawComics={handleViewRawComics}
                 onViewSlabbedComics={handleViewSlabbedComics}
-                onViewStorageLocations={handleViewStorageLocations}
-                storageLocationsCount={allStorageLocations.length}
+                onViewVirtualBoxes={handleViewVirtualBoxes}
+                virtualBoxesCount={allVirtualBoxes.length}
               />
             </div>
 
@@ -459,8 +459,8 @@ function App() {
               stats={stats} 
               showDetailed={activeTab === 'stats'}
               onViewComic={handleViewComic}
-              onViewStorageLocations={handleViewStorageLocations}
-              storageLocationsCount={allStorageLocations.length}
+              onViewVirtualBoxes={handleViewVirtualBoxes}
+              virtualBoxesCount={allVirtualBoxes.length}
             />
             
             {/* Additional Stats */}
@@ -611,10 +611,10 @@ function App() {
 
               {/* Storage Locations */}
               <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">Storage Locations</h3>
-                {allStorageLocations.length > 0 ? (
+                <h3 className="text-lg font-semibold text-white mb-4">Virtual Boxes</h3>
+                {allVirtualBoxes.length > 0 ? (
                   <div className="space-y-3">
-                    {allStorageLocations
+                    {allVirtualBoxes
                       .map(location => ({
                         name: location,
                         count: allComics.filter(comic => comic.storageLocation === location).length,
@@ -641,7 +641,7 @@ function App() {
                       ))}
                   </div>
                 ) : (
-                  <p className="text-gray-400">No storage locations specified</p>
+                  <p className="text-gray-400">No virtual boxes specified</p>
                 )}
               </div>
             </div>
@@ -659,7 +659,7 @@ function App() {
             setEditingComic(undefined);
           }}
           allSeries={allSeries}
-          allStorageLocations={allStorageLocations}
+          allVirtualBoxes={allVirtualBoxes}
         />
       )}
     </div>

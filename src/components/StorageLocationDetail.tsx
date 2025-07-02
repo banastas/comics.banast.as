@@ -196,7 +196,7 @@ export const StorageLocationDetail: React.FC<StorageLocationDetailProps> = ({
                   <MapPin size={24} className="text-white" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-white mb-2">{storageLocation}</h1>
+                  <h1 className="text-3xl font-bold text-white mb-2">Virtual Box: {storageLocation}</h1>
                   <p className="text-gray-300">
                     {locationComics.length} comic{locationComics.length !== 1 ? 's' : ''} stored here
                     {uniqueSeries.length > 0 && (
@@ -219,7 +219,7 @@ export const StorageLocationDetail: React.FC<StorageLocationDetailProps> = ({
             {/* Series Breakdown */}
             {uniqueSeries.length > 0 && (
               <div className="mt-6">
-                <h3 className="text-lg font-semibold text-white mb-3">Series in this Location</h3>
+                <h3 className="text-lg font-semibold text-white mb-3">Series in this Virtual Box</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                   {uniqueSeries.map(series => {
                     const seriesCount = locationComics.filter(comic => comic.seriesName === series).length;
@@ -246,7 +246,7 @@ export const StorageLocationDetail: React.FC<StorageLocationDetailProps> = ({
 
           {/* Comics Grid/List */}
           <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Comics in {storageLocation}</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">Comics in Virtual Box: {storageLocation}</h3>
             
             {viewMode === 'grid' ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">

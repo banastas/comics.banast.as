@@ -288,7 +288,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                       <div className="flex items-start space-x-2">
                         <MapPin size={16} className="text-orange-400 mt-0.5" />
                         <div>
-                          <span className="text-sm text-gray-400">Storage Location</span>
+                          <span className="text-sm text-gray-400">Virtual Box</span>
                           <p 
                             className="text-white font-medium hover:text-blue-400 cursor-pointer transition-colors"
                             onClick={() => onViewStorageLocation?.(comic.storageLocation)}

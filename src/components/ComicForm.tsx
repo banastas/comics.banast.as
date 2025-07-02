@@ -7,7 +7,7 @@ interface ComicFormProps {
   onSave: (comic: Omit<Comic, 'id' | 'createdAt' | 'updatedAt'>) => void;
   onCancel: () => void;
   allSeries: string[];
-  allStorageLocations: string[];
+  allVirtualBoxes: string[];
 }
 
 const gradeOptions = [
@@ -19,7 +19,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
   onSave,
   onCancel,
   allSeries,
-  allStorageLocations,
+  allVirtualBoxes,
 }) => {
   const [formData, setFormData] = useState<{
     title: string;
@@ -350,18 +350,18 @@ export const ComicForm: React.FC<ComicFormProps> = ({
               {/* Storage Location */}
               <div>
                 <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
-                  Storage Location
+                  Virtual Box
                 </label>
                 <input
                   type="text"
-                  list="storage-list"
+                  list="virtualbox-list"
                   value={formData.storageLocation}
                   onChange={(e) => handleInputChange('storageLocation', e.target.value)}
                   className="w-full border border-gray-600 bg-gray-700 rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm sm:text-base"
                   placeholder="Box 1, Shelf A, etc."
                 />
-                <datalist id="storage-list">
-                  {allStorageLocations.map(location => (
+                <datalist id="virtualbox-list">
+                  {allVirtualBoxes.map(location => (
                     <option key={location} value={location} />
                   ))}
                 </datalist>

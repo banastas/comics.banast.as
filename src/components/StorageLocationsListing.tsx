@@ -78,9 +78,9 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
                 <MapPin size={24} className="text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-white mb-2">Storage Locations</h1>
+                <h1 className="text-3xl font-bold text-white mb-2">Virtual Boxes</h1>
                 <p className="text-gray-300">
-                  {storageLocations.length} storage location{storageLocations.length !== 1 ? 's' : ''} in your collection
+                  {storageLocations.length} virtual box{storageLocations.length !== 1 ? 'es' : ''} in your collection
                 </p>
               </div>
             </div>
@@ -89,7 +89,7 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
               <div className="bg-gray-700/30 rounded-lg p-4 text-center">
                 <p className="text-2xl font-bold text-white">{storageLocations.length}</p>
-                <p className="text-sm text-gray-400">Locations</p>
+                <p className="text-sm text-gray-400">Virtual Boxes</p>
               </div>
               <div className="bg-gray-700/30 rounded-lg p-4 text-center">
                 <p className="text-2xl font-bold text-white">
@@ -118,7 +118,7 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
 
           {/* Storage Locations List */}
           <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">All Storage Locations</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">All Virtual Boxes</h3>
             
             {storageLocations.length > 0 ? (
               <div className="space-y-3">
@@ -176,9 +176,9 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
             ) : (
               <div className="text-center py-8">
                 <MapPin size={48} className="mx-auto text-gray-500 mb-4" />
-                <h3 className="text-lg font-medium text-white mb-2">No Storage Locations</h3>
+                <h3 className="text-lg font-medium text-white mb-2">No Virtual Boxes</h3>
                 <p className="text-gray-400">
-                  Add storage location information to your comics to see them organized here.
+                  Add virtual box information to your comics to see them organized here.
                 </p>
               </div>
             )}
