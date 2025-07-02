@@ -288,6 +288,9 @@ function App() {
         variantComics={variantComics}
         onBack={handleBackToCollection}
         onView={handleViewComic}
+        onViewRawComics={handleViewRawComics}
+        onViewSlabbedComics={handleViewSlabbedComics}
+        onViewSeries={handleViewSeries}
       />
     );
   }

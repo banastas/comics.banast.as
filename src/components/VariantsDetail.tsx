@@ -14,13 +14,17 @@ interface VariantsDetailProps {
   onBack: () => void;
   onView: (comic: Comic) => void;
   onViewSeries?: (seriesName: string) => void;
+  onViewRawComics?: () => void;
+  onViewSlabbedComics?: () => void;
 }
 
 export const VariantsDetail: React.FC<VariantsDetailProps> = ({ 
   variantComics,
   onBack, 
   onView,
-  onViewSeries
+  onViewSeries,
+  onViewRawComics,
+  onViewSlabbedComics
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'series' | 'issue' | 'grade' | 'value' | 'date'>('series');
@@ -210,6 +214,8 @@ export const VariantsDetail: React.FC<VariantsDetailProps> = ({
               stats={variantComicsStats} 
               showDetailed={true}
               onViewComic={onView}
+              onViewRawComics={onViewRawComics}
+              onViewSlabbedComics={onViewSlabbedComics}
             />
 
             {/* Series Breakdown */}
