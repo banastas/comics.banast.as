@@ -11,6 +11,8 @@ interface DashboardProps {
   onViewSlabbedComics?: () => void;
   onViewVirtualBoxes?: () => void;
   virtualBoxesCount?: number;
+  onViewVariants?: () => void;
+  variantsCount?: number;
   hideSlabbedCard?: boolean;
   hideRawCard?: boolean;
 }
@@ -23,6 +25,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onViewSlabbedComics,
   onViewVirtualBoxes,
   virtualBoxesCount = 0,
+  onViewVariants,
+  variantsCount = 0,
   hideSlabbedCard = false,
   hideRawCard = false
 }) => {
@@ -112,6 +116,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
       borderColor: 'border-orange-500/30',
       show: virtualBoxesCount > 0,
     }] : []),
+    ...(variantsCount > 0 ? [{
+      title: 'Variants',
+      value: variantsCount.toLocaleString(),
+      icon: Award,
+      color: 'bg-emerald-500',
+      bgColor: 'bg-emerald-500/10',
+      borderColor: 'border-emerald-500/30',
+      show: variantsCount > 0,
+    }] : []),
     ...(showDetailed && stats.signedComics > 0 ? [{
       title: 'Signed Comics',
       value: stats.signedComics.toLocaleString(),
@@ -130,7 +143,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div
             key={stat.title}
             className={`bg-gray-800 rounded-lg shadow-lg border ${stat.borderColor} p-3 sm:p-4 hover:shadow-xl transition-all duration-200 ${stat.bgColor} ${
-              (stat.title === 'Slabbed Comics' || stat.title === 'Raw Comics' || stat.title === 'Virtual Boxes') ? 'cursor-pointer' : ''
+              (stat.title === 'Slabbed Comics' || stat.title === 'Raw Comics' || stat.title === 'Virtual Boxes' || stat.title === 'Variants') ? 'cursor-pointer' : ''
             }`}
             onClick={() => {
               if (stat.title === 'Slabbed Comics') {
@@ -139,6 +152,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 onViewRawComics?.();
               } else if (stat.title === 'Virtual Boxes') {
                 onViewVirtualBoxes?.();
+              } else if (stat.title === 'Variants') {
+                onViewVariants?.();
               }
             }}
           >

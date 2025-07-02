@@ -12,6 +12,7 @@ import { TagDetail } from './components/TagDetail';
 import { RawComicsDetail } from './components/RawComicsDetail';
 import { SlabbedComicsDetail } from './components/SlabbedComicsDetail';
 import { StorageLocationsListing } from './components/StorageLocationsListing';
+import { VariantsDetail } from './components/VariantsDetail';
 import { Comic } from './types/Comic';
 import { BookOpen, Plus, BarChart3, Grid, List, SortAsc, SortDesc, Search } from 'lucide-react';
 import { SortField } from './types/Comic';
