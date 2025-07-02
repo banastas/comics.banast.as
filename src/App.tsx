@@ -11,6 +11,7 @@ import { CoverArtistDetail } from './components/CoverArtistDetail';
 import { TagDetail } from './components/TagDetail';
 import { RawComicsDetail } from './components/RawComicsDetail';
 import { SlabbedComicsDetail } from './components/SlabbedComicsDetail';
+import { StorageLocationsListing } from './components/StorageLocationsListing';
 import { Comic } from './types/Comic';
 import { BookOpen, Plus, BarChart3, Grid, List, SortAsc, SortDesc, Search } from 'lucide-react';
 import { SortField } from './types/Comic';
@@ -41,6 +42,7 @@ function App() {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [selectedCondition, setSelectedCondition] = useState<'raw' | 'slabbed' | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [showStorageLocations, setShowStorageLocations] = useState(false);
 
   // Get unique values for filters
   const allSeries = Array.from(new Set(allComics.map(comic => comic.seriesName))).sort();
@@ -63,6 +65,7 @@ function App() {
     setSelectedCoverArtist(null);
     setSelectedTag(null);
     setSelectedCondition(null);
+    setShowStorageLocations(false);
   };
 
   const handleBackToCollection = () => {
@@ -72,6 +75,7 @@ function App() {
     setSelectedCoverArtist(null);
     setSelectedTag(null);
     setSelectedCondition(null);
+    setShowStorageLocations(false);
   };
 
   const handleViewSeries = (seriesName: string) => {
@@ -81,6 +85,7 @@ function App() {
     setSelectedCoverArtist(null);
     setSelectedTag(null);
     setSelectedCondition(null);
+    setShowStorageLocations(false);
   };
 
   const handleViewStorageLocation = (storageLocation: string) => {
@@ -90,6 +95,7 @@ function App() {
     setSelectedCoverArtist(null);
     setSelectedTag(null);
     setSelectedCondition(null);
+    setShowStorageLocations(false);
   };
 
   const handleViewCoverArtist = (coverArtist: string) => {
@@ -99,6 +105,7 @@ function App() {
     setSelectedStorageLocation(null);
     setSelectedTag(null);
     setSelectedCondition(null);
+    setShowStorageLocations(false);
   };
 
   const handleViewTag = (tag: string) => {
@@ -108,6 +115,7 @@ function App() {
     setSelectedStorageLocation(null);
     setSelectedCoverArtist(null);
     setSelectedCondition(null);
+    setShowStorageLocations(false);
   };
 
   const handleViewRawComics = () => {
@@ -117,6 +125,7 @@ function App() {
     setSelectedStorageLocation(null);
     setSelectedCoverArtist(null);
     setSelectedTag(null);
+    setShowStorageLocations(false);
   };
 
   const handleViewSlabbedComics = () => {
@@ -126,6 +135,17 @@ function App() {
     setSelectedStorageLocation(null);
     setSelectedCoverArtist(null);
     setSelectedTag(null);
+    setShowStorageLocations(false);
+  };
+
+  const handleViewStorageLocations = () => {
+    setShowStorageLocations(true);
+    setSelectedComic(undefined);
+    setSelectedSeries(null);
+    setSelectedStorageLocation(null);
+    setSelectedCoverArtist(null);
+    setSelectedTag(null);
+    setSelectedCondition(null);
   };
 
   if (loading) {
@@ -136,6 +156,17 @@ function App() {
           <p className="text-gray-300">Loading your collection...</p>
         </div>
       </div>
+    );
+  }
+
+  // Show storage locations listing if selected
+  if (showStorageLocations) {
+    return (
+      <StorageLocationsListing
+        allComics={allComics}
+        onBack={handleBackToCollection}
+        onViewStorageLocation={handleViewStorageLocation}
+      />
     );
   }
 
@@ -371,6 +402,8 @@ function App() {
                 onViewComic={handleViewComic}
                 onViewRawComics={handleViewRawComics}
                 onViewSlabbedComics={handleViewSlabbedComics}
+                onViewStorageLocations={handleViewStorageLocations}
+                storageLocationsCount={allStorageLocations.length}
               />
             </div>
 
@@ -426,6 +459,8 @@ function App() {
               stats={stats} 
               showDetailed={activeTab === 'stats'}
               onViewComic={handleViewComic}
+              onViewStorageLocations={handleViewStorageLocations}
+              storageLocationsCount={allStorageLocations.length}
             />
             
             {/* Additional Stats */}
