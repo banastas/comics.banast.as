@@ -1,74 +1,127 @@
-import React, { useState } from 'react';
-import { Award } from 'lucide-react';
+import React, { useState, useCallback } from 'react';
+import { BookOpen, Image as ImageIcon } from 'lucide-react';
 
 interface ResponsiveImageProps {
   src: string;
   alt: string;
   className?: string;
-  aspectRatio?: string;
-  sizes?: string;
-  priority?: boolean;
+  fallbackIcon?: React.ReactNode;
+  fallbackText?: string;
+  onError?: () => void;
+  onLoad?: () => void;
+  aspectRatio?: '2/3' | '1/1' | '16/9' | '4/3';
+  priority?: 'high' | 'low';
 }
 
 export const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
   src,
   alt,
   className = '',
-  aspectRatio = 'aspect-[2/3]',
-  sizes = '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw',
-  priority = false
+  fallbackIcon,
+  fallbackText,
+  onError,
+  onLoad,
+  aspectRatio = '2/3',
+  priority = 'low'
 }) => {
-  const [imageError, setImageError] = useState(false);
-  const [imageLoading, setImageLoading] = useState(true);
+  const [imageState, setImageState] = useState<'loading' | 'loaded' | 'error'>('loading');
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  const handleImageLoad = () => {
-    setImageLoading(false);
+  const handleLoad = useCallback(() => {
+    setImageState('loaded');
+    setIsLoaded(true);
+    onLoad?.();
+  }, [onLoad]);
+
+  const handleError = useCallback(() => {
+    setImageState('error');
+    onError?.();
+  }, [onError]);
+
+  const aspectRatioClasses = {
+    '2/3': 'aspect-[2/3]',
+    '1/1': 'aspect-square',
+    '16/9': 'aspect-video',
+    '4/3': 'aspect-[4/3]',
   };
 
-  const handleImageError = () => {
-    setImageError(true);
-    setImageLoading(false);
-  };
+  const defaultFallbackIcon = fallbackIcon || <BookOpen size={24} className="text-gray-500" />;
 
-  // Generate responsive image URLs (in a real app, these would come from your image service)
-  const generateSrcSet = (baseSrc: string) => {
-    if (!baseSrc) return '';
-    
-    // For demo purposes, we'll use the same image
-    // In production, you'd have different sizes: 200w, 400w, 800w
-    return `${baseSrc} 400w`;
-  };
+  if (imageState === 'error') {
+    return (
+      <div className={`${aspectRatioClasses[aspectRatio]} bg-gray-700 rounded-lg flex flex-col items-center justify-center ${className}`}>
+        <div className="text-gray-400 mb-2">
+          {defaultFallbackIcon}
+        </div>
+        {fallbackText && (
+          <p className="text-xs text-gray-500 text-center px-2">{fallbackText}</p>
+        )}
+        <p className="text-xs text-gray-500 text-center px-2">Image unavailable</p>
+      </div>
+    );
+  }
 
   return (
-    <div className={`relative ${aspectRatio} bg-gray-700 overflow-hidden ${className}`}>
-      {imageLoading && (
-        <div className="absolute inset-0 bg-gray-700 animate-pulse flex items-center justify-center">
-          <div className="w-6 h-6 sm:w-8 sm:h-8 border-4 border-gray-600 border-t-blue-400 rounded-full animate-spin"></div>
-        </div>
-      )}
-      
-      {!imageError && src ? (
-        <img
-          src={src}
-          srcSet={generateSrcSet(src)}
-          sizes={sizes}
-          alt={alt}
-          className={`w-full h-full object-cover transition-opacity duration-300 ${
-            imageLoading ? 'opacity-0' : 'opacity-100'
-          }`}
-          onLoad={handleImageLoad}
-          onError={handleImageError}
-          loading={priority ? 'eager' : 'lazy'}
-          decoding="async"
-        />
-      ) : (
-        <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
-          <div className="text-center text-gray-400">
-            <Award size={24} className="mx-auto mb-2 sm:w-8 sm:h-8" />
-            <p className="text-xs sm:text-sm font-medium">No Cover</p>
+    <div className={`${aspectRatioClasses[aspectRatio]} bg-gray-700 rounded-lg overflow-hidden ${className}`}>
+      {imageState === 'loading' && (
+        <div className="w-full h-full flex items-center justify-center bg-gray-700">
+          <div className="animate-pulse flex flex-col items-center space-y-2">
+            <ImageIcon size={24} className="text-gray-500" />
+            <div className="w-16 h-2 bg-gray-600 rounded"></div>
           </div>
         </div>
       )}
+      
+      <img
+        src={src}
+        alt={alt}
+        className={`w-full h-full object-cover transition-opacity duration-300 ${
+          isLoaded ? 'opacity-100' : 'opacity-0'
+        }`}
+        onLoad={handleLoad}
+        onError={handleError}
+        loading={priority === 'high' ? 'eager' : 'lazy'}
+        decoding="async"
+      />
     </div>
+  );
+};
+
+// Specialized comic cover image component
+interface ComicCoverImageProps {
+  src: string;
+  seriesName: string;
+  issueNumber: number;
+  className?: string;
+  size?: 'small' | 'medium' | 'large';
+  priority?: 'high' | 'low';
+}
+
+export const ComicCoverImage: React.FC<ComicCoverImageProps> = ({
+  src,
+  seriesName,
+  issueNumber,
+  className = '',
+  size = 'medium',
+  priority = 'low'
+}) => {
+  const sizeClasses = {
+    small: 'w-12 h-16',
+    medium: 'w-16 h-24',
+    large: 'w-20 h-32',
+  };
+
+  const fallbackText = `${seriesName} #${issueNumber}`;
+
+  return (
+    <ResponsiveImage
+      src={src}
+      alt={`${seriesName} #${issueNumber}`}
+      className={`${sizeClasses[size]} ${className}`}
+      fallbackIcon={<BookOpen size={size === 'small' ? 16 : size === 'medium' ? 20 : 24} className="text-gray-500" />}
+      fallbackText={fallbackText}
+      aspectRatio="2/3"
+      priority={priority}
+    />
   );
 };
