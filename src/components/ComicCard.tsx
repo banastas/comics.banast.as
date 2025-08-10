@@ -29,16 +29,18 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView }) => {
     setImageLoading(false);
   };
 
+  // Check if we have a valid cover image URL
+  const hasValidCoverUrl = comic.coverImageUrl && comic.coverImageUrl.trim() !== '';
   return (
     <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden hover:shadow-xl hover:border-blue-500 transition-all duration-300 group cursor-pointer w-full">
       {/* Cover Image */}
       <div className="relative aspect-[2/3] bg-gray-700" onClick={() => onView(comic)}>
-        {imageLoading && (
+        {hasValidCoverUrl && imageLoading && (
           <div className="absolute inset-0 bg-gray-700 animate-pulse flex items-center justify-center">
             <div className="w-8 h-8 border-4 border-gray-600 border-t-blue-400 rounded-full animate-spin"></div>
           </div>
         )}
-        {!imageError && comic.coverImageUrl ? (
+        {hasValidCoverUrl && !imageError ? (
           <img
             src={comic.coverImageUrl}
             alt={`${comic.seriesName} #${comic.issueNumber}`}
