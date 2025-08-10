@@ -634,7 +634,7 @@ function App() {
                             <p className="text-sm text-gray-400">{series.count} comics</p>
                           </div>
                           <p className="font-semibold text-white">
-                            {series.value.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
+                            {series.value.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </p>
                         </div>
                       ))}
