@@ -42,6 +42,9 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
 
+  // Check if we have a valid cover image URL
+  const hasValidCoverUrl = comic.coverImageUrl && comic.coverImageUrl.trim() !== '';
+
   // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -109,12 +112,12 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
               {/* Cover Image */}
               <div className="flex-shrink-0">
                 <div className="relative aspect-[2/3] w-48 bg-gray-700 rounded-lg overflow-hidden shadow-xl border border-gray-600">
-                  {imageLoading && (
+                  {hasValidCoverUrl && imageLoading && (
                     <div className="absolute inset-0 bg-gray-700 animate-pulse flex items-center justify-center">
                       <div className="w-6 h-6 border-4 border-gray-600 border-t-blue-400 rounded-full animate-spin"></div>
                     </div>
                   )}
-                  {!imageError && comic.coverImageUrl ? (
+                  {hasValidCoverUrl && !imageError ? (
                     <img
                       src={comic.coverImageUrl}
                       alt={`${comic.seriesName} #${comic.issueNumber}`}
