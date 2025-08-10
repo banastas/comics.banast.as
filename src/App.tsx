@@ -3,20 +3,32 @@ import { useComics } from './hooks/useComics';
 import { Dashboard } from './components/Dashboard';
 import { ComicCard } from './components/ComicCard';
 import { ComicListView } from './components/ComicListView';
-import { ComicForm } from './components/ComicForm';
-import { ComicDetail } from './components/ComicDetail';
-import { SeriesDetail } from './components/SeriesDetail';
-import { StorageLocationDetail } from './components/StorageLocationDetail';
-import { CoverArtistDetail } from './components/CoverArtistDetail';
-import { TagDetail } from './components/TagDetail';
-import { RawComicsDetail } from './components/RawComicsDetail';
-import { SlabbedComicsDetail } from './components/SlabbedComicsDetail';
-import { StorageLocationsListing } from './components/StorageLocationsListing';
-import { VariantsDetail } from './components/VariantsDetail';
-import { CsvConverter } from './components/CsvConverter';
 import { Comic } from './types/Comic';
 import { BookOpen, Plus, BarChart3, Grid, List, SortAsc, SortDesc, Search, FileText } from 'lucide-react';
 import { SortField } from './types/Comic';
+
+// Lazy load components
+const ComicForm = React.lazy(() => import('./components/ComicForm').then(module => ({ default: module.ComicForm })));
+const ComicDetail = React.lazy(() => import('./components/ComicDetail').then(module => ({ default: module.ComicDetail })));
+const SeriesDetail = React.lazy(() => import('./components/SeriesDetail').then(module => ({ default: module.SeriesDetail })));
+const StorageLocationDetail = React.lazy(() => import('./components/StorageLocationDetail').then(module => ({ default: module.StorageLocationDetail })));
+const CoverArtistDetail = React.lazy(() => import('./components/CoverArtistDetail').then(module => ({ default: module.CoverArtistDetail })));
+const TagDetail = React.lazy(() => import('./components/TagDetail').then(module => ({ default: module.TagDetail })));
+const RawComicsDetail = React.lazy(() => import('./components/RawComicsDetail').then(module => ({ default: module.RawComicsDetail })));
+const SlabbedComicsDetail = React.lazy(() => import('./components/SlabbedComicsDetail').then(module => ({ default: module.SlabbedComicsDetail })));
+const StorageLocationsListing = React.lazy(() => import('./components/StorageLocationsListing').then(module => ({ default: module.StorageLocationsListing })));
+const VariantsDetail = React.lazy(() => import('./components/VariantsDetail').then(module => ({ default: module.VariantsDetail })));
+const CsvConverter = React.lazy(() => import('./components/CsvConverter').then(module => ({ default: module.CsvConverter })));
+
+// Loading component for Suspense
+const LoadingSpinner = () => (
+  <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+    <div className="text-center">
+      <div className="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+      <p className="text-gray-300">Loading...</p>
+    </div>
+  </div>
+);
 
 function App() {
   const {
@@ -178,38 +190,44 @@ function App() {
   // Show CSV converter if selected
   if (showCsvConverter) {
     return (
-      <CsvConverter
-        onBack={handleBackToCollection}
-      />
+      <React.Suspense fallback={<LoadingSpinner />}>
+        <CsvConverter
+          onBack={handleBackToCollection}
+        />
+      </React.Suspense>
     );
   }
 
   // Show virtual boxes listing if selected
   if (showVirtualBoxes) {
     return (
-      <StorageLocationsListing
-        allComics={allComics}
-        onBack={handleBackToCollection}
-        onViewStorageLocation={handleViewStorageLocation}
-      />
+      <React.Suspense fallback={<LoadingSpinner />}>
+        <StorageLocationsListing
+          allComics={allComics}
+          onBack={handleBackToCollection}
+          onViewStorageLocation={handleViewStorageLocation}
+        />
+      </React.Suspense>
     );
   }
 
   // Show comic detail page if a comic is selected
   if (selectedComic) {
     return (
-      <ComicDetail
-        comic={selectedComic as Comic}
-        allComics={allComics}
-        onBack={handleBackToCollection}
-        onView={handleViewComic}
-        onViewSeries={handleViewSeries}
-        onViewStorageLocation={handleViewStorageLocation}
-        onViewCoverArtist={handleViewCoverArtist}
-        onViewTag={handleViewTag}
-        onViewRawComics={handleViewRawComics}
-        onViewSlabbedComics={handleViewSlabbedComics}
-      />
+      <React.Suspense fallback={<LoadingSpinner />}>
+        <ComicDetail
+          comic={selectedComic as Comic}
+          allComics={allComics}
+          onBack={handleBackToCollection}
+          onView={handleViewComic}
+          onViewSeries={handleViewSeries}
+          onViewStorageLocation={handleViewStorageLocation}
+          onViewCoverArtist={handleViewCoverArtist}
+          onViewTag={handleViewTag}
+          onViewRawComics={handleViewRawComics}
+          onViewSlabbedComics={handleViewSlabbedComics}
+        />
+      </React.Suspense>
     );
   }
 
@@ -217,12 +235,14 @@ function App() {
   if (selectedSeries) {
     const seriesComics = allComics.filter(comic => comic.seriesName === selectedSeries);
     return (
-      <SeriesDetail
-        seriesName={selectedSeries || ''}
-        seriesComics={seriesComics}
-        onBack={handleBackToCollection}
-        onView={handleViewComic}
-      />
+      <React.Suspense fallback={<LoadingSpinner />}>
+        <SeriesDetail
+          seriesName={selectedSeries || ''}
+          seriesComics={seriesComics}
+          onBack={handleBackToCollection}
+          onView={handleViewComic}
+        />
+      </React.Suspense>
     );
   }
 
@@ -230,13 +250,15 @@ function App() {
   if (selectedStorageLocation) {
     const locationComics = allComics.filter(comic => comic.storageLocation === selectedStorageLocation);
     return (
-      <StorageLocationDetail
-        storageLocation={selectedStorageLocation || ''}
-        locationComics={locationComics}
-        onBack={handleBackToCollection}
-        onView={handleViewComic}
-        onViewSeries={handleViewSeries}
-      />
+      <React.Suspense fallback={<LoadingSpinner />}>
+        <StorageLocationDetail
+          storageLocation={selectedStorageLocation || ''}
+          locationComics={locationComics}
+          onBack={handleBackToCollection}
+          onView={handleViewComic}
+          onViewSeries={handleViewSeries}
+        />
+      </React.Suspense>
     );
   }
 
@@ -244,13 +266,15 @@ function App() {
   if (selectedCoverArtist) {
     const artistComics = allComics.filter(comic => comic.coverArtist === selectedCoverArtist);
     return (
-      <CoverArtistDetail
-        coverArtist={selectedCoverArtist || ''}
-        artistComics={artistComics}
-        onBack={handleBackToCollection}
-        onView={handleViewComic}
-        onViewSeries={handleViewSeries}
-      />
+      <React.Suspense fallback={<LoadingSpinner />}>
+        <CoverArtistDetail
+          coverArtist={selectedCoverArtist || ''}
+          artistComics={artistComics}
+          onBack={handleBackToCollection}
+          onView={handleViewComic}
+          onViewSeries={handleViewSeries}
+        />
+      </React.Suspense>
     );
   }
 
@@ -258,14 +282,16 @@ function App() {
   if (selectedTag) {
     const tagComics = allComics.filter(comic => comic.tags.includes(selectedTag || ''));
     return (
-      <TagDetail
-        tag={selectedTag || ''}
-        tagComics={tagComics}
-        onBack={handleBackToCollection}
-        onView={handleViewComic}
-        onViewSeries={handleViewSeries}
-        onViewTag={handleViewTag}
-      />
+      <React.Suspense fallback={<LoadingSpinner />}>
+        <TagDetail
+          tag={selectedTag || ''}
+          tagComics={tagComics}
+          onBack={handleBackToCollection}
+          onView={handleViewComic}
+          onViewSeries={handleViewSeries}
+          onViewTag={handleViewTag}
+        />
+      </React.Suspense>
     );
   }
 
@@ -273,11 +299,13 @@ function App() {
   if (selectedCondition === 'raw') {
     const rawComics = allComics.filter(comic => !comic.isSlabbed);
     return (
-      <RawComicsDetail
-        rawComics={rawComics}
-        onBack={handleBackToCollection}
-        onView={handleViewComic}
-      />
+      <React.Suspense fallback={<LoadingSpinner />}>
+        <RawComicsDetail
+          rawComics={rawComics}
+          onBack={handleBackToCollection}
+          onView={handleViewComic}
+        />
+      </React.Suspense>
     );
   }
 
@@ -285,11 +313,13 @@ function App() {
   if (selectedCondition === 'slabbed') {
     const slabbedComics = allComics.filter(comic => comic.isSlabbed);
     return (
-      <SlabbedComicsDetail
-        slabbedComics={slabbedComics}
-        onBack={handleBackToCollection}
-        onView={handleViewComic}
-      />
+      <React.Suspense fallback={<LoadingSpinner />}>
+        <SlabbedComicsDetail
+          slabbedComics={slabbedComics}
+          onBack={handleBackToCollection}
+          onView={handleViewComic}
+        />
+      </React.Suspense>
     );
   }
 
@@ -297,14 +327,16 @@ function App() {
   if (selectedCondition === 'variants') {
     const variantComics = allComics.filter(comic => comic.isVariant);
     return (
-      <VariantsDetail
-        variantComics={variantComics}
-        onBack={handleBackToCollection}
-        onView={handleViewComic}
-        onViewRawComics={handleViewRawComics}
-        onViewSlabbedComics={handleViewSlabbedComics}
-        onViewSeries={handleViewSeries}
-      />
+      <React.Suspense fallback={<LoadingSpinner />}>
+        <VariantsDetail
+          variantComics={variantComics}
+          onBack={handleBackToCollection}
+          onView={handleViewComic}
+          onViewRawComics={handleViewRawComics}
+          onViewSlabbedComics={handleViewSlabbedComics}
+          onViewSeries={handleViewSeries}
+        />
+      </React.Suspense>
     );
   }
 
@@ -703,16 +735,18 @@ function App() {
 
       {/* Comic Form Modal */}
       {showForm && (
-        <ComicForm
-          comic={editingComic}
-          onSave={handleSaveComic}
-          onCancel={() => {
-            setShowForm(false);
-            setEditingComic(undefined);
-          }}
-          allSeries={allSeries}
-          allVirtualBoxes={allVirtualBoxes}
-        />
+        <React.Suspense fallback={<LoadingSpinner />}>
+          <ComicForm
+            comic={editingComic}
+            onSave={handleSaveComic}
+            onCancel={() => {
+              setShowForm(false);
+              setEditingComic(undefined);
+            }}
+            allSeries={allSeries}
+            allVirtualBoxes={allVirtualBoxes}
+          />
+        </React.Suspense>
       )}
     </div>
   );
