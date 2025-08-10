@@ -304,6 +304,7 @@ function App() {
           rawComics={rawComics}
           onBack={handleBackToCollection}
           onView={handleViewComic}
+          onViewSeries={handleViewSeries}
         />
       </React.Suspense>
     );
@@ -318,6 +319,7 @@ function App() {
           slabbedComics={slabbedComics}
           onBack={handleBackToCollection}
           onView={handleViewComic}
+          onViewSeries={handleViewSeries}
         />
       </React.Suspense>
     );
