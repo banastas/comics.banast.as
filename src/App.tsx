@@ -634,7 +634,7 @@ function App() {
                             <p className="text-sm text-gray-400">{series.count} comics</p>
                           </div>
                           <p className="font-semibold text-white">
-                            {series.value.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            {series.value.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
                           </p>
                         </div>
                       ))}
@@ -674,13 +674,13 @@ function App() {
                           </div>
                           <div className="text-right">
                             <p className="font-semibold text-white">
-                              {comic.purchasePrice.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
+                              {comic.purchasePrice.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </p>
                             {comic.currentValue && (
                               <p className={`text-xs ${
                                 comic.currentValue >= comic.purchasePrice ? 'text-emerald-400' : 'text-red-400'
                               }`}>
-                                Now: {comic.currentValue.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
+                                Now: {comic.currentValue.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 {comic.purchasePrice > 0 && ` (${comic.currentValue >= comic.purchasePrice ? '+' : ''}${((comic.currentValue - comic.purchasePrice) / comic.purchasePrice * 100).toFixed(1)}%)`}
                           </p>
                             )}
