@@ -13,8 +13,9 @@ import { RawComicsDetail } from './components/RawComicsDetail';
 import { SlabbedComicsDetail } from './components/SlabbedComicsDetail';
 import { StorageLocationsListing } from './components/StorageLocationsListing';
 import { VariantsDetail } from './components/VariantsDetail';
+import { CsvConverter } from './components/CsvConverter';
 import { Comic } from './types/Comic';
-import { BookOpen, Plus, BarChart3, Grid, List, SortAsc, SortDesc, Search } from 'lucide-react';
+import { BookOpen, Plus, BarChart3, Grid, List, SortAsc, SortDesc, Search, FileText } from 'lucide-react';
 import { SortField } from './types/Comic';
 
 function App() {
@@ -44,6 +45,7 @@ function App() {
   const [selectedCondition, setSelectedCondition] = useState<'raw' | 'slabbed' | 'variants' | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showVirtualBoxes, setShowVirtualBoxes] = useState(false);
+  const [showCsvConverter, setShowCsvConverter] = useState(false);
 
   // Get unique values for filters
   const allSeries = Array.from(new Set(allComics.map(comic => comic.seriesName))).sort();
@@ -78,6 +80,7 @@ function App() {
     setSelectedTag(null);
     setSelectedCondition(null);
     setShowVirtualBoxes(false);
+    setShowCsvConverter(false);
   };
 
   const handleViewSeries = (seriesName: string) => {
@@ -158,6 +161,7 @@ function App() {
     setSelectedCoverArtist(null);
     setSelectedTag(null);
     setSelectedCondition(null);
+    setShowCsvConverter(false);
   };
 
   if (loading) {
@@ -168,6 +172,15 @@ function App() {
           <p className="text-gray-300">Loading your collection...</p>
         </div>
       </div>
+    );
+  }
+
+  // Show CSV converter if selected
+  if (showCsvConverter) {
+    return (
+      <CsvConverter
+        onBack={handleBackToCollection}
+      />
     );
   }
 
@@ -331,6 +344,15 @@ function App() {
             <div className="hidden sm:flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
               {activeTab === 'collection' && (
                 <>
+                  {/* CSV Converter Button */}
+                  <button
+                    onClick={() => setShowCsvConverter(true)}
+                    className="p-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
+                    title="CSV Converter"
+                  >
+                    <FileText size={16} />
+                  </button>
+                  
                   {/* View Mode Toggle */}
                   <div className="flex items-center space-x-2 border border-gray-600 rounded-lg">
                     <button
