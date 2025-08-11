@@ -64,7 +64,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
     }] : []),
     ...(stats.comicsWithCurrentValue > 0 ? [{
       title: 'Current Value',
-      value: formatCurrency(stats.totalCurrentValue),
+      value: stats.totalCurrentValue.toLocaleString('en-US', { 
+        style: 'currency', 
+        currency: 'USD', 
+        minimumFractionDigits: 0, 
+        maximumFractionDigits: 0 
+      }),
       icon: TrendingUp,
       color: 'bg-blue-500',
       bgColor: 'bg-blue-500/10',
