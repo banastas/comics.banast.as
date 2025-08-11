@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "update-prices": "python scripts/update_current_values.py src/data/comics.json",
+    "update-and-dev": "npm run update-prices && npm run dev"
   },
   "dependencies": {
     "lucide-react": "^0.344.0",
