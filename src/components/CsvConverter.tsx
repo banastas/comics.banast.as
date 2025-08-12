@@ -157,6 +157,22 @@ export const CsvConverter: React.FC<CsvConverterProps> = ({ onBack }) => {
           }
         });
 
+        // Use seriesName as title if title is empty or missing
+        if (!comic.title && comic.seriesName) {
+          comic.title = comic.seriesName;
+        }
+        
+        // Ensure required fields have defaults
+        comic.title = comic.title || comic.seriesName || 'Unknown Title';
+        comic.seriesName = comic.seriesName || comic.title || 'Unknown Series';
+        comic.coverArtist = comic.coverArtist || '';
+        comic.notes = comic.notes || '';
+        comic.signedBy = comic.signedBy || '';
+        comic.storageLocation = comic.storageLocation || '';
+        comic.tags = comic.tags || [];
+        comic.isVariant = comic.isVariant || false;
+        comic.isGraphicNovel = comic.isGraphicNovel || false;
+        comic.isSlabbed = comic.isSlabbed || false;
         return comic;
       });
 
@@ -223,9 +239,11 @@ export const CsvConverter: React.FC<CsvConverterProps> = ({ onBack }) => {
             <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
               <h3 className="text-blue-300 font-medium mb-2">Expected CSV Format:</h3>
               <p className="text-blue-200 text-sm">
-                The CSV should contain columns: id, title, seriesName, issueNumber, releaseDate, coverImageUrl, 
-                coverArtist, grade, purchasePrice, purchaseDate, currentValue, notes, signedBy, storageLocation, 
-                tags, isVariant, isGraphicNovel, isSlabbed, createdAt, updatedAt
+                <strong>Required columns:</strong> seriesName, issueNumber, releaseDate, grade, purchasePrice, purchaseDate
+                <br />
+                <strong>Optional columns:</strong> title, coverImageUrl, coverArtist, currentValue, notes, signedBy, storageLocation, tags, isVariant, isGraphicNovel, isSlabbed
+                <br />
+                <strong>Note:</strong> ID, createdAt, and updatedAt are auto-generated. If title is missing, seriesName will be used.
               </p>
             </div>
           </div>
