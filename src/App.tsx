@@ -44,6 +44,13 @@ import {
 } from 'lucide-react';
 
 export default function App() {
+  const hookResult = useComics();
+  
+  // Debug: Log what we get from useComics
+  console.log('useComics result:', hookResult);
+  console.log('comics type:', typeof hookResult.comics, Array.isArray(hookResult.comics));
+  console.log('allComics type:', typeof hookResult.allComics, Array.isArray(hookResult.allComics));
+  
   const {
     comics,           // This is the filtered comics from useComics
     allComics,        // This is all comics unfiltered
@@ -57,7 +64,13 @@ export default function App() {
     setFilters,
     setSortField,
     setSortDirection,
-  } = useComics();
+  } = hookResult;
+
+  // Additional debug logging
+  console.log('comics:', comics);
+  console.log('allComics:', allComics);
+  console.log('stats:', stats);
+  console.log('loading:', loading);
 
   const [showForm, setShowForm] = useState(false);
   const [editingComic, setEditingComic] = useState<Comic | undefined>(undefined);
@@ -75,11 +88,18 @@ export default function App() {
   // Safe array operations with fallbacks
   const safeAllComics = Array.isArray(allComics) ? allComics : [];
   const safeComics = Array.isArray(comics) ? comics : [];
+  
+  console.log('safeAllComics:', safeAllComics.length);
+  console.log('safeComics:', safeComics.length);
 
   // Get unique values for filters with safe array operations
-  const allSeries = Array.from(new Set(safeAllComics.map(comic => comic?.seriesName).filter(Boolean))).sort();
-  const allVirtualBoxes = Array.from(new Set(safeAllComics.map(comic => comic?.storageLocation).filter(Boolean))).sort();
-  const variantsCount = safeAllComics.filter(comic => comic?.isVariant).length;
+  const allSeries = Array.from(new Set(safeAllComics.map(comic => comic.seriesName))).sort();
+  const allVirtualBoxes = Array.from(new Set(safeAllComics.map(comic => comic.storageLocation).filter(Boolean))).sort();
+  const variantsCount = safeAllComics.filter(comic => comic.isVariant).length;
+
+  console.log('allSeries:', allSeries);
+  console.log('allVirtualBoxes:', allVirtualBoxes);
+  console.log('variantsCount:', variantsCount);
 
   // URL management for virtual boxes
   useEffect(() => {
@@ -246,7 +266,27 @@ export default function App() {
   };
 
   if (loading) {
+    console.log('Still loading...');
     return <LoadingSpinner />;
+  }
+
+  // Show error message if no data loaded
+  if (!Array.isArray(allComics) || !Array.isArray(comics)) {
+    console.error('Data is not an array!', { allComics, comics });
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-bold text-red-400 mb-4">Data Loading Error</h2>
+          <p className="text-gray-300 mb-4">There was an issue loading your comic collection.</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+          >
+            Refresh Page
+          </button>
+        </div>
+      </div>
+    );
   }
 
   // Show CSV converter if selected
@@ -399,6 +439,9 @@ export default function App() {
     );
   }
 
+  console.log('About to render main collection view');
+  console.log('stats for Dashboard:', stats);
+
   // Main collection view
   return (
     <div className="min-h-screen bg-gray-900">
@@ -437,7 +480,7 @@ export default function App() {
                 <input
                   type="text"
                   placeholder="Search comics..."
-                  value={filters?.searchTerm || ''}
+                  value={filters.searchTerm || ''}
                   onChange={(e) => setFilters({ searchTerm: e.target.value })}
                   className="w-full sm:w-64 bg-gray-700 border border-gray-600 rounded-lg pl-10 pr-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
@@ -546,8 +589,7 @@ export default function App() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Only render Dashboard if we have stats */}
-        {stats && (
+        {stats ? (
           activeTab === 'stats' ? (
             <Dashboard 
               stats={stats} 
@@ -557,8 +599,6 @@ export default function App() {
               onViewSlabbedComics={handleViewSlabbedComics}
               onViewVariants={handleViewVariants}
               onViewVirtualBoxes={handleViewVirtualBoxes}
-              virtualBoxesCount={allVirtualBoxes.length}
-              variantsCount={variantsCount}
             />
           ) : (
             <>
@@ -571,8 +611,6 @@ export default function App() {
                 onViewSlabbedComics={handleViewSlabbedComics}
                 onViewVariants={handleViewVariants}
                 onViewVirtualBoxes={handleViewVirtualBoxes}
-                virtualBoxesCount={allVirtualBoxes.length}
-                variantsCount={variantsCount}
               />
 
               {/* Comics Grid/List */}
@@ -627,6 +665,11 @@ export default function App() {
               )}
             </>
           )
+        ) : (
+          <div className="text-center py-12">
+            <h3 className="text-lg font-medium text-white mb-2">Loading Statistics...</h3>
+            <p className="text-gray-400">Please wait while we calculate your collection stats.</p>
+          </div>
         )}
       </main>
 
