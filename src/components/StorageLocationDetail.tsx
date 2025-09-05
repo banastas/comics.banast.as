@@ -96,7 +96,7 @@ export const StorageLocationDetail: React.FC<StorageLocationDetailProps> = ({
     biggestLoser,
     rawComics: locationComics.filter(comic => !comic.isSlabbed).length,
     slabbedComics: locationComics.filter(comic => comic.isSlabbed).length,
-    signedComics: locationComics.filter(comic => (comic.signedBy || '').trim() !== '').length,
+    signedComics: locationComics.filter(comic => comic.signedBy.trim() !== '').length,
     averageGrade: locationComics.length > 0 ? locationComics.reduce((sum, comic) => sum + comic.grade, 0) / locationComics.length : 0,
     totalGainLoss,
     totalGainLossPercentage: locationComicsWithCurrentValue.length > 0 && locationComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0) > 0

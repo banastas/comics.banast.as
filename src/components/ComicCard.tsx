@@ -30,7 +30,7 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView }) => {
   };
 
   // Check if we have a valid cover image URL
-  const hasValidCoverUrl = comic.coverImageUrl && (comic.coverImageUrl || '').trim() !== '';
+  const hasValidCoverUrl = comic.coverImageUrl && comic.coverImageUrl.trim() !== '';
   return (
     <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden hover:shadow-xl hover:border-blue-500 transition-all duration-300 group cursor-pointer w-full">
       {/* Cover Image */}

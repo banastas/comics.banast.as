@@ -90,7 +90,7 @@ export const TagDetail: React.FC<TagDetailProps> = ({
     biggestLoser,
     rawComics: tagComics.filter(comic => !comic.isSlabbed).length,
     slabbedComics: tagComics.filter(comic => comic.isSlabbed).length,
-    signedComics: tagComics.filter(comic => (comic.signedBy || '').trim() !== '').length,
+    signedComics: tagComics.filter(comic => comic.signedBy.trim() !== '').length,
     averageGrade: tagComics.length > 0 ? tagComics.reduce((sum, comic) => sum + comic.grade, 0) / tagComics.length : 0,
     totalGainLoss,
     totalGainLossPercentage: tagComicsWithCurrentValue.length > 0 && tagComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0) > 0

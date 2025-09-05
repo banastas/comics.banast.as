@@ -96,7 +96,7 @@ export const CoverArtistDetail: React.FC<CoverArtistDetailProps> = ({
     biggestLoser,
     rawComics: artistComics.filter(comic => !comic.isSlabbed).length,
     slabbedComics: artistComics.filter(comic => comic.isSlabbed).length,
-    signedComics: artistComics.filter(comic => (comic.signedBy || '').trim() !== '').length,
+    signedComics: artistComics.filter(comic => comic.signedBy.trim() !== '').length,
     averageGrade: artistComics.length > 0 ? artistComics.reduce((sum, comic) => sum + comic.grade, 0) / artistComics.length : 0,
     totalGainLoss,
     totalGainLossPercentage: artistComicsWithCurrentValue.length > 0 && artistComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0) > 0

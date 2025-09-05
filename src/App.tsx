@@ -342,7 +342,7 @@ export default function App() {
 
   // Show tag detail page if a tag is selected
   if (selectedTag) {
-    const tagComics = safeAllComics.filter(comic => (comic.tags || []).includes(selectedTag));
+    const tagComics = safeAllComics.filter(comic => comic.tags && Array.isArray(comic.tags) && comic.tags.includes(selectedTag));
     return (
       <React.Suspense fallback={<LoadingSpinner />}>
         <TagDetail

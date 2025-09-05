@@ -16,8 +16,8 @@ export const useComicFilters = (
       filtered = filtered.filter(comic =>
         comic.title.toLowerCase().includes(searchLower) ||
         comic.seriesName.toLowerCase().includes(searchLower) ||
-        (comic.notes || '').toLowerCase().includes(searchLower) ||
-        (comic.signedBy || '').toLowerCase().includes(searchLower) ||
+        comic.notes.toLowerCase().includes(searchLower) ||
+        comic.signedBy.toLowerCase().includes(searchLower) ||
         comic.coverArtist.toLowerCase().includes(searchLower)
       );
     }
@@ -42,13 +42,13 @@ export const useComicFilters = (
 
     if (filters.isSigned !== null) {
       filtered = filtered.filter(comic => 
-        filters.isSigned ? (comic.signedBy || '').trim() !== '' : (comic.signedBy || '').trim() === ''
+        filters.isSigned ? comic.signedBy.trim() !== '' : comic.signedBy.trim() === ''
       );
     }
 
     if (filters.tags.length > 0) {
       filtered = filtered.filter(comic =>
-        filters.tags.some(tag => (comic.tags || []).includes(tag))
+        filters.tags.some(tag => comic.tags.includes(tag))
       );
     }
 

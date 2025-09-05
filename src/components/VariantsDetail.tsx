@@ -97,7 +97,7 @@ export const VariantsDetail: React.FC<VariantsDetailProps> = ({
     biggestLoser,
     rawComics: variantComics.filter(comic => !comic.isSlabbed).length,
     slabbedComics: variantComics.filter(comic => comic.isSlabbed).length,
-    signedComics: variantComics.filter(comic => (comic.signedBy || '').trim() !== '').length,
+    signedComics: variantComics.filter(comic => comic.signedBy.trim() !== '').length,
     averageGrade: variantComics.length > 0 ? variantComics.reduce((sum, comic) => sum + comic.grade, 0) / variantComics.length : 0,
     totalGainLoss,
     totalGainLossPercentage: variantComicsWithCurrentValue.length > 0 && variantComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0) > 0
