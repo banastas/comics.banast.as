@@ -342,7 +342,11 @@ export const initializeStore = () => {
   const store = useComicStore.getState();
   if (store.comics.length === 0) {
     try {
-      store.setComics(initialComicsData as Comic[]);
+      // Handle both array format and object format with comics property
+      const comicsData = Array.isArray(initialComicsData) 
+        ? initialComicsData 
+        : (initialComicsData as any).comics || [];
+      store.setComics(comicsData as Comic[]);
       store.setLoading(false);
     } catch (error) {
       console.error('Error loading comics:', error);
