@@ -89,7 +89,7 @@ export const useComics = () => {
     );
 
     filtered = filtered.filter(comic => 
-      (comic.purchasePrice || 0) >= filters.minPrice && (comic.purchasePrice || 0) <= filters.maxPrice
+      comic.purchasePrice >= filters.minPrice && comic.purchasePrice <= filters.maxPrice
     );
 
     if (filters.isSlabbed !== null) {
@@ -115,11 +115,8 @@ export const useComics = () => {
       
       // Handle currentValue sorting specially since it might be undefined
       if (sortField === 'currentValue') {
-        aValue = a.currentValue || (a.purchasePrice || 0);
-        bValue = b.currentValue || (b.purchasePrice || 0);
-      } else if (sortField === 'purchasePrice') {
-        aValue = a.purchasePrice || 0;
-        bValue = b.purchasePrice || 0;
+        aValue = a.currentValue || a.purchasePrice;
+        bValue = b.currentValue || b.purchasePrice;
       } else {
         aValue = a[sortField as keyof Comic] as string | number | undefined;
         bValue = b[sortField as keyof Comic] as string | number | undefined;
@@ -148,23 +145,23 @@ export const useComics = () => {
 
   // Calculate statistics
   const comicsWithCurrentValue = comics.filter(comic => comic.currentValue !== undefined);
-  const totalPurchaseValue = comics.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0);
+  const totalPurchaseValue = comics.reduce((sum, comic) => sum + comic.purchasePrice, 0);
   const totalCurrentValue = comicsWithCurrentValue.reduce((sum, comic) => sum + (comic.currentValue || 0), 0);
-  const totalGainLoss = totalCurrentValue - comicsWithCurrentValue.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0);
+  const totalGainLoss = totalCurrentValue - comicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0);
   const totalGainLossPercentage = comicsWithCurrentValue.length > 0 
-    ? (totalGainLoss / comicsWithCurrentValue.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0)) * 100 
+    ? (totalGainLoss / comicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0)) * 100 
     : 0;
 
   // Find biggest gainer and loser
   const biggestGainer = comicsWithCurrentValue.reduce((biggest, comic) => {
-    const gain = (comic.currentValue || 0) - (comic.purchasePrice || 0);
-    const biggestGain = biggest ? ((biggest.currentValue || 0) - (biggest.purchasePrice || 0)) : -Infinity;
+    const gain = (comic.currentValue || 0) - comic.purchasePrice;
+    const biggestGain = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : -Infinity;
     return gain > biggestGain ? comic : biggest;
   }, null as Comic | null);
 
   const biggestLoser = comicsWithCurrentValue.reduce((biggest, comic) => {
-    const loss = (comic.currentValue || 0) - (comic.purchasePrice || 0);
-    const biggestLoss = biggest ? ((biggest.currentValue || 0) - (biggest.purchasePrice || 0)) : Infinity;
+    const loss = (comic.currentValue || 0) - comic.purchasePrice;
+    const biggestLoss = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : Infinity;
     return loss < biggestLoss ? comic : biggest;
   }, null as Comic | null);
 
@@ -174,21 +171,21 @@ export const useComics = () => {
     totalPurchaseValue,
     totalCurrentValue,
     highestValuedComic: comics.reduce((highest, comic) => 
-      !highest || (comic.purchasePrice || 0) > (highest.purchasePrice || 0) ? comic : highest, 
+      !highest || comic.purchasePrice > highest.purchasePrice ? comic : highest, 
       null as Comic | null
     ),
     highestValuedSlabbedComic: comics
       .filter(comic => comic.isSlabbed)
       .reduce((highest, comic) => {
-        const comicValue = comic.currentValue || (comic.purchasePrice || 0);
-        const highestValue = highest ? (highest.currentValue || (highest.purchasePrice || 0)) : 0;
+        const comicValue = comic.currentValue || comic.purchasePrice;
+        const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
         return comicValue > highestValue ? comic : highest;
       }, null as Comic | null),
     highestValuedRawComic: comics
       .filter(comic => !comic.isSlabbed)
       .reduce((highest, comic) => {
-        const comicValue = comic.currentValue || (comic.purchasePrice || 0);
-        const highestValue = highest ? (highest.currentValue || (highest.purchasePrice || 0)) : 0;
+        const comicValue = comic.currentValue || comic.purchasePrice;
+        const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
         return comicValue > highestValue ? comic : highest;
       }, null as Comic | null),
     biggestGainer,
