@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { useComics } from './hooks/useComics';
+import { useRouting } from './hooks/useRouting';
 import { Dashboard } from './components/Dashboard';
 import { ComicCard } from './components/ComicCard';
 import { ComicListView } from './components/ComicListView';
 import { Comic } from './types/Comic';
 import { BookOpen, Plus, BarChart3, Grid, List, SortAsc, SortDesc, Search, FileText } from 'lucide-react';
 import { SortField } from './types/Comic';
+import { getComicUrl, getSeriesUrl, getStorageLocationUrl, getCoverArtistUrl, getTagUrl, urls } from './utils/routing';
+import UrlShareButton from './components/UrlShareButton';
 
 // Lazy load components
 const ComicForm = React.lazy(() => import('./components/ComicForm').then(module => ({ default: module.ComicForm })));
@@ -64,6 +67,37 @@ function App() {
   const allVirtualBoxes = Array.from(new Set(allComics.map(comic => comic.storageLocation).filter(Boolean))).sort();
   const variantsCount = allComics.filter(comic => comic.isVariant).length;
 
+  // URL routing
+  const { navigateToRoute } = useRouting({
+    activeTab,
+    selectedComic,
+    selectedSeries,
+    selectedStorageLocation,
+    selectedCoverArtist,
+    selectedTag,
+    selectedCondition,
+    showVirtualBoxes,
+    showCsvConverter,
+    viewMode,
+    searchTerm: filters.searchTerm,
+    sortField,
+    sortDirection,
+    setActiveTab,
+    setSelectedComic,
+    setSelectedSeries,
+    setSelectedStorageLocation,
+    setSelectedCoverArtist,
+    setSelectedTag,
+    setSelectedCondition,
+    setShowVirtualBoxes,
+    setShowCsvConverter,
+    setViewMode,
+    setFilters,
+    setSortField,
+    setSortDirection,
+    allComics,
+  });
+
   const handleSaveComic = (comicData: Omit<Comic, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (editingComic) {
       updateComic(editingComic.id, comicData);
@@ -75,105 +109,43 @@ function App() {
   };
 
   const handleViewComic = (comic: Comic) => {
-    setSelectedComic(comic);
-    setSelectedSeries(null);
-    setSelectedStorageLocation(null);
-    setSelectedCoverArtist(null);
-    setSelectedTag(null);
-    setSelectedCondition(null);
-    setShowVirtualBoxes(false);
+    navigateToRoute('comic', comic.id, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
   const handleBackToCollection = () => {
-    setSelectedComic(undefined);
-    setSelectedSeries(null);
-    setSelectedStorageLocation(null);
-    setSelectedCoverArtist(null);
-    setSelectedTag(null);
-    setSelectedCondition(null);
-    setShowVirtualBoxes(false);
-    setShowCsvConverter(false);
+    navigateToRoute('collection', undefined, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
   const handleViewSeries = (seriesName: string) => {
-    setSelectedSeries(seriesName);
-    setSelectedComic(undefined);
-    setSelectedStorageLocation(null);
-    setSelectedCoverArtist(null);
-    setSelectedTag(null);
-    setSelectedCondition(null);
-    setShowVirtualBoxes(false);
+    navigateToRoute('series', seriesName, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
   const handleViewStorageLocation = (storageLocation: string) => {
-    setSelectedStorageLocation(storageLocation);
-    setSelectedComic(undefined);
-    setSelectedSeries(null);
-    setSelectedCoverArtist(null);
-    setSelectedTag(null);
-    setSelectedCondition(null);
-    setShowVirtualBoxes(false);
+    navigateToRoute('storage', storageLocation, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
   const handleViewCoverArtist = (coverArtist: string) => {
-    setSelectedCoverArtist(coverArtist);
-    setSelectedComic(undefined);
-    setSelectedSeries(null);
-    setSelectedStorageLocation(null);
-    setSelectedTag(null);
-    setSelectedCondition(null);
-    setShowVirtualBoxes(false);
+    navigateToRoute('artist', coverArtist, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
   const handleViewTag = (tag: string) => {
-    setSelectedTag(tag);
-    setSelectedComic(undefined);
-    setSelectedSeries(null);
-    setSelectedStorageLocation(null);
-    setSelectedCoverArtist(null);
-    setSelectedCondition(null);
-    setShowVirtualBoxes(false);
+    navigateToRoute('tag', tag, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
   const handleViewRawComics = () => {
-    setSelectedCondition('raw');
-    setSelectedComic(undefined);
-    setSelectedSeries(null);
-    setSelectedStorageLocation(null);
-    setSelectedCoverArtist(null);
-    setSelectedTag(null);
-    setShowVirtualBoxes(false);
+    navigateToRoute('raw', undefined, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
   const handleViewSlabbedComics = () => {
-    setSelectedCondition('slabbed');
-    setSelectedComic(undefined);
-    setSelectedSeries(null);
-    setSelectedStorageLocation(null);
-    setSelectedCoverArtist(null);
-    setSelectedTag(null);
-    setShowVirtualBoxes(false);
+    navigateToRoute('slabbed', undefined, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
   const handleViewVariants = () => {
-    setSelectedCondition('variants');
-    setSelectedComic(undefined);
-    setSelectedSeries(null);
-    setSelectedStorageLocation(null);
-    setSelectedCoverArtist(null);
-    setSelectedTag(null);
-    setShowVirtualBoxes(false);
+    navigateToRoute('variants', undefined, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
   const handleViewVirtualBoxes = () => {
-    setShowVirtualBoxes(true);
-    setSelectedComic(undefined);
-    setSelectedSeries(null);
-    setSelectedStorageLocation(null);
-    setSelectedCoverArtist(null);
-    setSelectedTag(null);
-    setSelectedCondition(null);
-    setShowCsvConverter(false);
+    navigateToRoute('boxes', undefined, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
   if (loading) {
@@ -361,74 +333,77 @@ function App() {
             {/* Search and Controls - Only show on collection tab */}
             {activeTab === 'collection' && (
               <div className="hidden sm:flex items-center space-x-2 sm:space-x-4 flex-1 max-w-2xl mx-4">
-                {/* Search */}
+              {/* Search */}
                 <div className="relative flex-1 max-w-md">
                   <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
-                  <input
-                    type="text"
-                    placeholder="Search comics..."
+                <input
+                  type="text"
+                  placeholder="Search comics..."
                     value={filters.searchTerm}
                     onChange={(e) => setFilters({ ...filters, searchTerm: e.target.value })}
                     className="w-full pl-9 pr-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm"
-                  />
-                </div>
+                />
+              </div>
               </div>
             )}
-            
-            <div className="hidden sm:flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
-              {activeTab === 'collection' && (
-                <>
-                  {/* CSV Converter Button */}
-                  <button
-                    onClick={() => setShowCsvConverter(true)}
-                    className="p-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
-                    title="CSV Converter"
-                  >
-                    <FileText size={16} />
-                  </button>
-                  
+              
+                         <div className="hidden sm:flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
+               {/* Share URL Button */}
+               <UrlShareButton title="Copy URL to clipboard" />
+               
+               {activeTab === 'collection' && (
+                 <>
+                   {/* CSV Converter Button */}
+                <button
+                  onClick={() => setShowCsvConverter(true)}
+                     className="p-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
+                  title="CSV Converter"
+                >
+                     <FileText size={16} />
+                </button>
+              
                   {/* View Mode Toggle */}
                   <div className="flex items-center space-x-2 border border-gray-600 rounded-lg">
-                    <button
-                      onClick={() => setViewMode('grid')}
+                      <button
+                        onClick={() => setViewMode('grid')}
                       className={`p-2 rounded-l-lg transition-colors ${
-                        viewMode === 'grid' ? 'bg-blue-500 text-white' : 'text-gray-300 hover:text-white'
-                      }`}
-                    >
-                      <Grid size={16} />
-                    </button>
-                    <button
-                      onClick={() => setViewMode('list')}
+                          viewMode === 'grid' ? 'bg-blue-500 text-white' : 'text-gray-300 hover:text-white'
+                        }`}
+                      >
+                        <Grid size={16} />
+                      </button>
+                      <button
+                        onClick={() => setViewMode('list')}
                       className={`p-2 rounded-r-lg transition-colors ${
-                        viewMode === 'list' ? 'bg-blue-500 text-white' : 'text-gray-300 hover:text-white'
-                      }`}
+                          viewMode === 'list' ? 'bg-blue-500 text-white' : 'text-gray-300 hover:text-white'
+                        }`}
+                      >
+                        <List size={16} />
+                      </button>
+                    </div>
+                    
+                    {/* Sort Controls */}
+                    <select
+                      value={sortField}
+                      onChange={(e) => setSortField(e.target.value as SortField)}
+                      className="bg-gray-700 border border-gray-600 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm text-white"
                     >
-                      <List size={16} />
+                      <option value="title">Sort by Title</option>
+                      <option value="seriesName">Sort by Series</option>
+                      <option value="issueNumber">Sort by Issue #</option>
+                      <option value="releaseDate">Sort by Release Date</option>
+                      <option value="grade">Sort by Grade</option>
+                      <option value="purchasePrice">Sort by Purchase Price</option>
+                      <option value="currentValue">Sort by Current Value</option>
+                      <option value="purchaseDate">Sort by Purchase Date</option>
+                    </select>
+                    
+                    <button
+                      onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
+                      className="p-1.5 sm:p-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors text-gray-300"
+                    >
+                      {sortDirection === 'asc' ? <SortAsc size={14} className="sm:w-4 sm:h-4" /> : <SortDesc size={14} className="sm:w-4 sm:h-4" />}
                     </button>
-                  </div>
-                  
-                  {/* Sort Controls */}
-                  <select
-                    value={sortField}
-                    onChange={(e) => setSortField(e.target.value as SortField)}
-                    className="bg-gray-700 border border-gray-600 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm text-white"
-                  >
-                    <option value="title">Sort by Title</option>
-                    <option value="seriesName">Sort by Series</option>
-                    <option value="issueNumber">Sort by Issue #</option>
-                    <option value="releaseDate">Sort by Release Date</option>
-                    <option value="grade">Sort by Grade</option>
-                    <option value="purchasePrice">Sort by Purchase Price</option>
-                    <option value="currentValue">Sort by Current Value</option>
-                    <option value="purchaseDate">Sort by Purchase Date</option>
-                  </select>
-                  
-                  <button
-                    onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
-                    className="p-1.5 sm:p-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors text-gray-300"
-                  >
-                    {sortDirection === 'asc' ? <SortAsc size={14} className="sm:w-4 sm:h-4" /> : <SortDesc size={14} className="sm:w-4 sm:h-4" />}
-                  </button>
                 </>
               )}
             </div>
@@ -441,7 +416,7 @@ function App() {
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <nav className="flex space-x-4 sm:space-x-8 overflow-x-auto">
             <button
-              onClick={() => setActiveTab('collection')}
+              onClick={() => navigateToRoute('collection', undefined, { tab: 'collection', viewMode, searchTerm: filters.searchTerm, sortField, sortDirection })}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'collection'
                   ? 'border-blue-400 text-blue-400'
@@ -454,7 +429,7 @@ function App() {
               </div>
             </button>
             <button
-              onClick={() => setActiveTab('stats')}
+              onClick={() => navigateToRoute('stats', undefined, { tab: 'stats', viewMode, searchTerm: filters.searchTerm, sortField, sortDirection })}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'stats'
                   ? 'border-blue-400 text-blue-400'
@@ -462,8 +437,8 @@ function App() {
               } transition-colors`}
             >
               <div className="flex items-center space-x-1 sm:space-x-2 whitespace-nowrap">
-                <BarChart3 size={16} />
-                <span>Statistics</span>
+              <BarChart3 size={16} />
+              <span>Statistics</span>
               </div>
             </button>
           </nav>
@@ -512,20 +487,20 @@ function App() {
               </div>
             ) : (
               <>
-                {viewMode === 'grid' ? (
+              {viewMode === 'grid' ? (
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
                     {comics.map((comic) => (
-                      <ComicCard
-                        key={comic.id}
-                        comic={comic}
-                        onView={handleViewComic}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <ComicListView
+                    <ComicCard
+                      key={comic.id}
+                      comic={comic}
+                      onView={handleViewComic}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <ComicListView
                     comics={comics}
-                    onView={handleViewComic}
+                  onView={handleViewComic}
                   />
                 )}
               </>
