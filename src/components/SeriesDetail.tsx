@@ -93,7 +93,7 @@ export const SeriesDetail: React.FC<SeriesDetailProps> = ({
     biggestLoser,
     rawComics: seriesComics.filter(comic => !comic.isSlabbed).length,
     slabbedComics: seriesComics.filter(comic => comic.isSlabbed).length,
-    signedComics: seriesComics.filter(comic => comic.signedBy.trim() !== '').length,
+    signedComics: seriesComics.filter(comic => (comic.signedBy || '').trim() !== '').length,
     averageGrade: seriesComics.length > 0 ? seriesComics.reduce((sum, comic) => sum + comic.grade, 0) / seriesComics.length : 0,
     totalGainLoss,
     totalGainLossPercentage: seriesComicsWithCurrentValue.length > 0 && seriesComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0) > 0

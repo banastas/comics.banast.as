@@ -314,7 +314,7 @@ export const useComicStore = create<ComicStore>((set, get) => ({
       biggestLoser,
       rawComics: state.comics.filter(comic => !comic.isSlabbed).length,
       slabbedComics: state.comics.filter(comic => comic.isSlabbed).length,
-      signedComics: state.comics.filter(comic => comic.signedBy.trim() !== '').length,
+      signedComics: state.comics.filter(comic => (comic.signedBy || '').trim() !== '').length,
       averageGrade: state.comics.length > 0 
         ? state.comics.reduce((sum, comic) => sum + comic.grade, 0) / state.comics.length 
         : 0,

@@ -86,7 +86,7 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
     biggestLoser,
     rawComics: 0, // No raw comics in slabbed view
     slabbedComics: slabbedComics.length,
-    signedComics: slabbedComics.filter(comic => comic.signedBy.trim() !== '').length,
+    signedComics: slabbedComics.filter(comic => (comic.signedBy || '').trim() !== '').length,
     averageGrade: slabbedComics.length > 0 ? slabbedComics.reduce((sum, comic) => sum + comic.grade, 0) / slabbedComics.length : 0,
     totalGainLoss,
     totalGainLossPercentage: slabbedComicsWithCurrentValue.length > 0 && slabbedComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0) > 0

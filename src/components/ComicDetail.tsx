@@ -43,7 +43,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
   const [imageLoading, setImageLoading] = useState(true);
 
   // Check if we have a valid cover image URL
-  const hasValidCoverUrl = comic.coverImageUrl && comic.coverImageUrl.trim() !== '';
+  const hasValidCoverUrl = comic.coverImageUrl && (comic.coverImageUrl || '').trim() !== '';
 
   // Scroll to top when component mounts
   useEffect(() => {

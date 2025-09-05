@@ -85,7 +85,7 @@ export const RawComicsDetail: React.FC<RawComicsDetailProps> = ({
     biggestLoser,
     rawComics: rawComics.length,
     slabbedComics: 0, // No slabbed comics in raw view
-    signedComics: rawComics.filter(comic => comic.signedBy.trim() !== '').length,
+    signedComics: rawComics.filter(comic => (comic.signedBy || '').trim() !== '').length,
     averageGrade: rawComics.length > 0 ? rawComics.reduce((sum, comic) => sum + comic.grade, 0) / rawComics.length : 0,
     totalGainLoss,
     totalGainLossPercentage: rawComicsWithCurrentValue.length > 0 && rawComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0) > 0
