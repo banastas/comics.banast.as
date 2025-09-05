@@ -1,7 +1,9 @@
 import React, { useState, useEffect, Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams, useNavigate } from 'react-router-dom';
 import { Comic, SortField } from './types/Comic';
 import { useComics } from './hooks/useComics';
 import { useComicFilters } from './hooks/useComicFilters';
+import { generateVirtualBoxUrl, getVirtualBoxFromSlug } from './utils/urlUtils';
 
 // Core Components
 import Dashboard from './components/Dashboard';
@@ -35,16 +37,148 @@ import {
   BarChart3
 } from 'lucide-react';
 
-function App() {
+// Route Wrapper Components
+const ComicDetailWrapper: React.FC<{ allComics: Comic[] }> = ({ allComics }) => {
+  const { comicId } = useParams<{ comicId: string }>();
+  const navigate = useNavigate();
+  
+  const comic = allComics.find(c => c.id === comicId);
+  
+  if (!comic) {
+    return <Navigate to="/" replace />;
+  }
+  
+  return (
+    <ComicDetail
+      comic={comic}
+      allComics={allComics}
+      onBack={() => navigate(-1)}
+      onView={(comic) => navigate(`/comic/${comic.id}`)}
+      onViewSeries={(series) => navigate(`/series/${encodeURIComponent(series)}`)}
+      onViewStorageLocation={(location) => navigate(`/virtual-box/${encodeURIComponent(location)}`)}
+      onViewCoverArtist={(artist) => navigate(`/artist/${encodeURIComponent(artist)}`)}
+      onViewTag={(tag) => navigate(`/tag/${encodeURIComponent(tag)}`)}
+      onViewRawComics={() => navigate('/raw-comics')}
+      onViewSlabbedComics={() => navigate('/slabbed-comics')}
+    />
+  );
+};
+
+const SeriesDetailWrapper: React.FC<{ allComics: Comic[] }> = ({ allComics }) => {
+  const { seriesName } = useParams<{ seriesName: string }>();
+  const navigate = useNavigate();
+  
+  if (!seriesName) {
+    return <Navigate to="/" replace />;
+  }
+  
+  const decodedSeriesName = decodeURIComponent(seriesName);
+  const seriesComics = allComics.filter(comic => comic.seriesName === decodedSeriesName);
+  
+  if (seriesComics.length === 0) {
+    return <Navigate to="/" replace />;
+  }
+  
+  return (
+    <SeriesDetail
+      seriesName={decodedSeriesName}
+      seriesComics={seriesComics}
+      onBack={() => navigate('/')}
+      onView={(comic) => navigate(`/comic/${comic.id}`)}
+    />
+  );
+};
+
+const StorageLocationDetailWrapper: React.FC<{ allComics: Comic[] }> = ({ allComics }) => {
+  const { boxName } = useParams<{ boxName: string }>();
+  const navigate = useNavigate();
+  
+  if (!boxName) {
+    return <Navigate to="/virtual-boxes" replace />;
+  }
+  
+  // Get all virtual box names for slug matching
+  const allVirtualBoxes = Array.from(new Set(allComics.map(comic => comic.storageLocation).filter(Boolean)));
+  const decodedBoxName = getVirtualBoxFromSlug(boxName, allVirtualBoxes) || decodeURIComponent(boxName);
+  const locationComics = allComics.filter(comic => comic.storageLocation === decodedBoxName);
+  
+  if (locationComics.length === 0) {
+    return <Navigate to="/virtual-boxes" replace />;
+  }
+  
+  return (
+    <StorageLocationDetail
+      storageLocation={decodedBoxName}
+      locationComics={locationComics}
+      onBack={() => navigate('/virtual-boxes')}
+      onView={(comic) => navigate(`/comic/${comic.id}`)}
+      onViewSeries={(series) => navigate(`/series/${encodeURIComponent(series)}`)}
+    />
+  );
+};
+
+const CoverArtistDetailWrapper: React.FC<{ allComics: Comic[] }> = ({ allComics }) => {
+  const { artistName } = useParams<{ artistName: string }>();
+  const navigate = useNavigate();
+  
+  if (!artistName) {
+    return <Navigate to="/" replace />;
+  }
+  
+  const decodedArtistName = decodeURIComponent(artistName);
+  const artistComics = allComics.filter(comic => comic.coverArtist === decodedArtistName);
+  
+  if (artistComics.length === 0) {
+    return <Navigate to="/" replace />;
+  }
+  
+  return (
+    <CoverArtistDetail
+      coverArtist={decodedArtistName}
+      artistComics={artistComics}
+      onBack={() => navigate('/')}
+      onView={(comic) => navigate(`/comic/${comic.id}`)}
+      onViewSeries={(series) => navigate(`/series/${encodeURIComponent(series)}`)}
+    />
+  );
+};
+
+const TagDetailWrapper: React.FC<{ allComics: Comic[] }> = ({ allComics }) => {
+  const { tagName } = useParams<{ tagName: string }>();
+  const navigate = useNavigate();
+  
+  if (!tagName) {
+    return <Navigate to="/" replace />;
+  }
+  
+  const decodedTagName = decodeURIComponent(tagName);
+  const tagComics = allComics.filter(comic => comic.tags.includes(decodedTagName));
+  
+  if (tagComics.length === 0) {
+    return <Navigate to="/" replace />;
+  }
+  
+  return (
+    <TagDetail
+      tag={decodedTagName}
+      tagComics={tagComics}
+      onBack={() => navigate('/')}
+      onView={(comic) => navigate(`/comic/${comic.id}`)}
+      onViewSeries={(series) => navigate(`/series/${encodeURIComponent(series)}`)}
+    />
+  );
+};
+
+// Main Collection Component
+const Collection: React.FC<{ allComics: Comic[] }> = ({ allComics }) => {
+  const navigate = useNavigate();
   const {
-    allComics,
-    loading,
-    filteredComics,
     addComic,
     updateComic,
     setFilters,
     setSortField,
     setSortDirection,
+    filteredComics,
     sortField,
     sortDirection,
     filters,
@@ -53,63 +187,12 @@ function App() {
   const [showForm, setShowForm] = useState(false);
   const [editingComic, setEditingComic] = useState<Comic | undefined>(undefined);
   const [activeTab, setActiveTab] = useState<'collection' | 'stats'>('collection');
-  const [selectedComic, setSelectedComic] = useState<Comic | undefined>(undefined);
-  const [selectedSeries, setSelectedSeries] = useState<string | null>(null);
-  const [selectedStorageLocation, setSelectedStorageLocation] = useState<string | null>(null);
-  const [selectedCoverArtist, setSelectedCoverArtist] = useState<string | null>(null);
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [selectedCondition, setSelectedCondition] = useState<'raw' | 'slabbed' | 'variants' | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [showVirtualBoxes, setShowVirtualBoxes] = useState(false);
-  const [showCsvConverter, setShowCsvConverter] = useState(false);
 
   // Get unique values for filters
   const allSeries = Array.from(new Set(allComics.map(comic => comic.seriesName))).sort();
   const allVirtualBoxes = Array.from(new Set(allComics.map(comic => comic.storageLocation).filter(Boolean))).sort();
   const variantsCount = allComics.filter(comic => comic.isVariant).length;
-
-  // URL management for virtual boxes
-  useEffect(() => {
-    // Listen for browser back/forward events
-    const handlePopState = (event: PopStateEvent) => {
-      if (event.state) {
-        const { type, data } = event.state;
-        switch (type) {
-          case 'virtual-box':
-            setSelectedStorageLocation(data);
-            setSelectedComic(undefined);
-            setSelectedSeries(null);
-            setSelectedCoverArtist(null);
-            setSelectedTag(null);
-            setSelectedCondition(null);
-            setShowVirtualBoxes(false);
-            break;
-          case 'virtual-boxes':
-            setShowVirtualBoxes(true);
-            setSelectedStorageLocation(null);
-            setSelectedComic(undefined);
-            setSelectedSeries(null);
-            setSelectedCoverArtist(null);
-            setSelectedTag(null);
-            setSelectedCondition(null);
-            break;
-          case 'collection':
-          default:
-            handleBackToCollection();
-            break;
-        }
-      }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
-
-  // Generate shareable URLs for virtual boxes
-  const generateVirtualBoxUrl = (boxName: string): string => {
-    const encodedName = encodeURIComponent(boxName);
-    return `${window.location.origin}${window.location.pathname}#virtual-box/${encodedName}`;
-  };
 
   const handleSaveComic = (comicData: Omit<Comic, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (editingComic) {
@@ -122,286 +205,43 @@ function App() {
   };
 
   const handleViewComic = (comic: Comic) => {
-    setSelectedComic(comic);
-    setSelectedSeries(null);
-    setSelectedStorageLocation(null);
-    setSelectedCoverArtist(null);
-    setSelectedTag(null);
-    setSelectedCondition(null);
-    setShowVirtualBoxes(false);
-  };
-
-  const handleBackToCollection = () => {
-    setSelectedComic(undefined);
-    setSelectedSeries(null);
-    setSelectedStorageLocation(null);
-    setSelectedCoverArtist(null);
-    setSelectedTag(null);
-    setSelectedCondition(null);
-    setShowVirtualBoxes(false);
-    setShowCsvConverter(false);
-    // Update URL
-    window.history.pushState({ type: 'collection' }, '', window.location.pathname);
+    navigate(`/comic/${comic.id}`);
   };
 
   const handleViewSeries = (seriesName: string) => {
-    setSelectedSeries(seriesName);
-    setSelectedComic(undefined);
-    setSelectedStorageLocation(null);
-    setSelectedCoverArtist(null);
-    setSelectedTag(null);
-    setSelectedCondition(null);
-    setShowVirtualBoxes(false);
+    navigate(`/series/${encodeURIComponent(seriesName)}`);
   };
 
   const handleViewStorageLocation = (storageLocation: string) => {
-    setSelectedStorageLocation(storageLocation);
-    setSelectedComic(undefined);
-    setSelectedSeries(null);
-    setSelectedCoverArtist(null);
-    setSelectedTag(null);
-    setSelectedCondition(null);
-    setShowVirtualBoxes(false);
-    // Update URL for virtual box
-    const encodedName = encodeURIComponent(storageLocation);
-    window.history.pushState(
-      { type: 'virtual-box', data: storageLocation }, 
-      '', 
-      `${window.location.pathname}#virtual-box/${encodedName}`
-    );
+    navigate(`/virtual-box/${encodeURIComponent(storageLocation)}`);
   };
 
   const handleViewCoverArtist = (coverArtist: string) => {
-    setSelectedCoverArtist(coverArtist);
-    setSelectedComic(undefined);
-    setSelectedSeries(null);
-    setSelectedStorageLocation(null);
-    setSelectedTag(null);
-    setSelectedCondition(null);
-    setShowVirtualBoxes(false);
+    navigate(`/artist/${encodeURIComponent(coverArtist)}`);
   };
 
   const handleViewTag = (tag: string) => {
-    setSelectedTag(tag);
-    setSelectedComic(undefined);
-    setSelectedSeries(null);
-    setSelectedStorageLocation(null);
-    setSelectedCoverArtist(null);
-    setSelectedCondition(null);
-    setShowVirtualBoxes(false);
+    navigate(`/tag/${encodeURIComponent(tag)}`);
   };
 
   const handleViewRawComics = () => {
-    setSelectedCondition('raw');
-    setSelectedComic(undefined);
-    setSelectedSeries(null);
-    setSelectedStorageLocation(null);
-    setSelectedCoverArtist(null);
-    setSelectedTag(null);
-    setShowVirtualBoxes(false);
+    navigate('/raw-comics');
   };
 
   const handleViewSlabbedComics = () => {
-    setSelectedCondition('slabbed');
-    setSelectedComic(undefined);
-    setSelectedSeries(null);
-    setSelectedStorageLocation(null);
-    setSelectedCoverArtist(null);
-    setSelectedTag(null);
-    setShowVirtualBoxes(false);
+    navigate('/slabbed-comics');
   };
 
   const handleViewVariants = () => {
-    setSelectedCondition('variants');
-    setSelectedComic(undefined);
-    setSelectedSeries(null);
-    setSelectedStorageLocation(null);
-    setSelectedCoverArtist(null);
-    setSelectedTag(null);
-    setShowVirtualBoxes(false);
+    navigate('/variants');
   };
 
   const handleViewVirtualBoxes = () => {
-    setShowVirtualBoxes(true);
-    setSelectedComic(undefined);
-    setSelectedSeries(null);
-    setSelectedStorageLocation(null);
-    setSelectedCoverArtist(null);
-    setSelectedTag(null);
-    setSelectedCondition(null);
-    setShowCsvConverter(false);
-    // Update URL for virtual boxes listing
-    window.history.pushState(
-      { type: 'virtual-boxes' }, 
-      '', 
-      `${window.location.pathname}#virtual-boxes`
-    );
+    navigate('/virtual-boxes');
   };
 
   const { stats } = useComicFilters(allComics, filters, sortField, sortDirection);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-300">Loading your collection...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show CSV converter if selected
-  if (showCsvConverter) {
-    return (
-      <React.Suspense fallback={<LoadingSpinner />}>
-        <CsvConverter
-          onBack={handleBackToCollection}
-        />
-      </React.Suspense>
-    );
-  }
-
-  // Show virtual boxes listing if selected
-  if (showVirtualBoxes) {
-    return (
-      <React.Suspense fallback={<LoadingSpinner />}>
-        <StorageLocationsListing
-          allComics={allComics}
-          onBack={handleBackToCollection}
-          onViewStorageLocation={handleViewStorageLocation}
-        />
-      </React.Suspense>
-    );
-  }
-
-  // Show comic detail page if a comic is selected
-  if (selectedComic) {
-    return (
-      <React.Suspense fallback={<LoadingSpinner />}>
-        <ComicDetail
-          comic={selectedComic as Comic}
-          allComics={allComics}
-          onBack={handleBackToCollection}
-          onView={handleViewComic}
-          onViewSeries={handleViewSeries}
-          onViewStorageLocation={handleViewStorageLocation}
-          onViewCoverArtist={handleViewCoverArtist}
-          onViewTag={handleViewTag}
-          onViewRawComics={handleViewRawComics}
-          onViewSlabbedComics={handleViewSlabbedComics}
-        />
-      </React.Suspense>
-    );
-  }
-
-  // Show series detail page if a series is selected
-  if (selectedSeries) {
-    const seriesComics = allComics.filter(comic => comic.seriesName === selectedSeries);
-    return (
-      <React.Suspense fallback={<LoadingSpinner />}>
-        <SeriesDetail
-          seriesName={selectedSeries || ''}
-          seriesComics={seriesComics}
-          onBack={handleBackToCollection}
-          onView={handleViewComic}
-        />
-      </React.Suspense>
-    );
-  }
-
-  // Show storage location detail page if a storage location is selected
-  if (selectedStorageLocation) {
-    const locationComics = allComics.filter(comic => comic.storageLocation === selectedStorageLocation);
-    return (
-      <React.Suspense fallback={<LoadingSpinner />}>
-        <StorageLocationDetail
-          storageLocation={selectedStorageLocation || ''}
-          locationComics={locationComics}
-          onBack={handleBackToCollection}
-          onView={handleViewComic}
-          onViewSeries={handleViewSeries}
-        />
-      </React.Suspense>
-    );
-  }
-
-  // Show cover artist detail page if a cover artist is selected
-  if (selectedCoverArtist) {
-    const artistComics = allComics.filter(comic => comic.coverArtist === selectedCoverArtist);
-    return (
-      <React.Suspense fallback={<LoadingSpinner />}>
-        <CoverArtistDetail
-          coverArtist={selectedCoverArtist || ''}
-          artistComics={artistComics}
-          onBack={handleBackToCollection}
-          onView={handleViewComic}
-          onViewSeries={handleViewSeries}
-        />
-      </React.Suspense>
-    );
-  }
-
-  // Show tag detail page if a tag is selected
-  if (selectedTag) {
-    const tagComics = allComics.filter(comic => comic.tags.includes(selectedTag));
-    return (
-      <React.Suspense fallback={<LoadingSpinner />}>
-        <TagDetail
-          tag={selectedTag || ''}
-          tagComics={tagComics}
-          onBack={handleBackToCollection}
-          onView={handleViewComic}
-          onViewSeries={handleViewSeries}
-        />
-      </React.Suspense>
-    );
-  }
-
-  // Show condition-based detail pages
-  if (selectedCondition === 'raw') {
-    const rawComics = allComics.filter(comic => !comic.isSlabbed);
-    return (
-      <React.Suspense fallback={<LoadingSpinner />}>
-        <RawComicsDetail
-          rawComics={rawComics}
-          onBack={handleBackToCollection}
-          onView={handleViewComic}
-          onViewSeries={handleViewSeries}
-        />
-      </React.Suspense>
-    );
-  }
-
-  if (selectedCondition === 'slabbed') {
-    const slabbedComics = allComics.filter(comic => comic.isSlabbed);
-    return (
-      <React.Suspense fallback={<LoadingSpinner />}>
-        <SlabbedComicsDetail
-          slabbedComics={slabbedComics}
-          onBack={handleBackToCollection}
-          onView={handleViewComic}
-          onViewSeries={handleViewSeries}
-        />
-      </React.Suspense>
-    );
-  }
-
-  if (selectedCondition === 'variants') {
-    const variantComics = allComics.filter(comic => comic.isVariant);
-    return (
-      <React.Suspense fallback={<LoadingSpinner />}>
-        <VariantsDetail
-          variantComics={variantComics}
-          onBack={handleBackToCollection}
-          onView={handleViewComic}
-          onViewSeries={handleViewSeries}
-        />
-      </React.Suspense>
-    );
-  }
-
-  // Main collection view
   return (
     <div className="min-h-screen bg-gray-900">
       {/* Header */}
@@ -416,7 +256,7 @@ function App() {
               
               <div className="flex items-center space-x-2 sm:hidden">
                 <button
-                  onClick={() => setShowCsvConverter(true)}
+                  onClick={() => navigate('/csv-converter')}
                   className="p-2 text-gray-300 hover:text-white transition-colors"
                   title="CSV Converter"
                 >
@@ -448,7 +288,7 @@ function App() {
               {/* Desktop Actions */}
               <div className="hidden sm:flex items-center space-x-2">
                 <button
-                  onClick={() => setShowCsvConverter(true)}
+                  onClick={() => navigate('/csv-converter')}
                   className="p-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors text-gray-300"
                   title="CSV Converter"
                 >
@@ -639,6 +479,109 @@ function App() {
         />
       )}
     </div>
+  );
+};
+
+// Main App Component with Router
+function App() {
+  const { allComics, loading } = useComics();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-300">Loading your collection...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Router>
+      <div className="min-h-screen bg-gray-900">
+        <Suspense fallback={<LoadingSpinner />}>
+          <Routes>
+            {/* Main collection view */}
+            <Route path="/" element={<Collection allComics={allComics} />} />
+            
+            {/* Virtual boxes listing */}
+            <Route path="/virtual-boxes" element={
+              <StorageLocationsListing allComics={allComics} />
+            } />
+            
+            {/* Individual virtual box detail */}
+            <Route path="/virtual-box/:boxName" element={
+              <StorageLocationDetailWrapper allComics={allComics} />
+            } />
+            
+            {/* Comic detail */}
+            <Route path="/comic/:comicId" element={
+              <ComicDetailWrapper allComics={allComics} />
+            } />
+            
+            {/* Series detail */}
+            <Route path="/series/:seriesName" element={
+              <SeriesDetailWrapper allComics={allComics} />
+            } />
+            
+            {/* Cover artist detail */}
+            <Route path="/artist/:artistName" element={
+              <CoverArtistDetailWrapper allComics={allComics} />
+            } />
+            
+            {/* Tag detail */}
+            <Route path="/tag/:tagName" element={
+              <TagDetailWrapper allComics={allComics} />
+            } />
+            
+            {/* Condition-based views */}
+            <Route path="/raw-comics" element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <RawComicsDetail 
+                  rawComics={allComics.filter(comic => !comic.isSlabbed)}
+                  onBack={() => window.history.back()}
+                  onView={(comic) => window.location.href = `/comic/${comic.id}`}
+                  onViewSeries={(series) => window.location.href = `/series/${encodeURIComponent(series)}`}
+                />
+              </Suspense>
+            } />
+            
+            <Route path="/slabbed-comics" element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <SlabbedComicsDetail 
+                  slabbedComics={allComics.filter(comic => comic.isSlabbed)}
+                  onBack={() => window.history.back()}
+                  onView={(comic) => window.location.href = `/comic/${comic.id}`}
+                  onViewSeries={(series) => window.location.href = `/series/${encodeURIComponent(series)}`}
+                />
+              </Suspense>
+            } />
+            
+            <Route path="/variants" element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <VariantsDetail 
+                  variantComics={allComics.filter(comic => comic.isVariant)}
+                  onBack={() => window.history.back()}
+                  onView={(comic) => window.location.href = `/comic/${comic.id}`}
+                  onViewSeries={(series) => window.location.href = `/series/${encodeURIComponent(series)}`}
+                />
+              </Suspense>
+            } />
+            
+            {/* CSV Converter */}
+            <Route path="/csv-converter" element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <CsvConverter onBack={() => window.history.back()} />
+              </Suspense>
+            } />
+            
+            {/* Redirect unknown routes to home */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </div>
+    </Router>
   );
 }
 
