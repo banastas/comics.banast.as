@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Comic, SortField } from './types/Comic';
 import { useComics } from './hooks/useComics';
+import { useComicFilters } from './hooks/useComicFilters';
 
 // Core Components
 import { Dashboard } from './components/Dashboard';
@@ -45,18 +46,16 @@ import {
 
 export default function App() {
   const {
-    comics,           // This is the filtered comics from useComics
-    allComics,        // This is all comics unfiltered
-    stats,
-    filters,
-    sortField,
-    sortDirection,
+    allComics,
     loading,
     addComic,
     updateComic,
     setFilters,
     setSortField,
     setSortDirection,
+    sortField,
+    sortDirection,
+    filters,
   } = useComics();
 
   const [showForm, setShowForm] = useState(false);
@@ -113,6 +112,14 @@ export default function App() {
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
+
+  // Generate shareable URLs for virtual boxes
+  const generateVirtualBoxUrl = (boxName: string): string => {
+    const encodedName = encodeURIComponent(boxName);
+    return `${window.location.origin}${window.location.pathname}#virtual-box/${encodedName}`;
+  };
+
+  const { stats, filteredComics } = useComicFilters(allComics, filters, sortField, sortDirection);
 
   const handleSaveComic = (comicData: Omit<Comic, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (editingComic) {
@@ -568,7 +575,7 @@ export default function App() {
             {/* Comics Grid/List */}
             {viewMode === 'grid' ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3 sm:gap-4 md:gap-6">
-                {comics.map((comic) => (
+                {filteredComics.map((comic) => (
                   <ComicCard
                     key={comic.id}
                     comic={comic}
@@ -583,7 +590,7 @@ export default function App() {
               </div>
             ) : (
               <ComicListView
-                comics={comics}
+                comics={filteredComics}
                 onView={handleViewComic}
                 onEdit={(comic) => {
                   setEditingComic(comic);
@@ -595,7 +602,7 @@ export default function App() {
               />
             )}
 
-            {comics.length === 0 && (
+            {filteredComics.length === 0 && (
               <div className="text-center py-12">
                 <BookOpen size={48} className="mx-auto text-gray-500 mb-4" />
                 <h3 className="text-lg font-medium text-white mb-2">No comics found</h3>
