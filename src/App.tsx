@@ -8,28 +8,21 @@ import { Dashboard } from './components/Dashboard';
 import { ComicCard } from './components/ComicCard';
 import { ComicListView } from './components/ComicListView';
 
-// Import from lazyComponents (only the lazy components, not LoadingSpinner)
-const ComicForm = React.lazy(() => import('./components/ComicForm').then(module => ({ default: module.ComicForm })));
-const ComicDetail = React.lazy(() => import('./components/ComicDetail').then(module => ({ default: module.ComicDetail })));
-const SeriesDetail = React.lazy(() => import('./components/SeriesDetail').then(module => ({ default: module.SeriesDetail })));
-const StorageLocationDetail = React.lazy(() => import('./components/StorageLocationDetail').then(module => ({ default: module.StorageLocationDetail })));
-const StorageLocationsListing = React.lazy(() => import('./components/StorageLocationsListing').then(module => ({ default: module.StorageLocationsListing })));
-const CoverArtistDetail = React.lazy(() => import('./components/CoverArtistDetail').then(module => ({ default: module.CoverArtistDetail })));
-const TagDetail = React.lazy(() => import('./components/TagDetail').then(module => ({ default: module.TagDetail })));
-const RawComicsDetail = React.lazy(() => import('./components/RawComicsDetail').then(module => ({ default: module.RawComicsDetail })));
-const SlabbedComicsDetail = React.lazy(() => import('./components/SlabbedComicsDetail').then(module => ({ default: module.SlabbedComicsDetail })));
-const VariantsDetail = React.lazy(() => import('./components/VariantsDetail').then(module => ({ default: module.VariantsDetail })));
-const CsvConverter = React.lazy(() => import('./components/CsvConverter').then(module => ({ default: module.CsvConverter })));
-
-// LoadingSpinner component defined inline
-const LoadingSpinner = () => (
-  <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-    <div className="text-center">
-      <div className="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-      <p className="text-gray-300">Loading...</p>
-    </div>
-  </div>
-);
+// Import from lazyComponents to use existing LoadingSpinner
+import {
+  LoadingSpinner,
+  ComicForm,
+  ComicDetail,
+  SeriesDetail,
+  StorageLocationDetail,
+  StorageLocationsListing,
+  CoverArtistDetail,
+  TagDetail,
+  RawComicsDetail,
+  SlabbedComicsDetail,
+  VariantsDetail,
+  CsvConverter
+} from './components/lazyComponents';
 
 // Icons
 import { 
