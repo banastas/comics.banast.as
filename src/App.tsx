@@ -8,7 +8,7 @@ import { Dashboard } from './components/Dashboard';
 import { ComicCard } from './components/ComicCard';
 import { ComicListView } from './components/ComicListView';
 
-// Lazy-loaded components
+// Import from lazyComponents (only the lazy components, not LoadingSpinner)
 const ComicForm = React.lazy(() => import('./components/ComicForm').then(module => ({ default: module.ComicForm })));
 const ComicDetail = React.lazy(() => import('./components/ComicDetail').then(module => ({ default: module.ComicDetail })));
 const SeriesDetail = React.lazy(() => import('./components/SeriesDetail').then(module => ({ default: module.SeriesDetail })));
@@ -44,7 +44,7 @@ import {
   BarChart3
 } from 'lucide-react';
 
-export default function App() {
+function App() {
   const {
     allComics,
     loading,
@@ -644,3 +644,5 @@ export default function App() {
     </div>
   );
 }
+
+// End of App component - default export is above
