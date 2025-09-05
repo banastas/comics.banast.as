@@ -109,42 +109,114 @@ function App() {
   };
 
   const handleViewComic = (comic: Comic) => {
+    setSelectedComic(comic);
+    setSelectedSeries(null);
+    setSelectedStorageLocation(null);
+    setSelectedCoverArtist(null);
+    setSelectedTag(null);
+    setSelectedCondition(null);
+    setShowVirtualBoxes(false);
     navigateToRoute('comic', comic.id, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
   const handleBackToCollection = () => {
+    setSelectedComic(undefined);
+    setSelectedSeries(null);
+    setSelectedStorageLocation(null);
+    setSelectedCoverArtist(null);
+    setSelectedTag(null);
+    setSelectedCondition(null);
+    setShowVirtualBoxes(false);
+    setShowCsvConverter(false);
     navigateToRoute('collection', undefined, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
   const handleViewSeries = (seriesName: string) => {
+    setSelectedSeries(seriesName);
+    setSelectedComic(undefined);
+    setSelectedStorageLocation(null);
+    setSelectedCoverArtist(null);
+    setSelectedTag(null);
+    setSelectedCondition(null);
+    setShowVirtualBoxes(false);
     navigateToRoute('series', seriesName, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
   const handleViewStorageLocation = (storageLocation: string) => {
+    setSelectedStorageLocation(storageLocation);
+    setSelectedComic(undefined);
+    setSelectedSeries(null);
+    setSelectedCoverArtist(null);
+    setSelectedTag(null);
+    setSelectedCondition(null);
+    setShowVirtualBoxes(false);
     navigateToRoute('storage', storageLocation, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
   const handleViewCoverArtist = (coverArtist: string) => {
+    setSelectedCoverArtist(coverArtist);
+    setSelectedComic(undefined);
+    setSelectedSeries(null);
+    setSelectedStorageLocation(null);
+    setSelectedTag(null);
+    setSelectedCondition(null);
+    setShowVirtualBoxes(false);
     navigateToRoute('artist', coverArtist, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
   const handleViewTag = (tag: string) => {
+    setSelectedTag(tag);
+    setSelectedComic(undefined);
+    setSelectedSeries(null);
+    setSelectedStorageLocation(null);
+    setSelectedCoverArtist(null);
+    setSelectedCondition(null);
+    setShowVirtualBoxes(false);
     navigateToRoute('tag', tag, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
   const handleViewRawComics = () => {
+    setSelectedCondition('raw');
+    setSelectedComic(undefined);
+    setSelectedSeries(null);
+    setSelectedStorageLocation(null);
+    setSelectedCoverArtist(null);
+    setSelectedTag(null);
+    setShowVirtualBoxes(false);
     navigateToRoute('raw', undefined, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
   const handleViewSlabbedComics = () => {
+    setSelectedCondition('slabbed');
+    setSelectedComic(undefined);
+    setSelectedSeries(null);
+    setSelectedStorageLocation(null);
+    setSelectedCoverArtist(null);
+    setSelectedTag(null);
+    setShowVirtualBoxes(false);
     navigateToRoute('slabbed', undefined, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
   const handleViewVariants = () => {
+    setSelectedCondition('variants');
+    setSelectedComic(undefined);
+    setSelectedSeries(null);
+    setSelectedStorageLocation(null);
+    setSelectedCoverArtist(null);
+    setSelectedTag(null);
+    setShowVirtualBoxes(false);
     navigateToRoute('variants', undefined, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
   const handleViewVirtualBoxes = () => {
+    setShowVirtualBoxes(true);
+    setSelectedComic(undefined);
+    setSelectedSeries(null);
+    setSelectedStorageLocation(null);
+    setSelectedCoverArtist(null);
+    setSelectedTag(null);
+    setSelectedCondition(null);
+    setShowCsvConverter(false);
     navigateToRoute('boxes', undefined, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
@@ -339,9 +411,18 @@ function App() {
                 <input
                   type="text"
                   placeholder="Search comics..."
-                    value={filters.searchTerm}
-                    onChange={(e) => setFilters({ ...filters, searchTerm: e.target.value })}
-                    className="w-full pl-9 pr-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm"
+                     value={filters.searchTerm}
+                     onChange={(e) => {
+                       setFilters({ ...filters, searchTerm: e.target.value });
+                       navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, { 
+                         tab: activeTab, 
+                         viewMode, 
+                         searchTerm: e.target.value, 
+                         sortField, 
+                         sortDirection 
+                       });
+                     }}
+                     className="w-full pl-9 pr-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm"
                 />
               </div>
               </div>
@@ -365,16 +446,34 @@ function App() {
                   {/* View Mode Toggle */}
                   <div className="flex items-center space-x-2 border border-gray-600 rounded-lg">
                       <button
-                        onClick={() => setViewMode('grid')}
-                      className={`p-2 rounded-l-lg transition-colors ${
+                       onClick={() => {
+                         setViewMode('grid');
+                         navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, { 
+                           tab: activeTab, 
+                           viewMode: 'grid', 
+                           searchTerm: filters.searchTerm, 
+                           sortField, 
+                           sortDirection 
+                         });
+                       }}
+                       className={`p-2 rounded-l-lg transition-colors ${
                           viewMode === 'grid' ? 'bg-blue-500 text-white' : 'text-gray-300 hover:text-white'
                         }`}
                       >
                         <Grid size={16} />
                       </button>
                       <button
-                        onClick={() => setViewMode('list')}
-                      className={`p-2 rounded-r-lg transition-colors ${
+                       onClick={() => {
+                         setViewMode('list');
+                         navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, { 
+                           tab: activeTab, 
+                           viewMode: 'list', 
+                           searchTerm: filters.searchTerm, 
+                           sortField, 
+                           sortDirection 
+                         });
+                       }}
+                       className={`p-2 rounded-r-lg transition-colors ${
                           viewMode === 'list' ? 'bg-blue-500 text-white' : 'text-gray-300 hover:text-white'
                         }`}
                       >
@@ -385,7 +484,16 @@ function App() {
                     {/* Sort Controls */}
                     <select
                       value={sortField}
-                      onChange={(e) => setSortField(e.target.value as SortField)}
+                     onChange={(e) => {
+                       setSortField(e.target.value as SortField);
+                       navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, { 
+                         tab: activeTab, 
+                         viewMode, 
+                         searchTerm: filters.searchTerm, 
+                         sortField: e.target.value, 
+                         sortDirection 
+                       });
+                     }}
                       className="bg-gray-700 border border-gray-600 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm text-white"
                     >
                       <option value="title">Sort by Title</option>
@@ -399,7 +507,17 @@ function App() {
                     </select>
                     
                     <button
-                      onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
+                     onClick={() => {
+                       const newDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                       setSortDirection(newDirection);
+                       navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, { 
+                         tab: activeTab, 
+                         viewMode, 
+                         searchTerm: filters.searchTerm, 
+                         sortField, 
+                         sortDirection: newDirection 
+                       });
+                     }}
                       className="p-1.5 sm:p-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors text-gray-300"
                     >
                       {sortDirection === 'asc' ? <SortAsc size={14} className="sm:w-4 sm:h-4" /> : <SortDesc size={14} className="sm:w-4 sm:h-4" />}
@@ -416,7 +534,10 @@ function App() {
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <nav className="flex space-x-4 sm:space-x-8 overflow-x-auto">
             <button
-              onClick={() => navigateToRoute('collection', undefined, { tab: 'collection', viewMode, searchTerm: filters.searchTerm, sortField, sortDirection })}
+              onClick={() => {
+                setActiveTab('collection');
+                navigateToRoute('collection', undefined, { tab: 'collection', viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
+              }}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'collection'
                   ? 'border-blue-400 text-blue-400'
@@ -429,7 +550,10 @@ function App() {
               </div>
             </button>
             <button
-              onClick={() => navigateToRoute('stats', undefined, { tab: 'stats', viewMode, searchTerm: filters.searchTerm, sortField, sortDirection })}
+              onClick={() => {
+                setActiveTab('stats');
+                navigateToRoute('stats', undefined, { tab: 'stats', viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
+              }}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'stats'
                   ? 'border-blue-400 text-blue-400'
