@@ -44,6 +44,13 @@ import {
 } from 'lucide-react';
 
 export default function App() {
+  const hookResult = useComics();
+  
+  // Debug: Log what we get from useComics
+  console.log('useComics result:', hookResult);
+  console.log('comics type:', typeof hookResult.comics, Array.isArray(hookResult.comics));
+  console.log('allComics type:', typeof hookResult.allComics, Array.isArray(hookResult.allComics));
+  
   const {
     comics,           // This is the filtered comics from useComics
     allComics,        // This is all comics unfiltered
@@ -57,7 +64,13 @@ export default function App() {
     setFilters,
     setSortField,
     setSortDirection,
-  } = useComics();
+  } = hookResult;
+
+  // Additional debug logging
+  console.log('comics:', comics);
+  console.log('allComics:', allComics);
+  console.log('stats:', stats);
+  console.log('loading:', loading);
 
   const [showForm, setShowForm] = useState(false);
   const [editingComic, setEditingComic] = useState<Comic | undefined>(undefined);
@@ -72,10 +85,21 @@ export default function App() {
   const [showVirtualBoxes, setShowVirtualBoxes] = useState(false);
   const [showCsvConverter, setShowCsvConverter] = useState(false);
 
-  // Get unique values for filters
-  const allSeries = Array.from(new Set(allComics.map(comic => comic.seriesName))).sort();
-  const allVirtualBoxes = Array.from(new Set(allComics.map(comic => comic.storageLocation).filter(Boolean))).sort();
-  const variantsCount = allComics.filter(comic => comic.isVariant).length;
+  // Safe array operations with fallbacks
+  const safeAllComics = Array.isArray(allComics) ? allComics : [];
+  const safeComics = Array.isArray(comics) ? comics : [];
+  
+  console.log('safeAllComics:', safeAllComics.length);
+  console.log('safeComics:', safeComics.length);
+
+  // Get unique values for filters with safe array operations
+  const allSeries = Array.from(new Set(safeAllComics.map(comic => comic.seriesName))).sort();
+  const allVirtualBoxes = Array.from(new Set(safeAllComics.map(comic => comic.storageLocation).filter(Boolean))).sort();
+  const variantsCount = safeAllComics.filter(comic => comic.isVariant).length;
+
+  console.log('allSeries:', allSeries);
+  console.log('allVirtualBoxes:', allVirtualBoxes);
+  console.log('variantsCount:', variantsCount);
 
   // URL management for virtual boxes
   useEffect(() => {
@@ -242,7 +266,27 @@ export default function App() {
   };
 
   if (loading) {
+    console.log('Still loading...');
     return <LoadingSpinner />;
+  }
+
+  // Show error message if no data loaded
+  if (!Array.isArray(allComics) || !Array.isArray(comics)) {
+    console.error('Data is not an array!', { allComics, comics });
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-bold text-red-400 mb-4">Data Loading Error</h2>
+          <p className="text-gray-300 mb-4">There was an issue loading your comic collection.</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+          >
+            Refresh Page
+          </button>
+        </div>
+      </div>
+    );
   }
 
   // Show CSV converter if selected
@@ -261,7 +305,7 @@ export default function App() {
     return (
       <React.Suspense fallback={<LoadingSpinner />}>
         <StorageLocationsListing
-          allComics={allComics}
+          allComics={safeAllComics}
           onBack={handleBackToCollection}
           onViewStorageLocation={handleViewStorageLocation}
         />
@@ -275,7 +319,7 @@ export default function App() {
       <React.Suspense fallback={<LoadingSpinner />}>
         <ComicDetail
           comic={selectedComic as Comic}
-          allComics={allComics}
+          allComics={safeAllComics}
           onBack={handleBackToCollection}
           onView={handleViewComic}
           onViewSeries={handleViewSeries}
@@ -291,7 +335,7 @@ export default function App() {
 
   // Show series detail page if a series is selected
   if (selectedSeries) {
-    const seriesComics = allComics.filter(comic => comic.seriesName === selectedSeries);
+    const seriesComics = safeAllComics.filter(comic => comic.seriesName === selectedSeries);
     return (
       <React.Suspense fallback={<LoadingSpinner />}>
         <SeriesDetail
@@ -306,7 +350,7 @@ export default function App() {
 
   // Show storage location detail page if a storage location is selected
   if (selectedStorageLocation) {
-    const locationComics = allComics.filter(comic => comic.storageLocation === selectedStorageLocation);
+    const locationComics = safeAllComics.filter(comic => comic.storageLocation === selectedStorageLocation);
     return (
       <React.Suspense fallback={<LoadingSpinner />}>
         <StorageLocationDetail
@@ -322,7 +366,7 @@ export default function App() {
 
   // Show cover artist detail page if a cover artist is selected
   if (selectedCoverArtist) {
-    const artistComics = allComics.filter(comic => comic.coverArtist === selectedCoverArtist);
+    const artistComics = safeAllComics.filter(comic => comic.coverArtist === selectedCoverArtist);
     return (
       <React.Suspense fallback={<LoadingSpinner />}>
         <CoverArtistDetail
@@ -338,7 +382,7 @@ export default function App() {
 
   // Show tag detail page if a tag is selected
   if (selectedTag) {
-    const tagComics = allComics.filter(comic => comic.tags.includes(selectedTag));
+    const tagComics = safeAllComics.filter(comic => comic.tags && Array.isArray(comic.tags) && comic.tags.includes(selectedTag));
     return (
       <React.Suspense fallback={<LoadingSpinner />}>
         <TagDetail
@@ -354,7 +398,7 @@ export default function App() {
 
   // Show condition-based detail pages
   if (selectedCondition === 'raw') {
-    const rawComics = allComics.filter(comic => !comic.isSlabbed);
+    const rawComics = safeAllComics.filter(comic => !comic.isSlabbed);
     return (
       <React.Suspense fallback={<LoadingSpinner />}>
         <RawComicsDetail
@@ -368,7 +412,7 @@ export default function App() {
   }
 
   if (selectedCondition === 'slabbed') {
-    const slabbedComics = allComics.filter(comic => comic.isSlabbed);
+    const slabbedComics = safeAllComics.filter(comic => comic.isSlabbed);
     return (
       <React.Suspense fallback={<LoadingSpinner />}>
         <SlabbedComicsDetail
@@ -382,7 +426,7 @@ export default function App() {
   }
 
   if (selectedCondition === 'variants') {
-    const variantComics = allComics.filter(comic => comic.isVariant);
+    const variantComics = safeAllComics.filter(comic => comic.isVariant);
     return (
       <React.Suspense fallback={<LoadingSpinner />}>
         <VariantsDetail
@@ -394,6 +438,9 @@ export default function App() {
       </React.Suspense>
     );
   }
+
+  console.log('About to render main collection view');
+  console.log('stats for Dashboard:', stats);
 
   // Main collection view
   return (
@@ -433,7 +480,7 @@ export default function App() {
                 <input
                   type="text"
                   placeholder="Search comics..."
-                  value={filters.searchTerm}
+                  value={filters.searchTerm || ''}
                   onChange={(e) => setFilters({ searchTerm: e.target.value })}
                   className="w-full sm:w-64 bg-gray-700 border border-gray-600 rounded-lg pl-10 pr-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
@@ -523,7 +570,7 @@ export default function App() {
                   : 'border-transparent text-gray-300 hover:text-white hover:border-gray-300'
               } transition-colors whitespace-nowrap`}
             >
-              Collection ({allComics.length})
+              Collection ({safeAllComics.length})
             </button>
             <button
               onClick={() => setActiveTab('stats')}
@@ -542,80 +589,87 @@ export default function App() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8">
-        {activeTab === 'stats' ? (
-          <Dashboard 
-            stats={stats} 
-            showDetailed={true}
-            onViewComic={handleViewComic}
-            onViewRawComics={handleViewRawComics}
-            onViewSlabbedComics={handleViewSlabbedComics}
-            onViewVariants={handleViewVariants}
-            onViewVirtualBoxes={handleViewVirtualBoxes}
-          />
-        ) : (
-          <>
-            {/* Quick Stats Dashboard */}
+        {stats ? (
+          activeTab === 'stats' ? (
             <Dashboard 
               stats={stats} 
-              showDetailed={false}
+              showDetailed={true}
               onViewComic={handleViewComic}
               onViewRawComics={handleViewRawComics}
               onViewSlabbedComics={handleViewSlabbedComics}
               onViewVariants={handleViewVariants}
               onViewVirtualBoxes={handleViewVirtualBoxes}
             />
-
-            {/* Comics Grid/List */}
-            {viewMode === 'grid' ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3 sm:gap-4 md:gap-6">
-                {comics.map((comic) => (
-                  <ComicCard
-                    key={comic.id}
-                    comic={comic}
-                    onView={handleViewComic}
-                    onEdit={(comic) => {
-                      setEditingComic(comic);
-                      setShowForm(true);
-                    }}
-                    onViewSeries={handleViewSeries}
-                  />
-                ))}
-              </div>
-            ) : (
-              <ComicListView
-                comics={comics}
-                onView={handleViewComic}
-                onEdit={(comic) => {
-                  setEditingComic(comic);
-                  setShowForm(true);
-                }}
-                onViewSeries={handleViewSeries}
-                onViewStorageLocation={handleViewStorageLocation}
-                onViewCoverArtist={handleViewCoverArtist}
+          ) : (
+            <>
+              {/* Quick Stats Dashboard */}
+              <Dashboard 
+                stats={stats} 
+                showDetailed={false}
+                onViewComic={handleViewComic}
+                onViewRawComics={handleViewRawComics}
+                onViewSlabbedComics={handleViewSlabbedComics}
+                onViewVariants={handleViewVariants}
+                onViewVirtualBoxes={handleViewVirtualBoxes}
               />
-            )}
 
-            {comics.length === 0 && (
-              <div className="text-center py-12">
-                <BookOpen size={48} className="mx-auto text-gray-500 mb-4" />
-                <h3 className="text-lg font-medium text-white mb-2">No comics found</h3>
-                <p className="text-gray-400 mb-4">
-                  {allComics.length === 0 
-                    ? "Start building your collection by adding your first comic!"
-                    : "Try adjusting your search or filters to find what you're looking for."
-                  }
-                </p>
-                {allComics.length === 0 && (
-                  <button
-                    onClick={() => setShowForm(true)}
-                    className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-                  >
-                    Add Your First Comic
-                  </button>
-                )}
-              </div>
-            )}
-          </>
+              {/* Comics Grid/List */}
+              {viewMode === 'grid' ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3 sm:gap-4 md:gap-6">
+                  {safeComics.map((comic) => (
+                    <ComicCard
+                      key={comic.id}
+                      comic={comic}
+                      onView={handleViewComic}
+                      onEdit={(comic) => {
+                        setEditingComic(comic);
+                        setShowForm(true);
+                      }}
+                      onViewSeries={handleViewSeries}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <ComicListView
+                  comics={safeComics}
+                  onView={handleViewComic}
+                  onEdit={(comic) => {
+                    setEditingComic(comic);
+                    setShowForm(true);
+                  }}
+                  onViewSeries={handleViewSeries}
+                  onViewStorageLocation={handleViewStorageLocation}
+                  onViewCoverArtist={handleViewCoverArtist}
+                />
+              )}
+
+              {safeComics.length === 0 && (
+                <div className="text-center py-12">
+                  <BookOpen size={48} className="mx-auto text-gray-500 mb-4" />
+                  <h3 className="text-lg font-medium text-white mb-2">No comics found</h3>
+                  <p className="text-gray-400 mb-4">
+                    {safeAllComics.length === 0 
+                      ? "Start building your collection by adding your first comic!"
+                      : "Try adjusting your search or filters to find what you're looking for."
+                    }
+                  </p>
+                  {safeAllComics.length === 0 && (
+                    <button
+                      onClick={() => setShowForm(true)}
+                      className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+                    >
+                      Add Your First Comic
+                    </button>
+                  )}
+                </div>
+              )}
+            </>
+          )
+        ) : (
+          <div className="text-center py-12">
+            <h3 className="text-lg font-medium text-white mb-2">Loading Statistics...</h3>
+            <p className="text-gray-400">Please wait while we calculate your collection stats.</p>
+          </div>
         )}
       </main>
 
