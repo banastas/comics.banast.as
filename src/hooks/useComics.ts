@@ -25,11 +25,7 @@ export const useComics = () => {
   // Load comics from imported data
   useEffect(() => {
     try {
-      // Handle both array format and object format with comics property
-      const comicsData = Array.isArray(initialComicsData) 
-        ? initialComicsData 
-        : (initialComicsData as any).comics || [];
-      setComics(comicsData as Comic[]);
+      setComics(initialComicsData as Comic[]);
     } catch (error) {
       console.error('Error loading comics:', error);
       setComics([]);
