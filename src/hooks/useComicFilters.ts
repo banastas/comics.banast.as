@@ -32,9 +32,10 @@ export const useComicFilters = (
       comic.grade >= filters.minGrade && comic.grade <= filters.maxGrade
     );
 
-    filtered = filtered.filter(comic => 
-      comic.purchasePrice >= filters.minPrice && comic.purchasePrice <= filters.maxPrice
-    );
+    filtered = filtered.filter(comic => {
+      const price = comic.purchasePrice || 0;
+      return price >= filters.minPrice && price <= filters.maxPrice;
+    });
 
     if (filters.isSlabbed !== null) {
       filtered = filtered.filter(comic => comic.isSlabbed === filters.isSlabbed);

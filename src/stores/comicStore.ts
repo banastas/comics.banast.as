@@ -36,9 +36,10 @@ const applyFilters = (
   );
 
   // Apply price filter
-  filtered = filtered.filter(comic => 
-    comic.purchasePrice >= filters.minPrice && comic.purchasePrice <= filters.maxPrice
-  );
+  filtered = filtered.filter(comic => {
+    const price = comic.purchasePrice || 0;
+    return price >= filters.minPrice && price <= filters.maxPrice;
+  });
 
   // Apply slabbed filter
   if (filters.isSlabbed !== null) {
@@ -239,29 +240,44 @@ export const useComicStore = create<ComicStore>((set, get) => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    set((state) => ({ 
-      comics: [...state.comics, newComic],
-      showForm: false,
-      editingComic: undefined
-    }));
+    set((state) => {
+      const updatedComics = [...state.comics, newComic];
+      const filteredComics = applyFilters(updatedComics, state.filters, state.sortField, state.sortDirection);
+      return { 
+        comics: updatedComics,
+        filteredComics,
+        showForm: false,
+        editingComic: undefined
+      };
+    });
   },
   
   updateComic: (id, updates) => {
-    set((state) => ({
-      comics: state.comics.map(comic => 
+    set((state) => {
+      const updatedComics = state.comics.map(comic => 
         comic.id === id 
           ? { ...comic, ...updates, updatedAt: new Date().toISOString() }
           : comic
-      ),
-      showForm: false,
-      editingComic: undefined
-    }));
+      );
+      const filteredComics = applyFilters(updatedComics, state.filters, state.sortField, state.sortDirection);
+      return {
+        comics: updatedComics,
+        filteredComics,
+        showForm: false,
+        editingComic: undefined
+      };
+    });
   },
   
   deleteComic: (id) => {
-    set((state) => ({
-      comics: state.comics.filter(comic => comic.id !== id)
-    }));
+    set((state) => {
+      const updatedComics = state.comics.filter(comic => comic.id !== id);
+      const filteredComics = applyFilters(updatedComics, state.filters, state.sortField, state.sortDirection);
+      return {
+        comics: updatedComics,
+        filteredComics
+      };
+    });
   },
   
   // Navigation Actions
