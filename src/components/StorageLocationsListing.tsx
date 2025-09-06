@@ -22,6 +22,9 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
   }, []);
 
   const formatCurrency = (amount: number) => {
+    if (isNaN(amount) || !isFinite(amount)) {
+      return '$0.00';
+    }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -34,7 +37,7 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
   const storageLocations = Array.from(new Set(allComics.map(comic => comic.storageLocation).filter(Boolean)))
     .map(location => {
       const locationComics = allComics.filter(comic => comic.storageLocation === location);
-      const totalValue = locationComics.reduce((sum, comic) => sum + (comic.currentValue || comic.purchasePrice), 0);
+      const totalValue = locationComics.reduce((sum, comic) => sum + (comic.currentValue || comic.purchasePrice || 0), 0);
       const slabbedCount = locationComics.filter(comic => comic.isSlabbed).length;
       const rawCount = locationComics.filter(comic => !comic.isSlabbed).length;
       
@@ -166,7 +169,7 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
                           {formatCurrency(location.totalValue)}
                         </p>
                         <p className="text-sm text-gray-400">
-                          {formatCurrency(location.totalValue / location.count)} avg
+                          {formatCurrency(location.count > 0 ? location.totalValue / location.count : 0)} avg
                         </p>
                       </div>
                     </div>
