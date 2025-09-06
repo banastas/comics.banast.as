@@ -344,7 +344,6 @@ export const useComicStore = create<ComicStore>((set, get) => {
     selectedTag: null,
     selectedCondition: null,
     showVirtualBoxes: false,
-,
     showForm: false,
     editingComic: undefined
   }),
