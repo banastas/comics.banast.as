@@ -2,6 +2,88 @@ import { create } from 'zustand';
 import { Comic, ComicStats, SortField, SortDirection, FilterOptions } from '../types/Comic';
 import initialComicsData from '../data/comics.json';
 
+// Helper function to apply filters and sorting
+const applyFilters = (
+  comics: Comic[], 
+  filters: FilterOptions, 
+  sortField: SortField, 
+  sortDirection: SortDirection
+): Comic[] => {
+  let filtered = [...comics];
+
+  // Apply search filter
+  if (filters.searchTerm) {
+    const searchLower = filters.searchTerm.toLowerCase();
+    filtered = filtered.filter(comic =>
+      comic.title.toLowerCase().includes(searchLower) ||
+      comic.seriesName.toLowerCase().includes(searchLower) ||
+      comic.notes.toLowerCase().includes(searchLower) ||
+      comic.signedBy.toLowerCase().includes(searchLower) ||
+      comic.coverArtist.toLowerCase().includes(searchLower)
+    );
+  }
+
+  // Apply series filter
+  if (filters.seriesName) {
+    filtered = filtered.filter(comic => 
+      comic.seriesName.toLowerCase().includes(filters.seriesName.toLowerCase())
+    );
+  }
+
+  // Apply grade filter
+  filtered = filtered.filter(comic => 
+    comic.grade >= filters.minGrade && comic.grade <= filters.maxGrade
+  );
+
+  // Apply price filter
+  filtered = filtered.filter(comic => 
+    comic.purchasePrice >= filters.minPrice && comic.purchasePrice <= filters.maxPrice
+  );
+
+  // Apply slabbed filter
+  if (filters.isSlabbed !== null) {
+    filtered = filtered.filter(comic => comic.isSlabbed === filters.isSlabbed);
+  }
+
+  // Apply signed filter
+  if (filters.isSigned !== null) {
+    filtered = filtered.filter(comic => 
+      filters.isSigned ? comic.signedBy.trim() !== '' : comic.signedBy.trim() === ''
+    );
+  }
+
+  // Apply tags filter
+  if (filters.tags.length > 0) {
+    filtered = filtered.filter(comic =>
+      filters.tags.some(tag => comic.tags.includes(tag))
+    );
+  }
+
+  // Apply sorting
+  filtered.sort((a, b) => {
+    let aValue: any = a[sortField];
+    let bValue: any = b[sortField];
+
+    // Handle special cases for sorting
+    if (sortField === 'issueNumber') {
+      aValue = parseFloat(aValue) || 0;
+      bValue = parseFloat(bValue) || 0;
+    } else if (sortField === 'releaseDate' || sortField === 'purchaseDate') {
+      aValue = new Date(aValue).getTime();
+      bValue = new Date(bValue).getTime();
+    } else if (typeof aValue === 'string') {
+      aValue = aValue.toLowerCase();
+      bValue = bValue.toLowerCase();
+    }
+
+    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  return filtered;
+};
+
 interface ComicStore {
   // State
   comics: Comic[];
@@ -106,13 +188,27 @@ export const useComicStore = create<ComicStore>((set, get) => ({
   showCsvConverter: false,
   
   // Actions
-  setComics: (comics) => set({ comics }),
+  setComics: (comics) => set((state) => {
+    const filteredComics = applyFilters(comics, state.filters, state.sortField, state.sortDirection);
+    return { comics, filteredComics };
+  }),
   setFilteredComics: (comics) => set({ filteredComics: comics }),
-  setFilters: (filters) => set((state) => ({ 
-    filters: { ...state.filters, ...filters } 
-  })),
-  setSortField: (sortField) => set({ sortField }),
-  setSortDirection: (sortDirection) => set({ sortDirection }),
+  setFilters: (filters) => set((state) => {
+    const newFilters = { ...state.filters, ...filters };
+    const filteredComics = applyFilters(state.comics, newFilters, state.sortField, state.sortDirection);
+    return { 
+      filters: newFilters,
+      filteredComics
+    };
+  }),
+  setSortField: (sortField) => set((state) => {
+    const filteredComics = applyFilters(state.comics, state.filters, sortField, state.sortDirection);
+    return { sortField, filteredComics };
+  }),
+  setSortDirection: (sortDirection) => set((state) => {
+    const filteredComics = applyFilters(state.comics, state.filters, state.sortField, sortDirection);
+    return { sortDirection, filteredComics };
+  }),
   setLoading: (loading) => set({ loading }),
   
   // UI Actions

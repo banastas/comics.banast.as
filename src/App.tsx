@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useComics } from './hooks/useComics';
+import React, { useState, useEffect } from 'react';
+import { useComicStore, initializeStore } from './stores/comicStore';
 import { useRouting } from './hooks/useRouting';
 import { Dashboard } from './components/Dashboard';
 import { ComicCard } from './components/ComicCard';
@@ -35,8 +35,8 @@ const LoadingSpinner = () => (
 
 function App() {
   const {
-    comics,
-    allComics,
+    comics: allComics,
+    filteredComics,
     stats,
     filters,
     sortField,
@@ -47,7 +47,12 @@ function App() {
     setFilters,
     setSortField,
     setSortDirection,
-  } = useComics();
+  } = useComicStore();
+
+  // Initialize store on app start
+  useEffect(() => {
+    initializeStore();
+  }, []);
 
   const [showForm, setShowForm] = useState(false);
   const [editingComic, setEditingComic] = useState<Comic | undefined>(undefined);
@@ -596,7 +601,7 @@ function App() {
             </div>
 
             {/* Comics Grid */}
-            {comics.length === 0 ? (
+            {filteredComics.length === 0 ? (
               <div className="text-center py-8 sm:py-12">
                 <BookOpen size={48} className="mx-auto text-gray-500 mb-4" />
                 <h3 className="text-base sm:text-lg font-medium text-white mb-2">
@@ -622,7 +627,7 @@ function App() {
               <>
               {viewMode === 'grid' ? (
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
-                    {comics.map((comic) => (
+                    {filteredComics.map((comic) => (
                     <ComicCard
                       key={comic.id}
                       comic={comic}
@@ -632,7 +637,7 @@ function App() {
                 </div>
               ) : (
                 <ComicListView
-                    comics={comics}
+                    comics={filteredComics}
                   onView={handleViewComic}
                   />
                 )}
