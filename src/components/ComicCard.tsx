@@ -105,7 +105,7 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView }) => {
             <span className="text-xs sm:text-sm font-semibold text-white">{comic.grade}</span>
           </div>
           <span className="text-xs sm:text-sm font-semibold text-green-400">
-            {comic.currentValue ? formatCurrency(comic.currentValue) : formatCurrency(comic.purchasePrice)}
+            {comic.currentValue ? formatCurrency(comic.currentValue) : formatCurrency(comic.purchasePrice || 0)}
           </span>
         </div>
       </div>

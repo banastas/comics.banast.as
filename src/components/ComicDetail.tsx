@@ -236,7 +236,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                       <DollarSign size={16} className="text-green-400 mt-0.5" />
                       <div>
                         <span className="text-sm text-gray-400">Purchased Price</span>
-                        <p className="text-white font-medium text-lg">{formatCurrency(comic.purchasePrice)}</p>
+                        <p className="text-white font-medium text-lg">{formatCurrency(comic.purchasePrice || 0)}</p>
                       </div>
                     </div>
                     
@@ -398,7 +398,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                           <div className="text-center">
                             <p className="text-sm font-medium text-white">#{relatedComic.issueNumber}</p>
                             <p className="text-xs text-gray-400">Grade: {relatedComic.grade}</p>
-                            <p className="text-xs text-green-400">{formatCurrency(relatedComic.purchasePrice)}</p>
+                            <p className="text-xs text-green-400">{formatCurrency(relatedComic.purchasePrice || 0)}</p>
                           </div>
                         </div>
                       ))}

@@ -203,11 +203,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   </p>
                 </div>
                 <div className="text-left sm:text-right">
-                  <p className="text-xs sm:text-sm text-emerald-200">Purchased: {formatCurrency(stats.biggestGainer.purchasePrice)}</p>
+                  <p className="text-xs sm:text-sm text-emerald-200">
+                    Purchased: {stats.biggestGainer.purchasePrice ? formatCurrency(stats.biggestGainer.purchasePrice) : 'N/A'}
+                  </p>
                   <p className="text-lg sm:text-xl font-bold">Current: {formatCurrency(stats.biggestGainer.currentValue || 0)}</p>
                   <p className="text-xs sm:text-sm font-medium">
-                    +{formatCurrency((stats.biggestGainer.currentValue || 0) - stats.biggestGainer.purchasePrice)} 
-                    {stats.biggestGainer.purchasePrice > 0 && ` (${formatPercentage(((stats.biggestGainer.currentValue || 0) - stats.biggestGainer.purchasePrice) / stats.biggestGainer.purchasePrice * 100)})`}
+                    {stats.biggestGainer.purchasePrice ? 
+                      `+${formatCurrency((stats.biggestGainer.currentValue || 0) - (stats.biggestGainer.purchasePrice || 0))} 
+                      ${(stats.biggestGainer.purchasePrice || 0) > 0 ? `(${formatPercentage(((stats.biggestGainer.currentValue || 0) - (stats.biggestGainer.purchasePrice || 0)) / (stats.biggestGainer.purchasePrice || 0) * 100)})` : ''}` : 
+                      'Gain/Loss: N/A'
+                    }
                   </p>
                 </div>
               </div>
@@ -215,7 +220,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           )}
 
           {/* Biggest Loser */}
-          {stats.biggestLoser && (stats.biggestLoser.currentValue || 0) < stats.biggestLoser.purchasePrice && (
+          {stats.biggestLoser && (stats.biggestLoser.currentValue || 0) < (stats.biggestLoser.purchasePrice || 0) && (
             <div 
               className="bg-gradient-to-r from-red-600 to-rose-600 rounded-lg p-4 sm:p-6 text-white shadow-xl border border-red-500/30 cursor-pointer hover:shadow-2xl transition-all"
               onClick={() => onViewComic?.(stats.biggestLoser!)}
@@ -235,11 +240,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   </p>
                 </div>
                 <div className="text-left sm:text-right">
-                  <p className="text-xs sm:text-sm text-red-200">Purchased: {formatCurrency(stats.biggestLoser.purchasePrice)}</p>
+                  <p className="text-xs sm:text-sm text-red-200">
+                    Purchased: {stats.biggestLoser.purchasePrice ? formatCurrency(stats.biggestLoser.purchasePrice) : 'N/A'}
+                  </p>
                   <p className="text-lg sm:text-xl font-bold">Current: {formatCurrency(stats.biggestLoser.currentValue || 0)}</p>
                   <p className="text-xs sm:text-sm font-medium">
-                    {formatCurrency((stats.biggestLoser.currentValue || 0) - stats.biggestLoser.purchasePrice)} 
-                    {stats.biggestLoser.purchasePrice > 0 && ` (${formatPercentage(((stats.biggestLoser.currentValue || 0) - stats.biggestLoser.purchasePrice) / stats.biggestLoser.purchasePrice * 100)})`}
+                    {stats.biggestLoser.purchasePrice ? 
+                      `${formatCurrency((stats.biggestLoser.currentValue || 0) - (stats.biggestLoser.purchasePrice || 0))} 
+                      ${(stats.biggestLoser.purchasePrice || 0) > 0 ? `(${formatPercentage(((stats.biggestLoser.currentValue || 0) - (stats.biggestLoser.purchasePrice || 0)) / (stats.biggestLoser.purchasePrice || 0) * 100)})` : ''}` : 
+                      'Gain/Loss: N/A'
+                    }
                   </p>
                 </div>
               </div>
@@ -267,7 +277,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   </p>
                 </div>
                 <div className="text-left sm:text-right">
-                  <p className="text-xl sm:text-2xl font-bold">{formatCurrency(stats.highestValuedSlabbedComic.currentValue || stats.highestValuedSlabbedComic.purchasePrice)}</p>
+                  <p className="text-xl sm:text-2xl font-bold">{formatCurrency(stats.highestValuedSlabbedComic.currentValue || stats.highestValuedSlabbedComic.purchasePrice || 0)}</p>
                 </div>
               </div>
             </div>
@@ -294,7 +304,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   </p>
                 </div>
                 <div className="text-left sm:text-right">
-                  <p className="text-xl sm:text-2xl font-bold">{formatCurrency(stats.highestValuedRawComic.currentValue || stats.highestValuedRawComic.purchasePrice)}</p>
+                  <p className="text-xl sm:text-2xl font-bold">{formatCurrency(stats.highestValuedRawComic.currentValue || stats.highestValuedRawComic.purchasePrice || 0)}</p>
                 </div>
               </div>
             </div>
