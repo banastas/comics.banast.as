@@ -116,7 +116,8 @@ function App() {
     setSelectedTag(null);
     setSelectedCondition(null);
     setShowVirtualBoxes(false);
-    navigateToRoute('comic', comic.id, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
+    // Only include tab for detail pages to maintain navigation context
+    navigateToRoute('comic', comic.id, { tab: activeTab });
   };
 
   const handleBackToCollection = () => {
@@ -139,7 +140,8 @@ function App() {
     setSelectedTag(null);
     setSelectedCondition(null);
     setShowVirtualBoxes(false);
-    navigateToRoute('series', seriesName, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
+    // Only include tab for detail pages to maintain navigation context
+    navigateToRoute('series', seriesName, { tab: activeTab });
   };
 
   const handleViewStorageLocation = (storageLocation: string) => {
@@ -150,7 +152,8 @@ function App() {
     setSelectedTag(null);
     setSelectedCondition(null);
     setShowVirtualBoxes(false);
-    navigateToRoute('storage', storageLocation, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
+    // Only include tab for detail pages to maintain navigation context
+    navigateToRoute('storage', storageLocation, { tab: activeTab });
   };
 
   const handleViewCoverArtist = (coverArtist: string) => {
@@ -161,7 +164,8 @@ function App() {
     setSelectedTag(null);
     setSelectedCondition(null);
     setShowVirtualBoxes(false);
-    navigateToRoute('artist', coverArtist, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
+    // Only include tab for detail pages to maintain navigation context
+    navigateToRoute('artist', coverArtist, { tab: activeTab });
   };
 
   const handleViewTag = (tag: string) => {
@@ -172,7 +176,8 @@ function App() {
     setSelectedCoverArtist(null);
     setSelectedCondition(null);
     setShowVirtualBoxes(false);
-    navigateToRoute('tag', tag, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
+    // Only include tab for detail pages to maintain navigation context
+    navigateToRoute('tag', tag, { tab: activeTab });
   };
 
   const handleViewRawComics = () => {
@@ -183,6 +188,7 @@ function App() {
     setSelectedCoverArtist(null);
     setSelectedTag(null);
     setShowVirtualBoxes(false);
+    // Include all collection parameters for filtered views
     navigateToRoute('raw', undefined, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
@@ -194,6 +200,7 @@ function App() {
     setSelectedCoverArtist(null);
     setSelectedTag(null);
     setShowVirtualBoxes(false);
+    // Include all collection parameters for filtered views
     navigateToRoute('slabbed', undefined, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
@@ -205,6 +212,7 @@ function App() {
     setSelectedCoverArtist(null);
     setSelectedTag(null);
     setShowVirtualBoxes(false);
+    // Include all collection parameters for filtered views
     navigateToRoute('variants', undefined, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
@@ -217,7 +225,8 @@ function App() {
     setSelectedTag(null);
     setSelectedCondition(null);
     setShowCsvConverter(false);
-    navigateToRoute('boxes', undefined, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
+    // Only include tab for utility pages
+    navigateToRoute('boxes', undefined, { tab: activeTab });
   };
 
   if (loading) {
