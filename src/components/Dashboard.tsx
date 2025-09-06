@@ -64,7 +64,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     }] : []),
     ...(stats.comicsWithCurrentValue > 0 ? [{
       title: 'Current Value',
-      value: stats.totalCurrentValue.toLocaleString('en-US', { 
+      value: (stats.totalCurrentValue || 0).toLocaleString('en-US', { 
         style: 'currency', 
         currency: 'USD', 
         minimumFractionDigits: 0, 

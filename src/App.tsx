@@ -660,7 +660,7 @@ function App() {
                         .map(series => {
                           const seriesComics = allComics.filter(comic => comic.seriesName === series);
                           const seriesComicsWithValue = seriesComics.filter(comic => comic.currentValue !== undefined);
-                          const purchaseValue = seriesComicsWithValue.reduce((sum, comic) => sum + comic.purchasePrice, 0);
+                          const purchaseValue = seriesComicsWithValue.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0);
                           const currentValue = seriesComicsWithValue.reduce((sum, comic) => sum + (comic.currentValue || 0), 0);
                           const gainLoss = currentValue - purchaseValue;
                           const gainLossPercentage = purchaseValue > 0 ? (gainLoss / purchaseValue) * 100 : 0;
@@ -692,12 +692,12 @@ function App() {
                             </div>
                             <div className="text-right">
                               <p className="font-semibold text-white">
-                                {series.currentValue.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
+                                {(series.currentValue || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
                               </p>
                               <p className={`text-sm font-medium ${
                                 series.gainLoss >= 0 ? 'text-emerald-400' : 'text-red-400'
                               }`}>
-                                {series.gainLoss >= 0 ? '+' : ''}{series.gainLoss.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })} ({series.gainLossPercentage >= 0 ? '+' : ''}{series.gainLossPercentage.toFixed(1)}%)
+                                {series.gainLoss >= 0 ? '+' : ''}{(series.gainLoss || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })} ({(series.gainLossPercentage || 0) >= 0 ? '+' : ''}{(series.gainLossPercentage || 0).toFixed(1)}%)
                               </p>
                             </div>
                           </div>
@@ -720,7 +720,7 @@ function App() {
                         count: allComics.filter(comic => comic.seriesName === series).length,
                         value: allComics
                           .filter(comic => comic.seriesName === series)
-                          .reduce((sum, comic) => sum + comic.purchasePrice, 0)
+                          .reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0)
                       }))
                       .sort((a, b) => b.count - a.count)
                       .slice(0, 10)
@@ -735,7 +735,7 @@ function App() {
                             <p className="text-sm text-gray-400">{series.count} comics</p>
                           </div>
                           <p className="font-semibold text-white">
-                            {series.value.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
+                            {(series.value || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
                           </p>
                         </div>
                       ))}
@@ -775,14 +775,14 @@ function App() {
                           </div>
                           <div className="text-right">
                             <p className="font-semibold text-white">
-                              {comic.purchasePrice.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
+                              {(comic.purchasePrice || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
                             </p>
                             {comic.currentValue && (
                               <p className={`text-xs ${
-                                comic.currentValue >= comic.purchasePrice ? 'text-emerald-400' : 'text-red-400'
+                                (comic.currentValue || 0) >= (comic.purchasePrice || 0) ? 'text-emerald-400' : 'text-red-400'
                               }`}>
-                                Now: {comic.currentValue.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
-                                {comic.purchasePrice > 0 && ` (${comic.currentValue >= comic.purchasePrice ? '+' : ''}${((comic.currentValue - comic.purchasePrice) / comic.purchasePrice * 100).toFixed(1)}%)`}
+                                Now: {(comic.currentValue || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
+                                {(comic.purchasePrice || 0) > 0 && ` (${(comic.currentValue || 0) >= (comic.purchasePrice || 0) ? '+' : ''}${(((comic.currentValue || 0) - (comic.purchasePrice || 0)) / (comic.purchasePrice || 0) * 100).toFixed(1)}%)`}
                           </p>
                             )}
                           </div>
@@ -805,7 +805,7 @@ function App() {
                         count: allComics.filter(comic => comic.storageLocation === location).length,
                         value: allComics
                           .filter(comic => comic.storageLocation === location)
-                          .reduce((sum, comic) => sum + (comic.currentValue || comic.purchasePrice), 0)
+                          .reduce((sum, comic) => sum + (comic.currentValue || comic.purchasePrice || 0), 0)
                       }))
                       .sort((a, b) => b.value - a.value)
                       .slice(0, 8)
@@ -820,7 +820,7 @@ function App() {
                             <p className="text-sm text-gray-400">{location.count} comics</p>
                           </div>
                           <p className="font-semibold text-white">
-                            {location.value.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            {(location.value || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </p>
                         </div>
                       ))}
