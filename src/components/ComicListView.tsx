@@ -111,17 +111,17 @@ export const ComicListView: React.FC<ComicListViewProps> = ({ comics, onView }) 
                 <p className="font-semibold text-white">
                   {formatCurrency(comic.currentValue || comic.purchasePrice)}
                 </p>
-                {comic.currentValue && comic.currentValue !== comic.purchasePrice && (
+                {comic.currentValue && comic.currentValue !== (comic.purchasePrice || 0) && (
                   <p className={`text-xs ${
-                    comic.currentValue > comic.purchasePrice ? 'text-emerald-400' : 'text-red-400'
+                    comic.currentValue > (comic.purchasePrice || 0) ? 'text-emerald-400' : 'text-red-400'
                   }`}>
-                    {comic.currentValue > comic.purchasePrice ? '+' : ''}
-                    {formatCurrency(comic.currentValue - comic.purchasePrice)}
-                    {comic.purchasePrice > 0 && ` (${((comic.currentValue - comic.purchasePrice) / comic.purchasePrice * 100).toFixed(1)}%)`}
+                    {comic.currentValue > (comic.purchasePrice || 0) ? '+' : ''}
+                    {formatCurrency(comic.currentValue - (comic.purchasePrice || 0))}
+                    {(comic.purchasePrice || 0) > 0 && ` (${((comic.currentValue - (comic.purchasePrice || 0)) / (comic.purchasePrice || 0) * 100).toFixed(1)}%)`}
                   </p>
                 )}
                 <p className="text-xs text-gray-400">
-                  Paid: {formatCurrency(comic.purchasePrice)}
+                  Paid: {formatCurrency(comic.purchasePrice || 0)}
                 </p>
               </div>
               

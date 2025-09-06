@@ -268,22 +268,22 @@ export const useComicStore = create<ComicStore>((set, get) => ({
   get stats() {
     const state = get();
     const comicsWithCurrentValue = state.comics.filter(comic => comic.currentValue !== undefined);
-    const totalPurchaseValue = state.comics.reduce((sum, comic) => sum + comic.purchasePrice, 0);
+    const totalPurchaseValue = state.comics.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0);
     const totalCurrentValue = comicsWithCurrentValue.reduce((sum, comic) => sum + (comic.currentValue || 0), 0);
-    const totalGainLoss = totalCurrentValue - comicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0);
+    const totalGainLoss = totalCurrentValue - comicsWithCurrentValue.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0);
     const totalGainLossPercentage = comicsWithCurrentValue.length > 0 
-      ? (totalGainLoss / comicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0)) * 100 
+      ? (totalGainLoss / comicsWithCurrentValue.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0)) * 100 
       : 0;
 
     const biggestGainer = comicsWithCurrentValue.reduce((biggest, comic) => {
-      const gain = (comic.currentValue || 0) - comic.purchasePrice;
-      const biggestGain = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : -Infinity;
+      const gain = (comic.currentValue || 0) - (comic.purchasePrice || 0);
+      const biggestGain = biggest ? ((biggest.currentValue || 0) - (biggest.purchasePrice || 0)) : -Infinity;
       return gain > biggestGain ? comic : biggest;
     }, null as Comic | null);
 
     const biggestLoser = comicsWithCurrentValue.reduce((biggest, comic) => {
-      const loss = (comic.currentValue || 0) - comic.purchasePrice;
-      const biggestLoss = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : Infinity;
+      const loss = (comic.currentValue || 0) - (comic.purchasePrice || 0);
+      const biggestLoss = biggest ? ((biggest.currentValue || 0) - (biggest.purchasePrice || 0)) : Infinity;
       return loss < biggestLoss ? comic : biggest;
     }, null as Comic | null);
 

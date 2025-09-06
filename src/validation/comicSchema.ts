@@ -12,7 +12,7 @@ export const comicSchema = z.object({
   coverImageUrl: z.string().url('Cover image URL must be valid').optional().or(z.literal('')),
   coverArtist: z.string().max(100, 'Cover artist must be less than 100 characters'),
   grade: z.number().min(0.5, 'Grade must be at least 0.5').max(10.0, 'Grade must be at most 10.0'),
-  purchasePrice: z.number().min(0, 'Purchase price must be non-negative'),
+  purchasePrice: z.number().min(0, 'Purchase price must be non-negative').optional(),
   purchaseDate: z.string().refine((date) => {
     const parsed = new Date(date);
     return !isNaN(parsed.getTime());

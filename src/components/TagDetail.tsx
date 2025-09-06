@@ -45,20 +45,20 @@ export const TagDetail: React.FC<TagDetailProps> = ({
 
   // Calculate tag statistics
   const tagComicsWithCurrentValue = tagComics.filter(comic => comic.currentValue !== undefined);
-  const totalPurchaseValue = tagComics.reduce((sum, comic) => sum + comic.purchasePrice, 0);
+  const totalPurchaseValue = tagComics.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0);
   const totalCurrentValue = tagComicsWithCurrentValue.reduce((sum, comic) => sum + (comic.currentValue || 0), 0);
-  const totalGainLoss = totalCurrentValue - tagComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0);
+  const totalGainLoss = totalCurrentValue - tagComicsWithCurrentValue.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0);
   
   // Find biggest gainer and loser
   const biggestGainer = tagComicsWithCurrentValue.reduce((biggest, comic) => {
-    const gain = (comic.currentValue || 0) - comic.purchasePrice;
-    const biggestGain = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : -Infinity;
+    const gain = (comic.currentValue || 0) - (comic.purchasePrice || 0);
+    const biggestGain = biggest ? ((biggest.currentValue || 0) - (biggest.purchasePrice || 0)) : -Infinity;
     return gain > biggestGain ? comic : biggest;
   }, null as Comic | null);
 
   const biggestLoser = tagComicsWithCurrentValue.reduce((biggest, comic) => {
-    const loss = (comic.currentValue || 0) - comic.purchasePrice;
-    const biggestLoss = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : Infinity;
+    const loss = (comic.currentValue || 0) - (comic.purchasePrice || 0);
+    const biggestLoss = biggest ? ((biggest.currentValue || 0) - (biggest.purchasePrice || 0)) : Infinity;
     return loss < biggestLoss ? comic : biggest;
   }, null as Comic | null);
 
@@ -68,22 +68,22 @@ export const TagDetail: React.FC<TagDetailProps> = ({
     totalPurchaseValue,
     totalCurrentValue,
     highestValuedComic: tagComics.reduce((highest, comic) => {
-      const comicValue = comic.currentValue || comic.purchasePrice;
-      const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
+      const comicValue = comic.currentValue || comic.purchasePrice || 0;
+      const highestValue = highest ? (highest.currentValue || highest.purchasePrice || 0) : 0;
       return comicValue > highestValue ? comic : highest;
     }, null as Comic | null),
     highestValuedSlabbedComic: tagComics
       .filter(comic => comic.isSlabbed)
       .reduce((highest, comic) => {
-        const comicValue = comic.currentValue || comic.purchasePrice;
-        const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
+        const comicValue = comic.currentValue || comic.purchasePrice || 0;
+        const highestValue = highest ? (highest.currentValue || highest.purchasePrice || 0) : 0;
         return comicValue > highestValue ? comic : highest;
       }, null as Comic | null),
     highestValuedRawComic: tagComics
       .filter(comic => !comic.isSlabbed)
       .reduce((highest, comic) => {
-        const comicValue = comic.currentValue || comic.purchasePrice;
-        const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
+        const comicValue = comic.currentValue || comic.purchasePrice || 0;
+        const highestValue = highest ? (highest.currentValue || highest.purchasePrice || 0) : 0;
         return comicValue > highestValue ? comic : highest;
       }, null as Comic | null),
     biggestGainer,
@@ -93,8 +93,8 @@ export const TagDetail: React.FC<TagDetailProps> = ({
     signedComics: tagComics.filter(comic => comic.signedBy.trim() !== '').length,
     averageGrade: tagComics.length > 0 ? tagComics.reduce((sum, comic) => sum + comic.grade, 0) / tagComics.length : 0,
     totalGainLoss,
-    totalGainLossPercentage: tagComicsWithCurrentValue.length > 0 && tagComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0) > 0
-      ? (totalGainLoss / tagComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0)) * 100 
+    totalGainLossPercentage: tagComicsWithCurrentValue.length > 0 && tagComicsWithCurrentValue.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0) > 0
+      ? (totalGainLoss / tagComicsWithCurrentValue.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0)) * 100 
       : 0,
     comicsWithCurrentValue: tagComicsWithCurrentValue.length,
   };

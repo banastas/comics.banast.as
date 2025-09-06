@@ -7,7 +7,7 @@ export interface Comic {
   coverImageUrl: string;
   coverArtist: string;
   grade: number;
-  purchasePrice: number;
+  purchasePrice?: number;
   purchaseDate: string;
   currentValue?: number;
   notes: string;

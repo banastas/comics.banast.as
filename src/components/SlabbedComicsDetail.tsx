@@ -49,20 +49,20 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
 
   // Calculate slabbed comics statistics
   const slabbedComicsWithCurrentValue = slabbedComics.filter(comic => comic.currentValue !== undefined);
-  const totalPurchaseValue = slabbedComics.reduce((sum, comic) => sum + comic.purchasePrice, 0);
+  const totalPurchaseValue = slabbedComics.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0);
   const totalCurrentValue = slabbedComicsWithCurrentValue.reduce((sum, comic) => sum + (comic.currentValue || 0), 0);
-  const totalGainLoss = totalCurrentValue - slabbedComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0);
+  const totalGainLoss = totalCurrentValue - slabbedComicsWithCurrentValue.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0);
   
   // Find biggest gainer and loser
   const biggestGainer = slabbedComicsWithCurrentValue.reduce((biggest, comic) => {
-    const gain = (comic.currentValue || 0) - comic.purchasePrice;
-    const biggestGain = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : -Infinity;
+    const gain = (comic.currentValue || 0) - (comic.purchasePrice || 0);
+    const biggestGain = biggest ? ((biggest.currentValue || 0) - (biggest.purchasePrice || 0)) : -Infinity;
     return gain > biggestGain ? comic : biggest;
   }, null as Comic | null);
 
   const biggestLoser = slabbedComicsWithCurrentValue.reduce((biggest, comic) => {
-    const loss = (comic.currentValue || 0) - comic.purchasePrice;
-    const biggestLoss = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : Infinity;
+    const loss = (comic.currentValue || 0) - (comic.purchasePrice || 0);
+    const biggestLoss = biggest ? ((biggest.currentValue || 0) - (biggest.purchasePrice || 0)) : Infinity;
     return loss < biggestLoss ? comic : biggest;
   }, null as Comic | null);
 
@@ -72,13 +72,13 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
     totalPurchaseValue,
     totalCurrentValue,
     highestValuedComic: slabbedComics.reduce((highest, comic) => {
-      const comicValue = comic.currentValue || comic.purchasePrice;
-      const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
+      const comicValue = comic.currentValue || comic.purchasePrice || 0;
+      const highestValue = highest ? (highest.currentValue || highest.purchasePrice || 0) : 0;
       return comicValue > highestValue ? comic : highest;
     }, null as Comic | null),
     highestValuedSlabbedComic: slabbedComics.reduce((highest, comic) => {
-      const comicValue = comic.currentValue || comic.purchasePrice;
-      const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
+      const comicValue = comic.currentValue || comic.purchasePrice || 0;
+      const highestValue = highest ? (highest.currentValue || highest.purchasePrice || 0) : 0;
       return comicValue > highestValue ? comic : highest;
     }, null as Comic | null),
     highestValuedRawComic: null, // No raw comics in slabbed view
@@ -89,8 +89,8 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
     signedComics: slabbedComics.filter(comic => comic.signedBy.trim() !== '').length,
     averageGrade: slabbedComics.length > 0 ? slabbedComics.reduce((sum, comic) => sum + comic.grade, 0) / slabbedComics.length : 0,
     totalGainLoss,
-    totalGainLossPercentage: slabbedComicsWithCurrentValue.length > 0 && slabbedComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0) > 0
-      ? (totalGainLoss / slabbedComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0)) * 100 
+    totalGainLossPercentage: slabbedComicsWithCurrentValue.length > 0 && slabbedComicsWithCurrentValue.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0) > 0
+      ? (totalGainLoss / slabbedComicsWithCurrentValue.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0)) * 100 
       : 0,
     comicsWithCurrentValue: slabbedComicsWithCurrentValue.length,
   };
@@ -347,13 +347,13 @@ export const SlabbedComicsDetail: React.FC<SlabbedComicsDetailProps> = ({
                           <p className="font-semibold text-white">
                             {formatCurrency(comic.currentValue || comic.purchasePrice)}
                           </p>
-                          {comic.currentValue && comic.currentValue !== comic.purchasePrice && (
+                          {comic.currentValue && comic.currentValue !== (comic.purchasePrice || 0) && (
                             <p className={`text-xs ${
-                              comic.currentValue > comic.purchasePrice ? 'text-emerald-400' : 'text-red-400'
+                              comic.currentValue > (comic.purchasePrice || 0) ? 'text-emerald-400' : 'text-red-400'
                             }`}>
-                              {comic.currentValue > comic.purchasePrice ? '+' : ''}
-                              {formatCurrency(comic.currentValue - comic.purchasePrice)}
-                              {comic.purchasePrice > 0 && ` (${((comic.currentValue - comic.purchasePrice) / comic.purchasePrice * 100).toFixed(1)}%)`}
+                              {comic.currentValue > (comic.purchasePrice || 0) ? '+' : ''}
+                              {formatCurrency(comic.currentValue - (comic.purchasePrice || 0))}
+                              {(comic.purchasePrice || 0) > 0 && ` (${((comic.currentValue - (comic.purchasePrice || 0)) / (comic.purchasePrice || 0) * 100).toFixed(1)}%)`}
                             </p>
                           )}
                         </div>

@@ -286,17 +286,18 @@ export const ComicForm: React.FC<ComicFormProps> = ({
               {/* Purchase Price */}
               <div>
                 <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
-                  Purchase Price (USD) *
+                  Purchase Price (USD)
                 </label>
                 <input
                   type="number"
                   min="0"
                   step="0.01"
-                  value={formData.purchasePrice}
-                  onChange={(e) => handleInputChange('purchasePrice', parseFloat(e.target.value) || 0)}
+                  value={formData.purchasePrice || ''}
+                  onChange={(e) => handleInputChange('purchasePrice', e.target.value ? parseFloat(e.target.value) : undefined)}
                   className={`w-full border rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white text-sm sm:text-base ${
                     errors.purchasePrice ? 'border-red-400 bg-gray-700' : 'border-gray-600 bg-gray-700'
                   }`}
+                  placeholder="Enter purchase price"
                 />
                 {errors.purchasePrice && <p className="text-red-400 text-sm mt-1">{errors.purchasePrice}</p>}
               </div>

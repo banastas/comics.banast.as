@@ -248,11 +248,11 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                           <p className="text-white font-medium text-lg">{formatCurrency(comic.currentValue)}</p>
                           {comic.currentValue !== comic.purchasePrice && (
                             <p className={`text-xs font-medium ${
-                              comic.currentValue > comic.purchasePrice ? 'text-green-400' : 'text-red-400'
+                              comic.currentValue > (comic.purchasePrice || 0) ? 'text-green-400' : 'text-red-400'
                             }`}>
-                              {comic.currentValue > comic.purchasePrice ? '+' : ''}
-                              {formatCurrency(comic.currentValue - comic.purchasePrice)} 
-                              {comic.purchasePrice > 0 && ` (${((comic.currentValue - comic.purchasePrice) / comic.purchasePrice * 100).toFixed(1)}%)`}
+                              {comic.currentValue > (comic.purchasePrice || 0) ? '+' : ''}
+                              {formatCurrency(comic.currentValue - (comic.purchasePrice || 0))} 
+                              {(comic.purchasePrice || 0) > 0 && ` (${((comic.currentValue - (comic.purchasePrice || 0)) / (comic.purchasePrice || 0) * 100).toFixed(1)}%)`}
                             </p>
                           )}
                         </div>
