@@ -51,20 +51,20 @@ export const StorageLocationDetail: React.FC<StorageLocationDetailProps> = ({
 
   // Calculate storage location statistics
   const locationComicsWithCurrentValue = locationComics.filter(comic => comic.currentValue !== undefined);
-  const totalPurchaseValue = locationComics.reduce((sum, comic) => sum + comic.purchasePrice, 0);
+  const totalPurchaseValue = locationComics.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0);
   const totalCurrentValue = locationComicsWithCurrentValue.reduce((sum, comic) => sum + (comic.currentValue || 0), 0);
-  const totalGainLoss = totalCurrentValue - locationComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0);
+  const totalGainLoss = totalCurrentValue - locationComicsWithCurrentValue.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0);
   
   // Find biggest gainer and loser
   const biggestGainer = locationComicsWithCurrentValue.reduce((biggest, comic) => {
-    const gain = (comic.currentValue || 0) - comic.purchasePrice;
-    const biggestGain = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : -Infinity;
+    const gain = (comic.currentValue || 0) - (comic.purchasePrice || 0);
+    const biggestGain = biggest ? ((biggest.currentValue || 0) - (biggest.purchasePrice || 0)) : -Infinity;
     return gain > biggestGain ? comic : biggest;
   }, null as Comic | null);
 
   const biggestLoser = locationComicsWithCurrentValue.reduce((biggest, comic) => {
-    const loss = (comic.currentValue || 0) - comic.purchasePrice;
-    const biggestLoss = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : Infinity;
+    const loss = (comic.currentValue || 0) - (comic.purchasePrice || 0);
+    const biggestLoss = biggest ? ((biggest.currentValue || 0) - (biggest.purchasePrice || 0)) : Infinity;
     return loss < biggestLoss ? comic : biggest;
   }, null as Comic | null);
 
@@ -99,8 +99,8 @@ export const StorageLocationDetail: React.FC<StorageLocationDetailProps> = ({
     signedComics: locationComics.filter(comic => comic.signedBy.trim() !== '').length,
     averageGrade: locationComics.length > 0 ? locationComics.reduce((sum, comic) => sum + comic.grade, 0) / locationComics.length : 0,
     totalGainLoss,
-    totalGainLossPercentage: locationComicsWithCurrentValue.length > 0 && locationComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0) > 0
-      ? (totalGainLoss / locationComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0)) * 100 
+    totalGainLossPercentage: locationComicsWithCurrentValue.length > 0 && locationComicsWithCurrentValue.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0) > 0
+      ? (totalGainLoss / locationComicsWithCurrentValue.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0)) * 100 
       : 0,
     comicsWithCurrentValue: locationComicsWithCurrentValue.length,
   };

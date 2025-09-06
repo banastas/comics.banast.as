@@ -78,11 +78,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
     }] : []),
     ...(showDetailed && stats.comicsWithCurrentValue > 0 ? [{
       title: 'Total Gain/Loss',
-      value: `${stats.totalGainLoss >= 0 ? '+' : ''}${formatCurrency(stats.totalGainLoss)}`,
-      icon: stats.totalGainLoss >= 0 ? TrendingUp : TrendingDown,
-      color: stats.totalGainLoss >= 0 ? 'bg-emerald-500' : 'bg-red-500',
-      bgColor: stats.totalGainLoss >= 0 ? 'bg-emerald-500/10' : 'bg-red-500/10',
-      borderColor: stats.totalGainLoss >= 0 ? 'border-emerald-500/30' : 'border-red-500/30',
+      value: isNaN(stats.totalGainLoss) ? 'N/A' : `${stats.totalGainLoss >= 0 ? '+' : ''}${formatCurrency(stats.totalGainLoss)}`,
+      icon: isNaN(stats.totalGainLoss) ? TrendingUp : (stats.totalGainLoss >= 0 ? TrendingUp : TrendingDown),
+      color: isNaN(stats.totalGainLoss) ? 'bg-gray-500' : (stats.totalGainLoss >= 0 ? 'bg-emerald-500' : 'bg-red-500'),
+      bgColor: isNaN(stats.totalGainLoss) ? 'bg-gray-500/10' : (stats.totalGainLoss >= 0 ? 'bg-emerald-500/10' : 'bg-red-500/10'),
+      borderColor: isNaN(stats.totalGainLoss) ? 'border-gray-500/30' : (stats.totalGainLoss >= 0 ? 'border-emerald-500/30' : 'border-red-500/30'),
       show: stats.comicsWithCurrentValue > 0,
     }] : []),
     ...(showDetailed ? [{

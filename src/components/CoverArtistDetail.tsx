@@ -51,20 +51,20 @@ export const CoverArtistDetail: React.FC<CoverArtistDetailProps> = ({
 
   // Calculate cover artist statistics
   const artistComicsWithCurrentValue = artistComics.filter(comic => comic.currentValue !== undefined);
-  const totalPurchaseValue = artistComics.reduce((sum, comic) => sum + comic.purchasePrice, 0);
+  const totalPurchaseValue = artistComics.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0);
   const totalCurrentValue = artistComicsWithCurrentValue.reduce((sum, comic) => sum + (comic.currentValue || 0), 0);
-  const totalGainLoss = totalCurrentValue - artistComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0);
+  const totalGainLoss = totalCurrentValue - artistComicsWithCurrentValue.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0);
   
   // Find biggest gainer and loser
   const biggestGainer = artistComicsWithCurrentValue.reduce((biggest, comic) => {
-    const gain = (comic.currentValue || 0) - comic.purchasePrice;
-    const biggestGain = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : -Infinity;
+    const gain = (comic.currentValue || 0) - (comic.purchasePrice || 0);
+    const biggestGain = biggest ? ((biggest.currentValue || 0) - (biggest.purchasePrice || 0)) : -Infinity;
     return gain > biggestGain ? comic : biggest;
   }, null as Comic | null);
 
   const biggestLoser = artistComicsWithCurrentValue.reduce((biggest, comic) => {
-    const loss = (comic.currentValue || 0) - comic.purchasePrice;
-    const biggestLoss = biggest ? ((biggest.currentValue || 0) - biggest.purchasePrice) : Infinity;
+    const loss = (comic.currentValue || 0) - (comic.purchasePrice || 0);
+    const biggestLoss = biggest ? ((biggest.currentValue || 0) - (biggest.purchasePrice || 0)) : Infinity;
     return loss < biggestLoss ? comic : biggest;
   }, null as Comic | null);
 
@@ -99,8 +99,8 @@ export const CoverArtistDetail: React.FC<CoverArtistDetailProps> = ({
     signedComics: artistComics.filter(comic => comic.signedBy.trim() !== '').length,
     averageGrade: artistComics.length > 0 ? artistComics.reduce((sum, comic) => sum + comic.grade, 0) / artistComics.length : 0,
     totalGainLoss,
-    totalGainLossPercentage: artistComicsWithCurrentValue.length > 0 && artistComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0) > 0
-      ? (totalGainLoss / artistComicsWithCurrentValue.reduce((sum, comic) => sum + comic.purchasePrice, 0)) * 100 
+    totalGainLossPercentage: artistComicsWithCurrentValue.length > 0 && artistComicsWithCurrentValue.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0) > 0
+      ? (totalGainLoss / artistComicsWithCurrentValue.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0)) * 100 
       : 0,
     comicsWithCurrentValue: artistComicsWithCurrentValue.length,
   };
