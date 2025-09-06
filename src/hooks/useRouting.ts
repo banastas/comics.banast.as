@@ -12,7 +12,6 @@ interface UseRoutingProps {
   selectedTag: string | null;
   selectedCondition: 'raw' | 'slabbed' | 'variants' | null;
   showVirtualBoxes: boolean;
-  showCsvConverter: boolean;
   viewMode: 'grid' | 'list';
   searchTerm: string;
   sortField: string;
@@ -27,7 +26,6 @@ interface UseRoutingProps {
   setSelectedTag: (tag: string | null) => void;
   setSelectedCondition: (condition: 'raw' | 'slabbed' | 'variants' | null) => void;
   setShowVirtualBoxes: (show: boolean) => void;
-  setShowCsvConverter: (show: boolean) => void;
   setViewMode: (mode: 'grid' | 'list') => void;
   setFilters: (filters: any) => void;
   setSortField: (field: string) => void;
@@ -46,7 +44,6 @@ export const useRouting = ({
   selectedTag,
   selectedCondition,
   showVirtualBoxes,
-  showCsvConverter,
   viewMode,
   searchTerm,
   sortField,
@@ -59,7 +56,6 @@ export const useRouting = ({
   setSelectedTag,
   setSelectedCondition,
   setShowVirtualBoxes,
-  setShowCsvConverter,
   setViewMode,
   setFilters,
   setSortField,
@@ -82,7 +78,6 @@ export const useRouting = ({
     setSelectedTag(null);
     setSelectedCondition(null);
     setShowVirtualBoxes(false);
-    setShowCsvConverter(false);
     
     // Build the route
     let route = '';
@@ -123,9 +118,6 @@ export const useRouting = ({
       case 'boxes':
         route = '/boxes';
         break;
-      case 'csv':
-        route = '/csv';
-        break;
       default:
         route = '/';
     }
@@ -151,7 +143,6 @@ export const useRouting = ({
     setSelectedTag,
     setSelectedCondition,
     setShowVirtualBoxes,
-    setShowCsvConverter,
   ]);
   
   // Handle URL changes
@@ -194,7 +185,6 @@ export const useRouting = ({
         setSelectedTag(null);
         setSelectedCondition(null);
         setShowVirtualBoxes(false);
-        setShowCsvConverter(false);
         break;
         
       case 'stats':
@@ -206,7 +196,6 @@ export const useRouting = ({
         setSelectedTag(null);
         setSelectedCondition(null);
         setShowVirtualBoxes(false);
-        setShowCsvConverter(false);
         break;
         
       case 'comic':
@@ -220,7 +209,6 @@ export const useRouting = ({
             setSelectedTag(null);
             setSelectedCondition(null);
             setShowVirtualBoxes(false);
-            setShowCsvConverter(false);
           }
         }
         break;
@@ -234,7 +222,6 @@ export const useRouting = ({
           setSelectedTag(null);
           setSelectedCondition(null);
           setShowVirtualBoxes(false);
-          setShowCsvConverter(false);
         }
         break;
         
@@ -247,7 +234,6 @@ export const useRouting = ({
           setSelectedTag(null);
           setSelectedCondition(null);
           setShowVirtualBoxes(false);
-          setShowCsvConverter(false);
         }
         break;
         
@@ -260,7 +246,6 @@ export const useRouting = ({
           setSelectedTag(null);
           setSelectedCondition(null);
           setShowVirtualBoxes(false);
-          setShowCsvConverter(false);
         }
         break;
         
@@ -273,7 +258,6 @@ export const useRouting = ({
           setSelectedCoverArtist(null);
           setSelectedCondition(null);
           setShowVirtualBoxes(false);
-          setShowCsvConverter(false);
         }
         break;
         
@@ -285,7 +269,6 @@ export const useRouting = ({
         setSelectedCoverArtist(null);
         setSelectedTag(null);
         setShowVirtualBoxes(false);
-        setShowCsvConverter(false);
         break;
         
       case 'slabbed':
@@ -296,7 +279,6 @@ export const useRouting = ({
         setSelectedCoverArtist(null);
         setSelectedTag(null);
         setShowVirtualBoxes(false);
-        setShowCsvConverter(false);
         break;
         
       case 'variants':
@@ -307,7 +289,6 @@ export const useRouting = ({
         setSelectedCoverArtist(null);
         setSelectedTag(null);
         setShowVirtualBoxes(false);
-        setShowCsvConverter(false);
         break;
         
       case 'boxes':
@@ -318,19 +299,8 @@ export const useRouting = ({
         setSelectedCoverArtist(null);
         setSelectedTag(null);
         setSelectedCondition(null);
-        setShowCsvConverter(false);
         break;
         
-      case 'csv':
-        setShowCsvConverter(true);
-        setSelectedComic(undefined);
-        setSelectedSeries(null);
-        setSelectedStorageLocation(null);
-        setSelectedCoverArtist(null);
-        setSelectedTag(null);
-        setSelectedCondition(null);
-        setShowVirtualBoxes(false);
-        break;
     }
   }, [
     activeTab,
@@ -351,7 +321,6 @@ export const useRouting = ({
     setSelectedTag,
     setSelectedCondition,
     setShowVirtualBoxes,
-    setShowCsvConverter,
   ]);
   
   // Set up URL change listeners

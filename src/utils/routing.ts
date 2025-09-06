@@ -14,7 +14,6 @@ export const ROUTES = {
   SLABBED_COMICS: '/slabbed',
   VARIANTS: '/variants',
   VIRTUAL_BOXES: '/boxes',
-  CSV_CONVERTER: '/csv',
 } as const;
 
 // URL parameter types
@@ -83,7 +82,6 @@ export const urls = {
   slabbedComics: (params?: RouteParams) => generateUrl(ROUTES.SLABBED_COMICS, params),
   variants: (params?: RouteParams) => generateUrl(ROUTES.VARIANTS, params),
   virtualBoxes: (params?: RouteParams) => generateUrl(ROUTES.VIRTUAL_BOXES, params),
-  csvConverter: (params?: RouteParams) => generateUrl(ROUTES.CSV_CONVERTER, params),
 };
 
 // Parse current URL to extract route and parameters

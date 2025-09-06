@@ -41,9 +41,6 @@ export const VariantsDetail = React.lazy(() =>
   import('./VariantsDetail').then(module => ({ default: module.VariantsDetail }))
 );
 
-export const CsvConverter = React.lazy(() => 
-  import('./CsvConverter').then(module => ({ default: module.CsvConverter }))
-);
 
 // Loading component for Suspense
 export const LoadingSpinner = () => (

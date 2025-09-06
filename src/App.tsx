@@ -5,10 +5,9 @@ import { Dashboard } from './components/Dashboard';
 import { ComicCard } from './components/ComicCard';
 import { ComicListView } from './components/ComicListView';
 import { Comic } from './types/Comic';
-import { BookOpen, Plus, BarChart3, Grid, List, SortAsc, SortDesc, Search, FileText } from 'lucide-react';
+import { BookOpen, Plus, BarChart3, Grid, List, SortAsc, SortDesc, Search } from 'lucide-react';
 import { SortField } from './types/Comic';
 import { getComicUrl, getSeriesUrl, getStorageLocationUrl, getCoverArtistUrl, getTagUrl, urls } from './utils/routing';
-import UrlShareButton from './components/UrlShareButton';
 
 // Lazy load components
 const ComicForm = React.lazy(() => import('./components/ComicForm').then(module => ({ default: module.ComicForm })));
@@ -21,7 +20,6 @@ const RawComicsDetail = React.lazy(() => import('./components/RawComicsDetail').
 const SlabbedComicsDetail = React.lazy(() => import('./components/SlabbedComicsDetail').then(module => ({ default: module.SlabbedComicsDetail })));
 const StorageLocationsListing = React.lazy(() => import('./components/StorageLocationsListing').then(module => ({ default: module.StorageLocationsListing })));
 const VariantsDetail = React.lazy(() => import('./components/VariantsDetail').then(module => ({ default: module.VariantsDetail })));
-const CsvConverter = React.lazy(() => import('./components/CsvConverter').then(module => ({ default: module.CsvConverter })));
 
 // Loading component for Suspense
 const LoadingSpinner = () => (
@@ -66,7 +64,6 @@ function App() {
   const [selectedCondition, setSelectedCondition] = useState<'raw' | 'slabbed' | 'variants' | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showVirtualBoxes, setShowVirtualBoxes] = useState(false);
-  const [showCsvConverter, setShowCsvConverter] = useState(false);
 
   // Note: allSeries, allVirtualBoxes, and variantsCount now come from the store
 
@@ -80,7 +77,6 @@ function App() {
     selectedTag,
     selectedCondition,
     showVirtualBoxes,
-    showCsvConverter,
     viewMode,
     searchTerm: filters.searchTerm,
     sortField,
@@ -93,7 +89,6 @@ function App() {
     setSelectedTag,
     setSelectedCondition,
     setShowVirtualBoxes,
-    setShowCsvConverter,
     setViewMode,
     setFilters,
     setSortField,
@@ -131,7 +126,6 @@ function App() {
     setSelectedTag(null);
     setSelectedCondition(null);
     setShowVirtualBoxes(false);
-    setShowCsvConverter(false);
     navigateToRoute('collection', undefined, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection });
   };
 
@@ -227,7 +221,6 @@ function App() {
     setSelectedCoverArtist(null);
     setSelectedTag(null);
     setSelectedCondition(null);
-    setShowCsvConverter(false);
     // Only include tab for utility pages
     navigateToRoute('boxes', undefined, { tab: activeTab });
   };
@@ -243,16 +236,6 @@ function App() {
     );
   }
 
-  // Show CSV converter if selected
-  if (showCsvConverter) {
-    return (
-      <React.Suspense fallback={<LoadingSpinner />}>
-        <CsvConverter
-          onBack={handleBackToCollection}
-        />
-      </React.Suspense>
-    );
-  }
 
   // Show virtual boxes listing if selected
   if (showVirtualBoxes) {
@@ -441,19 +424,9 @@ function App() {
             )}
               
                          <div className="hidden sm:flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
-               {/* Share URL Button */}
-               <UrlShareButton title="Copy URL to clipboard" />
                
                {activeTab === 'collection' && (
                  <>
-                   {/* CSV Converter Button */}
-                <button
-                  onClick={() => setShowCsvConverter(true)}
-                     className="p-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
-                  title="CSV Converter"
-                >
-                     <FileText size={16} />
-                </button>
               
                   {/* View Mode Toggle */}
                   <div className="flex items-center space-x-2 border border-gray-600 rounded-lg">

@@ -105,7 +105,6 @@ interface ComicStore {
   selectedCondition: 'raw' | 'slabbed' | 'variants' | null;
   viewMode: 'grid' | 'list';
   showVirtualBoxes: boolean;
-  showCsvConverter: boolean;
   
   // Actions
   setComics: (comics: Comic[]) => void;
@@ -127,7 +126,6 @@ interface ComicStore {
   setSelectedCondition: (condition: 'raw' | 'slabbed' | 'variants' | null) => void;
   setViewMode: (mode: 'grid' | 'list') => void;
   setShowVirtualBoxes: (show: boolean) => void;
-  setShowCsvConverter: (show: boolean) => void;
   
   // Comic Actions
   addComic: (comic: Omit<Comic, 'id' | 'createdAt' | 'updatedAt'>) => void;
@@ -148,7 +146,6 @@ interface ComicStore {
   navigateToTag: (tag: string) => void;
   navigateToCondition: (condition: 'raw' | 'slabbed' | 'variants') => void;
   navigateToVirtualBoxes: () => void;
-  navigateToCsvConverter: () => void;
   backToCollection: () => void;
   
   // Computed Values
@@ -196,7 +193,6 @@ export const useComicStore = create<ComicStore>((set, get) => {
   selectedCondition: null,
   viewMode: 'grid',
   showVirtualBoxes: false,
-  showCsvConverter: false,
   
   // Actions
   setComics: (comics) => set((state) => {
@@ -234,7 +230,6 @@ export const useComicStore = create<ComicStore>((set, get) => {
   setSelectedCondition: (selectedCondition) => set({ selectedCondition }),
   setViewMode: (viewMode) => set({ viewMode }),
   setShowVirtualBoxes: (showVirtualBoxes) => set({ showVirtualBoxes }),
-  setShowCsvConverter: (showCsvConverter) => set({ showCsvConverter }),
   
   // Comic Actions
   addComic: (comicData) => {
@@ -278,7 +273,6 @@ export const useComicStore = create<ComicStore>((set, get) => {
     selectedTag: null,
     selectedCondition: null,
     showVirtualBoxes: false,
-    showCsvConverter: false
   }),
   
   navigateToSeries: (seriesName) => set({
@@ -289,7 +283,6 @@ export const useComicStore = create<ComicStore>((set, get) => {
     selectedTag: null,
     selectedCondition: null,
     showVirtualBoxes: false,
-    showCsvConverter: false
   }),
   
   navigateToStorageLocation: (location) => set({
@@ -300,7 +293,6 @@ export const useComicStore = create<ComicStore>((set, get) => {
     selectedTag: null,
     selectedCondition: null,
     showVirtualBoxes: false,
-    showCsvConverter: false
   }),
   
   navigateToCoverArtist: (artist) => set({
@@ -311,7 +303,6 @@ export const useComicStore = create<ComicStore>((set, get) => {
     selectedTag: null,
     selectedCondition: null,
     showVirtualBoxes: false,
-    showCsvConverter: false
   }),
   
   navigateToTag: (tag) => set({
@@ -322,7 +313,6 @@ export const useComicStore = create<ComicStore>((set, get) => {
     selectedCoverArtist: null,
     selectedCondition: null,
     showVirtualBoxes: false,
-    showCsvConverter: false
   }),
   
   navigateToCondition: (condition) => set({
@@ -333,7 +323,6 @@ export const useComicStore = create<ComicStore>((set, get) => {
     selectedCoverArtist: null,
     selectedTag: null,
     showVirtualBoxes: false,
-    showCsvConverter: false
   }),
   
   navigateToVirtualBoxes: () => set({
@@ -344,19 +333,8 @@ export const useComicStore = create<ComicStore>((set, get) => {
     selectedCoverArtist: null,
     selectedTag: null,
     selectedCondition: null,
-    showCsvConverter: false
   }),
   
-  navigateToCsvConverter: () => set({
-    showCsvConverter: true,
-    selectedComic: undefined,
-    selectedSeries: null,
-    selectedStorageLocation: null,
-    selectedCoverArtist: null,
-    selectedTag: null,
-    selectedCondition: null,
-    showVirtualBoxes: false
-  }),
   
   backToCollection: () => set({
     selectedComic: undefined,
@@ -366,7 +344,7 @@ export const useComicStore = create<ComicStore>((set, get) => {
     selectedTag: null,
     selectedCondition: null,
     showVirtualBoxes: false,
-    showCsvConverter: false,
+,
     showForm: false,
     editingComic: undefined
   }),
