@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useComicStore, initializeStore } from './stores/comicStore';
+import { useComicStore } from './stores/comicStore';
 import { useRouting } from './hooks/useRouting';
 import { Dashboard } from './components/Dashboard';
 import { ComicCard } from './components/ComicCard';
@@ -52,10 +52,8 @@ function App() {
     variantsCount,
   } = useComicStore();
 
-  // Initialize store on app start
-  useEffect(() => {
-    initializeStore();
-  }, []);
+  // Store is now initialized immediately with data
+
 
   const [showForm, setShowForm] = useState(false);
   const [editingComic, setEditingComic] = useState<Comic | undefined>(undefined);

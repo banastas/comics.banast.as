@@ -170,14 +170,19 @@ const defaultFilters: FilterOptions = {
   tags: [],
 };
 
-export const useComicStore = create<ComicStore>((set, get) => ({
-  // Initial State
-  comics: [],
-  filteredComics: [],
-  filters: defaultFilters,
-  sortField: 'releaseDate',
-  sortDirection: 'desc',
-  loading: true,
+export const useComicStore = create<ComicStore>((set, get) => {
+  // Initialize store immediately with data
+  const initialComics = initialComicsData as Comic[];
+  const initialFilteredComics = applyFilters(initialComics, defaultFilters, 'releaseDate', 'desc');
+  
+  return {
+    // Initial State
+    comics: initialComics,
+    filteredComics: initialFilteredComics,
+    filters: defaultFilters,
+    sortField: 'releaseDate',
+    sortDirection: 'desc',
+    loading: false,
   
   // UI State
   showForm: false,
@@ -389,7 +394,7 @@ export const useComicStore = create<ComicStore>((set, get) => ({
       return loss < biggestLoss ? comic : biggest;
     }, null as Comic | null);
 
-    return {
+    const statsResult = {
       totalComics: state.comics.length,
       totalValue: totalPurchaseValue,
       totalPurchaseValue,
@@ -424,6 +429,8 @@ export const useComicStore = create<ComicStore>((set, get) => ({
       totalGainLossPercentage,
       comicsWithCurrentValue: comicsWithCurrentValue.length,
     };
+    
+    return statsResult;
   },
   
   get allSeries() {
@@ -437,19 +444,7 @@ export const useComicStore = create<ComicStore>((set, get) => ({
   get variantsCount() {
     return get().comics.filter(comic => comic.isVariant).length;
   },
-}));
+  };
+});
 
-// Initialize store with data
-export const initializeStore = () => {
-  const store = useComicStore.getState();
-  if (store.comics.length === 0) {
-    try {
-      store.setComics(initialComicsData as Comic[]);
-      store.setLoading(false);
-    } catch (error) {
-      console.error('Error loading comics:', error);
-      store.setComics([]);
-      store.setLoading(false);
-    }
-  }
-};
+// Store is now initialized immediately with data on creation
