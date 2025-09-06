@@ -47,6 +47,9 @@ function App() {
     setFilters,
     setSortField,
     setSortDirection,
+    allSeries,
+    allVirtualBoxes,
+    variantsCount,
   } = useComicStore();
 
   // Initialize store on app start
@@ -67,10 +70,7 @@ function App() {
   const [showVirtualBoxes, setShowVirtualBoxes] = useState(false);
   const [showCsvConverter, setShowCsvConverter] = useState(false);
 
-  // Get unique values for filters
-  const allSeries = Array.from(new Set(allComics.map(comic => comic.seriesName))).sort();
-  const allVirtualBoxes = Array.from(new Set(allComics.map(comic => comic.storageLocation).filter(Boolean))).sort();
-  const variantsCount = allComics.filter(comic => comic.isVariant).length;
+  // Note: allSeries, allVirtualBoxes, and variantsCount now come from the store
 
   // URL routing
   const { navigateToRoute } = useRouting({

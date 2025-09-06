@@ -134,6 +134,12 @@ interface ComicStore {
   updateComic: (id: string, updates: Partial<Comic>) => void;
   deleteComic: (id: string) => void;
   
+  // Computed Properties
+  stats: ComicStats;
+  allSeries: string[];
+  allVirtualBoxes: string[];
+  variantsCount: number;
+  
   // Navigation Actions
   navigateToComic: (comic: Comic) => void;
   navigateToSeries: (seriesName: string) => void;
