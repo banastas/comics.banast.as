@@ -736,7 +736,7 @@ function App() {
                 {allComics.length > 0 ? (
                   <div className="space-y-3">
                     {allComics
-                      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                      .sort((a, b) => new Date(b.purchaseDate).getTime() - new Date(a.purchaseDate).getTime())
                       .slice(0, 5)
                       .map(comic => (
                         <div 
@@ -755,7 +755,7 @@ function App() {
                               {comic.seriesName} #{comic.issueNumber}
                             </p>
                             <p className="text-sm text-gray-400">
-                              Added {new Date(comic.createdAt).toLocaleDateString()}
+                              Purchased {new Date(comic.purchaseDate).toLocaleDateString()}
                             </p>
                           </div>
                           <div className="text-right">
