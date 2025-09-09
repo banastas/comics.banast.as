@@ -7,7 +7,7 @@ interface ComicListViewProps {
   onView: (comic: Comic) => void;
 }
 
-export const ComicListView: React.FC<ComicListViewProps> = ({ comics, onView }) => {
+export const ComicListView: React.FC<ComicListViewProps> = React.memo(({ comics, onView }) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -132,4 +132,4 @@ export const ComicListView: React.FC<ComicListViewProps> = ({ comics, onView }) 
       ))}
     </div>
   );
-};
+});

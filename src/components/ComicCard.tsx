@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Comic } from '../types/Comic';
 import { Star, Award } from 'lucide-react';
 
@@ -7,9 +7,11 @@ interface ComicCardProps {
   onView: (comic: Comic) => void;
 }
 
-export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView }) => {
+export const ComicCard: React.FC<ComicCardProps> = React.memo(({ comic, onView }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
+  const imgRef = useRef<HTMLDivElement>(null);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -29,18 +31,37 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView }) => {
     setImageLoading(false);
   };
 
+  // Intersection Observer for lazy loading
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1, rootMargin: '50px' }
+    );
+
+    if (imgRef.current) {
+      observer.observe(imgRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
   // Check if we have a valid cover image URL
   const hasValidCoverUrl = comic.coverImageUrl && comic.coverImageUrl.trim() !== '';
   return (
     <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden hover:shadow-xl hover:border-blue-500 transition-all duration-300 group cursor-pointer w-full">
       {/* Cover Image */}
-      <div className="relative aspect-[2/3] bg-gray-700" onClick={() => onView(comic)}>
-        {hasValidCoverUrl && imageLoading && (
+      <div ref={imgRef} className="relative aspect-[2/3] bg-gray-700" onClick={() => onView(comic)}>
+        {hasValidCoverUrl && imageLoading && isVisible && (
           <div className="absolute inset-0 bg-gray-700 animate-pulse flex items-center justify-center">
             <div className="w-8 h-8 border-4 border-gray-600 border-t-blue-400 rounded-full animate-spin"></div>
           </div>
         )}
-        {hasValidCoverUrl && !imageError ? (
+        {hasValidCoverUrl && !imageError && isVisible ? (
           <img
             src={comic.coverImageUrl}
             alt={`${comic.seriesName} #${comic.issueNumber}`}
@@ -54,7 +75,9 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView }) => {
           <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
             <div className="text-center text-gray-400">
               <Award size={32} className="mx-auto mb-2" />
-              <p className="text-sm font-medium">No Cover</p>
+              <p className="text-sm font-medium">
+                {!isVisible ? 'Loading...' : 'No Cover'}
+              </p>
             </div>
           </div>
         )}
@@ -111,4 +134,4 @@ export const ComicCard: React.FC<ComicCardProps> = ({ comic, onView }) => {
       </div>
     </div>
   );
-};
+});

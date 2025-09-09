@@ -17,7 +17,7 @@ interface DashboardProps {
   hideRawCard?: boolean;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ 
+export const Dashboard: React.FC<DashboardProps> = React.memo(({ 
   stats, 
   showDetailed = false, 
   onViewComic,
@@ -313,4 +313,4 @@ export const Dashboard: React.FC<DashboardProps> = ({
       )}
     </div>
   );
-};
+});

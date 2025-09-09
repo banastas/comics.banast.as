@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useComicStore } from './stores/comicStore';
 import { useRouting } from './hooks/useRouting';
 import { Dashboard } from './components/Dashboard';
@@ -8,6 +8,7 @@ import { Comic } from './types/Comic';
 import { BookOpen, Plus, BarChart3, Grid, List, SortAsc, SortDesc, Search } from 'lucide-react';
 import { SortField } from './types/Comic';
 import { getComicUrl, getSeriesUrl, getStorageLocationUrl, getCoverArtistUrl, getTagUrl, urls } from './utils/routing';
+import { debounce } from './utils/performance';
 
 // Lazy load components
 const ComicForm = React.lazy(() => import('./components/ComicForm').then(module => ({ default: module.ComicForm })));
@@ -64,8 +65,62 @@ function App() {
   const [selectedCondition, setSelectedCondition] = useState<'raw' | 'slabbed' | 'variants' | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showVirtualBoxes, setShowVirtualBoxes] = useState(false);
+  const [searchInput, setSearchInput] = useState(filters.searchTerm);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
 
   // Note: allSeries, allVirtualBoxes, and variantsCount now come from the store
+
+  // Debounced search function
+  const debouncedSetFilters = useMemo(
+    () => debounce((searchTerm: string) => {
+      setFilters({ ...filters, searchTerm });
+      navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, { 
+        tab: activeTab, 
+        viewMode, 
+        searchTerm, 
+        sortField, 
+        sortDirection 
+      });
+    }, 300),
+    [filters, activeTab, viewMode, sortField, sortDirection, navigateToRoute, setFilters]
+  );
+
+  // Handle search input changes
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchInput(value);
+    debouncedSetFilters(value);
+  }, [debouncedSetFilters]);
+
+  // Sync search input with filters when filters change externally
+  useEffect(() => {
+    setSearchInput(filters.searchTerm);
+  }, [filters.searchTerm]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [filters, sortField, sortDirection]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredComics.length / itemsPerPage);
+  const paginatedComics = useMemo(() => {
+    const startIndex = currentPage * itemsPerPage;
+    return filteredComics.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredComics, currentPage, itemsPerPage]);
+
+  // Pagination handlers
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page);
+    // Scroll to top when changing pages
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  const handleItemsPerPageChange = useCallback((newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(0);
+  }, []);
 
   // URL routing
   const { navigateToRoute } = useRouting({
@@ -406,18 +461,9 @@ function App() {
                 <input
                   type="text"
                   placeholder="Search comics..."
-                     value={filters.searchTerm}
-                     onChange={(e) => {
-                       setFilters({ ...filters, searchTerm: e.target.value });
-                       navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, { 
-                         tab: activeTab, 
-                         viewMode, 
-                         searchTerm: e.target.value, 
-                         sortField, 
-                         sortDirection 
-                       });
-                     }}
-                     className="w-full pl-9 pr-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm"
+                  value={searchInput}
+                  onChange={handleSearchChange}
+                  className="w-full pl-9 pr-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm"
                 />
               </div>
               </div>
@@ -571,6 +617,76 @@ function App() {
               />
             </div>
 
+            {/* Pagination Controls */}
+            {filteredComics.length > 0 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between mb-6 space-y-4 sm:space-y-0">
+                <div className="flex items-center space-x-4">
+                  <span className="text-sm text-gray-400">
+                    Showing {currentPage * itemsPerPage + 1} to {Math.min((currentPage + 1) * itemsPerPage, filteredComics.length)} of {filteredComics.length} comics
+                  </span>
+                  <select
+                    value={itemsPerPage}
+                    onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                    className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-1 text-sm text-white"
+                  >
+                    <option value={25}>25 per page</option>
+                    <option value={50}>50 per page</option>
+                    <option value={100}>100 per page</option>
+                    <option value={200}>200 per page</option>
+                  </select>
+                </div>
+                
+                {totalPages > 1 && (
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 0}
+                      className="px-3 py-1 bg-gray-700 border border-gray-600 rounded-lg text-sm text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-600"
+                    >
+                      Previous
+                    </button>
+                    
+                    <div className="flex items-center space-x-1">
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNum;
+                        if (totalPages <= 5) {
+                          pageNum = i;
+                        } else if (currentPage < 3) {
+                          pageNum = i;
+                        } else if (currentPage >= totalPages - 3) {
+                          pageNum = totalPages - 5 + i;
+                        } else {
+                          pageNum = currentPage - 2 + i;
+                        }
+                        
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => handlePageChange(pageNum)}
+                            className={`px-3 py-1 rounded-lg text-sm ${
+                              currentPage === pageNum
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                            }`}
+                          >
+                            {pageNum + 1}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages - 1}
+                      className="px-3 py-1 bg-gray-700 border border-gray-600 rounded-lg text-sm text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-600"
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Comics Grid */}
             {filteredComics.length === 0 ? (
               <div className="text-center py-8 sm:py-12">
@@ -598,7 +714,7 @@ function App() {
               <>
               {viewMode === 'grid' ? (
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
-                    {filteredComics.map((comic) => (
+                    {paginatedComics.map((comic) => (
                     <ComicCard
                       key={comic.id}
                       comic={comic}
@@ -608,7 +724,7 @@ function App() {
                 </div>
               ) : (
                 <ComicListView
-                    comics={filteredComics}
+                    comics={paginatedComics}
                   onView={handleViewComic}
                   />
                 )}

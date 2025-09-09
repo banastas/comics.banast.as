@@ -49,12 +49,14 @@ export const useResponsiveBreakpoint = () => {
     // Set initial values
     handleResize();
 
-    // Add event listener
-    window.addEventListener('resize', handleResize);
+    // Add event listener with passive option for better performance
+    window.addEventListener('resize', handleResize, { passive: true });
 
-    // Cleanup
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    // Cleanup - ensure the exact same function reference is removed
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []); // Empty dependency array is correct here
 
   const isBreakpoint = (breakpoint: Breakpoint): boolean => {
     return windowWidth >= breakpoints[breakpoint];
