@@ -71,6 +71,35 @@ function App() {
 
   // Note: allSeries, allVirtualBoxes, and variantsCount now come from the store
 
+  // URL routing
+  const { navigateToRoute } = useRouting({
+    activeTab,
+    selectedComic,
+    selectedSeries,
+    selectedStorageLocation,
+    selectedCoverArtist,
+    selectedTag,
+    selectedCondition,
+    showVirtualBoxes,
+    viewMode,
+    searchTerm: filters.searchTerm,
+    sortField,
+    sortDirection,
+    setActiveTab,
+    setSelectedComic,
+    setSelectedSeries,
+    setSelectedStorageLocation,
+    setSelectedCoverArtist,
+    setSelectedTag,
+    setSelectedCondition,
+    setShowVirtualBoxes,
+    setViewMode,
+    setFilters,
+    setSortField,
+    setSortDirection,
+    allComics,
+  });
+
   // Debounced search function
   const debouncedSetFilters = useMemo(
     () => debounce((searchTerm: string) => {
@@ -121,35 +150,6 @@ function App() {
     setItemsPerPage(newItemsPerPage);
     setCurrentPage(0);
   }, []);
-
-  // URL routing
-  const { navigateToRoute } = useRouting({
-    activeTab,
-    selectedComic,
-    selectedSeries,
-    selectedStorageLocation,
-    selectedCoverArtist,
-    selectedTag,
-    selectedCondition,
-    showVirtualBoxes,
-    viewMode,
-    searchTerm: filters.searchTerm,
-    sortField,
-    sortDirection,
-    setActiveTab,
-    setSelectedComic,
-    setSelectedSeries,
-    setSelectedStorageLocation,
-    setSelectedCoverArtist,
-    setSelectedTag,
-    setSelectedCondition,
-    setShowVirtualBoxes,
-    setViewMode,
-    setFilters,
-    setSortField,
-    setSortDirection,
-    allComics,
-  });
 
   const handleSaveComic = (comicData: Omit<Comic, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (editingComic) {
