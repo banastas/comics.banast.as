@@ -74,7 +74,7 @@ function App() {
   // Debounced search function
   const debouncedSetFilters = useMemo(
     () => debounce((searchTerm: string) => {
-      setFilters({ ...filters, searchTerm });
+      setFilters(prevFilters => ({ ...prevFilters, searchTerm }));
       navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, { 
         tab: activeTab, 
         viewMode, 
@@ -83,7 +83,7 @@ function App() {
         sortDirection 
       });
     }, 300),
-    [filters, activeTab, viewMode, sortField, sortDirection, navigateToRoute, setFilters]
+    [activeTab, viewMode, sortField, sortDirection, navigateToRoute, setFilters]
   );
 
   // Handle search input changes

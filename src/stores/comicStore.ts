@@ -94,9 +94,6 @@ interface ComicStore {
   sortDirection: SortDirection;
   loading: boolean;
   
-  // Internal cache
-  _statsCache?: { stats: ComicStats; comicsRef: Comic[] };
-  
   // UI State
   showForm: boolean;
   editingComic: Comic | undefined;
@@ -367,15 +364,9 @@ export const useComicStore = create<ComicStore>((set, get) => {
     editingComic: undefined
   }),
   
-  // Computed Values - Memoized stats calculation
+  // Computed Values - Simple stats calculation without caching to avoid infinite loops
   get stats() {
     const state = get();
-    
-    // Use a simple memoization approach - only recalculate if comics array reference changed
-    if (state._statsCache && state._statsCache.comicsRef === state.comics) {
-      return state._statsCache.stats;
-    }
-
     const comicsWithCurrentValue = state.comics.filter(comic => comic.currentValue !== undefined);
     const totalPurchaseValue = state.comics.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0);
     const totalCurrentValue = comicsWithCurrentValue.reduce((sum, comic) => sum + (comic.currentValue || 0), 0);
@@ -396,7 +387,7 @@ export const useComicStore = create<ComicStore>((set, get) => {
       return loss < biggestLoss ? comic : biggest;
     }, null as Comic | null);
 
-    const statsResult = {
+    return {
       totalComics: state.comics.length,
       totalValue: totalPurchaseValue,
       totalPurchaseValue,
@@ -431,11 +422,6 @@ export const useComicStore = create<ComicStore>((set, get) => {
       totalGainLossPercentage,
       comicsWithCurrentValue: comicsWithCurrentValue.length,
     };
-    
-    // Cache the result
-    set({ _statsCache: { stats: statsResult, comicsRef: state.comics } });
-    
-    return statsResult;
   },
   
   get allSeries() {
