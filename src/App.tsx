@@ -444,8 +444,6 @@ function App() {
           <div className="flex items-center justify-between h-16">
             <a 
               href="https://comics.banast.as" 
-              target="_blank" 
-              rel="noopener noreferrer"
               className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1 hover:opacity-80 transition-opacity group"
             >
               <div className="p-2 bg-blue-500 rounded-lg shadow-lg group-hover:bg-blue-400 transition-colors">
