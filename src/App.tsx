@@ -65,7 +65,6 @@ function App() {
   const [selectedCondition, setSelectedCondition] = useState<'raw' | 'slabbed' | 'variants' | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showVirtualBoxes, setShowVirtualBoxes] = useState(false);
-  const [searchInput, setSearchInput] = useState(filters.searchTerm);
   const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(50);
 
@@ -100,10 +99,18 @@ function App() {
     allComics,
   });
 
-  // Debounced search function
-  const debouncedSetFilters = useMemo(
+  // Handle search input changes with immediate filtering
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Update filters immediately for better responsiveness
+    setFilters(prevFilters => ({ ...prevFilters, searchTerm: value }));
+    // Also update the URL (can be debounced)
+    debouncedUpdateUrl(value);
+  }, [setFilters]);
+
+  // Debounced URL update function (separate from filtering for better UX)
+  const debouncedUpdateUrl = useMemo(
     () => debounce((searchTerm: string) => {
-      setFilters(prevFilters => ({ ...prevFilters, searchTerm }));
       navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, { 
         tab: activeTab, 
         viewMode, 
@@ -111,21 +118,9 @@ function App() {
         sortField, 
         sortDirection 
       });
-    }, 300),
-    [activeTab, viewMode, sortField, sortDirection, navigateToRoute, setFilters]
+    }, 500),
+    [activeTab, viewMode, sortField, sortDirection, navigateToRoute]
   );
-
-  // Handle search input changes
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchInput(value);
-    debouncedSetFilters(value);
-  }, [debouncedSetFilters]);
-
-  // Sync search input with filters when filters change externally
-  useEffect(() => {
-    setSearchInput(filters.searchTerm);
-  }, [filters.searchTerm]);
 
   // Reset page when filters change
   useEffect(() => {
@@ -461,10 +456,19 @@ function App() {
                 <input
                   type="text"
                   placeholder="Search comics..."
-                  value={searchInput}
+                  value={filters.searchTerm}
                   onChange={handleSearchChange}
-                  className="w-full pl-9 pr-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm"
+                  className="w-full pl-9 pr-10 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm"
                 />
+                {filters.searchTerm && (
+                  <button
+                    onClick={() => setFilters(prevFilters => ({ ...prevFilters, searchTerm: '' }))}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                    aria-label="Clear search"
+                  >
+                    ×
+                  </button>
+                )}
               </div>
               </div>
             )}
