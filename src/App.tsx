@@ -442,15 +442,20 @@ function App() {
       <header className="bg-gray-800 shadow-lg border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
-              <div className="p-2 bg-blue-500 rounded-lg shadow-lg">
+            <a 
+              href="https://comics.banast.as" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1 hover:opacity-80 transition-opacity group"
+            >
+              <div className="p-2 bg-blue-500 rounded-lg shadow-lg group-hover:bg-blue-400 transition-colors">
                 <BookOpen size={24} className="text-white" />
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className="text-lg sm:text-xl font-bold text-white truncate">comics.banast.as</h1>
+                <h1 className="text-lg sm:text-xl font-bold text-white truncate group-hover:text-blue-200 transition-colors">comics.banast.as</h1>
                 <p className="text-xs sm:text-sm text-gray-300">{stats.totalComics} comics</p>
               </div>
-            </div>
+            </a>
             
             {/* Search and Controls - Only show on collection tab */}
             {activeTab === 'collection' && (
