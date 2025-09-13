@@ -124,10 +124,17 @@ function App() {
     if (value === '') {
       debouncedSetFilters.cancel(); // Cancel any pending debounced calls
       setFilters(prevFilters => ({ ...prevFilters, searchTerm: '' }));
+      navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, { 
+        tab: activeTab, 
+        viewMode, 
+        searchTerm: '', 
+        sortField, 
+        sortDirection 
+      });
     } else {
       debouncedSetFilters(value);
     }
-  }, [debouncedSetFilters, setFilters]);
+  }, [debouncedSetFilters, setFilters, activeTab, viewMode, sortField, sortDirection, navigateToRoute]);
 
   // Sync search input with filters when filters change externally
   useEffect(() => {
@@ -481,6 +488,13 @@ function App() {
                       debouncedSetFilters.cancel(); // Cancel any pending debounced calls
                       setSearchInput('');
                       setFilters(prevFilters => ({ ...prevFilters, searchTerm: '' }));
+                      navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, { 
+                        tab: activeTab, 
+                        viewMode, 
+                        searchTerm: '', 
+                        sortField, 
+                        sortDirection 
+                      });
                     }}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
                     aria-label="Clear search"
