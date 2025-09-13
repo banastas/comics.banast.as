@@ -10,13 +10,19 @@ export const measurePerformance = (name: string, fn: () => void) => {
 export const debounce = <T extends (...args: unknown[]) => void>(
   func: T,
   wait: number
-): ((...args: Parameters<T>) => void) => {
+): ((...args: Parameters<T>) => void) & { cancel: () => void } => {
   let timeout: ReturnType<typeof setTimeout>;
   
-  return (...args: Parameters<T>) => {
+  const debounced = (...args: Parameters<T>) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => func(...args), wait);
   };
+  
+  debounced.cancel = () => {
+    clearTimeout(timeout);
+  };
+  
+  return debounced;
 };
 
 export const throttle = <T extends (...args: unknown[]) => void>(
