@@ -162,7 +162,6 @@ export const useRouting = ({
     
     // Update search term
     if (params.searchTerm !== undefined && params.searchTerm !== searchTerm) {
-      console.log('URL change handler updating search term from', searchTerm, 'to', params.searchTerm);
       setFilters({ searchTerm: params.searchTerm });
     }
     

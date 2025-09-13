@@ -103,7 +103,6 @@ function App() {
   // Debounced search function
   const debouncedSetFilters = useMemo(
     () => debounce((searchTerm: string) => {
-      console.log('Debounced function called with searchTerm:', searchTerm);
       setFilters(prevFilters => ({ ...prevFilters, searchTerm }));
       navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, { 
         tab: activeTab, 
@@ -123,9 +122,8 @@ function App() {
     
     // If the search is being cleared, handle it immediately
     if (value === '') {
-      console.log('Clearing search via backspace');
       debouncedSetFilters.cancel(); // Cancel any pending debounced calls
-      setFilters(prevFilters => ({ ...prevFilters, searchTerm: '' }));
+      setFilters({ searchTerm: '' });
       // Also update the URL to remove the search parameter
       navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, { 
         tab: activeTab, 
@@ -488,10 +486,9 @@ function App() {
                 {searchInput && (
                   <button
                     onClick={() => {
-                      console.log('Clearing search via X button');
                       debouncedSetFilters.cancel(); // Cancel any pending debounced calls
                       setSearchInput('');
-                      setFilters(prevFilters => ({ ...prevFilters, searchTerm: '' }));
+                      setFilters({ searchTerm: '' });
                       // Also update the URL to remove the search parameter
                       navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, { 
                         tab: activeTab, 
