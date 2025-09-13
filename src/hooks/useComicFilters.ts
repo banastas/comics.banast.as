@@ -11,7 +11,7 @@ export const useComicFilters = (
     let filtered = [...comics];
 
     // Apply filters
-    if (filters.searchTerm && filters.searchTerm.trim() !== '') {
+    if (filters.searchTerm) {
       const searchLower = filters.searchTerm.toLowerCase();
       filtered = filtered.filter(comic =>
         comic.title.toLowerCase().includes(searchLower) ||
