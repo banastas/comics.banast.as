@@ -67,7 +67,7 @@ function App() {
   const [showVirtualBoxes, setShowVirtualBoxes] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
-  const [itemsPerPage, setItemsPerPage] = useState(24);
+  const [itemsPerPage, setItemsPerPage] = useState(48);
 
   // Note: allSeries, allVirtualBoxes, and variantsCount now come from the store
 
@@ -668,10 +668,9 @@ function App() {
                     onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
                     className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-1 text-sm text-white"
                   >
-                    <option value={24}>24 per page (4 rows)</option>
-                    <option value={48}>48 per page (8 rows)</option>
-                    <option value={96}>96 per page (16 rows)</option>
-                    <option value={198}>198 per page (33 rows)</option>
+                    <option value={48}>48 per page</option>
+                    <option value={96}>96 per page</option>
+                    <option value={192}>192 per page</option>
                   </select>
                 </div>
                 
