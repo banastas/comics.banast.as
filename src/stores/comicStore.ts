@@ -12,8 +12,10 @@ const applyFilters = (
   let filtered = [...comics];
 
   // Apply search filter
+  console.log('Applying search filter with searchTerm:', filters.searchTerm);
   if (filters.searchTerm && filters.searchTerm.trim() !== '') {
     const searchLower = filters.searchTerm.toLowerCase();
+    console.log('Search term is not empty, filtering with:', searchLower);
     filtered = filtered.filter(comic =>
       comic.title.toLowerCase().includes(searchLower) ||
       comic.seriesName.toLowerCase().includes(searchLower) ||
@@ -21,6 +23,9 @@ const applyFilters = (
       comic.signedBy.toLowerCase().includes(searchLower) ||
       comic.coverArtist.toLowerCase().includes(searchLower)
     );
+    console.log('After search filter, filtered count:', filtered.length);
+  } else {
+    console.log('Search term is empty, skipping search filter');
   }
 
   // Apply series filter
@@ -203,7 +208,9 @@ export const useComicStore = create<ComicStore>((set, get) => {
   setFilteredComics: (comics) => set({ filteredComics: comics }),
   setFilters: (filters) => set((state) => {
     const newFilters = { ...state.filters, ...filters };
+    console.log('setFilters called with:', filters, 'newFilters:', newFilters);
     const filteredComics = applyFilters(state.comics, newFilters, state.sortField, state.sortDirection);
+    console.log('filteredComics length:', filteredComics.length);
     return { 
       filters: newFilters,
       filteredComics

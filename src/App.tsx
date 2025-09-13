@@ -103,6 +103,7 @@ function App() {
   // Debounced search function
   const debouncedSetFilters = useMemo(
     () => debounce((searchTerm: string) => {
+      console.log('Debounced function called with searchTerm:', searchTerm);
       setFilters(prevFilters => ({ ...prevFilters, searchTerm }));
       navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, { 
         tab: activeTab, 
@@ -122,12 +123,21 @@ function App() {
     
     // If the search is being cleared, handle it immediately
     if (value === '') {
+      console.log('Clearing search via backspace');
       debouncedSetFilters.cancel(); // Cancel any pending debounced calls
       setFilters(prevFilters => ({ ...prevFilters, searchTerm: '' }));
+      // Also update the URL to remove the search parameter
+      navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, { 
+        tab: activeTab, 
+        viewMode, 
+        searchTerm: '', 
+        sortField, 
+        sortDirection 
+      });
     } else {
       debouncedSetFilters(value);
     }
-  }, [debouncedSetFilters, setFilters]);
+  }, [debouncedSetFilters, setFilters, activeTab, viewMode, sortField, sortDirection, navigateToRoute]);
 
   // Sync search input with filters when filters change externally
   useEffect(() => {
@@ -478,9 +488,18 @@ function App() {
                 {searchInput && (
                   <button
                     onClick={() => {
+                      console.log('Clearing search via X button');
                       debouncedSetFilters.cancel(); // Cancel any pending debounced calls
                       setSearchInput('');
                       setFilters(prevFilters => ({ ...prevFilters, searchTerm: '' }));
+                      // Also update the URL to remove the search parameter
+                      navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, { 
+                        tab: activeTab, 
+                        viewMode, 
+                        searchTerm: '', 
+                        sortField, 
+                        sortDirection 
+                      });
                     }}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
                     aria-label="Clear search"
