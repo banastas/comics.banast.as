@@ -148,12 +148,6 @@ interface ComicStore {
   navigateToCondition: (condition: 'raw' | 'slabbed' | 'variants') => void;
   navigateToVirtualBoxes: () => void;
   backToCollection: () => void;
-  
-  // Computed Values
-  stats: ComicStats;
-  allSeries: string[];
-  allVirtualBoxes: string[];
-  variantsCount: number;
 }
 
 const defaultFilters: FilterOptions = {
@@ -393,21 +387,21 @@ export const useComicStore = create<ComicStore>((set, get) => {
       totalPurchaseValue,
       totalCurrentValue,
       highestValuedComic: state.comics.reduce((highest, comic) => 
-        !highest || comic.purchasePrice > highest.purchasePrice ? comic : highest, 
+        !highest || (comic.purchasePrice || 0) > (highest.purchasePrice || 0) ? comic : highest, 
         null as Comic | null
       ),
       highestValuedSlabbedComic: state.comics
         .filter(comic => comic.isSlabbed)
         .reduce((highest, comic) => {
-          const comicValue = comic.currentValue || comic.purchasePrice;
-          const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
+          const comicValue = comic.currentValue || comic.purchasePrice || 0;
+          const highestValue = highest ? (highest.currentValue || highest.purchasePrice || 0) : 0;
           return comicValue > highestValue ? comic : highest;
         }, null as Comic | null),
       highestValuedRawComic: state.comics
         .filter(comic => !comic.isSlabbed)
         .reduce((highest, comic) => {
-          const comicValue = comic.currentValue || comic.purchasePrice;
-          const highestValue = highest ? (highest.currentValue || highest.purchasePrice) : 0;
+          const comicValue = comic.currentValue || comic.purchasePrice || 0;
+          const highestValue = highest ? (highest.currentValue || highest.purchasePrice || 0) : 0;
           return comicValue > highestValue ? comic : highest;
         }, null as Comic | null),
       biggestGainer,
