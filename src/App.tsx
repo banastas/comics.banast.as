@@ -115,12 +115,32 @@ function App() {
     [activeTab, viewMode, sortField, sortDirection, navigateToRoute, setFilters]
   );
 
+  // Clear search function that cancels debounced calls
+  const clearSearch = useCallback(() => {
+    debouncedSetFilters.cancel(); // Cancel any pending debounced calls
+    setSearchInput('');
+    setFilters(prevFilters => ({ ...prevFilters, searchTerm: '' }));
+    navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, { 
+      tab: activeTab, 
+      viewMode, 
+      searchTerm: '', 
+      sortField, 
+      sortDirection 
+    });
+  }, [debouncedSetFilters, activeTab, viewMode, sortField, sortDirection, navigateToRoute, setFilters]);
+
   // Handle search input changes
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchInput(value);
-    debouncedSetFilters(value);
-  }, [debouncedSetFilters]);
+    
+    // If the search is being cleared, handle it immediately
+    if (value === '') {
+      clearSearch();
+    } else {
+      debouncedSetFilters(value);
+    }
+  }, [debouncedSetFilters, clearSearch]);
 
   // Sync search input with filters when filters change externally
   useEffect(() => {
@@ -470,10 +490,7 @@ function App() {
                 />
                 {searchInput && (
                   <button
-                    onClick={() => {
-                      setSearchInput('');
-                      setFilters(prevFilters => ({ ...prevFilters, searchTerm: '' }));
-                    }}
+                    onClick={clearSearch}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
                     aria-label="Clear search"
                   >
