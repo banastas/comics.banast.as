@@ -119,8 +119,15 @@ function App() {
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchInput(value);
-    debouncedSetFilters(value);
-  }, [debouncedSetFilters]);
+    
+    // If the search is being cleared, handle it immediately
+    if (value === '') {
+      debouncedSetFilters.cancel(); // Cancel any pending debounced calls
+      setFilters(prevFilters => ({ ...prevFilters, searchTerm: '' }));
+    } else {
+      debouncedSetFilters(value);
+    }
+  }, [debouncedSetFilters, setFilters]);
 
   // Sync search input with filters when filters change externally
   useEffect(() => {
@@ -471,6 +478,7 @@ function App() {
                 {searchInput && (
                   <button
                     onClick={() => {
+                      debouncedSetFilters.cancel(); // Cancel any pending debounced calls
                       setSearchInput('');
                       setFilters(prevFilters => ({ ...prevFilters, searchTerm: '' }));
                     }}
