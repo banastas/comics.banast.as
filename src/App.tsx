@@ -115,24 +115,20 @@ function App() {
     [activeTab, viewMode, sortField, sortDirection, navigateToRoute, setFilters]
   );
 
-  // Immediate search function for empty strings
-  const immediateSetFilters = useCallback((searchTerm: string) => {
-    debouncedSetFilters.cancel(); // Cancel any pending debounced calls
-    setFilters(prevFilters => ({ ...prevFilters, searchTerm }));
-    navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, { 
-      tab: activeTab, 
-      viewMode, 
-      searchTerm, 
-      sortField, 
-      sortDirection 
-    });
-  }, [activeTab, viewMode, sortField, sortDirection, navigateToRoute, setFilters, debouncedSetFilters]);
 
   // Clear search function that cancels debounced calls
   const clearSearch = useCallback(() => {
+    debouncedSetFilters.cancel(); // Cancel any pending debounced calls
     setSearchInput('');
-    immediateSetFilters('');
-  }, [immediateSetFilters]);
+    setFilters(prevFilters => ({ ...prevFilters, searchTerm: '' }));
+    navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, { 
+      tab: activeTab, 
+      viewMode, 
+      searchTerm: '', 
+      sortField, 
+      sortDirection 
+    });
+  }, [debouncedSetFilters, activeTab, viewMode, sortField, sortDirection, navigateToRoute, setFilters]);
 
   // Handle search input changes
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -141,16 +137,27 @@ function App() {
     
     // If the search is being cleared, handle it immediately
     if (value === '') {
-      immediateSetFilters(value);
+      debouncedSetFilters.cancel(); // Cancel any pending debounced calls
+      setFilters(prevFilters => ({ ...prevFilters, searchTerm: '' }));
+      navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, { 
+        tab: activeTab, 
+        viewMode, 
+        searchTerm: '', 
+        sortField, 
+        sortDirection 
+      });
     } else {
       debouncedSetFilters(value);
     }
-  }, [debouncedSetFilters, immediateSetFilters]);
+  }, [debouncedSetFilters, activeTab, viewMode, sortField, sortDirection, navigateToRoute, setFilters]);
 
-  // Sync search input with filters when filters change externally
+  // Sync search input with filters when filters change externally (but not from our own changes)
   useEffect(() => {
-    setSearchInput(filters.searchTerm);
-  }, [filters.searchTerm]);
+    // Only sync if the search input doesn't match the filter to avoid circular updates
+    if (searchInput !== filters.searchTerm) {
+      setSearchInput(filters.searchTerm);
+    }
+  }, [filters.searchTerm, searchInput]);
 
   // Reset page when filters change
   useEffect(() => {
