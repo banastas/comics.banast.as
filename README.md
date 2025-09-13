@@ -1,5 +1,5 @@
 # Comic Book Collection Manager
-
+<img src="https://github.com/banastas/comics.banast.as/blob/main/comic.banast.as.png?raw=true">
 A modern, responsive web application for managing and tracking your comic book collection with advanced analytics, financial tracking, and comprehensive organization features. Built with React 18, TypeScript, and Tailwind CSS.
 
 Perfect for comic collectors who want to:
