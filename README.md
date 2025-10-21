@@ -1,7 +1,16 @@
 # Comic Book Collection Manager
+
+[![Live Site](https://img.shields.io/badge/Live-comics.banast.as-00d9ff?style=for-the-badge)](https://comics.banast.as)
+[![Built with React](https://img.shields.io/badge/Built%20with-React%2018-61dafb?style=for-the-badge&logo=react)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178c6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS%203.4-38bdf8?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com/)
+[![Vite](https://img.shields.io/badge/Vite-7.0-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
+
 <img src="https://github.com/banastas/comics.banast.as/blob/main/comic.banast.as.png?raw=true">
 
 A modern, responsive web application for managing and tracking your comic book collection with advanced analytics, financial tracking, and comprehensive organization features. Built with React 18, TypeScript, and Tailwind CSS.
+
+**Live Demo**: [comics.banast.as](https://comics.banast.as)
 
 
 Perfect for comic collectors who want to:
