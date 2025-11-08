@@ -8,7 +8,7 @@ import { SEO, generateCollectionStructuredData } from './components/SEO';
 import { Comic } from './types/Comic';
 import { BookOpen, Plus, BarChart3, Grid, List, SortAsc, SortDesc, Search } from 'lucide-react';
 import { SortField } from './types/Comic';
-import { getComicUrl, getSeriesUrl, getStorageLocationUrl, getCoverArtistUrl, getTagUrl, urls } from './utils/routing';
+import { getComicUrl, getSeriesUrl, getStorageLocationUrl, getCoverArtistUrl, getTagUrl, urls, createComicSlug } from './utils/routing';
 import { debounce } from './utils/performance';
 
 // Lazy load components
@@ -186,7 +186,9 @@ function App() {
     setSelectedCondition(null);
     setShowVirtualBoxes(false);
     // Only include tab for detail pages to maintain navigation context
-    navigateToRoute('comic', comic.id, { tab: activeTab });
+    // Use SEO-friendly slug instead of ID
+    const slug = createComicSlug(comic);
+    navigateToRoute('comic', slug, { tab: activeTab });
   };
 
   const handleBackToCollection = () => {
