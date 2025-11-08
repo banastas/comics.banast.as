@@ -1,0 +1,6 @@
+# robots.txt for comics.banast.as
+
+User-agent: *
+Allow: /
+
+Sitemap: https://comics.banast.as/sitemap.xml
