@@ -128,7 +128,8 @@ export const parseRoute = (route: string): { type: string; params: RouteParams }
   switch (type) {
     case 'comic':
       if (routeParams.length > 0) {
-        params.comicId = decodeURIComponent(routeParams[0]);
+        // Store the full slug (could be series-name-issue-123-variant)
+        params.comicId = decodeURIComponent(routeParams.join('/'));
       }
       break;
     case 'series':
@@ -187,9 +188,51 @@ export const navigateToUrl = (url: string, replace = false): void => {
   window.dispatchEvent(new CustomEvent('urlchange', { detail: { url } }));
 };
 
+// Helper function to create SEO-friendly slug
+export const createComicSlug = (comic: Comic): string => {
+  // Create slug from series name and issue number
+  const seriesSlug = comic.seriesName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric with hyphens
+    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+
+  const issueSlug = `issue-${comic.issueNumber}`;
+
+  // Add variant suffix if it's a variant cover
+  const variantSlug = comic.isVariant ? '-variant' : '';
+
+  return `${seriesSlug}-${issueSlug}${variantSlug}`;
+};
+
+// Helper function to parse comic slug back to search parameters
+export const parseComicSlug = (slug: string): { seriesSlug: string; issueNumber: string; isVariant: boolean } => {
+  const parts = slug.split('-');
+  const isVariant = slug.endsWith('-variant');
+
+  // Find the "issue" part
+  const issueIndex = parts.findIndex(part => part === 'issue');
+
+  if (issueIndex === -1) {
+    throw new Error('Invalid comic slug format');
+  }
+
+  // Everything before "issue" is the series slug
+  const seriesSlug = parts.slice(0, issueIndex).join('-');
+
+  // The part after "issue" is the issue number
+  const issueNumber = parts[issueIndex + 1];
+
+  return {
+    seriesSlug,
+    issueNumber,
+    isVariant
+  };
+};
+
 // Generate URL for a comic
 export const getComicUrl = (comic: Comic, params?: RouteParams): string => {
-  return urls.comic(comic.id, params);
+  const slug = createComicSlug(comic);
+  return urls.comic(slug, params);
 };
 
 // Generate URL for a series

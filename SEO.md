@@ -107,7 +107,7 @@ The sitemap is automatically generated from comic data during build time.
 - Homepage (priority: 1.0)
 - Collection page (priority: 0.9)
 - Statistics page (priority: 0.8)
-- All individual comic pages (priority: 0.6)
+- All individual comic pages with SEO-friendly URLs (priority: 0.6)
 - All series pages (priority: 0.7)
 - All storage location pages (priority: 0.5)
 - All cover artist pages (priority: 0.5)
@@ -115,6 +115,12 @@ The sitemap is automatically generated from comic data during build time.
 - Special collections (raw, slabbed, variants) (priority: 0.7)
 
 **Total URLs**: ~1,134 URLs (based on current data)
+
+**URL Format Examples**:
+- Regular comic: `https://comics.banast.as/#/comic/batman-issue-1`
+- Variant cover: `https://comics.banast.as/#/comic/batman-issue-1-variant`
+- Series with year: `https://comics.banast.as/#/comic/alien-2021-issue-5`
+- Complex title: `https://comics.banast.as/#/comic/adventures-of-superman-issue-500`
 
 **Build Command**: `npm run generate:sitemap`
 
@@ -256,13 +262,22 @@ To complete PWA setup, create these icons in the `public/` directory:
 6. **HTTPS**: Secure connections
 7. **Cache Control**: Implemented via server headers
 
-### ⚠️ SPA Limitations
+### ⚠️ SPA Limitations & SEO-Friendly URLs
 
-**Hash-Based Routing Issue**:
-The application currently uses hash-based routing (`#/collection`, `#/comic/123`), which limits SEO effectiveness because:
-- Search engines treat all hash URLs as the same page
-- Dynamic routes are not fully crawlable
-- Each page doesn't have a unique URL from search engine perspective
+**Hash-Based Routing with SEO-Friendly Slugs**:
+The application uses hash-based routing with human-readable URLs (`#/comic/batman-issue-1-variant`), which provides improved SEO compared to ID-based routing:
+
+**✅ SEO Improvements**:
+- Human-readable URLs include series name, issue number, and variant status
+- URLs are descriptive and keyword-rich (e.g., `batman-issue-1` vs `comic-123`)
+- Easier to share and remember
+- Better for social media sharing
+- More accessible for users
+
+**⚠️ Remaining Limitations**:
+- Search engines still treat hash URLs differently than regular URLs
+- Dynamic routes are not as effectively crawlable as server-rendered pages
+- Hash fragments don't participate in traditional page ranking signals
 
 **Recommendations for Future**:
 1. **Option 1**: Implement server-side rendering (SSR) with Next.js or similar

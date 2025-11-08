@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { parseCurrentUrl, parseRoute, navigateToUrl, RouteParams } from '../utils/routing';
+import { parseCurrentUrl, parseRoute, navigateToUrl, RouteParams, parseComicSlug, createComicSlug } from '../utils/routing';
 import { Comic } from '../types/Comic';
 
 interface UseRoutingProps {
@@ -200,7 +200,32 @@ export const useRouting = ({
         
       case 'comic':
         if (routeParams.comicId) {
-          const comic = allComics.find(c => c.id === routeParams.comicId);
+          // Try to parse as slug first (new format: series-name-issue-123-variant)
+          let comic: Comic | undefined;
+
+          try {
+            const { seriesSlug, issueNumber, isVariant } = parseComicSlug(routeParams.comicId);
+
+            // Find comic by series, issue number, and variant status
+            comic = allComics.find(c => {
+              const comicSlug = createComicSlug(c);
+              return comicSlug === routeParams.comicId;
+            });
+
+            // Fallback: try to match by series and issue number more loosely
+            if (!comic) {
+              comic = allComics.find(c => {
+                const matchesIssue = c.issueNumber.toString() === issueNumber;
+                const matchesVariant = c.isVariant === isVariant;
+                const seriesMatches = c.seriesName.toLowerCase().replace(/[^a-z0-9]+/g, '-') === seriesSlug;
+                return matchesIssue && matchesVariant && seriesMatches;
+              });
+            }
+          } catch (e) {
+            // If slug parsing fails, try old ID format for backward compatibility
+            comic = allComics.find(c => c.id === routeParams.comicId);
+          }
+
           if (comic) {
             setSelectedComic(comic);
             setSelectedSeries(null);

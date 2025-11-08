@@ -81,10 +81,24 @@ urls.push({
   priority: '0.6'
 });
 
+// Helper function to create SEO-friendly comic slug
+const createComicSlug = (comic) => {
+  const seriesSlug = comic.seriesName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  const issueSlug = `issue-${comic.issueNumber}`;
+  const variantSlug = comic.isVariant ? '-variant' : '';
+
+  return `${seriesSlug}-${issueSlug}${variantSlug}`;
+};
+
 // Individual comic pages
 comicsData.forEach(comic => {
+  const slug = createComicSlug(comic);
   urls.push({
-    loc: `https://comics.banast.as/#/comic/${comic.id}`,
+    loc: `https://comics.banast.as/#/comic/${slug}`,
     lastmod: comic.updatedAt ? new Date(comic.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
     changefreq: 'monthly',
     priority: '0.6'

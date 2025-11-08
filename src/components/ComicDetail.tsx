@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Comic } from '../types/Comic';
 import { SEO, generateComicStructuredData, generateBreadcrumbStructuredData } from './SEO';
+import { createComicSlug } from '../utils/routing';
 import {
   ArrowLeft,
   Calendar,
@@ -87,15 +88,19 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
     Math.abs(c.issueNumber - comic.issueNumber) <= 5
   );
 
+  // Generate SEO-friendly slug for this comic
+  const comicSlug = createComicSlug(comic);
+  const comicUrl = `https://comics.banast.as/#/comic/${comicSlug}`;
+
   return (
     <div className="min-h-screen bg-gray-900">
       {/* SEO Meta Tags */}
       <SEO
-        title={`${comic.seriesName} #${comic.issueNumber}`}
+        title={`${comic.seriesName} #${comic.issueNumber}${comic.isVariant ? ' (Variant)' : ''}`}
         description={`${comic.seriesName} Issue #${comic.issueNumber}${comic.coverArtist ? ` - Cover art by ${comic.coverArtist}` : ''}. ${comic.grade ? `Grade: ${comic.grade}` : ''}${comic.isSlabbed ? ' (Slabbed)' : ''}${comic.isVariant ? ' (Variant Cover)' : ''}${comic.signedBy && comic.signedBy.length > 0 ? ` Signed by ${comic.signedBy.join(', ')}` : ''}`}
         keywords={`${comic.seriesName}, comic book, issue ${comic.issueNumber}, ${comic.coverArtist || 'comic'}, ${comic.isSlabbed ? 'slabbed comic, graded comic,' : ''} ${comic.isVariant ? 'variant cover,' : ''} comic collection`}
         image={comic.coverImageUrl}
-        url={`https://comics.banast.as/#/comic/${comic.id}`}
+        url={comicUrl}
         type="article"
         structuredData={generateComicStructuredData({
           id: comic.id,
@@ -108,8 +113,9 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
           currentValue: comic.currentValue,
           grade: comic.grade,
           signedBy: comic.signedBy,
+          isVariant: comic.isVariant,
         })}
-        canonical={`https://comics.banast.as/#/comic/${comic.id}`}
+        canonical={comicUrl}
       />
 
       {/* Header */}

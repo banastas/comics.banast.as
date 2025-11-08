@@ -74,19 +74,34 @@ export function SEO({
   );
 }
 
+// Helper function to create SEO-friendly comic slug
+function createComicSlug(comic: { seriesName: string; issueNumber: string | number; isVariant?: boolean }): string {
+  const seriesSlug = comic.seriesName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  const issueSlug = `issue-${comic.issueNumber}`;
+  const variantSlug = comic.isVariant ? '-variant' : '';
+
+  return `${seriesSlug}-${issueSlug}${variantSlug}`;
+}
+
 // Helper function to generate comic book structured data
 export function generateComicStructuredData(comic: {
   id: string;
   title: string;
   seriesName: string;
-  issueNumber: string;
+  issueNumber: string | number;
   releaseDate: string;
   coverImageUrl: string;
   coverArtist?: string;
   currentValue?: number;
   grade?: string;
   signedBy?: string[];
+  isVariant?: boolean;
 }) {
+  const slug = createComicSlug(comic);
   return {
     '@context': 'https://schema.org',
     '@type': 'ComicIssue',
@@ -94,6 +109,7 @@ export function generateComicStructuredData(comic: {
     issueNumber: comic.issueNumber,
     datePublished: comic.releaseDate,
     image: comic.coverImageUrl,
+    url: `https://comics.banast.as/#/comic/${slug}`,
     ...(comic.coverArtist && {
       artist: {
         '@type': 'Person',
