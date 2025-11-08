@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Comic } from '../types/Comic';
-import { 
-  ArrowLeft, 
-  Calendar, 
-  Star, 
-  DollarSign, 
-  MapPin, 
-  Award, 
-  PenTool, 
+import { SEO, generateComicStructuredData, generateBreadcrumbStructuredData } from './SEO';
+import {
+  ArrowLeft,
+  Calendar,
+  Star,
+  DollarSign,
+  MapPin,
+  Award,
+  PenTool,
   Palette,
   Tag,
   FileText,
@@ -88,6 +89,29 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
 
   return (
     <div className="min-h-screen bg-gray-900">
+      {/* SEO Meta Tags */}
+      <SEO
+        title={`${comic.seriesName} #${comic.issueNumber}`}
+        description={`${comic.seriesName} Issue #${comic.issueNumber}${comic.coverArtist ? ` - Cover art by ${comic.coverArtist}` : ''}. ${comic.grade ? `Grade: ${comic.grade}` : ''}${comic.isSlabbed ? ' (Slabbed)' : ''}${comic.isVariant ? ' (Variant Cover)' : ''}${comic.signedBy && comic.signedBy.length > 0 ? ` Signed by ${comic.signedBy.join(', ')}` : ''}`}
+        keywords={`${comic.seriesName}, comic book, issue ${comic.issueNumber}, ${comic.coverArtist || 'comic'}, ${comic.isSlabbed ? 'slabbed comic, graded comic,' : ''} ${comic.isVariant ? 'variant cover,' : ''} comic collection`}
+        image={comic.coverImageUrl}
+        url={`https://comics.banast.as/#/comic/${comic.id}`}
+        type="article"
+        structuredData={generateComicStructuredData({
+          id: comic.id,
+          title: comic.title,
+          seriesName: comic.seriesName,
+          issueNumber: comic.issueNumber,
+          releaseDate: comic.releaseDate,
+          coverImageUrl: comic.coverImageUrl,
+          coverArtist: comic.coverArtist,
+          currentValue: comic.currentValue,
+          grade: comic.grade,
+          signedBy: comic.signedBy,
+        })}
+        canonical={`https://comics.banast.as/#/comic/${comic.id}`}
+      />
+
       {/* Header */}
       <div className="bg-gray-800 shadow-lg border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

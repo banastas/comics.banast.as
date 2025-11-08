@@ -1,6 +1,44 @@
 # robots.txt for comics.banast.as
+# Comic Collection Management System
 
+# Allow all well-behaved crawlers
 User-agent: *
 Allow: /
 
+# Disallow common bot traps and non-indexable resources
+Disallow: /api/
+Disallow: /*.json$
+Disallow: /node_modules/
+Disallow: /src/
+
+# Crawl-delay for being nice to server
+Crawl-delay: 1
+
+# Sitemap location
 Sitemap: https://comics.banast.as/sitemap.xml
+
+# Specific bot configurations
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0.5
+
+User-agent: Googlebot-Image
+Allow: /
+Disallow: /assets/
+
+User-agent: bingbot
+Allow: /
+Crawl-delay: 1
+
+# Block aggressive/unwanted bots
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /

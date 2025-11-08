@@ -4,6 +4,7 @@ import { useRouting } from './hooks/useRouting';
 import { Dashboard } from './components/Dashboard';
 import { ComicCard } from './components/ComicCard';
 import { ComicListView } from './components/ComicListView';
+import { SEO, generateCollectionStructuredData } from './components/SEO';
 import { Comic } from './types/Comic';
 import { BookOpen, Plus, BarChart3, Grid, List, SortAsc, SortDesc, Search } from 'lucide-react';
 import { SortField } from './types/Comic';
@@ -453,6 +454,18 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-900">
+      {/* SEO Meta Tags */}
+      <SEO
+        title={activeTab === 'stats' ? 'Collection Statistics' : 'My Collection'}
+        description={`View and manage your comic book collection. ${stats.totalComics} comics across ${stats.uniqueSeries} series, total value: $${stats.totalValue.toFixed(0)}`}
+        structuredData={generateCollectionStructuredData({
+          totalComics: stats.totalComics,
+          totalValue: stats.totalValue,
+          uniqueSeries: stats.uniqueSeries,
+        })}
+        canonical="https://comics.banast.as/"
+      />
+
       {/* Header */}
       <header className="bg-gray-800 shadow-lg border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">

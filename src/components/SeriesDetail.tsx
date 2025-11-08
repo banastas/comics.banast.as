@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Comic, ComicStats } from '../types/Comic';
 import { Dashboard } from './Dashboard';
-import { 
-  ArrowLeft, 
+import { SEO, generateSeriesStructuredData } from './SEO';
+import {
+  ArrowLeft,
   Grid,
   List,
   Star,
@@ -132,6 +133,20 @@ export const SeriesDetail: React.FC<SeriesDetailProps> = ({
 
   return (
     <div className="min-h-screen bg-gray-900">
+      {/* SEO Meta Tags */}
+      <SEO
+        title={`${seriesName} Series`}
+        description={`Browse ${seriesComics.length} comics from the ${seriesName} series. Total value: $${totalCurrentValue.toFixed(0)}. Issues ${lowestIssue}-${highestIssue}.`}
+        keywords={`${seriesName}, comic book series, comic collection, ${seriesName} comics`}
+        url={`https://comics.banast.as/#/series/${encodeURIComponent(seriesName)}`}
+        structuredData={generateSeriesStructuredData({
+          name: seriesName,
+          comics: seriesComics,
+          totalValue: totalCurrentValue,
+        })}
+        canonical={`https://comics.banast.as/#/series/${encodeURIComponent(seriesName)}`}
+      />
+
       {/* Header */}
       <div className="bg-gray-800 shadow-lg border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

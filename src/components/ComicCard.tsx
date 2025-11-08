@@ -64,12 +64,14 @@ export const ComicCard: React.FC<ComicCardProps> = React.memo(({ comic, onView }
         {hasValidCoverUrl && !imageError && isVisible ? (
           <img
             src={comic.coverImageUrl}
-            alt={`${comic.seriesName} #${comic.issueNumber}`}
+            alt={`${comic.seriesName} Issue #${comic.issueNumber} comic book cover${comic.coverArtist ? ` - Cover art by ${comic.coverArtist}` : ''}${comic.isVariant ? ' (Variant Cover)' : ''}${comic.isSlabbed ? ' (Slabbed)' : ''}`}
             className={`w-full h-full object-cover transition-all duration-300 group-hover:scale-105 ${
               imageLoading ? 'opacity-0' : 'opacity-100'
             }`}
             onLoad={handleImageLoad}
             onError={handleImageError}
+            loading="lazy"
+            decoding="async"
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
