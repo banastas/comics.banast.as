@@ -201,13 +201,17 @@ export const createComicSlug = (comic: Comic): string => {
   // Add variant suffix if it's a variant cover
   const variantSlug = comic.isVariant ? '-variant' : '';
 
-  return `${seriesSlug}-${issueSlug}${variantSlug}`;
+  // Extract the numeric ID from comic.id (e.g., "comic-728" -> "728")
+  const idMatch = comic.id.match(/\d+$/);
+  const idSuffix = idMatch ? `-${idMatch[0]}` : '';
+
+  return `${seriesSlug}-${issueSlug}${variantSlug}${idSuffix}`;
 };
 
 // Helper function to parse comic slug back to search parameters
-export const parseComicSlug = (slug: string): { seriesSlug: string; issueNumber: string; isVariant: boolean } => {
+export const parseComicSlug = (slug: string): { seriesSlug: string; issueNumber: string; isVariant: boolean; comicId?: string } => {
   const parts = slug.split('-');
-  const isVariant = slug.endsWith('-variant');
+  const isVariant = slug.includes('-variant-');
 
   // Find the "issue" part
   const issueIndex = parts.findIndex(part => part === 'issue');
@@ -219,13 +223,19 @@ export const parseComicSlug = (slug: string): { seriesSlug: string; issueNumber:
   // Everything before "issue" is the series slug
   const seriesSlug = parts.slice(0, issueIndex).join('-');
 
-  // The part after "issue" is the issue number
+  // The part after "issue" is the issue number (could be followed by variant and/or ID)
   const issueNumber = parts[issueIndex + 1];
+
+  // Extract the numeric ID from the end if it exists
+  // The ID will be the last part if it's all digits
+  const lastPart = parts[parts.length - 1];
+  const comicId = /^\d+$/.test(lastPart) ? `comic-${lastPart}` : undefined;
 
   return {
     seriesSlug,
     issueNumber,
-    isVariant
+    isVariant,
+    comicId
   };
 };
 
