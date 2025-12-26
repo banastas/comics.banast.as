@@ -1,6 +1,7 @@
 import { useEffect, useCallback } from 'react';
 import { parseCurrentUrl, parseRoute, navigateToUrl, RouteParams, parseComicSlug, createComicSlug } from '../utils/routing';
 import { Comic } from '../types/Comic';
+import { trackPageView } from '../utils/analytics';
 
 interface UseRoutingProps {
   // Current state
@@ -149,6 +150,8 @@ export const useRouting = ({
   const handleUrlChange = useCallback(() => {
     const { route, params } = parseCurrentUrl();
     const { type, params: routeParams } = parseRoute(route);
+    
+    trackPageView(window.location.hash || '#/collection');
     
     // Update tab
     if (params.tab && params.tab !== activeTab) {
