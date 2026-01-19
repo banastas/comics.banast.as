@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Comic } from '../types/Comic';
 import { 
   ArrowLeft, 
@@ -17,6 +17,8 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
   onBack,
   onViewStorageLocation
 }) => {
+  const [sortBy, setSortBy] = useState<'name' | 'totalValue' | 'avgValue' | 'grade' | 'count'>('name');
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -52,7 +54,25 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
           : 0
       };
     })
-    .sort((a, b) => b.totalValue - a.totalValue);
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'totalValue':
+          return b.totalValue - a.totalValue;
+        case 'avgValue': {
+          const aAvg = a.count > 0 ? a.totalValue / a.count : 0;
+          const bAvg = b.count > 0 ? b.totalValue / b.count : 0;
+          return bAvg - aAvg;
+        }
+        case 'grade':
+          return b.averageGrade - a.averageGrade;
+        case 'count':
+          return b.count - a.count;
+        default:
+          return a.name.localeCompare(b.name);
+      }
+    });
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -67,6 +87,18 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
               <ArrowLeft size={20} />
               <span>Back to Collection</span>
             </button>
+
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+              className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white"
+            >
+              <option value="name">Sort by Name</option>
+              <option value="totalValue">Sort by Total Value</option>
+              <option value="avgValue">Sort by Average Value</option>
+              <option value="grade">Sort by Average Grade</option>
+              <option value="count">Sort by Comic Count</option>
+            </select>
           </div>
         </div>
       </div>
