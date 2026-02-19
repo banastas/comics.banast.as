@@ -58,7 +58,7 @@ export const validateComicUpdate = (data: unknown) => {
 };
 
 // Helper function to get validation errors
-export const getValidationErrors = (result: z.SafeParseError<any>) => {
+export const getValidationErrors = (result: z.SafeParseError<unknown>) => {
   return result.error.errors.map(err => ({
     field: err.path.join('.'),
     message: err.message,

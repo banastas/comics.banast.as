@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from 'react';
 import { parseCurrentUrl, parseRoute, navigateToUrl, RouteParams, parseComicSlug, createComicSlug } from '../utils/routing';
-import { Comic } from '../types/Comic';
+import { Comic, FilterOptions } from '../types/Comic';
 import { trackPageView } from '../utils/analytics';
 
 interface UseRoutingProps {
@@ -28,7 +28,7 @@ interface UseRoutingProps {
   setSelectedCondition: (condition: 'raw' | 'slabbed' | 'variants' | null) => void;
   setShowVirtualBoxes: (show: boolean) => void;
   setViewMode: (mode: 'grid' | 'list') => void;
-  setFilters: (filters: any) => void;
+  setFilters: (filters: Partial<FilterOptions>) => void;
   setSortField: (field: string) => void;
   setSortDirection: (direction: 'asc' | 'desc') => void;
   

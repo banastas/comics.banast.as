@@ -2,6 +2,7 @@ import React from 'react';
 import { Comic } from '../types/Comic';
 import { ComicStats } from '../types/Comic';
 import { BookOpen, DollarSign, Award, PenTool, Archive, Star, TrendingUp, TrendingDown, MapPin } from 'lucide-react';
+import { formatCurrency, formatPercentage } from '../utils/formatting';
 
 interface DashboardProps {
   stats: ComicStats;
@@ -30,19 +31,6 @@ export const Dashboard: React.FC<DashboardProps> = React.memo(({
   hideSlabbedCard = false,
   hideRawCard = false
 }) => {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  };
-
-  const formatPercentage = (percentage: number) => {
-    return `${percentage >= 0 ? '+' : ''}${percentage.toFixed(1)}%`;
-  };
-
   const statsCards = [
     {
       title: 'Total Comics',

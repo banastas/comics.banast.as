@@ -26,8 +26,11 @@ export default defineConfig({
           'data': ['./src/data/comics.json'],
           // Hooks and utilities
           'utils': [
-            './src/hooks/useComics.ts',
-            './src/utils/performance.ts'
+            './src/utils/formatting.ts',
+            './src/utils/stats.ts',
+            './src/utils/sorting.ts',
+            './src/utils/performance.ts',
+            './src/stores/comicStore.ts'
           ],
           // Core components
           'components': [
