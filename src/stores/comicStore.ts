@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { Comic, ComicStats, SortField, SortDirection, FilterOptions } from '../types/Comic';
+import { calculateComicStats } from '../utils/stats';
 import initialComicsData from '../data/comics.json';
 
 // Helper function to apply filters and sorting
@@ -62,8 +63,8 @@ const applyFilters = (
 
   // Apply sorting
   filtered.sort((a, b) => {
-    let aValue: any = a[sortField];
-    let bValue: any = b[sortField];
+    let aValue: string | number = a[sortField] as string | number;
+    let bValue: string | number = b[sortField] as string | number;
 
     // Handle special cases for sorting
     if (sortField === 'issueNumber') {
@@ -85,6 +86,14 @@ const applyFilters = (
   return filtered;
 };
 
+// Helper to compute derived data from comics array
+const computeDerivedData = (comics: Comic[]) => ({
+  stats: calculateComicStats(comics),
+  allSeries: Array.from(new Set(comics.map(c => c.seriesName))).sort(),
+  allVirtualBoxes: Array.from(new Set(comics.map(c => c.storageLocation).filter(Boolean))).sort(),
+  variantsCount: comics.filter(c => c.isVariant).length,
+});
+
 interface ComicStore {
   // State
   comics: Comic[];
@@ -93,7 +102,13 @@ interface ComicStore {
   sortField: SortField;
   sortDirection: SortDirection;
   loading: boolean;
-  
+
+  // Cached computed values (updated when comics change)
+  stats: ComicStats;
+  allSeries: string[];
+  allVirtualBoxes: string[];
+  variantsCount: number;
+
   // UI State
   showForm: boolean;
   editingComic: Comic | undefined;
@@ -106,7 +121,7 @@ interface ComicStore {
   selectedCondition: 'raw' | 'slabbed' | 'variants' | null;
   viewMode: 'grid' | 'list';
   showVirtualBoxes: boolean;
-  
+
   // Actions
   setComics: (comics: Comic[]) => void;
   setFilteredComics: (comics: Comic[]) => void;
@@ -114,7 +129,7 @@ interface ComicStore {
   setSortField: (field: SortField) => void;
   setSortDirection: (direction: SortDirection) => void;
   setLoading: (loading: boolean) => void;
-  
+
   // UI Actions
   setShowForm: (show: boolean) => void;
   setEditingComic: (comic: Comic | undefined) => void;
@@ -127,18 +142,12 @@ interface ComicStore {
   setSelectedCondition: (condition: 'raw' | 'slabbed' | 'variants' | null) => void;
   setViewMode: (mode: 'grid' | 'list') => void;
   setShowVirtualBoxes: (show: boolean) => void;
-  
+
   // Comic Actions
   addComic: (comic: Omit<Comic, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updateComic: (id: string, updates: Partial<Comic>) => void;
   deleteComic: (id: string) => void;
-  
-  // Computed Properties
-  stats: ComicStats;
-  allSeries: string[];
-  allVirtualBoxes: string[];
-  variantsCount: number;
-  
+
   // Navigation Actions
   navigateToComic: (comic: Comic) => void;
   navigateToSeries: (seriesName: string) => void;
@@ -166,7 +175,8 @@ export const useComicStore = create<ComicStore>((set, get) => {
   // Initialize store immediately with data
   const initialComics = initialComicsData as Comic[];
   const initialFilteredComics = applyFilters(initialComics, defaultFilters, 'releaseDate', 'desc');
-  
+  const initialDerived = computeDerivedData(initialComics);
+
   return {
     // Initial State
     comics: initialComics,
@@ -175,6 +185,9 @@ export const useComicStore = create<ComicStore>((set, get) => {
     sortField: 'releaseDate',
     sortDirection: 'desc',
     loading: false,
+
+    // Cached computed values
+    ...initialDerived,
   
   // UI State
   showForm: false,
@@ -192,7 +205,7 @@ export const useComicStore = create<ComicStore>((set, get) => {
   // Actions
   setComics: (comics) => set((state) => {
     const filteredComics = applyFilters(comics, state.filters, state.sortField, state.sortDirection);
-    return { comics, filteredComics };
+    return { comics, filteredComics, ...computeDerivedData(comics) };
   }),
   setFilteredComics: (comics) => set({ filteredComics: comics }),
   setFilters: (filters) => set((state) => {
@@ -237,9 +250,10 @@ export const useComicStore = create<ComicStore>((set, get) => {
     set((state) => {
       const updatedComics = [...state.comics, newComic];
       const filteredComics = applyFilters(updatedComics, state.filters, state.sortField, state.sortDirection);
-      return { 
+      return {
         comics: updatedComics,
         filteredComics,
+        ...computeDerivedData(updatedComics),
         showForm: false,
         editingComic: undefined
       };
@@ -248,8 +262,8 @@ export const useComicStore = create<ComicStore>((set, get) => {
   
   updateComic: (id, updates) => {
     set((state) => {
-      const updatedComics = state.comics.map(comic => 
-        comic.id === id 
+      const updatedComics = state.comics.map(comic =>
+        comic.id === id
           ? { ...comic, ...updates, updatedAt: new Date().toISOString() }
           : comic
       );
@@ -257,19 +271,21 @@ export const useComicStore = create<ComicStore>((set, get) => {
       return {
         comics: updatedComics,
         filteredComics,
+        ...computeDerivedData(updatedComics),
         showForm: false,
         editingComic: undefined
       };
     });
   },
-  
+
   deleteComic: (id) => {
     set((state) => {
       const updatedComics = state.comics.filter(comic => comic.id !== id);
       const filteredComics = applyFilters(updatedComics, state.filters, state.sortField, state.sortDirection);
       return {
         comics: updatedComics,
-        filteredComics
+        filteredComics,
+        ...computeDerivedData(updatedComics),
       };
     });
   },
@@ -358,77 +374,6 @@ export const useComicStore = create<ComicStore>((set, get) => {
     editingComic: undefined
   }),
   
-  // Computed Values - Simple stats calculation without caching to avoid infinite loops
-  get stats() {
-    const state = get();
-    const comicsWithCurrentValue = state.comics.filter(comic => comic.currentValue !== undefined);
-    const totalPurchaseValue = state.comics.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0);
-    const totalCurrentValue = comicsWithCurrentValue.reduce((sum, comic) => sum + (comic.currentValue || 0), 0);
-    const totalGainLoss = totalCurrentValue - comicsWithCurrentValue.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0);
-    const totalGainLossPercentage = comicsWithCurrentValue.length > 0 
-      ? (totalGainLoss / comicsWithCurrentValue.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0)) * 100 
-      : 0;
-
-    const biggestGainer = comicsWithCurrentValue.reduce((biggest, comic) => {
-      const gain = (comic.currentValue || 0) - (comic.purchasePrice || 0);
-      const biggestGain = biggest ? ((biggest.currentValue || 0) - (biggest.purchasePrice || 0)) : -Infinity;
-      return gain > biggestGain ? comic : biggest;
-    }, null as Comic | null);
-
-    const biggestLoser = comicsWithCurrentValue.reduce((biggest, comic) => {
-      const loss = (comic.currentValue || 0) - (comic.purchasePrice || 0);
-      const biggestLoss = biggest ? ((biggest.currentValue || 0) - (biggest.purchasePrice || 0)) : Infinity;
-      return loss < biggestLoss ? comic : biggest;
-    }, null as Comic | null);
-
-    return {
-      totalComics: state.comics.length,
-      totalValue: totalPurchaseValue,
-      totalPurchaseValue,
-      totalCurrentValue,
-      highestValuedComic: state.comics.reduce((highest, comic) => 
-        !highest || (comic.purchasePrice || 0) > (highest.purchasePrice || 0) ? comic : highest, 
-        null as Comic | null
-      ),
-      highestValuedSlabbedComic: state.comics
-        .filter(comic => comic.isSlabbed)
-        .reduce((highest, comic) => {
-          const comicValue = comic.currentValue || comic.purchasePrice || 0;
-          const highestValue = highest ? (highest.currentValue || highest.purchasePrice || 0) : 0;
-          return comicValue > highestValue ? comic : highest;
-        }, null as Comic | null),
-      highestValuedRawComic: state.comics
-        .filter(comic => !comic.isSlabbed)
-        .reduce((highest, comic) => {
-          const comicValue = comic.currentValue || comic.purchasePrice || 0;
-          const highestValue = highest ? (highest.currentValue || highest.purchasePrice || 0) : 0;
-          return comicValue > highestValue ? comic : highest;
-        }, null as Comic | null),
-      biggestGainer,
-      biggestLoser,
-      rawComics: state.comics.filter(comic => !comic.isSlabbed).length,
-      slabbedComics: state.comics.filter(comic => comic.isSlabbed).length,
-      signedComics: state.comics.filter(comic => comic.signedBy.trim() !== '').length,
-      averageGrade: state.comics.length > 0 
-        ? state.comics.reduce((sum, comic) => sum + comic.grade, 0) / state.comics.length 
-        : 0,
-      totalGainLoss,
-      totalGainLossPercentage,
-      comicsWithCurrentValue: comicsWithCurrentValue.length,
-    };
-  },
-  
-  get allSeries() {
-    return Array.from(new Set(get().comics.map(comic => comic.seriesName))).sort();
-  },
-  
-  get allVirtualBoxes() {
-    return Array.from(new Set(get().comics.map(comic => comic.storageLocation).filter(Boolean))).sort();
-  },
-  
-  get variantsCount() {
-    return get().comics.filter(comic => comic.isVariant).length;
-  },
   };
 });
 

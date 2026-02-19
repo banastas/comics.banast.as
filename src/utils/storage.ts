@@ -213,7 +213,7 @@ class StorageManager {
       }
 
       // Validate each comic
-      const validComics = data.comics.filter((comic: any) => {
+      const validComics = data.comics.filter((comic: unknown) => {
         const result = validateComic(comic);
         if (!result.success) {
           console.warn('Invalid comic in import, skipping:', comic.id, result.error);

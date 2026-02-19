@@ -1,4 +1,6 @@
 import { Helmet } from 'react-helmet-async';
+import { createComicSlug } from '../utils/routing';
+import { Comic } from '../types/Comic';
 
 interface SEOProps {
   title?: string;
@@ -74,23 +76,6 @@ export function SEO({
   );
 }
 
-// Helper function to create SEO-friendly comic slug
-function createComicSlug(comic: { id: string; seriesName: string; issueNumber: string | number; isVariant?: boolean }): string {
-  const seriesSlug = comic.seriesName
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-
-  const issueSlug = `issue-${comic.issueNumber}`;
-  const variantSlug = comic.isVariant ? '-variant' : '';
-
-  // Extract the numeric ID from comic.id (e.g., "comic-728" -> "728")
-  const idMatch = comic.id.match(/\d+$/);
-  const idSuffix = idMatch ? `-${idMatch[0]}` : '';
-
-  return `${seriesSlug}-${issueSlug}${variantSlug}${idSuffix}`;
-}
-
 // Helper function to generate comic book structured data
 export function generateComicStructuredData(comic: {
   id: string;
@@ -140,7 +125,7 @@ export function generateComicStructuredData(comic: {
 // Helper function to generate series structured data
 export function generateSeriesStructuredData(series: {
   name: string;
-  comics: any[];
+  comics: Comic[];
   totalValue: number;
 }) {
   return {

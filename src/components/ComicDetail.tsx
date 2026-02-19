@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Comic } from '../types/Comic';
-import { SEO, generateComicStructuredData, generateBreadcrumbStructuredData } from './SEO';
+import { SEO, generateComicStructuredData } from './SEO';
 import { createComicSlug } from '../utils/routing';
+import { formatCurrency, formatDateLong } from '../utils/formatting';
+import { useScrollToTop } from '../hooks/useScrollToTop';
 import {
   ArrowLeft,
   Calendar,
@@ -47,27 +49,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
   // Check if we have a valid cover image URL
   const hasValidCoverUrl = comic.coverImageUrl && comic.coverImageUrl.trim() !== '';
 
-  // Scroll to top when component mounts
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
+  useScrollToTop();
 
   const handleImageLoad = () => {
     setImageLoading(false);
@@ -258,7 +240,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                       <Calendar size={16} className="text-blue-400 mt-0.5" />
                       <div>
                         <span className="text-sm text-gray-400">Release Date</span>
-                        <p className="text-white font-medium">{formatDate(comic.releaseDate)}</p>
+                        <p className="text-white font-medium">{formatDateLong(comic.releaseDate)}</p>
                       </div>
                     </div>
                     
@@ -293,7 +275,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                       <Calendar size={16} className="text-blue-400 mt-0.5" />
                       <div>
                         <span className="text-sm text-gray-400">Purchase Date</span>
-                        <p className="text-white font-medium">{formatDate(comic.purchaseDate)}</p>
+                        <p className="text-white font-medium">{formatDateLong(comic.purchaseDate)}</p>
                       </div>
                     </div>
                   </div>
@@ -381,11 +363,11 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="text-gray-400 mb-1">Added to Collection</p>
-                  <p className="text-white">{formatDate(comic.createdAt)}</p>
+                  <p className="text-white">{formatDateLong(comic.createdAt)}</p>
                 </div>
                 <div>
                   <p className="text-gray-400 mb-1">Last Updated</p>
-                  <p className="text-white">{formatDate(comic.updatedAt)}</p>
+                  <p className="text-white">{formatDateLong(comic.updatedAt)}</p>
                 </div>
               </div>
             </div>
