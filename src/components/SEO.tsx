@@ -14,7 +14,7 @@ interface SEOProps {
 }
 
 const defaultMeta = {
-  title: 'Comic Collection Manager - Track, Organize & Value Your Comics',
+  title: 'comics.banast.as - Track, Organize & Value Your Comics',
   description: 'Professional comic book collection management system. Track your comics, monitor values, organize by series, artists, and storage locations. Discover variant covers, slabbed comics, and signed editions in your personal collection.',
   keywords: 'comic book collection, comic tracker, comic book manager, comic book database, comic book organizer, comic valuation, comic grading, variant covers, slabbed comics, comic storage',
   image: 'https://comics.banast.as/og-image.jpg',
@@ -33,7 +33,7 @@ export function SEO({
   canonical,
 }: SEOProps) {
   const seo = {
-    title: title ? `${title} | Comic Collection Manager` : defaultMeta.title,
+    title: title ? `${title} | comics.banast.as` : defaultMeta.title,
     description: description || defaultMeta.description,
     keywords: keywords || defaultMeta.keywords,
     image: image || defaultMeta.image,
@@ -153,7 +153,7 @@ export function generateCollectionStructuredData(stats: {
   return {
     '@context': 'https://schema.org',
     '@type': 'Collection',
-    name: 'Comic Book Collection',
+    name: 'comics.banast.as',
     description: 'Personal comic book collection with tracking and valuation',
     numberOfItems: stats.totalComics,
     ...(stats.totalValue && {

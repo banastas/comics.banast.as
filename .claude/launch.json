@@ -3,14 +3,8 @@
   "configurations": [
     {
       "name": "dev",
-      "runtimeExecutable": "wrangler",
-      "runtimeArgs": ["pages", "dev", "--proxy", "5173", "--port", "8788"],
-      "port": 8788
-    },
-    {
-      "name": "vite",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": ["run", "dev", "--", "--host"],
       "port": 5173
     }
   ]
