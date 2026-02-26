@@ -698,7 +698,10 @@ function App() {
 
             {/* Quick Filter Tags */}
             <div className="flex items-center gap-2 flex-wrap py-3">
-              {allComputedTags.map((tag) => {
+              {allComputedTags
+              .filter((tag) => (computedTagCounts.get(tag) || 0) >= 5)
+              .slice(0, 10)
+              .map((tag) => {
                 const count = computedTagCounts.get(tag) || 0;
                 const isActive = activeComputedTag === tag;
                 return (
