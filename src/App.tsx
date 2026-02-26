@@ -697,7 +697,7 @@ function App() {
             </div>
 
             {/* Quick Filter Tags */}
-            <div className="flex items-center gap-2 flex-wrap py-3">
+            <div className="flex items-center gap-2 flex-wrap pt-5 pb-3">
               {allComputedTags
               .filter((tag) => (computedTagCounts.get(tag) || 0) >= 5)
               .slice(0, 10)
