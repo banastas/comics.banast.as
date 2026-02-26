@@ -8,12 +8,14 @@ import { useScrollToTop } from '../hooks/useScrollToTop';
 import { DetailPageHeader } from './DetailPageHeader';
 import { ComicGridList } from './ComicGridList';
 import { SeriesBreakdown } from './SeriesBreakdown';
+import { BreadcrumbItem } from './Breadcrumb';
 
 interface RawComicsDetailProps {
   rawComics: Comic[];
   onBack: () => void;
   onView: (comic: Comic) => void;
   onViewSeries?: (seriesName: string) => void;
+  breadcrumbItems?: BreadcrumbItem[];
 }
 
 const RawComicsDetailComponent: React.FC<RawComicsDetailProps> = ({
@@ -21,6 +23,7 @@ const RawComicsDetailComponent: React.FC<RawComicsDetailProps> = ({
   onBack,
   onView,
   onViewSeries,
+  breadcrumbItems,
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<DetailSortField>('series');
@@ -59,6 +62,7 @@ const RawComicsDetailComponent: React.FC<RawComicsDetailProps> = ({
         onViewModeChange={setViewMode}
         sortBy={sortBy}
         onSortChange={(s) => setSortBy(s as DetailSortField)}
+        breadcrumbItems={breadcrumbItems}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

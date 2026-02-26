@@ -17,6 +17,7 @@ import {
   FileText,
   User
 } from 'lucide-react';
+import { Breadcrumb, BreadcrumbItem } from './Breadcrumb';
 
 interface ComicDetailProps {
   comic: Comic;
@@ -29,19 +30,21 @@ interface ComicDetailProps {
   onViewTag?: (tag: string) => void;
   onViewRawComics?: () => void;
   onViewSlabbedComics?: () => void;
+  breadcrumbItems?: BreadcrumbItem[];
 }
 
-export const ComicDetail: React.FC<ComicDetailProps> = ({ 
-  comic, 
+export const ComicDetail: React.FC<ComicDetailProps> = ({
+  comic,
   allComics,
-  onBack, 
+  onBack,
   onView,
   onViewSeries,
   onViewStorageLocation,
   onViewCoverArtist,
   onViewTag,
   onViewRawComics,
-  onViewSlabbedComics
+  onViewSlabbedComics,
+  breadcrumbItems,
 }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
@@ -104,13 +107,17 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
       <div className="bg-surface-primary shadow-lg border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <button
-              onClick={onBack}
-              className="flex items-center space-x-2 text-slate-300 hover:text-white transition-colors"
-            >
-              <ArrowLeft size={20} />
-              <span>Back to Collection</span>
-            </button>
+            {breadcrumbItems && breadcrumbItems.length > 1 ? (
+              <Breadcrumb items={breadcrumbItems} />
+            ) : (
+              <button
+                onClick={onBack}
+                className="flex items-center space-x-2 text-slate-300 hover:text-white transition-colors"
+              >
+                <ArrowLeft size={20} />
+                <span>Back to Collection</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

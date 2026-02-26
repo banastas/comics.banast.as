@@ -1,21 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Comic } from '../types/Comic';
-import { 
-  ArrowLeft, 
+import {
+  ArrowLeft,
   MapPin,
   Archive,
 } from 'lucide-react';
+import { Breadcrumb, BreadcrumbItem } from './Breadcrumb';
 
 interface StorageLocationsListingProps {
   allComics: Comic[];
   onBack: () => void;
   onViewStorageLocation: (storageLocation: string) => void;
+  breadcrumbItems?: BreadcrumbItem[];
 }
 
-export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = ({ 
+export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = ({
   allComics,
   onBack,
-  onViewStorageLocation
+  onViewStorageLocation,
+  breadcrumbItems,
 }) => {
   const [sortBy, setSortBy] = useState<'name' | 'totalValue' | 'avgValue' | 'grade' | 'count'>('name');
 
@@ -80,13 +83,17 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
       <div className="bg-surface-primary shadow-lg border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <button
-              onClick={onBack}
-              className="flex items-center space-x-2 text-slate-300 hover:text-white transition-colors"
-            >
-              <ArrowLeft size={20} />
-              <span>Back to Collection</span>
-            </button>
+            {breadcrumbItems && breadcrumbItems.length > 1 ? (
+              <Breadcrumb items={breadcrumbItems} />
+            ) : (
+              <button
+                onClick={onBack}
+                className="flex items-center space-x-2 text-slate-300 hover:text-white transition-colors"
+              >
+                <ArrowLeft size={20} />
+                <span>Back to Collection</span>
+              </button>
+            )}
 
             <select
               value={sortBy}

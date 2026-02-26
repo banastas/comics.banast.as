@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowLeft, Grid, List } from 'lucide-react';
 import { DetailSortField } from '../utils/sorting';
+import { Breadcrumb, BreadcrumbItem } from './Breadcrumb';
 
 interface DetailPageHeaderProps {
   onBack: () => void;
@@ -9,6 +10,7 @@ interface DetailPageHeaderProps {
   sortBy: string;
   onSortChange: (sort: string) => void;
   sortOptions?: { value: string; label: string }[];
+  breadcrumbItems?: BreadcrumbItem[];
 }
 
 const defaultSortOptions = [
@@ -26,17 +28,22 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
   sortBy,
   onSortChange,
   sortOptions = defaultSortOptions,
+  breadcrumbItems,
 }) => (
   <div className="bg-surface-primary shadow-lg border-b border-slate-800">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between h-16">
-        <button
-          onClick={onBack}
-          className="flex items-center space-x-2 text-slate-300 hover:text-white transition-colors"
-        >
-          <ArrowLeft size={20} />
-          <span>Back to Collection</span>
-        </button>
+        {breadcrumbItems && breadcrumbItems.length > 1 ? (
+          <Breadcrumb items={breadcrumbItems} />
+        ) : (
+          <button
+            onClick={onBack}
+            className="flex items-center space-x-2 text-slate-300 hover:text-white transition-colors"
+          >
+            <ArrowLeft size={20} />
+            <span>Back to Collection</span>
+          </button>
+        )}
 
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2 border border-slate-700 rounded-lg">

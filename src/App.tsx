@@ -367,7 +367,7 @@ function App() {
   if (showVirtualBoxes) {
     return (
       <React.Suspense fallback={<LoadingSpinner />}>
-        <StorageLocationsListing allComics={allComics} onBack={handleBackToCollection} onViewStorageLocation={handleViewStorageLocation} />
+        <StorageLocationsListing allComics={allComics} onBack={handleBackToCollection} onViewStorageLocation={handleViewStorageLocation} breadcrumbItems={breadcrumbItems} />
       </React.Suspense>
     );
   }
@@ -378,7 +378,7 @@ function App() {
       <React.Suspense fallback={<LoadingSpinner />}>
         <ComicDetail comic={selectedComic as Comic} allComics={allComics} onBack={handleBackToCollection} onView={handleViewComic}
           onViewSeries={handleViewSeries} onViewStorageLocation={handleViewStorageLocation} onViewCoverArtist={handleViewCoverArtist}
-          onViewTag={handleViewTag} onViewRawComics={handleViewRawComics} onViewSlabbedComics={handleViewSlabbedComics} />
+          onViewTag={handleViewTag} onViewRawComics={handleViewRawComics} onViewSlabbedComics={handleViewSlabbedComics} breadcrumbItems={breadcrumbItems} />
       </React.Suspense>
     );
   }
@@ -387,7 +387,7 @@ function App() {
     const seriesComics = allComics.filter(comic => comic.seriesName === selectedSeries);
     return (
       <React.Suspense fallback={<LoadingSpinner />}>
-        <SeriesDetail seriesName={selectedSeries || ''} seriesComics={seriesComics} onBack={handleBackToCollection} onView={handleViewComic} />
+        <SeriesDetail seriesName={selectedSeries || ''} seriesComics={seriesComics} onBack={handleBackToCollection} onView={handleViewComic} breadcrumbItems={breadcrumbItems} />
       </React.Suspense>
     );
   }
@@ -397,7 +397,7 @@ function App() {
     return (
       <React.Suspense fallback={<LoadingSpinner />}>
         <StorageLocationDetail storageLocation={selectedStorageLocation || ''} locationComics={locationComics}
-          onBack={handleBackToCollection} onView={handleViewComic} onViewSeries={handleViewSeries} />
+          onBack={handleBackToCollection} onView={handleViewComic} onViewSeries={handleViewSeries} breadcrumbItems={breadcrumbItems} />
       </React.Suspense>
     );
   }
@@ -407,7 +407,7 @@ function App() {
     return (
       <React.Suspense fallback={<LoadingSpinner />}>
         <CoverArtistDetail coverArtist={selectedCoverArtist || ''} artistComics={artistComics}
-          onBack={handleBackToCollection} onView={handleViewComic} onViewSeries={handleViewSeries} />
+          onBack={handleBackToCollection} onView={handleViewComic} onViewSeries={handleViewSeries} breadcrumbItems={breadcrumbItems} />
       </React.Suspense>
     );
   }
@@ -417,7 +417,7 @@ function App() {
     return (
       <React.Suspense fallback={<LoadingSpinner />}>
         <TagDetail tag={selectedTag || ''} tagComics={tagComics} onBack={handleBackToCollection}
-          onView={handleViewComic} onViewSeries={handleViewSeries} onViewTag={handleViewTag} />
+          onView={handleViewComic} onViewSeries={handleViewSeries} onViewTag={handleViewTag} breadcrumbItems={breadcrumbItems} />
       </React.Suspense>
     );
   }
@@ -426,7 +426,7 @@ function App() {
     const rawComics = allComics.filter(comic => !comic.isSlabbed);
     return (
       <React.Suspense fallback={<LoadingSpinner />}>
-        <RawComicsDetail rawComics={rawComics} onBack={handleBackToCollection} onView={handleViewComic} onViewSeries={handleViewSeries} />
+        <RawComicsDetail rawComics={rawComics} onBack={handleBackToCollection} onView={handleViewComic} onViewSeries={handleViewSeries} breadcrumbItems={breadcrumbItems} />
       </React.Suspense>
     );
   }
@@ -435,7 +435,7 @@ function App() {
     const slabbedComics = allComics.filter(comic => comic.isSlabbed);
     return (
       <React.Suspense fallback={<LoadingSpinner />}>
-        <SlabbedComicsDetail slabbedComics={slabbedComics} onBack={handleBackToCollection} onView={handleViewComic} onViewSeries={handleViewSeries} />
+        <SlabbedComicsDetail slabbedComics={slabbedComics} onBack={handleBackToCollection} onView={handleViewComic} onViewSeries={handleViewSeries} breadcrumbItems={breadcrumbItems} />
       </React.Suspense>
     );
   }
@@ -445,7 +445,7 @@ function App() {
     return (
       <React.Suspense fallback={<LoadingSpinner />}>
         <VariantsDetail variantComics={variantComics} onBack={handleBackToCollection} onView={handleViewComic}
-          onViewRawComics={handleViewRawComics} onViewSlabbedComics={handleViewSlabbedComics} onViewSeries={handleViewSeries} />
+          onViewRawComics={handleViewRawComics} onViewSlabbedComics={handleViewSlabbedComics} onViewSeries={handleViewSeries} breadcrumbItems={breadcrumbItems} />
       </React.Suspense>
     );
   }

@@ -8,6 +8,7 @@ import { formatCurrency } from '../utils/formatting';
 import { calculateComicStats } from '../utils/stats';
 import { sortComics, DetailSortField } from '../utils/sorting';
 import { useScrollToTop } from '../hooks/useScrollToTop';
+import { BreadcrumbItem } from './Breadcrumb';
 
 interface TagDetailProps {
   tag: string;
@@ -16,6 +17,7 @@ interface TagDetailProps {
   onView: (comic: Comic) => void;
   onViewSeries?: (seriesName: string) => void;
   onViewTag?: (tag: string) => void;
+  breadcrumbItems?: BreadcrumbItem[];
 }
 
 export const TagDetail: React.FC<TagDetailProps> = React.memo(({
@@ -24,7 +26,8 @@ export const TagDetail: React.FC<TagDetailProps> = React.memo(({
   onBack,
   onView,
   onViewSeries,
-  onViewTag
+  onViewTag,
+  breadcrumbItems,
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<DetailSortField>('series');
@@ -56,6 +59,7 @@ export const TagDetail: React.FC<TagDetailProps> = React.memo(({
         onViewModeChange={setViewMode}
         sortBy={sortBy}
         onSortChange={(s) => setSortBy(s as DetailSortField)}
+        breadcrumbItems={breadcrumbItems}
       />
 
       {/* Main Content */}

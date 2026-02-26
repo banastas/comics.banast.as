@@ -8,6 +8,7 @@ import { Palette } from 'lucide-react';
 import { calculateComicStats } from '../utils/stats';
 import { sortComics, DetailSortField } from '../utils/sorting';
 import { useScrollToTop } from '../hooks/useScrollToTop';
+import { BreadcrumbItem } from './Breadcrumb';
 
 interface CoverArtistDetailProps {
   coverArtist: string;
@@ -15,6 +16,7 @@ interface CoverArtistDetailProps {
   onBack: () => void;
   onView: (comic: Comic) => void;
   onViewSeries?: (seriesName: string) => void;
+  breadcrumbItems?: BreadcrumbItem[];
 }
 
 export const CoverArtistDetail: React.FC<CoverArtistDetailProps> = React.memo(({
@@ -23,6 +25,7 @@ export const CoverArtistDetail: React.FC<CoverArtistDetailProps> = React.memo(({
   onBack,
   onView,
   onViewSeries,
+  breadcrumbItems,
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<DetailSortField>('series');
@@ -45,6 +48,7 @@ export const CoverArtistDetail: React.FC<CoverArtistDetailProps> = React.memo(({
         onViewModeChange={setViewMode}
         sortBy={sortBy}
         onSortChange={(s) => setSortBy(s as DetailSortField)}
+        breadcrumbItems={breadcrumbItems}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

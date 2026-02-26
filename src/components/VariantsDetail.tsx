@@ -8,6 +8,7 @@ import { Award } from 'lucide-react';
 import { calculateComicStats } from '../utils/stats';
 import { sortComics, DetailSortField } from '../utils/sorting';
 import { useScrollToTop } from '../hooks/useScrollToTop';
+import { BreadcrumbItem } from './Breadcrumb';
 
 interface VariantsDetailProps {
   variantComics: Comic[];
@@ -16,6 +17,7 @@ interface VariantsDetailProps {
   onViewSeries?: (seriesName: string) => void;
   onViewRawComics?: () => void;
   onViewSlabbedComics?: () => void;
+  breadcrumbItems?: BreadcrumbItem[];
 }
 
 const VariantsDetailInner: React.FC<VariantsDetailProps> = ({
@@ -25,6 +27,7 @@ const VariantsDetailInner: React.FC<VariantsDetailProps> = ({
   onViewSeries,
   onViewRawComics,
   onViewSlabbedComics,
+  breadcrumbItems,
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<DetailSortField>('series');
@@ -47,6 +50,7 @@ const VariantsDetailInner: React.FC<VariantsDetailProps> = ({
         onViewModeChange={setViewMode}
         sortBy={sortBy}
         onSortChange={(val) => setSortBy(val as DetailSortField)}
+        breadcrumbItems={breadcrumbItems}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

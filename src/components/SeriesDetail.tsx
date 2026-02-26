@@ -7,12 +7,14 @@ import { ComicGridList } from './ComicGridList';
 import { calculateComicStats } from '../utils/stats';
 import { sortComics, DetailSortField } from '../utils/sorting';
 import { useScrollToTop } from '../hooks/useScrollToTop';
+import { BreadcrumbItem } from './Breadcrumb';
 
 interface SeriesDetailProps {
   seriesName: string;
   seriesComics: Comic[];
   onBack: () => void;
   onView: (comic: Comic) => void;
+  breadcrumbItems?: BreadcrumbItem[];
 }
 
 const seriesSortOptions = [
@@ -27,6 +29,7 @@ export const SeriesDetail: React.FC<SeriesDetailProps> = React.memo(({
   seriesComics,
   onBack,
   onView,
+  breadcrumbItems,
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<DetailSortField>('issue');
@@ -66,6 +69,7 @@ export const SeriesDetail: React.FC<SeriesDetailProps> = React.memo(({
         sortBy={sortBy}
         onSortChange={(value) => setSortBy(value as DetailSortField)}
         sortOptions={seriesSortOptions}
+        breadcrumbItems={breadcrumbItems}
       />
 
       {/* Main Content */}
