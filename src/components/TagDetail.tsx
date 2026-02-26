@@ -49,7 +49,7 @@ export const TagDetail: React.FC<TagDetailProps> = React.memo(({
   );
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-surface-base">
       <DetailPageHeader
         onBack={onBack}
         viewMode={viewMode}
@@ -62,7 +62,7 @@ export const TagDetail: React.FC<TagDetailProps> = React.memo(({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
           {/* Tag Header and Statistics */}
-          <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
+          <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
                 <div className="p-3 bg-blue-500 rounded-lg">
@@ -70,10 +70,10 @@ export const TagDetail: React.FC<TagDetailProps> = React.memo(({
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold text-white mb-2">#{tag}</h1>
-                  <p className="text-gray-300">
+                  <p className="text-slate-300">
                     {tagComics.length} comic{tagComics.length !== 1 ? 's' : ''} with this tag
                     {uniqueSeries.length > 0 && (
-                      <span className="text-gray-400 ml-2">
+                      <span className="text-slate-400 ml-2">
                         • {uniqueSeries.length} series
                       </span>
                     )}
@@ -105,11 +105,11 @@ export const TagDetail: React.FC<TagDetailProps> = React.memo(({
                       return (
                         <div
                           key={series}
-                          className="bg-gray-700/30 rounded-lg p-3 border border-gray-600 cursor-pointer hover:border-blue-500 transition-colors"
+                          className="bg-surface-secondary/30 rounded-lg p-3 border border-slate-700 cursor-pointer hover:border-blue-500 transition-colors"
                           onClick={() => onViewSeries?.(series)}
                         >
                           <p className="font-medium text-white text-sm truncate">{series}</p>
-                          <p className="text-xs text-gray-400">{seriesCount} issue{seriesCount !== 1 ? 's' : ''}</p>
+                          <p className="text-xs text-slate-400">{seriesCount} issue{seriesCount !== 1 ? 's' : ''}</p>
                           <p className="text-xs text-green-400">{formatCurrency(seriesValue)}</p>
                         </div>
                       );
@@ -130,7 +130,7 @@ export const TagDetail: React.FC<TagDetailProps> = React.memo(({
                         <button
                           key={relatedTag}
                           onClick={() => onViewTag?.(relatedTag)}
-                          className="px-3 py-1 bg-gray-700/50 text-gray-300 text-sm rounded border border-gray-600 hover:border-blue-500 hover:text-blue-400 transition-colors"
+                          className="px-3 py-1 bg-surface-secondary/50 text-slate-300 text-sm rounded border border-slate-700 hover:border-blue-500 hover:text-blue-400 transition-colors"
                         >
                           #{relatedTag} ({tagCount})
                         </button>
@@ -143,7 +143,7 @@ export const TagDetail: React.FC<TagDetailProps> = React.memo(({
           </div>
 
           {/* Comics Grid/List */}
-          <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
+          <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-6">
             <h3 className="text-lg font-semibold text-white mb-4">Comics tagged with #{tag}</h3>
 
             <ComicGridList
@@ -158,7 +158,7 @@ export const TagDetail: React.FC<TagDetailProps> = React.memo(({
                       className={`px-2 py-0.5 text-xs rounded border cursor-pointer transition-colors ${
                         comicTag === tag
                           ? 'bg-blue-500/20 text-blue-300 border-blue-500/30'
-                          : 'bg-gray-600/20 text-gray-400 border-gray-600/30 hover:border-blue-500/30 hover:text-blue-400'
+                          : 'bg-slate-700/20 text-slate-400 border-slate-700/30 hover:border-blue-500/30 hover:text-blue-400'
                       }`}
                       onClick={(e) => {
                         e.stopPropagation();

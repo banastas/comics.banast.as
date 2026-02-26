@@ -1,3 +1,53 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --surface-base: 13 17 23;
+    --surface-primary: 22 27 34;
+    --surface-secondary: 33 38 45;
+    --surface-elevated: 28 33 40;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: rgb(var(--surface-base));
+    color: #e6edf3;
+  }
+
+  ::selection {
+    background-color: rgb(59 130 246 / 0.3);
+    color: #ffffff;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgb(var(--surface-base));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--surface-secondary));
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(55 65 81);
+  }
+
+  /* Firefox scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--surface-secondary)) rgb(var(--surface-base));
+  }
+}

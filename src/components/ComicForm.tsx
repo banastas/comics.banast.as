@@ -141,14 +141,14 @@ export const ComicForm: React.FC<ComicFormProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50">
-      <div className="bg-gray-800 rounded-lg shadow-2xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto border border-gray-700">
-        <div className="sticky top-0 bg-gray-800 border-b border-gray-700 px-6 py-4 flex items-center justify-between">
+      <div className="bg-surface-primary rounded-lg shadow-2xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto border border-slate-800">
+        <div className="sticky top-0 bg-surface-primary border-b border-slate-800 px-6 py-4 flex items-center justify-between">
           <h2 className="text-lg sm:text-xl font-bold text-white">
             {comic ? 'Edit Comic' : 'Add New Comic'}
           </h2>
           <button
             onClick={onCancel}
-            className="p-2 text-gray-400 hover:text-gray-200 hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-2 text-slate-400 hover:text-slate-200 hover:bg-surface-secondary rounded-lg transition-colors"
           >
             <X size={20} />
           </button>
@@ -160,7 +160,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
             <div className="space-y-3 sm:space-y-4">
               {/* Title */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Title *
                 </label>
                 <input
@@ -168,7 +168,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
                   className={`w-full border rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm sm:text-base ${
-                    errors.title ? 'border-red-400 bg-gray-700' : 'border-gray-600 bg-gray-700'
+                    errors.title ? 'border-red-400 bg-surface-secondary' : 'border-slate-700 bg-surface-secondary'
                   }`}
                   placeholder="Enter comic title"
                 />
@@ -177,7 +177,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
 
               {/* Series Name */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Series Name *
                 </label>
                 <input
@@ -186,7 +186,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                   value={formData.seriesName}
                   onChange={(e) => handleInputChange('seriesName', e.target.value)}
                   className={`w-full border rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm sm:text-base ${
-                    errors.seriesName ? 'border-red-400 bg-gray-700' : 'border-gray-600 bg-gray-700'
+                    errors.seriesName ? 'border-red-400 bg-surface-secondary' : 'border-slate-700 bg-surface-secondary'
                   }`}
                   placeholder="Enter series name"
                 />
@@ -200,7 +200,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
 
               {/* Issue Number */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Issue Number *
                 </label>
                 <input
@@ -209,7 +209,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                   value={formData.issueNumber}
                   onChange={(e) => handleInputChange('issueNumber', parseInt(e.target.value) || 0)}
                   className={`w-full border rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white text-sm sm:text-base ${
-                    errors.issueNumber ? 'border-red-400 bg-gray-700' : 'border-gray-600 bg-gray-700'
+                    errors.issueNumber ? 'border-red-400 bg-surface-secondary' : 'border-slate-700 bg-surface-secondary'
                   }`}
                 />
                 {errors.issueNumber && <p className="text-red-400 text-sm mt-1">{errors.issueNumber}</p>}
@@ -217,7 +217,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
 
               {/* Release Date */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Release Date *
                 </label>
                 <input
@@ -225,7 +225,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                   value={formData.releaseDate}
                   onChange={(e) => handleInputChange('releaseDate', e.target.value)}
                   className={`w-full border rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white text-sm sm:text-base ${
-                    errors.releaseDate ? 'border-red-400 bg-gray-700' : 'border-gray-600 bg-gray-700'
+                    errors.releaseDate ? 'border-red-400 bg-surface-secondary' : 'border-slate-700 bg-surface-secondary'
                   }`}
                 />
                 {errors.releaseDate && <p className="text-red-400 text-sm mt-1">{errors.releaseDate}</p>}
@@ -233,7 +233,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
 
               {/* Cover Image URL */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Cover Image URL
                 </label>
                 <div className="flex space-x-2 items-start">
@@ -242,12 +242,12 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                       type="url"
                       value={formData.coverImageUrl}
                       onChange={(e) => handleInputChange('coverImageUrl', e.target.value)}
-                      className="w-full border border-gray-600 bg-gray-700 rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm sm:text-base"
+                      className="w-full border border-slate-700 bg-surface-secondary rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm sm:text-base"
                       placeholder="https://example.com/cover.jpg"
                     />
                   </div>
                   {formData.coverImageUrl && (
-                    <div className="w-12 h-12 border border-gray-600 rounded overflow-hidden bg-gray-700">
+                    <div className="w-12 h-12 border border-slate-700 rounded overflow-hidden bg-surface-secondary">
                       <img
                         src={formData.coverImageUrl}
                         alt="Preview"
@@ -263,14 +263,14 @@ export const ComicForm: React.FC<ComicFormProps> = ({
 
               {/* Grade */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Grade *
                 </label>
                 <select
                   value={formData.grade}
                   onChange={(e) => handleInputChange('grade', parseFloat(e.target.value))}
                   className={`w-full border rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white text-sm sm:text-base ${
-                    errors.grade ? 'border-red-400 bg-gray-700' : 'border-gray-600 bg-gray-700'
+                    errors.grade ? 'border-red-400 bg-surface-secondary' : 'border-slate-700 bg-surface-secondary'
                   }`}
                 >
                   {gradeOptions.map(grade => (
@@ -285,7 +285,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
             <div className="space-y-3 sm:space-y-4">
               {/* Purchase Price */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Purchase Price (USD)
                 </label>
                 <input
@@ -295,7 +295,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                   value={formData.purchasePrice || ''}
                   onChange={(e) => handleInputChange('purchasePrice', e.target.value ? parseFloat(e.target.value) : undefined)}
                   className={`w-full border rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white text-sm sm:text-base ${
-                    errors.purchasePrice ? 'border-red-400 bg-gray-700' : 'border-gray-600 bg-gray-700'
+                    errors.purchasePrice ? 'border-red-400 bg-surface-secondary' : 'border-slate-700 bg-surface-secondary'
                   }`}
                   placeholder="Enter purchase price"
                 />
@@ -304,7 +304,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
 
               {/* Current Value */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Current Value (USD)
                 </label>
                 <input
@@ -313,14 +313,14 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                   step="0.01"
                   value={formData.currentValue || ''}
                   onChange={(e) => handleInputChange('currentValue', e.target.value ? parseFloat(e.target.value) : undefined)}
-                  className="w-full border border-gray-600 bg-gray-700 rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white text-sm sm:text-base"
+                  className="w-full border border-slate-700 bg-surface-secondary rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white text-sm sm:text-base"
                   placeholder="Enter current market value"
                 />
               </div>
 
               {/* Purchase Date */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Purchase Date *
                 </label>
                 <input
@@ -328,7 +328,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                   value={formData.purchaseDate}
                   onChange={(e) => handleInputChange('purchaseDate', e.target.value)}
                   className={`w-full border rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white text-sm sm:text-base ${
-                    errors.purchaseDate ? 'border-red-400 bg-gray-700' : 'border-gray-600 bg-gray-700'
+                    errors.purchaseDate ? 'border-red-400 bg-surface-secondary' : 'border-slate-700 bg-surface-secondary'
                   }`}
                 />
                 {errors.purchaseDate && <p className="text-red-400 text-sm mt-1">{errors.purchaseDate}</p>}
@@ -336,21 +336,21 @@ export const ComicForm: React.FC<ComicFormProps> = ({
 
               {/* Signed By */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Signed By
                 </label>
                 <input
                   type="text"
                   value={formData.signedBy}
                   onChange={(e) => handleInputChange('signedBy', e.target.value)}
-                  className="w-full border border-gray-600 bg-gray-700 rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm sm:text-base"
+                  className="w-full border border-slate-700 bg-surface-secondary rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm sm:text-base"
                   placeholder="Enter signer name"
                 />
               </div>
 
               {/* Storage Location */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Virtual Box
                 </label>
                 <input
@@ -358,7 +358,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                   list="virtualbox-list"
                   value={formData.storageLocation}
                   onChange={(e) => handleInputChange('storageLocation', e.target.value)}
-                  className="w-full border border-gray-600 bg-gray-700 rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm sm:text-base"
+                  className="w-full border border-slate-700 bg-surface-secondary rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm sm:text-base"
                   placeholder="Box 1, Shelf A, etc."
                 />
                 <datalist id="virtualbox-list">
@@ -375,9 +375,9 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                     type="checkbox"
                     checked={formData.isSlabbed}
                     onChange={(e) => handleInputChange('isSlabbed', e.target.checked)}
-                    className="rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-400 w-4 h-4"
+                    className="rounded border-slate-700 bg-surface-secondary text-blue-500 focus:ring-blue-400 w-4 h-4"
                   />
-                  <span className="text-xs sm:text-sm font-medium text-gray-300">Slabbed</span>
+                  <span className="text-xs sm:text-sm font-medium text-slate-300">Slabbed</span>
                 </label>
               </div>
 
@@ -388,9 +388,9 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                     type="checkbox"
                     checked={formData.isVariant}
                     onChange={(e) => handleInputChange('isVariant', e.target.checked)}
-                    className="rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-400 w-4 h-4"
+                    className="rounded border-slate-700 bg-surface-secondary text-blue-500 focus:ring-blue-400 w-4 h-4"
                   />
-                  <span className="text-xs sm:text-sm font-medium text-gray-300">Variant Cover</span>
+                  <span className="text-xs sm:text-sm font-medium text-slate-300">Variant Cover</span>
                 </label>
               </div>
 
@@ -401,15 +401,15 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                     type="checkbox"
                     checked={formData.isGraphicNovel}
                     onChange={(e) => handleInputChange('isGraphicNovel', e.target.checked)}
-                    className="rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-400 w-4 h-4"
+                    className="rounded border-slate-700 bg-surface-secondary text-blue-500 focus:ring-blue-400 w-4 h-4"
                   />
-                  <span className="text-xs sm:text-sm font-medium text-gray-300">Graphic Novel</span>
+                  <span className="text-xs sm:text-sm font-medium text-slate-300">Graphic Novel</span>
                 </label>
               </div>
 
               {/* Tags */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Tags
                 </label>
                 <div className="flex space-x-2 mb-2 items-stretch">
@@ -418,7 +418,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="flex-1 border border-gray-600 bg-gray-700 rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm sm:text-base"
+                    className="flex-1 border border-slate-700 bg-surface-secondary rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm sm:text-base"
                     placeholder="Add a tag"
                   />
                   <button
@@ -452,28 +452,28 @@ export const ComicForm: React.FC<ComicFormProps> = ({
 
               {/* Cover Artist */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Cover Artist
                 </label>
                 <input
                   type="text"
                   value={formData.coverArtist}
                   onChange={(e) => handleInputChange('coverArtist', e.target.value)}
-                  className="w-full border border-gray-600 bg-gray-700 rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm sm:text-base"
+                  className="w-full border border-slate-700 bg-surface-secondary rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm sm:text-base"
                   placeholder="Enter cover artist name"
                 />
               </div>
 
               {/* Notes */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Notes
                 </label>
                 <textarea
                   value={formData.notes}
                   onChange={(e) => handleInputChange('notes', e.target.value)}
                   rows={4}
-                  className="w-full border border-gray-600 bg-gray-700 rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm sm:text-base resize-none"
+                  className="w-full border border-slate-700 bg-surface-secondary rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm sm:text-base resize-none"
                   placeholder="Additional notes about this comic"
                 />
               </div>
@@ -481,11 +481,11 @@ export const ComicForm: React.FC<ComicFormProps> = ({
           </div>
 
           {/* Form Actions */}
-          <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-700">
+          <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-slate-800">
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 sm:px-6 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700 transition-colors text-sm sm:text-base"
+              className="px-4 sm:px-6 py-2 border border-slate-700 rounded-lg text-slate-300 hover:bg-surface-secondary transition-colors text-sm sm:text-base"
             >
               Cancel
             </button>

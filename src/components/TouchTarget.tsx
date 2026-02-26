@@ -41,8 +41,8 @@ export const TouchTarget: React.FC<TouchTargetProps> = ({
     `,
     icon: `
       p-2 sm:p-3
-      text-gray-400 hover:text-gray-300 active:text-gray-500
-      hover:bg-gray-700/50 active:bg-gray-700/70
+      text-slate-400 hover:text-slate-300 active:text-slate-500
+      hover:bg-surface-secondary/50 active:bg-surface-secondary/70
       rounded-lg
     `
   };

@@ -75,14 +75,14 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
     });
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-surface-base">
       {/* Header */}
-      <div className="bg-gray-800 shadow-lg border-b border-gray-700">
+      <div className="bg-surface-primary shadow-lg border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <button
               onClick={onBack}
-              className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors"
+              className="flex items-center space-x-2 text-slate-300 hover:text-white transition-colors"
             >
               <ArrowLeft size={20} />
               <span>Back to Collection</span>
@@ -91,7 +91,7 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-              className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white"
+              className="bg-surface-secondary border border-slate-700 rounded-lg px-3 py-2 text-sm text-white"
             >
               <option value="name">Sort by Name</option>
               <option value="totalValue">Sort by Total Value</option>
@@ -107,14 +107,14 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
           {/* Storage Locations Header */}
-          <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
+          <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-6">
             <div className="flex items-center space-x-3 mb-6">
               <div className="p-3 bg-orange-500 rounded-lg">
                 <MapPin size={24} className="text-white" />
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-white mb-2">Virtual Boxes</h1>
-                <p className="text-gray-300">
+                <p className="text-slate-300">
                   {storageLocations.length} virtual box{storageLocations.length !== 1 ? 'es' : ''} in your collection
                 </p>
               </div>
@@ -122,23 +122,23 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
 
             {/* Summary Stats */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-              <div className="bg-gray-700/30 rounded-lg p-4 text-center">
+              <div className="bg-surface-secondary/30 rounded-lg p-4 text-center">
                 <p className="text-2xl font-bold text-white">{storageLocations.length}</p>
-                <p className="text-sm text-gray-400">Virtual Boxes</p>
+                <p className="text-sm text-slate-400">Virtual Boxes</p>
               </div>
-              <div className="bg-gray-700/30 rounded-lg p-4 text-center">
+              <div className="bg-surface-secondary/30 rounded-lg p-4 text-center">
                 <p className="text-2xl font-bold text-white">
                   {storageLocations.reduce((sum, loc) => sum + loc.count, 0)}
                 </p>
-                <p className="text-sm text-gray-400">Total Comics</p>
+                <p className="text-sm text-slate-400">Total Comics</p>
               </div>
-              <div className="bg-gray-700/30 rounded-lg p-4 text-center">
+              <div className="bg-surface-secondary/30 rounded-lg p-4 text-center">
                 <p className="text-2xl font-bold text-white">
                   {formatCurrency(storageLocations.reduce((sum, loc) => sum + loc.totalValue, 0))}
                 </p>
-                <p className="text-sm text-gray-400">Total Value</p>
+                <p className="text-sm text-slate-400">Total Value</p>
               </div>
-              <div className="bg-gray-700/30 rounded-lg p-4 text-center">
+              <div className="bg-surface-secondary/30 rounded-lg p-4 text-center">
                 <p className="text-2xl font-bold text-white">
                   {storageLocations.length > 0 
                     ? (storageLocations.reduce((sum, loc) => sum + (loc.averageGrade * loc.count), 0) / 
@@ -146,13 +146,13 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
                     : '0.0'
                   }
                 </p>
-                <p className="text-sm text-gray-400">Avg Grade</p>
+                <p className="text-sm text-slate-400">Avg Grade</p>
               </div>
             </div>
           </div>
 
           {/* Storage Locations List */}
-          <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
+          <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-6">
             <h3 className="text-lg font-semibold text-white mb-4">All Virtual Boxes</h3>
             
             {storageLocations.length > 0 ? (
@@ -160,7 +160,7 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
                 {storageLocations.map((location) => (
                   <div
                     key={location.name}
-                    className="bg-gray-700/50 rounded-lg border border-gray-600 p-4 hover:border-orange-500 transition-all cursor-pointer group"
+                    className="bg-surface-secondary/50 rounded-lg border border-slate-700 p-4 hover:border-orange-500 transition-all cursor-pointer group"
                     onClick={() => onViewStorageLocation(location.name)}
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
@@ -173,7 +173,7 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
                           <h4 className="font-bold text-white text-lg group-hover:text-orange-400 transition-colors">
                             {location.name}
                           </h4>
-                          <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-gray-400 mt-1">
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-slate-400 mt-1">
                             <span>{location.count} comics</span>
                             <span className="hidden sm:inline">•</span>
                             <span>Avg Grade: {location.averageGrade.toFixed(1)}</span>
@@ -200,7 +200,7 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
                         <p className="text-xl font-bold text-white">
                           {formatCurrency(location.totalValue)}
                         </p>
-                        <p className="text-sm text-gray-400">
+                        <p className="text-sm text-slate-400">
                           {formatCurrency(location.count > 0 ? location.totalValue / location.count : 0)} avg
                         </p>
                       </div>
@@ -210,9 +210,9 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
               </div>
             ) : (
               <div className="text-center py-8">
-                <MapPin size={48} className="mx-auto text-gray-500 mb-4" />
+                <MapPin size={48} className="mx-auto text-slate-500 mb-4" />
                 <h3 className="text-lg font-medium text-white mb-2">No Virtual Boxes</h3>
-                <p className="text-gray-400">
+                <p className="text-slate-400">
                   Add virtual box information to your comics to see them organized here.
                 </p>
               </div>

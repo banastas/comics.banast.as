@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Comic } from '../types/Comic';
-import { Star, Award } from 'lucide-react';
+import { Star, Award, TrendingUp, TrendingDown } from 'lucide-react';
 
 interface ComicCardProps {
   comic: Comic;
@@ -22,16 +22,9 @@ export const ComicCard: React.FC<ComicCardProps> = React.memo(({ comic, onView }
     }).format(amount);
   };
 
-  const handleImageLoad = () => {
-    setImageLoading(false);
-  };
+  const handleImageLoad = () => setImageLoading(false);
+  const handleImageError = () => { setImageError(true); setImageLoading(false); };
 
-  const handleImageError = () => {
-    setImageError(true);
-    setImageLoading(false);
-  };
-
-  // Intersection Observer for lazy loading
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -42,23 +35,23 @@ export const ComicCard: React.FC<ComicCardProps> = React.memo(({ comic, onView }
       },
       { threshold: 0.1, rootMargin: '50px' }
     );
-
-    if (imgRef.current) {
-      observer.observe(imgRef.current);
-    }
-
+    if (imgRef.current) observer.observe(imgRef.current);
     return () => observer.disconnect();
   }, []);
 
-  // Check if we have a valid cover image URL
   const hasValidCoverUrl = comic.coverImageUrl && comic.coverImageUrl.trim() !== '';
+  const displayValue = comic.currentValue || comic.purchasePrice || 0;
+  const hasGainLoss = comic.currentValue !== undefined && comic.purchasePrice !== undefined && comic.purchasePrice > 0;
+  const gainLoss = hasGainLoss ? (comic.currentValue! - comic.purchasePrice!) : 0;
+  const isPositive = gainLoss >= 0;
+
   return (
-    <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden hover:shadow-xl hover:border-blue-500 transition-all duration-300 group cursor-pointer w-full">
+    <div className="bg-surface-primary rounded-xl shadow-card border border-slate-800 overflow-hidden hover:shadow-card-hover hover:border-slate-600 transition-all duration-300 group cursor-pointer w-full active:scale-[0.98]">
       {/* Cover Image */}
-      <div ref={imgRef} className="relative aspect-[2/3] bg-gray-700" onClick={() => onView(comic)}>
+      <div ref={imgRef} className="relative aspect-[2/3] bg-surface-secondary" onClick={() => onView(comic)}>
         {hasValidCoverUrl && imageLoading && isVisible && (
-          <div className="absolute inset-0 bg-gray-700 animate-pulse flex items-center justify-center">
-            <div className="w-8 h-8 border-4 border-gray-600 border-t-blue-400 rounded-full animate-spin"></div>
+          <div className="absolute inset-0 bg-surface-secondary animate-pulse flex items-center justify-center">
+            <div className="w-8 h-8 border-4 border-slate-700 border-t-blue-400 rounded-full animate-spin"></div>
           </div>
         )}
         {hasValidCoverUrl && !imageError && isVisible ? (
@@ -74,8 +67,8 @@ export const ComicCard: React.FC<ComicCardProps> = React.memo(({ comic, onView }
             decoding="async"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
-            <div className="text-center text-gray-400">
+          <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
+            <div className="text-center text-slate-500">
               <Award size={32} className="mx-auto mb-2" />
               <p className="text-sm font-medium">
                 {!isVisible ? 'Loading...' : 'No Cover'}
@@ -83,28 +76,36 @@ export const ComicCard: React.FC<ComicCardProps> = React.memo(({ comic, onView }
             </div>
           </div>
         )}
-        
-        {/* Action Buttons */}
-        {/* Action Buttons - Edit button removed */}
+
+        {/* Hover overlay (desktop) */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none hidden sm:flex flex-col justify-end p-3">
+          <p className="text-white text-xs font-medium truncate">{comic.title}</p>
+          {comic.coverArtist && (
+            <p className="text-slate-300 text-xs truncate">{comic.coverArtist}</p>
+          )}
+          {comic.storageLocation && (
+            <p className="text-slate-400 text-xs truncate">{comic.storageLocation}</p>
+          )}
+        </div>
 
         {/* Slabbed Indicator */}
         {comic.isSlabbed && (
-          <div className="absolute top-1 sm:top-2 left-1 sm:left-2">
-            <span className="px-1 sm:px-2 py-0.5 sm:py-1 bg-purple-500 text-white text-xs font-medium rounded shadow-lg backdrop-blur-sm">
+          <div className="absolute top-1.5 sm:top-2 left-1.5 sm:left-2">
+            <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-purple-500/90 text-white text-[10px] sm:text-xs font-medium rounded-md shadow-lg backdrop-blur-sm">
               Slabbed
             </span>
           </div>
         )}
 
         {/* Variant and Graphic Novel Indicators */}
-        <div className="absolute bottom-1 sm:bottom-2 left-1 sm:left-2 flex flex-col space-y-1">
+        <div className="absolute bottom-1.5 sm:bottom-2 left-1.5 sm:left-2 flex flex-col space-y-1 sm:group-hover:opacity-0 transition-opacity">
           {comic.isVariant && (
-            <span className="px-1 sm:px-2 py-0.5 sm:py-1 bg-orange-500 text-white text-xs font-medium rounded shadow-lg backdrop-blur-sm">
+            <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-orange-500/90 text-white text-[10px] sm:text-xs font-medium rounded-md shadow-lg backdrop-blur-sm">
               Variant
             </span>
           )}
           {comic.isGraphicNovel && (
-            <span className="px-1 sm:px-2 py-0.5 sm:py-1 bg-emerald-500 text-white text-xs font-medium rounded shadow-lg backdrop-blur-sm">
+            <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-emerald-500/90 text-white text-[10px] sm:text-xs font-medium rounded-md shadow-lg backdrop-blur-sm">
               GN
             </span>
           )}
@@ -112,26 +113,37 @@ export const ComicCard: React.FC<ComicCardProps> = React.memo(({ comic, onView }
       </div>
 
       {/* Content */}
-      <div className="p-2 sm:p-3" onClick={() => onView(comic)}>
-        {/* Series Title */}
-        <h3 className="font-bold text-white text-xs sm:text-sm mb-1 line-clamp-2">
+      <div className="p-2.5 sm:p-3" onClick={() => onView(comic)}>
+        <h3 className="font-semibold text-white text-sm mb-1 line-clamp-2 leading-snug">
           {comic.seriesName}
         </h3>
-        
-        {/* Issue # and Year */}
-        <p className="text-xs text-gray-400 mb-1 sm:mb-2">
+
+        <p className="text-xs text-slate-500 mb-2">
           #{comic.issueNumber} ({new Date(comic.releaseDate).getFullYear()})
         </p>
 
-        {/* Grade and Value on same line */}
+        {/* Grade and Value */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1">
-            <Star size={10} className="text-amber-400 sm:w-3 sm:h-3" />
-            <span className="text-xs sm:text-sm font-semibold text-white">{comic.grade}</span>
+            <Star size={11} className="text-amber-400" />
+            <span className="text-sm font-semibold text-white tabular-nums">{comic.grade}</span>
           </div>
-          <span className="text-xs sm:text-sm font-semibold text-green-400">
-            {comic.currentValue ? formatCurrency(comic.currentValue) : formatCurrency(comic.purchasePrice || 0)}
-          </span>
+          <div className="flex items-center gap-1">
+            {hasGainLoss && (
+              <span className="flex-shrink-0">
+                {isPositive ? (
+                  <TrendingUp size={11} className="text-emerald-400" />
+                ) : (
+                  <TrendingDown size={11} className="text-red-400" />
+                )}
+              </span>
+            )}
+            <span className={`text-sm font-semibold tabular-nums ${
+              hasGainLoss ? (isPositive ? 'text-emerald-400' : 'text-red-400') : 'text-emerald-400'
+            }`}>
+              {formatCurrency(displayValue)}
+            </span>
+          </div>
         </div>
       </div>
     </div>

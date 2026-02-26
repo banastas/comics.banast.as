@@ -45,29 +45,29 @@ export const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
     '4/3': 'aspect-[4/3]',
   };
 
-  const defaultFallbackIcon = fallbackIcon || <BookOpen size={24} className="text-gray-500" />;
+  const defaultFallbackIcon = fallbackIcon || <BookOpen size={24} className="text-slate-500" />;
 
   if (imageState === 'error') {
     return (
-      <div className={`${aspectRatioClasses[aspectRatio]} bg-gray-700 rounded-lg flex flex-col items-center justify-center ${className}`}>
-        <div className="text-gray-400 mb-2">
+      <div className={`${aspectRatioClasses[aspectRatio]} bg-surface-secondary rounded-lg flex flex-col items-center justify-center ${className}`}>
+        <div className="text-slate-400 mb-2">
           {defaultFallbackIcon}
         </div>
         {fallbackText && (
-          <p className="text-xs text-gray-500 text-center px-2">{fallbackText}</p>
+          <p className="text-xs text-slate-500 text-center px-2">{fallbackText}</p>
         )}
-        <p className="text-xs text-gray-500 text-center px-2">Image unavailable</p>
+        <p className="text-xs text-slate-500 text-center px-2">Image unavailable</p>
       </div>
     );
   }
 
   return (
-    <div className={`${aspectRatioClasses[aspectRatio]} bg-gray-700 rounded-lg overflow-hidden ${className}`}>
+    <div className={`${aspectRatioClasses[aspectRatio]} bg-surface-secondary rounded-lg overflow-hidden ${className}`}>
       {imageState === 'loading' && (
-        <div className="w-full h-full flex items-center justify-center bg-gray-700">
+        <div className="w-full h-full flex items-center justify-center bg-surface-secondary">
           <div className="animate-pulse flex flex-col items-center space-y-2">
-            <ImageIcon size={24} className="text-gray-500" />
-            <div className="w-16 h-2 bg-gray-600 rounded"></div>
+            <ImageIcon size={24} className="text-slate-500" />
+            <div className="w-16 h-2 bg-slate-700 rounded"></div>
           </div>
         </div>
       )}
@@ -118,7 +118,7 @@ export const ComicCoverImage: React.FC<ComicCoverImageProps> = ({
       src={src}
       alt={`${seriesName} #${issueNumber}`}
       className={`${sizeClasses[size]} ${className}`}
-      fallbackIcon={<BookOpen size={size === 'small' ? 16 : size === 'medium' ? 20 : 24} className="text-gray-500" />}
+      fallbackIcon={<BookOpen size={size === 'small' ? 16 : size === 'medium' ? 20 : 24} className="text-slate-500" />}
       fallbackText={fallbackText}
       aspectRatio="2/3"
       priority={priority}

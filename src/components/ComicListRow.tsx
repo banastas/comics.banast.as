@@ -17,12 +17,12 @@ export const ComicListRow: React.FC<ComicListRowProps> = React.memo(({
   extraInfo,
 }) => (
   <div
-    className="bg-gray-700/50 rounded-lg border border-gray-600 p-4 hover:border-blue-500 transition-all cursor-pointer group"
+    className="bg-surface-secondary/50 rounded-lg border border-slate-700 p-4 hover:border-blue-500 transition-all cursor-pointer group"
     onClick={() => onView(comic)}
   >
     <div className="flex items-center justify-between">
       <div className="flex items-center space-x-4">
-        <div className="w-12 h-16 bg-gray-600 rounded overflow-hidden flex-shrink-0">
+        <div className="w-12 h-16 bg-slate-700 rounded overflow-hidden flex-shrink-0">
           {comic.coverImageUrl ? (
             <img
               src={comic.coverImageUrl}
@@ -31,7 +31,7 @@ export const ComicListRow: React.FC<ComicListRowProps> = React.memo(({
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <Award size={16} className="text-gray-500" />
+              <Award size={16} className="text-slate-500" />
             </div>
           )}
         </div>
@@ -58,8 +58,8 @@ export const ComicListRow: React.FC<ComicListRowProps> = React.memo(({
               </>
             )}
           </div>
-          <p className="text-sm text-gray-300">{comic.title}</p>
-          <p className="text-xs text-gray-400">
+          <p className="text-sm text-slate-300">{comic.title}</p>
+          <p className="text-xs text-slate-400">
             {formatDate(comic.releaseDate)}
             {comic.coverArtist && ` \u2022 ${comic.coverArtist}`}
           </p>

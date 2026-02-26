@@ -17,10 +17,10 @@ export const ComicGridCard: React.FC<ComicGridCardProps> = React.memo(({
   showSeriesName = true,
 }) => (
   <div
-    className="bg-gray-700/50 rounded-lg border border-gray-600 overflow-hidden hover:border-blue-500 transition-all cursor-pointer group"
+    className="bg-surface-secondary/50 rounded-lg border border-slate-700 overflow-hidden hover:border-blue-500 transition-all cursor-pointer group"
     onClick={() => onView(comic)}
   >
-    <div className="relative aspect-[2/3] bg-gray-600">
+    <div className="relative aspect-[2/3] bg-slate-700">
       {comic.coverImageUrl ? (
         <img
           src={comic.coverImageUrl}
@@ -29,7 +29,7 @@ export const ComicGridCard: React.FC<ComicGridCardProps> = React.memo(({
         />
       ) : (
         <div className="w-full h-full flex items-center justify-center">
-          <Award size={32} className="text-gray-500" />
+          <Award size={32} className="text-slate-500" />
         </div>
       )}
 
@@ -56,13 +56,13 @@ export const ComicGridCard: React.FC<ComicGridCardProps> = React.memo(({
         <p className="font-medium text-white text-sm truncate mb-1">{comic.seriesName}</p>
       )}
       <div className="flex items-center justify-between mb-1">
-        <p className={showSeriesName ? 'text-xs text-gray-400' : 'font-bold text-white'}>#{comic.issueNumber}</p>
+        <p className={showSeriesName ? 'text-xs text-slate-400' : 'font-bold text-white'}>#{comic.issueNumber}</p>
         <div className="flex items-center space-x-1">
           <Star size={10} className="text-amber-400" />
           <span className="text-xs text-white">{comic.grade}</span>
         </div>
       </div>
-      <p className="text-xs text-gray-400 mb-1">
+      <p className="text-xs text-slate-400 mb-1">
         {new Date(comic.releaseDate).getFullYear()}
       </p>
       <p className="text-xs font-semibold text-green-400">

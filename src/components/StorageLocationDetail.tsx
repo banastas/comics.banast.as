@@ -37,7 +37,7 @@ const StorageLocationDetailInner: React.FC<StorageLocationDetailProps> = ({
   );
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-surface-base">
       <DetailPageHeader
         onBack={onBack}
         viewMode={viewMode}
@@ -49,7 +49,7 @@ const StorageLocationDetailInner: React.FC<StorageLocationDetailProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
           {/* Storage Location Header and Statistics */}
-          <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
+          <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
                 <div className="p-3 bg-orange-500 rounded-lg">
@@ -57,10 +57,10 @@ const StorageLocationDetailInner: React.FC<StorageLocationDetailProps> = ({
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold text-white mb-2">Virtual Box: {storageLocation}</h1>
-                  <p className="text-gray-300">
+                  <p className="text-slate-300">
                     {locationComics.length} comic{locationComics.length !== 1 ? 's' : ''} stored here
                     {uniqueSeriesCount > 0 && (
-                      <span className="text-gray-400 ml-2">
+                      <span className="text-slate-400 ml-2">
                         • {uniqueSeriesCount} series
                       </span>
                     )}
@@ -83,7 +83,7 @@ const StorageLocationDetailInner: React.FC<StorageLocationDetailProps> = ({
           </div>
 
           {/* Comics Grid/List */}
-          <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
+          <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-6">
             <h3 className="text-lg font-semibold text-white mb-4">Comics in Virtual Box: {storageLocation}</h3>
             <ComicGridList
               comics={sortedComics}

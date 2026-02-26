@@ -40,7 +40,7 @@ const VariantsDetailInner: React.FC<VariantsDetailProps> = ({
   );
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-surface-base">
       <DetailPageHeader
         onBack={onBack}
         viewMode={viewMode}
@@ -52,7 +52,7 @@ const VariantsDetailInner: React.FC<VariantsDetailProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
           {/* Variants Header and Statistics */}
-          <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
+          <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
                 <div className="p-3 bg-emerald-500 rounded-lg">
@@ -60,10 +60,10 @@ const VariantsDetailInner: React.FC<VariantsDetailProps> = ({
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold text-white mb-2">Variant Comics</h1>
-                  <p className="text-gray-300">
+                  <p className="text-slate-300">
                     {variantComics.length} variant comic{variantComics.length !== 1 ? 's' : ''} in collection
                     {uniqueSeriesCount > 0 && (
-                      <span className="text-gray-400 ml-2">
+                      <span className="text-slate-400 ml-2">
                         • {uniqueSeriesCount} series
                       </span>
                     )}
@@ -90,7 +90,7 @@ const VariantsDetailInner: React.FC<VariantsDetailProps> = ({
           </div>
 
           {/* Comics Grid/List */}
-          <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
+          <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-6">
             <h3 className="text-lg font-semibold text-white mb-4">Variant Comics Collection</h3>
 
             <ComicGridList
@@ -112,7 +112,7 @@ const VariantsDetailInner: React.FC<VariantsDetailProps> = ({
                 </>
               )}
               listExtraInfo={(comic) =>
-                comic.coverArtist ? <p className="text-xs text-gray-400">{comic.coverArtist}</p> : null
+                comic.coverArtist ? <p className="text-xs text-slate-400">{comic.coverArtist}</p> : null
               }
             />
           </div>

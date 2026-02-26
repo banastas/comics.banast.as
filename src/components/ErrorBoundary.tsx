@@ -85,8 +85,8 @@ export class ErrorBoundary extends Component<Props, State> {
 
       // Default error UI
       return (
-        <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-gray-800 rounded-lg shadow-xl p-6">
+        <div className="min-h-screen bg-surface-base flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-surface-primary rounded-lg shadow-xl p-6">
             <div className="text-center">
               <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <AlertTriangle size={32} className="text-white" />
@@ -96,16 +96,16 @@ export class ErrorBoundary extends Component<Props, State> {
                 Something went wrong
               </h1>
               
-              <p className="text-gray-300 mb-6">
+              <p className="text-slate-300 mb-6">
                 We encountered an unexpected error. Please try again or contact support if the problem persists.
               </p>
 
               {process.env.NODE_ENV === 'development' && this.state.error && (
                 <details className="text-left mb-6">
-                  <summary className="text-gray-400 cursor-pointer hover:text-gray-300 mb-2">
+                  <summary className="text-slate-400 cursor-pointer hover:text-slate-300 mb-2">
                     Error Details (Development)
                   </summary>
-                  <div className="bg-gray-700 rounded p-3 text-xs text-gray-300 font-mono overflow-auto">
+                  <div className="bg-surface-secondary rounded p-3 text-xs text-slate-300 font-mono overflow-auto">
                     <div className="mb-2">
                       <strong>Error:</strong> {this.state.error.toString()}
                     </div>
@@ -132,7 +132,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 
                 <button
                   onClick={this.handleGoHome}
-                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 bg-slate-700 hover:bg-surface-secondary text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
                 >
                   <Home size={16} />
                   Go Home

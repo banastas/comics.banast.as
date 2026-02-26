@@ -35,11 +35,11 @@ export const SeriesBreakdown: React.FC<SeriesBreakdownProps> = ({
           return (
             <div
               key={series}
-              className="bg-gray-700/30 rounded-lg p-3 border border-gray-600 cursor-pointer hover:border-blue-500 transition-colors"
+              className="bg-surface-secondary/30 rounded-lg p-3 border border-slate-700 cursor-pointer hover:border-blue-500 transition-colors"
               onClick={() => onViewSeries?.(series)}
             >
               <p className="font-medium text-white text-sm truncate">{series}</p>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-slate-400">
                 {seriesComics.length} {itemLabel}{seriesComics.length !== 1 ? 's' : ''}
               </p>
               <p className="text-xs text-green-400">{formatCurrency(seriesValue)}</p>

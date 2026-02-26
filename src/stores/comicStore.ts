@@ -5,10 +5,12 @@ import initialComicsData from '../data/comics.json';
 
 // Helper function to apply filters and sorting
 const applyFilters = (
-  comics: Comic[], 
-  filters: FilterOptions, 
-  sortField: SortField, 
-  sortDirection: SortDirection
+  comics: Comic[],
+  filters: FilterOptions,
+  sortField: SortField,
+  sortDirection: SortDirection,
+  activeComputedTag?: string | null,
+  computedTagsMap?: Map<string, string[]>,
 ): Comic[] => {
   let filtered = [...comics];
 
@@ -61,6 +63,14 @@ const applyFilters = (
     );
   }
 
+  // Apply computed tag filter
+  if (activeComputedTag && computedTagsMap) {
+    filtered = filtered.filter(comic => {
+      const tags = computedTagsMap.get(comic.id) || [];
+      return tags.includes(activeComputedTag);
+    });
+  }
+
   // Apply sorting
   filtered.sort((a, b) => {
     let aValue: string | number = a[sortField] as string | number;
@@ -86,13 +96,72 @@ const applyFilters = (
   return filtered;
 };
 
+// Compute smart tags for a comic based on its data
+const computeTagsForComic = (comic: Comic): string[] => {
+  const tags: string[] = [];
+
+  // Decade tags from release date
+  const year = new Date(comic.releaseDate).getFullYear();
+  if (year >= 1940 && year < 1950) tags.push('Golden Age');
+  else if (year >= 1950 && year < 1970) tags.push('Silver Age');
+  else if (year >= 1970 && year < 1985) tags.push('Bronze Age');
+  else if (year >= 1985 && year < 1992) tags.push('Copper Age');
+  else if (year >= 1992 && year < 2000) tags.push('90s');
+  else if (year >= 2000 && year < 2010) tags.push('2000s');
+  else if (year >= 2010 && year < 2020) tags.push('2010s');
+  else if (year >= 2020) tags.push('Modern');
+
+  // Grade-based tags
+  if (comic.grade >= 9.8) tags.push('Gem Mint');
+  else if (comic.grade >= 9.6) tags.push('High Grade');
+
+  // Key issue tag
+  if (comic.issueNumber === 1) tags.push('First Issue');
+
+  // Value-based tags
+  if (comic.currentValue && comic.currentValue >= 50) tags.push('High Value');
+
+  // Appreciation/depreciation
+  if (comic.currentValue && comic.purchasePrice && comic.purchasePrice > 0) {
+    const change = ((comic.currentValue - comic.purchasePrice) / comic.purchasePrice) * 100;
+    if (change >= 50) tags.push('Appreciating');
+    else if (change <= -20) tags.push('Depreciating');
+  }
+
+  // Signed
+  if (comic.signedBy && comic.signedBy.trim() !== '') tags.push('Signed');
+
+  return tags;
+};
+
 // Helper to compute derived data from comics array
-const computeDerivedData = (comics: Comic[]) => ({
-  stats: calculateComicStats(comics),
-  allSeries: Array.from(new Set(comics.map(c => c.seriesName))).sort(),
-  allVirtualBoxes: Array.from(new Set(comics.map(c => c.storageLocation).filter(Boolean))).sort(),
-  variantsCount: comics.filter(c => c.isVariant).length,
-});
+const computeDerivedData = (comics: Comic[]) => {
+  // Build computed tags map
+  const tagMap = new Map<string, string[]>();
+  const tagCounts = new Map<string, number>();
+  comics.forEach(c => {
+    const computed = computeTagsForComic(c);
+    tagMap.set(c.id, computed);
+    computed.forEach(tag => {
+      tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+    });
+  });
+
+  // Sort tags by count descending
+  const allComputedTags = Array.from(tagCounts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([tag]) => tag);
+
+  return {
+    stats: calculateComicStats(comics),
+    allSeries: Array.from(new Set(comics.map(c => c.seriesName))).sort(),
+    allVirtualBoxes: Array.from(new Set(comics.map(c => c.storageLocation).filter(Boolean))).sort(),
+    variantsCount: comics.filter(c => c.isVariant).length,
+    computedTagsMap: tagMap,
+    allComputedTags,
+    computedTagCounts: tagCounts,
+  };
+};
 
 interface ComicStore {
   // State
@@ -108,6 +177,9 @@ interface ComicStore {
   allSeries: string[];
   allVirtualBoxes: string[];
   variantsCount: number;
+  computedTagsMap: Map<string, string[]>;
+  allComputedTags: string[];
+  computedTagCounts: Map<string, number>;
 
   // UI State
   showForm: boolean;
@@ -121,6 +193,7 @@ interface ComicStore {
   selectedCondition: 'raw' | 'slabbed' | 'variants' | null;
   viewMode: 'grid' | 'list';
   showVirtualBoxes: boolean;
+  activeComputedTag: string | null;
 
   // Actions
   setComics: (comics: Comic[]) => void;
@@ -142,6 +215,8 @@ interface ComicStore {
   setSelectedCondition: (condition: 'raw' | 'slabbed' | 'variants' | null) => void;
   setViewMode: (mode: 'grid' | 'list') => void;
   setShowVirtualBoxes: (show: boolean) => void;
+  setActiveComputedTag: (tag: string | null) => void;
+  getComputedTags: (comicId: string) => string[];
 
   // Comic Actions
   addComic: (comic: Omit<Comic, 'id' | 'createdAt' | 'updatedAt'>) => void;
@@ -201,27 +276,29 @@ export const useComicStore = create<ComicStore>((set, get) => {
   selectedCondition: null,
   viewMode: 'grid',
   showVirtualBoxes: false,
+  activeComputedTag: null,
   
   // Actions
   setComics: (comics) => set((state) => {
-    const filteredComics = applyFilters(comics, state.filters, state.sortField, state.sortDirection);
-    return { comics, filteredComics, ...computeDerivedData(comics) };
+    const derived = computeDerivedData(comics);
+    const filteredComics = applyFilters(comics, state.filters, state.sortField, state.sortDirection, state.activeComputedTag, derived.computedTagsMap);
+    return { comics, filteredComics, ...derived };
   }),
   setFilteredComics: (comics) => set({ filteredComics: comics }),
   setFilters: (filters) => set((state) => {
     const newFilters = { ...state.filters, ...filters };
-    const filteredComics = applyFilters(state.comics, newFilters, state.sortField, state.sortDirection);
-    return { 
+    const filteredComics = applyFilters(state.comics, newFilters, state.sortField, state.sortDirection, state.activeComputedTag, state.computedTagsMap);
+    return {
       filters: newFilters,
       filteredComics
     };
   }),
   setSortField: (sortField) => set((state) => {
-    const filteredComics = applyFilters(state.comics, state.filters, sortField, state.sortDirection);
+    const filteredComics = applyFilters(state.comics, state.filters, sortField, state.sortDirection, state.activeComputedTag, state.computedTagsMap);
     return { sortField, filteredComics };
   }),
   setSortDirection: (sortDirection) => set((state) => {
-    const filteredComics = applyFilters(state.comics, state.filters, state.sortField, sortDirection);
+    const filteredComics = applyFilters(state.comics, state.filters, state.sortField, sortDirection, state.activeComputedTag, state.computedTagsMap);
     return { sortDirection, filteredComics };
   }),
   setLoading: (loading) => set({ loading }),
@@ -238,6 +315,11 @@ export const useComicStore = create<ComicStore>((set, get) => {
   setSelectedCondition: (selectedCondition) => set({ selectedCondition }),
   setViewMode: (viewMode) => set({ viewMode }),
   setShowVirtualBoxes: (showVirtualBoxes) => set({ showVirtualBoxes }),
+  setActiveComputedTag: (activeComputedTag) => set((state) => {
+    const filteredComics = applyFilters(state.comics, state.filters, state.sortField, state.sortDirection, activeComputedTag, state.computedTagsMap);
+    return { activeComputedTag, filteredComics };
+  }),
+  getComputedTags: (comicId) => get().computedTagsMap.get(comicId) || [],
   
   // Comic Actions
   addComic: (comicData) => {
@@ -249,17 +331,18 @@ export const useComicStore = create<ComicStore>((set, get) => {
     };
     set((state) => {
       const updatedComics = [...state.comics, newComic];
-      const filteredComics = applyFilters(updatedComics, state.filters, state.sortField, state.sortDirection);
+      const derived = computeDerivedData(updatedComics);
+      const filteredComics = applyFilters(updatedComics, state.filters, state.sortField, state.sortDirection, state.activeComputedTag, derived.computedTagsMap);
       return {
         comics: updatedComics,
         filteredComics,
-        ...computeDerivedData(updatedComics),
+        ...derived,
         showForm: false,
         editingComic: undefined
       };
     });
   },
-  
+
   updateComic: (id, updates) => {
     set((state) => {
       const updatedComics = state.comics.map(comic =>
@@ -267,11 +350,12 @@ export const useComicStore = create<ComicStore>((set, get) => {
           ? { ...comic, ...updates, updatedAt: new Date().toISOString() }
           : comic
       );
-      const filteredComics = applyFilters(updatedComics, state.filters, state.sortField, state.sortDirection);
+      const derived = computeDerivedData(updatedComics);
+      const filteredComics = applyFilters(updatedComics, state.filters, state.sortField, state.sortDirection, state.activeComputedTag, derived.computedTagsMap);
       return {
         comics: updatedComics,
         filteredComics,
-        ...computeDerivedData(updatedComics),
+        ...derived,
         showForm: false,
         editingComic: undefined
       };
@@ -281,11 +365,12 @@ export const useComicStore = create<ComicStore>((set, get) => {
   deleteComic: (id) => {
     set((state) => {
       const updatedComics = state.comics.filter(comic => comic.id !== id);
-      const filteredComics = applyFilters(updatedComics, state.filters, state.sortField, state.sortDirection);
+      const derived = computeDerivedData(updatedComics);
+      const filteredComics = applyFilters(updatedComics, state.filters, state.sortField, state.sortDirection, state.activeComputedTag, derived.computedTagsMap);
       return {
         comics: updatedComics,
         filteredComics,
-        ...computeDerivedData(updatedComics),
+        ...derived,
       };
     });
   },

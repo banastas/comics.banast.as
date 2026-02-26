@@ -75,7 +75,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
   const comicUrl = `https://comics.banast.as/#/comic/${comicSlug}`;
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-surface-base">
       {/* SEO Meta Tags */}
       <SEO
         title={`${comic.seriesName} #${comic.issueNumber}${comic.isVariant ? ' (Variant)' : ''}`}
@@ -101,12 +101,12 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
       />
 
       {/* Header */}
-      <div className="bg-gray-800 shadow-lg border-b border-gray-700">
+      <div className="bg-surface-primary shadow-lg border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <button
               onClick={onBack}
-              className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors"
+              className="flex items-center space-x-2 text-slate-300 hover:text-white transition-colors"
             >
               <ArrowLeft size={20} />
               <span>Back to Collection</span>
@@ -119,14 +119,14 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
           {/* Title Section with Cover */}
-          <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-4">
+          <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-4">
             <div className="flex flex-col lg:flex-row gap-6">
               {/* Cover Image */}
               <div className="flex-shrink-0">
-                <div className="relative aspect-[2/3] w-48 bg-gray-700 rounded-lg overflow-hidden shadow-xl border border-gray-600">
+                <div className="relative aspect-[2/3] w-48 bg-surface-secondary rounded-lg overflow-hidden shadow-xl border border-slate-700">
                   {hasValidCoverUrl && imageLoading && (
-                    <div className="absolute inset-0 bg-gray-700 animate-pulse flex items-center justify-center">
-                      <div className="w-6 h-6 border-4 border-gray-600 border-t-blue-400 rounded-full animate-spin"></div>
+                    <div className="absolute inset-0 bg-surface-secondary animate-pulse flex items-center justify-center">
+                      <div className="w-6 h-6 border-4 border-slate-700 border-t-blue-400 rounded-full animate-spin"></div>
                     </div>
                   )}
                   {hasValidCoverUrl && !imageError ? (
@@ -141,7 +141,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                     />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
-                      <div className="text-center text-gray-400">
+                      <div className="text-center text-slate-400">
                         <Award size={32} className="mx-auto mb-2" />
                         <p className="text-xs font-medium">No Cover</p>
                       </div>
@@ -173,13 +173,13 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                     #{comic.issueNumber}
                   </h1>
                   <h2 
-                    className="text-xl text-gray-300 hover:text-blue-400 cursor-pointer transition-colors"
+                    className="text-xl text-slate-300 hover:text-blue-400 cursor-pointer transition-colors"
                     onClick={() => onViewSeries?.(comic.seriesName)}
                   >
                     {comic.seriesName}
                   </h2>
                   {comic.title && comic.title !== comic.seriesName && (
-                    <h3 className="text-lg text-gray-400">{comic.title}</h3>
+                    <h3 className="text-lg text-slate-400">{comic.title}</h3>
                   )}
                 </div>
 
@@ -187,7 +187,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {/* Column 1: Grade & Status */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-white border-b border-gray-600 pb-2">Grade & Status</h3>
+                    <h3 className="text-lg font-semibold text-white border-b border-slate-700 pb-2">Grade & Status</h3>
                     
                   <div className="flex items-center space-x-2">
                     <Star size={20} className="text-amber-400" />
@@ -196,7 +196,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                     
                     <div className="flex flex-wrap gap-2">
                       <span className={`inline-block px-3 py-1 text-sm font-medium rounded ${
-                      comic.isSlabbed ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30 cursor-pointer hover:bg-purple-500/30' : 'bg-gray-600/30 text-gray-300 border border-gray-600/50 cursor-pointer hover:bg-gray-600/50'
+                      comic.isSlabbed ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30 cursor-pointer hover:bg-purple-500/30' : 'bg-slate-700/30 text-slate-300 border border-slate-700/50 cursor-pointer hover:bg-slate-700/50'
                     } transition-colors`}
                     onClick={() => {
                       if (comic.isSlabbed) {
@@ -225,7 +225,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                       <div className="flex items-start space-x-2">
                         <PenTool size={16} className="text-rose-400 mt-0.5" />
                         <div>
-                          <span className="text-sm text-gray-400">Signed By:</span>
+                          <span className="text-sm text-slate-400">Signed By:</span>
                           <p className="text-white font-medium">{comic.signedBy}</p>
                         </div>
                       </div>
@@ -234,12 +234,12 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
 
                   {/* Column 2: Dates & Pricing */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-white border-b border-gray-600 pb-2">Dates & Pricing</h3>
+                    <h3 className="text-lg font-semibold text-white border-b border-slate-700 pb-2">Dates & Pricing</h3>
                     
                     <div className="flex items-start space-x-2">
                       <Calendar size={16} className="text-blue-400 mt-0.5" />
                       <div>
-                        <span className="text-sm text-gray-400">Release Date</span>
+                        <span className="text-sm text-slate-400">Release Date</span>
                         <p className="text-white font-medium">{formatDateLong(comic.releaseDate)}</p>
                       </div>
                     </div>
@@ -247,7 +247,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                     <div className="flex items-start space-x-2">
                       <DollarSign size={16} className="text-green-400 mt-0.5" />
                       <div>
-                        <span className="text-sm text-gray-400">Purchased Price</span>
+                        <span className="text-sm text-slate-400">Purchased Price</span>
                         <p className="text-white font-medium text-lg">{formatCurrency(comic.purchasePrice || 0)}</p>
                       </div>
                     </div>
@@ -256,7 +256,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                       <div className="flex items-start space-x-2">
                         <DollarSign size={16} className="text-blue-400 mt-0.5" />
                         <div>
-                          <span className="text-sm text-gray-400">Current Value</span>
+                          <span className="text-sm text-slate-400">Current Value</span>
                           <p className="text-white font-medium text-lg">{formatCurrency(comic.currentValue)}</p>
                           {comic.currentValue !== comic.purchasePrice && (
                             <p className={`text-xs font-medium ${
@@ -274,7 +274,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                     <div className="flex items-start space-x-2">
                       <Calendar size={16} className="text-blue-400 mt-0.5" />
                       <div>
-                        <span className="text-sm text-gray-400">Purchase Date</span>
+                        <span className="text-sm text-slate-400">Purchase Date</span>
                         <p className="text-white font-medium">{formatDateLong(comic.purchaseDate)}</p>
                       </div>
                     </div>
@@ -282,13 +282,13 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
 
                   {/* Column 3: Details & Storage */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-white border-b border-gray-600 pb-2">Details & Storage</h3>
+                    <h3 className="text-lg font-semibold text-white border-b border-slate-700 pb-2">Details & Storage</h3>
                     
                     {comic.coverArtist && (
                       <div className="flex items-start space-x-2">
                         <Palette size={16} className="text-purple-400 mt-0.5" />
                         <div>
-                          <span className="text-sm text-gray-400">Cover Artist</span>
+                          <span className="text-sm text-slate-400">Cover Artist</span>
                           <p 
                             className="text-white font-medium hover:text-blue-400 cursor-pointer transition-colors"
                             onClick={() => onViewCoverArtist?.(comic.coverArtist)}
@@ -303,7 +303,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                       <div className="flex items-start space-x-2">
                         <MapPin size={16} className="text-orange-400 mt-0.5" />
                         <div>
-                          <span className="text-sm text-gray-400">Virtual Box</span>
+                          <span className="text-sm text-slate-400">Virtual Box</span>
                           <p 
                             className="text-white font-medium hover:text-blue-400 cursor-pointer transition-colors"
                             onClick={() => onViewStorageLocation?.(comic.storageLocation)}
@@ -321,7 +321,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                   <div className="mt-6">
                     <div className="flex items-center space-x-2 mb-3">
                       <Tag size={16} className="text-blue-400" />
-                      <span className="text-sm text-gray-400">Tags</span>
+                      <span className="text-sm text-slate-400">Tags</span>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {comic.tags.map((tag) => (
@@ -342,10 +342,10 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                   <div className="mt-6">
                     <div className="flex items-center space-x-2 mb-3">
                       <FileText size={16} className="text-green-400" />
-                      <span className="text-sm text-gray-400">Notes</span>
+                      <span className="text-sm text-slate-400">Notes</span>
                     </div>
-                    <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
-                      <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">{comic.notes}</p>
+                    <div className="bg-surface-secondary/50 rounded-lg p-4 border border-slate-700">
+                      <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">{comic.notes}</p>
                     </div>
                   </div>
                 )}
@@ -354,19 +354,19 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
           </div>
 
             {/* Metadata */}
-            <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
+            <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-6">
               <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-                <User size={20} className="mr-2 text-gray-400" />
+                <User size={20} className="mr-2 text-slate-400" />
                 Record Information
               </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-gray-400 mb-1">Added to Collection</p>
+                  <p className="text-slate-400 mb-1">Added to Collection</p>
                   <p className="text-white">{formatDateLong(comic.createdAt)}</p>
                 </div>
                 <div>
-                  <p className="text-gray-400 mb-1">Last Updated</p>
+                  <p className="text-slate-400 mb-1">Last Updated</p>
                   <p className="text-white">{formatDateLong(comic.updatedAt)}</p>
                 </div>
               </div>
@@ -374,7 +374,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
 
             {/* Related Issues */}
             {relatedComics.length > 0 && (
-              <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
+              <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-6">
                 <h3 
                   className="text-lg font-semibold text-white mb-4 flex items-center hover:text-blue-400 cursor-pointer transition-colors"
                   onClick={() => onViewSeries?.(comic.seriesName)}
@@ -386,15 +386,15 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                 {/* Consecutive Issues */}
                 {consecutiveIssues.length > 0 && (
                   <div className="mb-6">
-                    <h4 className="text-md font-medium text-gray-300 mb-3">Consecutive Issues</h4>
+                    <h4 className="text-md font-medium text-slate-300 mb-3">Consecutive Issues</h4>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                       {consecutiveIssues.map((relatedComic) => (
                         <div
                           key={relatedComic.id}
                           onClick={() => onView(relatedComic)}
-                          className="bg-gray-700/50 rounded-lg p-3 border border-gray-600 hover:border-blue-500 transition-all cursor-pointer group"
+                          className="bg-surface-secondary/50 rounded-lg p-3 border border-slate-700 hover:border-blue-500 transition-all cursor-pointer group"
                         >
-                          <div className="aspect-[2/3] bg-gray-600 rounded mb-2 overflow-hidden">
+                          <div className="aspect-[2/3] bg-slate-700 rounded mb-2 overflow-hidden">
                             {relatedComic.coverImageUrl ? (
                               <img
                                 src={relatedComic.coverImageUrl}
@@ -403,13 +403,13 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">
-                                <Award size={24} className="text-gray-500" />
+                                <Award size={24} className="text-slate-500" />
                               </div>
                             )}
                           </div>
                           <div className="text-center">
                             <p className="text-sm font-medium text-white">#{relatedComic.issueNumber}</p>
-                            <p className="text-xs text-gray-400">Grade: {relatedComic.grade}</p>
+                            <p className="text-xs text-slate-400">Grade: {relatedComic.grade}</p>
                             <p className="text-xs text-green-400">{formatCurrency(relatedComic.purchasePrice || 0)}</p>
                           </div>
                         </div>
@@ -421,7 +421,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                 {/* All Series Issues */}
                 {relatedComics.length > consecutiveIssues.length && (
                   <div>
-                    <h4 className="text-md font-medium text-gray-300 mb-3">
+                    <h4 className="text-md font-medium text-slate-300 mb-3">
                       All Issues in Collection ({relatedComics.length} total)
                     </h4>
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
@@ -429,14 +429,14 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                         <div
                           key={relatedComic.id}
                           onClick={() => onView(relatedComic)}
-                          className={`bg-gray-700/50 rounded-lg p-2 border transition-all cursor-pointer text-center ${
+                          className={`bg-surface-secondary/50 rounded-lg p-2 border transition-all cursor-pointer text-center ${
                             consecutiveIssues.some(c => c.id === relatedComic.id)
                               ? 'border-blue-500/50 bg-blue-500/10'
-                              : 'border-gray-600 hover:border-gray-500'
+                              : 'border-slate-700 hover:border-slate-600'
                           }`}
                         >
                           <p className="text-sm font-medium text-white">#{relatedComic.issueNumber}</p>
-                          <p className="text-xs text-gray-400">{relatedComic.grade}</p>
+                          <p className="text-xs text-slate-400">{relatedComic.grade}</p>
                         </div>
                       ))}
                     </div>

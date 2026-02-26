@@ -38,7 +38,7 @@ export const CoverArtistDetail: React.FC<CoverArtistDetailProps> = React.memo(({
   );
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-surface-base">
       <DetailPageHeader
         onBack={onBack}
         viewMode={viewMode}
@@ -50,7 +50,7 @@ export const CoverArtistDetail: React.FC<CoverArtistDetailProps> = React.memo(({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
           {/* Cover Artist Header and Statistics */}
-          <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
+          <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
                 <div className="p-3 bg-purple-500 rounded-lg">
@@ -58,10 +58,10 @@ export const CoverArtistDetail: React.FC<CoverArtistDetailProps> = React.memo(({
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold text-white mb-2">{coverArtist}</h1>
-                  <p className="text-gray-300">
+                  <p className="text-slate-300">
                     {artistComics.length} comic{artistComics.length !== 1 ? 's' : ''} with cover art
                     {uniqueSeriesCount > 0 && (
-                      <span className="text-gray-400 ml-2">
+                      <span className="text-slate-400 ml-2">
                         • {uniqueSeriesCount} series
                       </span>
                     )}
@@ -84,7 +84,7 @@ export const CoverArtistDetail: React.FC<CoverArtistDetailProps> = React.memo(({
           </div>
 
           {/* Comics Grid/List */}
-          <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
+          <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-6">
             <h3 className="text-lg font-semibold text-white mb-4">Comics with {coverArtist} Cover Art</h3>
             <ComicGridList
               comics={sortedComics}
