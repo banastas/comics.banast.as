@@ -38,8 +38,6 @@ export default defineConfig({
             './src/components/ComicCard.tsx',
             './src/components/ComicListView.tsx',
             './src/components/FilterControls.tsx',
-            './src/components/TouchTarget.tsx',
-            './src/components/FluidTypography.tsx',
             './src/components/LoadingSkeleton.tsx',
             './src/components/ResponsiveImage.tsx',
             './src/components/SEO.tsx'
@@ -55,7 +53,7 @@ export default defineConfig({
     // Enable source maps for debugging (can be disabled in production)
     sourcemap: false,
     // Set target for modern browsers
-    target: 'es2015',
+    target: 'es2020',
     // Enable CSS code splitting
     cssCodeSplit: true,
   },

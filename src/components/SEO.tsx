@@ -87,7 +87,7 @@ export function generateComicStructuredData(comic: {
   coverArtist?: string;
   currentValue?: number;
   grade?: string;
-  signedBy?: string[];
+  signedBy?: string;
   isVariant?: boolean;
 }) {
   const slug = createComicSlug(comic);
@@ -112,11 +112,11 @@ export function generateComicStructuredData(comic: {
         priceCurrency: 'USD',
       },
     }),
-    ...(comic.signedBy && comic.signedBy.length > 0 && {
+    ...(comic.signedBy && comic.signedBy.trim() !== '' && {
       additionalProperty: {
         '@type': 'PropertyValue',
         name: 'signedBy',
-        value: comic.signedBy.join(', '),
+        value: comic.signedBy,
       },
     }),
   };

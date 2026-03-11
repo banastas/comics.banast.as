@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Comic } from '../types/Comic';
 import { Star, Award, TrendingUp, TrendingDown } from 'lucide-react';
+import { formatCurrency } from '../utils/formatting';
 
 interface ComicCardProps {
   comic: Comic;
@@ -12,15 +13,6 @@ export const ComicCard: React.FC<ComicCardProps> = React.memo(({ comic, onView }
   const [imageLoading, setImageLoading] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
   const imgRef = useRef<HTMLDivElement>(null);
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  };
 
   const handleImageLoad = () => setImageLoading(false);
   const handleImageError = () => { setImageError(true); setImageLoading(false); };
@@ -42,11 +34,24 @@ export const ComicCard: React.FC<ComicCardProps> = React.memo(({ comic, onView }
   const hasValidCoverUrl = comic.coverImageUrl && comic.coverImageUrl.trim() !== '';
   const displayValue = comic.currentValue || comic.purchasePrice || 0;
   const hasGainLoss = comic.currentValue !== undefined && comic.purchasePrice !== undefined && comic.purchasePrice > 0;
-  const gainLoss = hasGainLoss ? (comic.currentValue! - comic.purchasePrice!) : 0;
+  const gainLoss = hasGainLoss ? ((comic.currentValue ?? 0) - (comic.purchasePrice ?? 0)) : 0;
   const isPositive = gainLoss >= 0;
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onView(comic);
+    }
+  };
+
   return (
-    <div className="bg-surface-primary rounded-xl shadow-card border border-slate-800 overflow-hidden hover:shadow-card-hover hover:border-slate-600 transition-all duration-300 group cursor-pointer w-full active:scale-[0.98]">
+    <div
+      className="bg-surface-primary rounded-xl shadow-card border border-slate-800 overflow-hidden hover:shadow-card-hover hover:border-slate-600 transition-all duration-300 group cursor-pointer w-full active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+      role="button"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      aria-label={`${comic.seriesName} #${comic.issueNumber} — Grade ${comic.grade}, Value ${formatCurrency(displayValue)}`}
+    >
       {/* Cover Image */}
       <div ref={imgRef} className="relative aspect-[2/3] bg-surface-secondary" onClick={() => onView(comic)}>
         {hasValidCoverUrl && imageLoading && isVisible && (

@@ -91,11 +91,11 @@ export const LoadingSkeleton: React.FC<LoadingSkeletonProps> = ({
   const SkeletonComponent = skeletonComponents[variant];
 
   if (variant === 'stats' || variant === 'detail') {
-    return <div className={className}><SkeletonComponent /></div>;
+    return <div className={className} role="status" aria-busy="true" aria-label="Loading content"><SkeletonComponent /></div>;
   }
 
   return (
-    <div className={className}>
+    <div className={className} role="status" aria-busy="true" aria-label="Loading content">
       {[...Array(count)].map((_, index) => (
         <SkeletonComponent key={index} />
       ))}

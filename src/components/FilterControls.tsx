@@ -27,6 +27,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
           <select
             value={filters.seriesName}
             onChange={(e) => handleFilterChange('seriesName', e.target.value)}
+            aria-label="Filter by series"
             className="w-full bg-surface-secondary border border-slate-700 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
           >
             <option value="">All Series</option>
@@ -47,6 +48,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
               step="0.1"
               value={filters.minGrade}
               onChange={(e) => handleFilterChange('minGrade', parseFloat(e.target.value))}
+              aria-label="Minimum grade"
               className="w-full bg-surface-secondary border border-slate-700 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
             />
             <span className="text-slate-400 text-xs sm:text-sm">to</span>
@@ -57,6 +59,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
               step="0.1"
               value={filters.maxGrade}
               onChange={(e) => handleFilterChange('maxGrade', parseFloat(e.target.value))}
+              aria-label="Maximum grade"
               className="w-full bg-surface-secondary border border-slate-700 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
             />
           </div>
@@ -71,6 +74,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
               min="0"
               value={filters.minPrice}
               onChange={(e) => handleFilterChange('minPrice', parseFloat(e.target.value) || 0)}
+              aria-label="Minimum price"
               className="w-full bg-surface-secondary border border-slate-700 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
             />
             <span className="text-slate-400 text-xs sm:text-sm">to</span>
@@ -79,6 +83,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
               min="0"
               value={filters.maxPrice}
               onChange={(e) => handleFilterChange('maxPrice', parseFloat(e.target.value) || 10000)}
+              aria-label="Maximum price"
               className="w-full bg-surface-secondary border border-slate-700 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
             />
           </div>
@@ -90,6 +95,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
           <select
             value={filters.isSlabbed === null ? '' : filters.isSlabbed.toString()}
             onChange={(e) => handleFilterChange('isSlabbed', e.target.value === '' ? undefined : e.target.value === 'true')}
+            aria-label="Filter by condition"
             className="w-full bg-surface-secondary border border-slate-700 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
           >
             <option value="">All</option>
@@ -104,6 +110,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
           <select
             value={filters.isSigned === null ? '' : filters.isSigned.toString()}
             onChange={(e) => handleFilterChange('isSigned', e.target.value === '' ? undefined : e.target.value === 'true')}
+            aria-label="Filter by signed status"
             className="w-full bg-surface-secondary border border-slate-700 rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white"
           >
             <option value="">All</option>

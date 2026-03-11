@@ -6,6 +6,7 @@ import {
   Archive,
 } from 'lucide-react';
 import { Breadcrumb, BreadcrumbItem } from './Breadcrumb';
+import { formatCurrency } from '../utils/formatting';
 
 interface StorageLocationsListingProps {
   allComics: Comic[];
@@ -25,18 +26,6 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  const formatCurrency = (amount: number) => {
-    if (isNaN(amount) || !isFinite(amount)) {
-      return '$0.00';
-    }
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  };
 
   // Get unique storage locations with statistics
   const storageLocations = Array.from(new Set(allComics.map(comic => comic.storageLocation).filter(Boolean)))

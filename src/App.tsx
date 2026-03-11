@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useComicStore } from './stores/comicStore';
 import { useRouting } from './hooks/useRouting';
 import { Dashboard } from './components/Dashboard';
@@ -11,6 +11,7 @@ import { SortField } from './types/Comic';
 import { getComicUrl, getSeriesUrl, getStorageLocationUrl, getCoverArtistUrl, getTagUrl, urls, createComicSlug } from './utils/routing';
 import { debounce } from './utils/performance';
 import { Breadcrumb } from './components/Breadcrumb';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { MobileControls } from './components/MobileControls';
 import { ToastContainer } from './components/Toast';
 import { GradeDistribution } from './components/GradeDistribution';
@@ -42,27 +43,25 @@ const LoadingSpinner = () => (
 );
 
 function App() {
-  const {
-    comics: allComics,
-    filteredComics,
-    stats,
-    filters,
-    sortField,
-    sortDirection,
-    loading,
-    addComic,
-    updateComic,
-    setFilters,
-    setSortField,
-    setSortDirection,
-    allSeries,
-    allVirtualBoxes,
-    variantsCount,
-    allComputedTags,
-    computedTagCounts,
-    activeComputedTag,
-    setActiveComputedTag,
-  } = useComicStore();
+  const allComics = useComicStore((s) => s.comics);
+  const filteredComics = useComicStore((s) => s.filteredComics);
+  const stats = useComicStore((s) => s.stats);
+  const filters = useComicStore((s) => s.filters);
+  const sortField = useComicStore((s) => s.sortField);
+  const sortDirection = useComicStore((s) => s.sortDirection);
+  const loading = useComicStore((s) => s.loading);
+  const addComic = useComicStore((s) => s.addComic);
+  const updateComic = useComicStore((s) => s.updateComic);
+  const setFilters = useComicStore((s) => s.setFilters);
+  const setSortField = useComicStore((s) => s.setSortField);
+  const setSortDirection = useComicStore((s) => s.setSortDirection);
+  const allSeries = useComicStore((s) => s.allSeries);
+  const allVirtualBoxes = useComicStore((s) => s.allVirtualBoxes);
+  const variantsCount = useComicStore((s) => s.variantsCount);
+  const allComputedTags = useComicStore((s) => s.allComputedTags);
+  const computedTagCounts = useComicStore((s) => s.computedTagCounts);
+  const activeComputedTag = useComicStore((s) => s.activeComputedTag);
+  const setActiveComputedTag = useComicStore((s) => s.setActiveComputedTag);
 
   const [showForm, setShowForm] = useState(false);
   const [editingComic, setEditingComic] = useState<Comic | undefined>(undefined);
@@ -120,19 +119,20 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Debounced search function
+  // Refs for stable debounce closure
+  const searchContextRef = useRef({ activeTab, viewMode, sortField, sortDirection, navigateToRoute });
+  searchContextRef.current = { activeTab, viewMode, sortField, sortDirection, navigateToRoute };
+
+  // Debounced search function — stable across renders
   const debouncedSetFilters = useMemo(
     () => debounce((searchTerm: string) => {
+      const { activeTab: tab, viewMode: vm, sortField: sf, sortDirection: sd, navigateToRoute: nav } = searchContextRef.current;
       setFilters(prevFilters => ({ ...prevFilters, searchTerm }));
-      navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, {
-        tab: activeTab,
-        viewMode,
-        searchTerm,
-        sortField,
-        sortDirection
+      nav(tab === 'stats' ? 'stats' : 'collection', undefined, {
+        tab, viewMode: vm, searchTerm, sortField: sf, sortDirection: sd
       });
     }, 300),
-    [activeTab, viewMode, sortField, sortDirection, navigateToRoute, setFilters]
+    [setFilters]
   );
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -141,26 +141,28 @@ function App() {
     if (value === '') {
       debouncedSetFilters.cancel();
       setFilters({ searchTerm: '' });
-      navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, {
-        tab: activeTab, viewMode, searchTerm: '', sortField, sortDirection
+      const { activeTab: tab, viewMode: vm, sortField: sf, sortDirection: sd, navigateToRoute: nav } = searchContextRef.current;
+      nav(tab === 'stats' ? 'stats' : 'collection', undefined, {
+        tab, viewMode: vm, searchTerm: '', sortField: sf, sortDirection: sd
       });
     } else {
       debouncedSetFilters(value);
     }
-  }, [debouncedSetFilters, setFilters, activeTab, viewMode, sortField, sortDirection, navigateToRoute]);
+  }, [debouncedSetFilters, setFilters]);
 
   const clearSearch = useCallback(() => {
     debouncedSetFilters.cancel();
     setSearchInput('');
     setFilters({ searchTerm: '' });
     setShowMobileSearch(false);
-    navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, {
-      tab: activeTab, viewMode, searchTerm: '', sortField, sortDirection
+    const { activeTab: tab, viewMode: vm, sortField: sf, sortDirection: sd, navigateToRoute: nav } = searchContextRef.current;
+    nav(tab === 'stats' ? 'stats' : 'collection', undefined, {
+      tab, viewMode: vm, searchTerm: '', sortField: sf, sortDirection: sd
     });
-  }, [debouncedSetFilters, setFilters, activeTab, viewMode, sortField, sortDirection, navigateToRoute]);
+  }, [debouncedSetFilters, setFilters]);
 
   useEffect(() => { setSearchInput(filters.searchTerm); }, [filters.searchTerm]);
-  useEffect(() => { setCurrentPage(0); }, [filters, sortField, sortDirection]);
+  useEffect(() => { setCurrentPage(0); }, [filters.searchTerm, filters.seriesName, filters.minGrade, filters.maxGrade, filters.minPrice, filters.maxPrice, filters.isSlabbed, filters.isSigned, sortField, sortDirection]);
 
   // Pagination
   const totalPages = Math.ceil(filteredComics.length / itemsPerPage);
@@ -366,87 +368,87 @@ function App() {
   // Show virtual boxes listing
   if (showVirtualBoxes) {
     return (
-      <React.Suspense fallback={<LoadingSpinner />}>
+      <ErrorBoundary><React.Suspense fallback={<LoadingSpinner />}>
         <StorageLocationsListing allComics={allComics} onBack={handleBackToCollection} onViewStorageLocation={handleViewStorageLocation} breadcrumbItems={breadcrumbItems} />
-      </React.Suspense>
+      </React.Suspense></ErrorBoundary>
     );
   }
 
   // Show detail pages
   if (selectedComic) {
     return (
-      <React.Suspense fallback={<LoadingSpinner />}>
+      <ErrorBoundary><React.Suspense fallback={<LoadingSpinner />}>
         <ComicDetail comic={selectedComic as Comic} allComics={allComics} onBack={handleBackToCollection} onView={handleViewComic}
           onViewSeries={handleViewSeries} onViewStorageLocation={handleViewStorageLocation} onViewCoverArtist={handleViewCoverArtist}
           onViewTag={handleViewTag} onViewRawComics={handleViewRawComics} onViewSlabbedComics={handleViewSlabbedComics} breadcrumbItems={breadcrumbItems} />
-      </React.Suspense>
+      </React.Suspense></ErrorBoundary>
     );
   }
 
   if (selectedSeries) {
     const seriesComics = allComics.filter(comic => comic.seriesName === selectedSeries);
     return (
-      <React.Suspense fallback={<LoadingSpinner />}>
+      <ErrorBoundary><React.Suspense fallback={<LoadingSpinner />}>
         <SeriesDetail seriesName={selectedSeries || ''} seriesComics={seriesComics} onBack={handleBackToCollection} onView={handleViewComic} breadcrumbItems={breadcrumbItems} />
-      </React.Suspense>
+      </React.Suspense></ErrorBoundary>
     );
   }
 
   if (selectedStorageLocation) {
     const locationComics = allComics.filter(comic => comic.storageLocation === selectedStorageLocation);
     return (
-      <React.Suspense fallback={<LoadingSpinner />}>
+      <ErrorBoundary><React.Suspense fallback={<LoadingSpinner />}>
         <StorageLocationDetail storageLocation={selectedStorageLocation || ''} locationComics={locationComics}
           onBack={handleBackToCollection} onView={handleViewComic} onViewSeries={handleViewSeries} breadcrumbItems={breadcrumbItems} />
-      </React.Suspense>
+      </React.Suspense></ErrorBoundary>
     );
   }
 
   if (selectedCoverArtist) {
     const artistComics = allComics.filter(comic => comic.coverArtist === selectedCoverArtist);
     return (
-      <React.Suspense fallback={<LoadingSpinner />}>
+      <ErrorBoundary><React.Suspense fallback={<LoadingSpinner />}>
         <CoverArtistDetail coverArtist={selectedCoverArtist || ''} artistComics={artistComics}
           onBack={handleBackToCollection} onView={handleViewComic} onViewSeries={handleViewSeries} breadcrumbItems={breadcrumbItems} />
-      </React.Suspense>
+      </React.Suspense></ErrorBoundary>
     );
   }
 
   if (selectedTag) {
     const tagComics = allComics.filter(comic => comic.tags.includes(selectedTag || ''));
     return (
-      <React.Suspense fallback={<LoadingSpinner />}>
+      <ErrorBoundary><React.Suspense fallback={<LoadingSpinner />}>
         <TagDetail tag={selectedTag || ''} tagComics={tagComics} onBack={handleBackToCollection}
           onView={handleViewComic} onViewSeries={handleViewSeries} onViewTag={handleViewTag} breadcrumbItems={breadcrumbItems} />
-      </React.Suspense>
+      </React.Suspense></ErrorBoundary>
     );
   }
 
   if (selectedCondition === 'raw') {
     const rawComics = allComics.filter(comic => !comic.isSlabbed);
     return (
-      <React.Suspense fallback={<LoadingSpinner />}>
+      <ErrorBoundary><React.Suspense fallback={<LoadingSpinner />}>
         <RawComicsDetail rawComics={rawComics} onBack={handleBackToCollection} onView={handleViewComic} onViewSeries={handleViewSeries} breadcrumbItems={breadcrumbItems} />
-      </React.Suspense>
+      </React.Suspense></ErrorBoundary>
     );
   }
 
   if (selectedCondition === 'slabbed') {
     const slabbedComics = allComics.filter(comic => comic.isSlabbed);
     return (
-      <React.Suspense fallback={<LoadingSpinner />}>
+      <ErrorBoundary><React.Suspense fallback={<LoadingSpinner />}>
         <SlabbedComicsDetail slabbedComics={slabbedComics} onBack={handleBackToCollection} onView={handleViewComic} onViewSeries={handleViewSeries} breadcrumbItems={breadcrumbItems} />
-      </React.Suspense>
+      </React.Suspense></ErrorBoundary>
     );
   }
 
   if (selectedCondition === 'variants') {
     const variantComics = allComics.filter(comic => comic.isVariant);
     return (
-      <React.Suspense fallback={<LoadingSpinner />}>
+      <ErrorBoundary><React.Suspense fallback={<LoadingSpinner />}>
         <VariantsDetail variantComics={variantComics} onBack={handleBackToCollection} onView={handleViewComic}
           onViewRawComics={handleViewRawComics} onViewSlabbedComics={handleViewSlabbedComics} onViewSeries={handleViewSeries} breadcrumbItems={breadcrumbItems} />
-      </React.Suspense>
+      </React.Suspense></ErrorBoundary>
     );
   }
 
@@ -492,6 +494,7 @@ function App() {
                     placeholder="Search comics..."
                     value={searchInput}
                     onChange={handleSearchChange}
+                    aria-label="Search comics"
                     className="w-full pl-9 pr-10 py-2 bg-surface-secondary border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500 text-white placeholder-slate-500 text-sm transition-all"
                   />
                   {searchInput && (
@@ -559,6 +562,7 @@ function App() {
                         setSortField(e.target.value as SortField);
                         navigateToRoute('collection', undefined, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField: e.target.value, sortDirection });
                       }}
+                      aria-label="Sort by"
                       className="bg-surface-secondary border border-slate-700 rounded-xl px-3 py-2 text-sm text-white cursor-pointer hover:border-slate-600 transition-colors"
                     >
                       <option value="title">Title</option>
@@ -599,6 +603,7 @@ function App() {
                 value={searchInput}
                 onChange={handleSearchChange}
                 autoFocus
+                aria-label="Search comics"
                 className="w-full pl-9 pr-10 py-2.5 bg-surface-secondary border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500 text-white placeholder-slate-500 text-sm"
               />
               <button
@@ -1072,7 +1077,7 @@ function App() {
 
       {/* Comic Form Modal */}
       {showForm && (
-        <React.Suspense fallback={<LoadingSpinner />}>
+        <ErrorBoundary><React.Suspense fallback={<LoadingSpinner />}>
           <ComicForm
             comic={editingComic}
             onSave={handleSaveComic}
@@ -1080,7 +1085,7 @@ function App() {
             allSeries={allSeries}
             allVirtualBoxes={allVirtualBoxes}
           />
-        </React.Suspense>
+        </React.Suspense></ErrorBoundary>
       )}
     </div>
   );

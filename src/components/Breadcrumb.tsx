@@ -26,7 +26,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items }) => {
               <ChevronRight size={14} className="text-slate-600 flex-shrink-0" />
             )}
             {isLast ? (
-              <span className="text-slate-300 font-medium truncate">{item.label}</span>
+              <span className="text-slate-300 font-medium truncate" aria-current="page">{item.label}</span>
             ) : (
               <button
                 onClick={item.onClick}

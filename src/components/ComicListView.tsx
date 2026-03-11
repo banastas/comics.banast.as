@@ -1,6 +1,7 @@
 import React from 'react';
 import { Comic } from '../types/Comic';
 import { Star, Award, TrendingUp, TrendingDown } from 'lucide-react';
+import { formatCurrency, formatDate } from '../utils/formatting';
 
 interface ComicListViewProps {
   comics: Comic[];
@@ -8,23 +9,6 @@ interface ComicListViewProps {
 }
 
 export const ComicListView: React.FC<ComicListViewProps> = React.memo(({ comics, onView }) => {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
   return (
     <div className="space-y-0">
       {/* Column Headers (desktop) */}
@@ -36,16 +20,25 @@ export const ComicListView: React.FC<ComicListViewProps> = React.memo(({ comics,
 
       {comics.map((comic, index) => {
         const hasGainLoss = comic.currentValue !== undefined && comic.purchasePrice !== undefined && comic.purchasePrice > 0;
-        const gainLoss = hasGainLoss ? (comic.currentValue! - comic.purchasePrice!) : 0;
+        const gainLoss = hasGainLoss ? ((comic.currentValue ?? 0) - (comic.purchasePrice ?? 0)) : 0;
         const isPositive = gainLoss >= 0;
 
         return (
           <div
             key={comic.id}
-            className={`rounded-xl border border-slate-800 p-3 sm:p-4 hover:border-slate-600 transition-all cursor-pointer group active:scale-[0.995] ${
+            className={`rounded-xl border border-slate-800 p-3 sm:p-4 hover:border-slate-600 transition-all cursor-pointer group active:scale-[0.995] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
               index % 2 === 0 ? 'bg-surface-primary' : 'bg-surface-primary/50'
             }`}
             onClick={() => onView(comic)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onView(comic);
+              }
+            }}
+            aria-label={`${comic.seriesName} #${comic.issueNumber} — Grade ${comic.grade}, Value ${formatCurrency(comic.currentValue || comic.purchasePrice || 0)}`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
@@ -55,6 +48,8 @@ export const ComicListView: React.FC<ComicListViewProps> = React.memo(({ comics,
                       src={comic.coverImageUrl}
                       alt={`${comic.seriesName} #${comic.issueNumber}`}
                       className="w-full h-full object-cover"
+                      loading="lazy"
+                      decoding="async"
                       onError={(e) => {
                         (e.target as HTMLImageElement).style.display = 'none';
                       }}
