@@ -8,7 +8,7 @@
 
 <img src="https://github.com/banastas/comics.banast.as/blob/main/comic.banast.as.png?raw=true">
 
-A personal comic book collection tracker with financial analytics, multi-view browsing, and comprehensive organization. Currently tracking **777 comics** across **176 series**. Built with React 18, TypeScript, and Tailwind CSS.
+A personal comic book collection tracker with financial analytics, multi-view browsing, and comprehensive organization. Currently tracking **787 comics** across **176 series**. Built with React 18, TypeScript, and Tailwind CSS.
 
 **Live Site**: [comics.banast.as](https://comics.banast.as)
 
@@ -44,13 +44,16 @@ Open `http://localhost:5173` in your browser.
 
 ```
 src/
-├── components/           # React components (29 files)
-│   ├── Dashboard.tsx     # Analytics dashboard with stats cards
-│   ├── ComicCard.tsx     # Grid view card
-│   ├── ComicListView.tsx # List view layout
-│   ├── ComicDetail.tsx   # Individual comic page
-│   ├── ComicForm.tsx     # Add/edit comic form
-│   ├── SeriesDetail.tsx  # Series drill-down view
+├── components/              # React components (31 files)
+│   ├── Dashboard.tsx        # Analytics dashboard with stats cards
+│   ├── ComicCard.tsx        # Grid view card (keyboard accessible)
+│   ├── ComicListView.tsx    # List view layout (keyboard accessible)
+│   ├── ComicDetail.tsx      # Individual comic page
+│   ├── ComicForm.tsx        # Add/edit comic form
+│   ├── DetailPageLayout.tsx # Shared layout for all detail views
+│   ├── DetailPageHeader.tsx # Header component for detail pages
+│   ├── Breadcrumb.tsx       # Navigation breadcrumbs
+│   ├── SeriesDetail.tsx     # Series drill-down view
 │   ├── CoverArtistDetail.tsx
 │   ├── TagDetail.tsx
 │   ├── StorageLocationDetail.tsx
@@ -59,20 +62,20 @@ src/
 │   ├── SlabbedComicsDetail.tsx
 │   ├── VariantsDetail.tsx
 │   ├── FilterControls.tsx
-│   ├── SEO.tsx           # Dynamic meta tags + structured data
+│   ├── SEO.tsx              # Dynamic meta tags + structured data
 │   ├── ResponsiveImage.tsx
 │   ├── ErrorBoundary.tsx
-│   └── lazyComponents.ts # Lazy loading config
+│   ├── LoadingSkeleton.tsx  # Loading states with ARIA
+│   ├── Toast.tsx            # Toast notifications
+│   └── ...                  # Dashboard sub-components, mobile controls
 ├── stores/
-│   └── comicStore.ts     # Zustand state store
-├── hooks/                # React hooks (filtering, routing, scroll)
+│   └── comicStore.ts        # Zustand state store
+├── hooks/                   # useRouting, useScrollToTop, useResponsiveBreakpoint
 ├── types/
-│   └── Comic.ts          # TypeScript interfaces
-├── utils/                # Formatting, stats, routing, performance
-├── validation/
-│   └── comicSchema.ts    # Zod schemas
+│   └── Comic.ts             # TypeScript interfaces
+├── utils/                   # formatting, stats, sorting, analytics, routing
 ├── data/
-│   └── comics.json       # Collection data (777 comics)
+│   └── comics.json          # Collection data (787 comics)
 └── styles/
     └── responsive.css
 ```
@@ -100,7 +103,6 @@ Full-text search across multiple fields. Sort by title, series, issue number, re
 ### Data Management
 - JSON-based storage (`src/data/comics.json`)
 - Built-in CSV to JSON converter for bulk imports
-- Zod schema validation for data integrity
 - Automatic timestamps on creation and updates
 
 ### SEO
@@ -116,6 +118,16 @@ Full-text search across multiple fields. Sort by title, series, issue number, re
 - Terser minification with console/debugger stripping
 - Native lazy loading and async decoding for images
 - Skeleton loading states
+- Granular Zustand selectors to minimize re-renders
+- Stable debounce refs to prevent unnecessary recreations
+
+### Accessibility
+- Keyboard-navigable comic cards (Enter/Space to activate)
+- ARIA labels on all interactive elements and form controls
+- `aria-current="page"` on breadcrumbs
+- Loading skeletons with `role="status"` and `aria-busy`
+- `focus-visible` ring indicators for keyboard users
+- Error boundaries on all lazy-loaded routes
 
 ### Responsive Design
 Mobile-first layout from 320px to 4K. 44px minimum touch targets. Fluid typography. Works on desktop, tablet, and phone.
