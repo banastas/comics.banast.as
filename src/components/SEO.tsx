@@ -155,6 +155,7 @@ export function generateCollectionStructuredData(stats: {
     '@type': 'Collection',
     name: 'comics.banast.as',
     description: 'Personal comic book collection with tracking and valuation',
+    author: { '@id': 'https://banast.as/#person' },
     numberOfItems: stats.totalComics,
     ...(stats.totalValue && {
       offers: {
