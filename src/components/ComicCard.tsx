@@ -53,7 +53,7 @@ export const ComicCard: React.FC<ComicCardProps> = React.memo(({ comic, onView }
       aria-label={`${comic.seriesName} #${comic.issueNumber} — Grade ${comic.grade}, Value ${formatCurrency(displayValue)}`}
     >
       {/* Cover Image */}
-      <div ref={imgRef} className="relative aspect-[2/3] bg-surface-secondary" onClick={() => onView(comic)}>
+      <div ref={imgRef} className="relative aspect-[2/3] bg-surface-secondary overflow-hidden" onClick={() => onView(comic)}>
         {hasValidCoverUrl && imageLoading && isVisible && (
           <div className="absolute inset-0 bg-surface-secondary animate-pulse flex items-center justify-center">
             <div className="w-8 h-8 border-4 border-slate-700 border-t-blue-400 rounded-full animate-spin"></div>
@@ -81,17 +81,6 @@ export const ComicCard: React.FC<ComicCardProps> = React.memo(({ comic, onView }
             </div>
           </div>
         )}
-
-        {/* Hover overlay (desktop) */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none hidden sm:flex flex-col justify-end p-3">
-          <p className="text-white text-xs font-medium truncate">{comic.title}</p>
-          {comic.coverArtist && (
-            <p className="text-slate-300 text-xs truncate">{comic.coverArtist}</p>
-          )}
-          {comic.storageLocation && (
-            <p className="text-slate-400 text-xs truncate">{comic.storageLocation}</p>
-          )}
-        </div>
 
         {/* Slabbed Indicator */}
         {comic.isSlabbed && (
