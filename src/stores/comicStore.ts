@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { Comic, ComicStats, SortField, SortDirection, FilterOptions } from '../types/Comic';
 import { calculateComicStats } from '../utils/stats';
-import initialComicsData from '../data/comics.json';
 
 // Helper function to apply filters and sorting
 const applyFilters = (
@@ -247,10 +246,24 @@ const defaultFilters: FilterOptions = {
 };
 
 export const useComicStore = create<ComicStore>((set, get) => {
-  // Initialize store immediately with data
-  const initialComics = initialComicsData as Comic[];
+  // Initialize store with empty data — comics.json is fetched asynchronously
+  // in a separate chunk so the app shell can render immediately
+  const initialComics: Comic[] = [];
   const initialFilteredComics = applyFilters(initialComics, defaultFilters, 'releaseDate', 'desc');
   const initialDerived = computeDerivedData(initialComics);
+
+  // Kick off async load; updates store when ready
+  import('../data/comics.json')
+    .then((mod) => {
+      const data = (mod.default ?? mod) as Comic[];
+      const derived = computeDerivedData(data);
+      const filtered = applyFilters(data, defaultFilters, 'releaseDate', 'desc');
+      set({ comics: data, filteredComics: filtered, ...derived, loading: false });
+    })
+    .catch((err) => {
+      console.error('Failed to load comics data', err);
+      set({ loading: false });
+    });
 
   return {
     // Initial State
@@ -259,7 +272,7 @@ export const useComicStore = create<ComicStore>((set, get) => {
     filters: defaultFilters,
     sortField: 'releaseDate',
     sortDirection: 'desc',
-    loading: false,
+    loading: true,
 
     // Cached computed values
     ...initialDerived,

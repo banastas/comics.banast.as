@@ -25,6 +25,11 @@ export const ComicGridCard: React.FC<ComicGridCardProps> = React.memo(({
         <img
           src={comic.coverImageUrl}
           alt={`${comic.seriesName} #${comic.issueNumber}`}
+          width={400}
+          height={600}
+          loading="lazy"
+          decoding="async"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform"
         />
       ) : (

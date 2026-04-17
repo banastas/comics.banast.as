@@ -1,6 +1,7 @@
 import React from 'react';
 import { Comic } from '../types/Comic';
 import { DetailPageLayout } from './DetailPageLayout';
+import { SEO } from './SEO';
 import { SeriesBreakdown } from './SeriesBreakdown';
 import { Award } from 'lucide-react';
 import { BreadcrumbItem } from './Breadcrumb';
@@ -28,6 +29,15 @@ const VariantsDetailInner: React.FC<VariantsDetailProps> = ({
 
   return (
     <DetailPageLayout
+      seo={
+        <SEO
+          title="Variant Comics"
+          description={`Browse ${variantComics.length} variant cover comics across ${uniqueSeriesCount} series.`}
+          keywords="variant comics, variant covers, exclusive covers, comic book collection"
+          url="https://comics.banast.as/#/variants"
+          canonical="https://comics.banast.as/#/variants"
+        />
+      }
       comics={variantComics}
       onBack={onBack}
       onView={onView}

@@ -6,6 +6,7 @@ import {
   Archive,
 } from 'lucide-react';
 import { Breadcrumb, BreadcrumbItem } from './Breadcrumb';
+import { SEO } from './SEO';
 import { formatCurrency } from '../utils/formatting';
 
 interface StorageLocationsListingProps {
@@ -68,6 +69,13 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
 
   return (
     <div className="min-h-screen bg-surface-base">
+      <SEO
+        title="Virtual Boxes"
+        description={`Browse ${storageLocations.length} virtual boxes organizing your comic collection.`}
+        keywords="virtual boxes, comic storage, comic collection organization"
+        url="https://comics.banast.as/#/boxes"
+        canonical="https://comics.banast.as/#/boxes"
+      />
       {/* Header */}
       <div className="bg-surface-primary shadow-lg border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

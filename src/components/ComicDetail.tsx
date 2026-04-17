@@ -140,11 +140,15 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                     <img
                       src={comic.coverImageUrl}
                       alt={`${comic.seriesName} #${comic.issueNumber}`}
+                      width={400}
+                      height={600}
                       className={`w-full h-full object-cover transition-opacity duration-300 ${
                         imageLoading ? 'opacity-0' : 'opacity-100'
                       }`}
                       onLoad={handleImageLoad}
                       onError={handleImageError}
+                      fetchPriority="high"
+                      decoding="async"
                     />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
@@ -406,6 +410,10 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                               <img
                                 src={relatedComic.coverImageUrl}
                                 alt={`${relatedComic.seriesName} #${relatedComic.issueNumber}`}
+                                width={200}
+                                height={300}
+                                loading="lazy"
+                                decoding="async"
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                               />
                             ) : (

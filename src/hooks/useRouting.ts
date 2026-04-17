@@ -373,7 +373,7 @@ export const useRouting = ({
     
     window.addEventListener('popstate', handlePopState);
     window.addEventListener('urlchange', handleCustomUrlChange);
-    
+
     return () => {
       window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('urlchange', handleCustomUrlChange);

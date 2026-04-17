@@ -47,6 +47,8 @@ export const ComicListView: React.FC<ComicListViewProps> = React.memo(({ comics,
                     <img
                       src={comic.coverImageUrl}
                       alt={`${comic.seriesName} #${comic.issueNumber}`}
+                      width={48}
+                      height={64}
                       className="w-full h-full object-cover"
                       loading="lazy"
                       decoding="async"

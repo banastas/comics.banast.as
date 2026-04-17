@@ -22,9 +22,7 @@ export default defineConfig({
           'react-vendor': ['react', 'react-dom', 'react-helmet-async'],
           // Lucide icons
           'icons': ['lucide-react'],
-          // Comic data and utilities
-          'data': ['./src/data/comics.json'],
-          // Hooks and utilities
+          // Hooks and utilities (comics.json is loaded async and gets its own chunk automatically)
           'utils': [
             './src/utils/formatting.ts',
             './src/utils/stats.ts',

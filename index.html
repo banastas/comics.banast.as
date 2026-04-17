@@ -4,16 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Primary Meta Tags -->
+    <!-- Primary Meta Tags — title/description/keywords are managed dynamically per-route by react-helmet-async (see src/components/SEO.tsx). These defaults show before JS runs. -->
     <title>comics.banast.as - Track, Organize & Value Your Comics</title>
-    <meta name="title" content="comics.banast.as - Track, Organize & Value Your Comics" />
-    <meta name="description" content="Professional comic book collection management system. Track your comics, monitor values, organize by series, artists, and storage locations. Discover variant covers, slabbed comics, and signed editions in your personal collection." />
-    <meta name="keywords" content="comic book collection, comic tracker, comic book manager, comic book database, comic book organizer, comic valuation, comic grading, variant covers, slabbed comics, comic storage" />
+    <meta name="description" content="Professional comic book collection management system. Track your comics, monitor values, organize by series, artists, and storage locations." />
     <meta name="author" content="banastas" />
     <meta name="theme-color" content="#0d1117" />
 
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://comics.banast.as/" />
+    <!-- Canonical URL is managed dynamically by react-helmet-async per route -->
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -40,10 +37,18 @@
     <!-- Web App Manifest -->
     <link rel="manifest" href="/manifest.json" />
 
-    <!-- Fonts -->
+    <!-- Fonts — preload CSS with non-blocking fallback -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+    </noscript>
 
     <!-- Resource Hints -->
     <link rel="preconnect" href="https://www.googletagmanager.com" />

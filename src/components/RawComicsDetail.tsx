@@ -1,6 +1,7 @@
 import React from 'react';
 import { Comic } from '../types/Comic';
 import { DetailPageLayout } from './DetailPageLayout';
+import { SEO } from './SEO';
 import { SeriesBreakdown } from './SeriesBreakdown';
 import { BookOpen } from 'lucide-react';
 import { BreadcrumbItem } from './Breadcrumb';
@@ -41,6 +42,15 @@ const RawComicsDetailComponent: React.FC<RawComicsDetailProps> = ({
 
   return (
     <DetailPageLayout
+      seo={
+        <SEO
+          title="Raw Comics"
+          description={`Browse ${rawComics.length} raw (ungraded) comics across ${uniqueSeriesCount} series.`}
+          keywords="raw comics, ungraded comics, comic book collection, non-slabbed comics"
+          url="https://comics.banast.as/#/raw"
+          canonical="https://comics.banast.as/#/raw"
+        />
+      }
       comics={rawComics}
       onBack={onBack}
       onView={onView}

@@ -19,8 +19,48 @@ const storageLocations = [...new Set(comicsData.map(comic => comic.storageLocati
 // Get unique cover artists
 const coverArtists = [...new Set(comicsData.map(comic => comic.coverArtist).filter(Boolean))];
 
-// Get unique tags
+// Get unique user tags
 const tags = [...new Set(comicsData.flatMap(comic => comic.tags || []))];
+
+// Compute smart tags for a comic (mirrors src/stores/comicStore.ts)
+const computeTagsForComic = (comic) => {
+  const computed = [];
+  const year = new Date(comic.releaseDate).getFullYear();
+  if (year >= 1940 && year < 1950) computed.push('Golden Age');
+  else if (year >= 1950 && year < 1970) computed.push('Silver Age');
+  else if (year >= 1970 && year < 1985) computed.push('Bronze Age');
+  else if (year >= 1985 && year < 1992) computed.push('Copper Age');
+  else if (year >= 1992 && year < 2000) computed.push('90s');
+  else if (year >= 2000 && year < 2010) computed.push('2000s');
+  else if (year >= 2010 && year < 2020) computed.push('2010s');
+  else if (year >= 2020) computed.push('Modern');
+
+  if (comic.grade >= 9.8) computed.push('Gem Mint');
+  else if (comic.grade >= 9.6) computed.push('High Grade');
+
+  if (comic.issueNumber === 1) computed.push('First Issue');
+  if (comic.currentValue && comic.currentValue >= 50) computed.push('High Value');
+
+  if (comic.currentValue && comic.purchasePrice && comic.purchasePrice > 0) {
+    const change = ((comic.currentValue - comic.purchasePrice) / comic.purchasePrice) * 100;
+    if (change >= 50) computed.push('Appreciating');
+    else if (change <= -20) computed.push('Depreciating');
+  }
+
+  if (comic.signedBy && String(comic.signedBy).trim() !== '') computed.push('Signed');
+  return computed;
+};
+
+// Count computed tags, include only those with >= 5 comics
+const computedTagCounts = new Map();
+comicsData.forEach(comic => {
+  computeTagsForComic(comic).forEach(tag => {
+    computedTagCounts.set(tag, (computedTagCounts.get(tag) || 0) + 1);
+  });
+});
+const computedTags = Array.from(computedTagCounts.entries())
+  .filter(([, count]) => count >= 5)
+  .map(([tag]) => tag);
 
 // Generate sitemap URLs
 const urls = [];
@@ -139,8 +179,18 @@ coverArtists.forEach(artist => {
   });
 });
 
-// Tag pages
+// Tag pages (user-defined)
 tags.forEach(tag => {
+  urls.push({
+    loc: `https://comics.banast.as/#/tag/${encodeURIComponent(tag)}`,
+    lastmod: new Date().toISOString().split('T')[0],
+    changefreq: 'monthly',
+    priority: '0.5'
+  });
+});
+
+// Computed tag pages (Golden Age, First Issue, etc.) — only tags with >= 5 comics
+computedTags.forEach(tag => {
   urls.push({
     loc: `https://comics.banast.as/#/tag/${encodeURIComponent(tag)}`,
     lastmod: new Date().toISOString().split('T')[0],
@@ -168,5 +218,6 @@ console.log(`   - ${comicsData.length} comics`);
 console.log(`   - ${seriesNames.length} series`);
 console.log(`   - ${storageLocations.length} storage locations`);
 console.log(`   - ${coverArtists.length} cover artists`);
-console.log(`   - ${tags.length} tags`);
+console.log(`   - ${tags.length} user tags`);
+console.log(`   - ${computedTags.length} computed tags`);
 console.log(`   - 7 static pages`);

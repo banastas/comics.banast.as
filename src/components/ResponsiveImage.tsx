@@ -75,6 +75,8 @@ export const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
       <img
         src={src}
         alt={alt}
+        width={400}
+        height={600}
         className={`w-full h-full object-cover transition-opacity duration-300 ${
           isLoaded ? 'opacity-100' : 'opacity-0'
         }`}
@@ -82,6 +84,7 @@ export const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
         onError={handleError}
         loading={priority === 'high' ? 'eager' : 'lazy'}
         decoding="async"
+        fetchPriority={priority === 'high' ? 'high' : 'auto'}
       />
     </div>
   );

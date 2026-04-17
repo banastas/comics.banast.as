@@ -60,6 +60,7 @@ function App() {
   const variantsCount = useComicStore((s) => s.variantsCount);
   const allComputedTags = useComicStore((s) => s.allComputedTags);
   const computedTagCounts = useComicStore((s) => s.computedTagCounts);
+  const computedTagsMap = useComicStore((s) => s.computedTagsMap);
   const activeComputedTag = useComicStore((s) => s.activeComputedTag);
   const setActiveComputedTag = useComicStore((s) => s.setActiveComputedTag);
 
@@ -76,7 +77,12 @@ function App() {
   const [showVirtualBoxes, setShowVirtualBoxes] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
-  const [itemsPerPage, setItemsPerPage] = useState(48);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(() => {
+    if (typeof window === 'undefined') return 48;
+    const stored = window.localStorage.getItem('comics:itemsPerPage');
+    const parsed = stored ? Number.parseInt(stored, 10) : NaN;
+    return [48, 96, 192].includes(parsed) ? parsed : 48;
+  });
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [showMobileControls, setShowMobileControls] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -179,6 +185,7 @@ function App() {
   const handleItemsPerPageChange = useCallback((newItemsPerPage: number) => {
     setItemsPerPage(newItemsPerPage);
     setCurrentPage(0);
+    try { window.localStorage.setItem('comics:itemsPerPage', String(newItemsPerPage)); } catch { /* ignore quota/privacy errors */ }
   }, []);
 
   const handleSaveComic = (comicData: Omit<Comic, 'id' | 'createdAt' | 'updatedAt'>) => {
@@ -415,7 +422,10 @@ function App() {
   }
 
   if (selectedTag) {
-    const tagComics = allComics.filter(comic => comic.tags.includes(selectedTag || ''));
+    const tagComics = allComics.filter(comic =>
+      comic.tags.includes(selectedTag) ||
+      (computedTagsMap.get(comic.id) || []).includes(selectedTag)
+    );
     return (
       <ErrorBoundary><React.Suspense fallback={<LoadingSpinner />}>
         <TagDetail tag={selectedTag || ''} tagComics={tagComics} onBack={handleBackToCollection}
@@ -680,6 +690,16 @@ function App() {
                 <X size={12} />
               </button>
             )}
+            {Number(!!filters.searchTerm) + Number(!!activeComputedTag) >= 2 && (
+              <button
+                onClick={() => { clearSearch(); setActiveComputedTag(null); }}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-slate-400 text-xs border border-slate-700 hover:border-slate-500 hover:text-white transition-colors"
+                aria-label="Clear all filters"
+              >
+                Clear all
+                <X size={12} />
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -867,7 +887,7 @@ function App() {
                       <span className="text-lg font-bold text-slate-600 w-7 text-right tabular-nums">{i + 1}</span>
                       <div className="w-8 h-11 bg-surface-secondary rounded overflow-hidden flex-shrink-0">
                         {comic.coverImageUrl && (
-                          <img src={comic.coverImageUrl} alt="" className="w-full h-full object-cover" />
+                          <img src={comic.coverImageUrl} alt="" width={32} height={44} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">

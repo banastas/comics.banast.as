@@ -1,6 +1,7 @@
 import React from 'react';
 import { Comic } from '../types/Comic';
 import { DetailPageLayout } from './DetailPageLayout';
+import { SEO } from './SEO';
 import { SeriesBreakdown } from './SeriesBreakdown';
 import { Archive } from 'lucide-react';
 import { BreadcrumbItem } from './Breadcrumb';
@@ -38,6 +39,15 @@ const SlabbedComicsDetailInner: React.FC<SlabbedComicsDetailProps> = ({
 
   return (
     <DetailPageLayout
+      seo={
+        <SEO
+          title="Slabbed Comics"
+          description={`Browse ${slabbedComics.length} slabbed (graded) comics across ${uniqueSeriesCount} series.`}
+          keywords="slabbed comics, graded comics, CGC, CBCS, comic book collection"
+          url="https://comics.banast.as/#/slabbed"
+          canonical="https://comics.banast.as/#/slabbed"
+        />
+      }
       comics={slabbedComics}
       onBack={onBack}
       onView={onView}

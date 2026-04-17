@@ -27,6 +27,10 @@ export const ComicListRow: React.FC<ComicListRowProps> = React.memo(({
             <img
               src={comic.coverImageUrl}
               alt={`${comic.seriesName} #${comic.issueNumber}`}
+              width={48}
+              height={64}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover"
             />
           ) : (

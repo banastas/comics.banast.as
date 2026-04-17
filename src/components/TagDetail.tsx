@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Comic } from '../types/Comic';
 import { DetailPageLayout } from './DetailPageLayout';
+import { SEO } from './SEO';
 import { Tag } from 'lucide-react';
 import { formatCurrency } from '../utils/formatting';
 import { BreadcrumbItem } from './Breadcrumb';
@@ -88,12 +89,23 @@ export const TagDetail: React.FC<TagDetailProps> = React.memo(({
     </div>
   );
 
+  const tagUrl = `https://comics.banast.as/#/tag/${encodeURIComponent(tag)}`;
+
   return (
     <DetailPageLayout
       comics={tagComics}
       onBack={onBack}
       onView={onView}
       breadcrumbItems={breadcrumbItems}
+      seo={
+        <SEO
+          title={`#${tag}`}
+          description={`Browse ${tagComics.length} comics tagged with #${tag}${uniqueSeries.length > 0 ? ` across ${uniqueSeries.length} series` : ''}.`}
+          keywords={`${tag}, comic book tag, ${tag} comics, comic collection`}
+          url={tagUrl}
+          canonical={tagUrl}
+        />
+      }
       icon={<Tag size={24} className="text-white" />}
       iconBgColor="bg-blue-500"
       title={`#${tag}`}
