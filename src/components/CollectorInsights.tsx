@@ -1,13 +1,13 @@
 import React, { useMemo } from 'react';
-import { Comic } from '../types/Comic';
-import { TrendingUp, Layers, Star, User, BarChart3, Archive } from 'lucide-react';
+import type { Comic } from '../types/Comic';
+import { TrendingUp, Layers, Star, User, BarChart3, Archive, type LucideIcon } from 'lucide-react';
 
 interface CollectorInsightsProps {
   comics: Comic[];
 }
 
 interface Insight {
-  icon: React.FC<{ size: number; className?: string }>;
+  icon: LucideIcon;
   text: string;
   color: string;
 }
@@ -15,6 +15,7 @@ interface Insight {
 export const CollectorInsights: React.FC<CollectorInsightsProps> = ({ comics }) => {
   const insights = useMemo(() => {
     const result: Insight[] = [];
+    if (comics.length === 0) return result;
 
     // Best ROI series
     const seriesMap = new Map<string, { purchase: number; current: number; count: number }>();

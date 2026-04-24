@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Comic } from '../types/Comic';
-import { SEO, generateComicStructuredData } from './SEO';
+import type { Comic } from '../types/Comic';
+import { SEO } from './SEO';
+import { generateComicStructuredData } from '../utils/structured-data';
 import { createComicSlug } from '../utils/routing';
 import { formatCurrency, formatDateLong } from '../utils/formatting';
 import { useScrollToTop } from '../hooks/useScrollToTop';
@@ -82,7 +83,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
       {/* SEO Meta Tags */}
       <SEO
         title={`${comic.seriesName} #${comic.issueNumber}${comic.isVariant ? ' (Variant)' : ''}`}
-        description={`${comic.seriesName} Issue #${comic.issueNumber}${comic.coverArtist ? ` - Cover art by ${comic.coverArtist}` : ''}. ${comic.grade ? `Grade: ${comic.grade}` : ''}${comic.isSlabbed ? ' (Slabbed)' : ''}${comic.isVariant ? ' (Variant Cover)' : ''}${comic.signedBy && comic.signedBy.length > 0 ? ` Signed by ${comic.signedBy.join(', ')}` : ''}`}
+        description={`${comic.seriesName} Issue #${comic.issueNumber}${comic.coverArtist ? ` - Cover art by ${comic.coverArtist}` : ''}. ${comic.grade ? `Grade: ${comic.grade}` : ''}${comic.isSlabbed ? ' (Slabbed)' : ''}${comic.isVariant ? ' (Variant Cover)' : ''}${comic.signedBy.trim() ? ` Signed by ${comic.signedBy}` : ''}`}
         keywords={`${comic.seriesName}, comic book, issue ${comic.issueNumber}, ${comic.coverArtist || 'comic'}, ${comic.isSlabbed ? 'slabbed comic, graded comic,' : ''} ${comic.isVariant ? 'variant cover,' : ''} comic collection`}
         image={comic.coverImageUrl}
         url={comicUrl}

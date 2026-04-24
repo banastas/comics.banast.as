@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Comic } from '../types/Comic';
+import type { Comic } from '../types/Comic';
 import { X, Save } from 'lucide-react';
 
 interface ComicFormProps {
@@ -29,7 +29,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
     coverImageUrl: string;
     coverArtist: string;
     grade: number;
-    purchasePrice: number;
+    purchasePrice?: number;
     purchaseDate: string;
     currentValue?: number;
     notes: string;
@@ -118,7 +118,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
     if (formData.issueNumber < 0) newErrors.issueNumber = 'Issue number must be positive';
     if (!formData.releaseDate) newErrors.releaseDate = 'Release date is required';
     if (formData.grade < 0.5 || formData.grade > 10) newErrors.grade = 'Grade must be between 0.5 and 10';
-    if (formData.purchasePrice < 0) newErrors.purchasePrice = 'Purchase price must be positive';
+    if (formData.purchasePrice !== undefined && formData.purchasePrice < 0) newErrors.purchasePrice = 'Purchase price must be positive';
     if (!formData.purchaseDate) newErrors.purchaseDate = 'Purchase date is required';
 
     setErrors(newErrors);

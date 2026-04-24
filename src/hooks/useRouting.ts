@@ -1,21 +1,14 @@
 import { useEffect, useCallback } from 'react';
-import { parseCurrentUrl, parseRoute, navigateToUrl, RouteParams, parseComicSlug, createComicSlug } from '../utils/routing';
-import { Comic, FilterOptions } from '../types/Comic';
+import { parseCurrentUrl, parseRoute, navigateToUrl, type RouteParams, parseComicSlug, createComicSlug } from '../utils/routing';
+import type { Comic, FilterOptions, SortField } from '../types/Comic';
 import { trackPageView } from '../utils/analytics';
 
 interface UseRoutingProps {
   // Current state
   activeTab: 'collection' | 'stats';
-  selectedComic: Comic | undefined;
-  selectedSeries: string | null;
-  selectedStorageLocation: string | null;
-  selectedCoverArtist: string | null;
-  selectedTag: string | null;
-  selectedCondition: 'raw' | 'slabbed' | 'variants' | null;
-  showVirtualBoxes: boolean;
   viewMode: 'grid' | 'list';
   searchTerm: string;
-  sortField: string;
+  sortField: SortField;
   sortDirection: 'asc' | 'desc';
   
   // State setters
@@ -29,22 +22,30 @@ interface UseRoutingProps {
   setShowVirtualBoxes: (show: boolean) => void;
   setViewMode: (mode: 'grid' | 'list') => void;
   setFilters: (filters: Partial<FilterOptions>) => void;
-  setSortField: (field: string) => void;
+  setSortField: (field: SortField) => void;
   setSortDirection: (direction: 'asc' | 'desc') => void;
+  setActiveComputedTag: (tag: string | null) => void;
   
   // Data
   allComics: Comic[];
 }
 
+type RouteType =
+  | 'home'
+  | 'collection'
+  | 'stats'
+  | 'comic'
+  | 'series'
+  | 'storage'
+  | 'artist'
+  | 'tag'
+  | 'raw'
+  | 'slabbed'
+  | 'variants'
+  | 'boxes';
+
 export const useRouting = ({
   activeTab,
-  selectedComic,
-  selectedSeries,
-  selectedStorageLocation,
-  selectedCoverArtist,
-  selectedTag,
-  selectedCondition,
-  showVirtualBoxes,
   viewMode,
   searchTerm,
   sortField,
@@ -61,12 +62,13 @@ export const useRouting = ({
   setFilters,
   setSortField,
   setSortDirection,
+  setActiveComputedTag,
   allComics,
 }: UseRoutingProps) => {
   
   // Navigate to a specific route
   const navigateToRoute = useCallback((
-    type: string,
+    type: RouteType,
     identifier?: string,
     params?: RouteParams,
     replace = false
@@ -166,6 +168,8 @@ export const useRouting = ({
     // Update search term
     if (params.searchTerm !== undefined && params.searchTerm !== searchTerm) {
       setFilters({ searchTerm: params.searchTerm });
+    } else if (params.searchTerm === undefined && searchTerm !== '') {
+      setFilters({ searchTerm: '' });
     }
     
     // Update sort parameters
@@ -180,6 +184,8 @@ export const useRouting = ({
     switch (type) {
       case 'home':
       case 'collection':
+        setActiveTab('collection');
+        setActiveComputedTag(null);
         // Clear all selections
         setSelectedComic(undefined);
         setSelectedSeries(null);
@@ -229,7 +235,7 @@ export const useRouting = ({
                 });
               }
             }
-          } catch (e) {
+          } catch {
             // If slug parsing fails, try old ID format for backward compatibility
             comic = allComics.find(c => c.id === routeParams.comicId);
           }
@@ -347,6 +353,7 @@ export const useRouting = ({
     setFilters,
     setSortField,
     setSortDirection,
+    setActiveComputedTag,
     setSelectedComic,
     setSelectedSeries,
     setSelectedStorageLocation,

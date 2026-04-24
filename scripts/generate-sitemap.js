@@ -22,6 +22,25 @@ const coverArtists = [...new Set(comicsData.map(comic => comic.coverArtist).filt
 // Get unique user tags
 const tags = [...new Set(comicsData.flatMap(comic => comic.tags || []))];
 
+const toDateOnly = (date) => new Date(date).toISOString().split('T')[0];
+const maxDate = (dates) => {
+  const validDates = dates
+    .filter(Boolean)
+    .map((date) => new Date(date).getTime())
+    .filter((timestamp) => !Number.isNaN(timestamp));
+
+  if (validDates.length === 0) {
+    return toDateOnly(new Date());
+  }
+
+  return toDateOnly(Math.max(...validDates));
+};
+
+const siteLastModified = maxDate(comicsData.map(comic => comic.updatedAt));
+const lastModifiedFor = (predicate) => {
+  return maxDate(comicsData.filter(predicate).map(comic => comic.updatedAt));
+};
+
 // Compute smart tags for a comic (mirrors src/stores/comicStore.ts)
 const computeTagsForComic = (comic) => {
   const computed = [];
@@ -68,7 +87,7 @@ const urls = [];
 // Homepage
 urls.push({
   loc: 'https://comics.banast.as/',
-  lastmod: new Date().toISOString().split('T')[0],
+  lastmod: siteLastModified,
   changefreq: 'daily',
   priority: '1.0'
 });
@@ -76,7 +95,7 @@ urls.push({
 // Collection page
 urls.push({
   loc: 'https://comics.banast.as/#/collection',
-  lastmod: new Date().toISOString().split('T')[0],
+  lastmod: siteLastModified,
   changefreq: 'daily',
   priority: '0.9'
 });
@@ -84,7 +103,7 @@ urls.push({
 // Statistics page
 urls.push({
   loc: 'https://comics.banast.as/#/stats',
-  lastmod: new Date().toISOString().split('T')[0],
+  lastmod: siteLastModified,
   changefreq: 'weekly',
   priority: '0.8'
 });
@@ -92,7 +111,7 @@ urls.push({
 // Raw comics page
 urls.push({
   loc: 'https://comics.banast.as/#/raw',
-  lastmod: new Date().toISOString().split('T')[0],
+  lastmod: lastModifiedFor(comic => !comic.isSlabbed),
   changefreq: 'weekly',
   priority: '0.7'
 });
@@ -100,7 +119,7 @@ urls.push({
 // Slabbed comics page
 urls.push({
   loc: 'https://comics.banast.as/#/slabbed',
-  lastmod: new Date().toISOString().split('T')[0],
+  lastmod: lastModifiedFor(comic => comic.isSlabbed),
   changefreq: 'weekly',
   priority: '0.7'
 });
@@ -108,7 +127,7 @@ urls.push({
 // Variants page
 urls.push({
   loc: 'https://comics.banast.as/#/variants',
-  lastmod: new Date().toISOString().split('T')[0],
+  lastmod: lastModifiedFor(comic => comic.isVariant),
   changefreq: 'weekly',
   priority: '0.7'
 });
@@ -116,7 +135,7 @@ urls.push({
 // Virtual boxes page
 urls.push({
   loc: 'https://comics.banast.as/#/boxes',
-  lastmod: new Date().toISOString().split('T')[0],
+  lastmod: siteLastModified,
   changefreq: 'weekly',
   priority: '0.6'
 });
@@ -143,7 +162,7 @@ comicsData.forEach(comic => {
   const slug = createComicSlug(comic);
   urls.push({
     loc: `https://comics.banast.as/#/comic/${slug}`,
-    lastmod: comic.updatedAt ? new Date(comic.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+    lastmod: comic.updatedAt ? toDateOnly(comic.updatedAt) : siteLastModified,
     changefreq: 'monthly',
     priority: '0.6'
   });
@@ -153,7 +172,7 @@ comicsData.forEach(comic => {
 seriesNames.forEach(series => {
   urls.push({
     loc: `https://comics.banast.as/#/series/${encodeURIComponent(series)}`,
-    lastmod: new Date().toISOString().split('T')[0],
+    lastmod: lastModifiedFor(comic => comic.seriesName === series),
     changefreq: 'weekly',
     priority: '0.7'
   });
@@ -163,7 +182,7 @@ seriesNames.forEach(series => {
 storageLocations.forEach(location => {
   urls.push({
     loc: `https://comics.banast.as/#/storage/${encodeURIComponent(location)}`,
-    lastmod: new Date().toISOString().split('T')[0],
+    lastmod: lastModifiedFor(comic => comic.storageLocation === location),
     changefreq: 'weekly',
     priority: '0.5'
   });
@@ -173,7 +192,7 @@ storageLocations.forEach(location => {
 coverArtists.forEach(artist => {
   urls.push({
     loc: `https://comics.banast.as/#/artist/${encodeURIComponent(artist)}`,
-    lastmod: new Date().toISOString().split('T')[0],
+    lastmod: lastModifiedFor(comic => comic.coverArtist === artist),
     changefreq: 'monthly',
     priority: '0.5'
   });
@@ -183,7 +202,7 @@ coverArtists.forEach(artist => {
 tags.forEach(tag => {
   urls.push({
     loc: `https://comics.banast.as/#/tag/${encodeURIComponent(tag)}`,
-    lastmod: new Date().toISOString().split('T')[0],
+    lastmod: lastModifiedFor(comic => (comic.tags || []).includes(tag)),
     changefreq: 'monthly',
     priority: '0.5'
   });
@@ -193,7 +212,7 @@ tags.forEach(tag => {
 computedTags.forEach(tag => {
   urls.push({
     loc: `https://comics.banast.as/#/tag/${encodeURIComponent(tag)}`,
-    lastmod: new Date().toISOString().split('T')[0],
+    lastmod: lastModifiedFor(comic => computeTagsForComic(comic).includes(tag)),
     changefreq: 'monthly',
     priority: '0.5'
   });

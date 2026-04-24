@@ -1,7 +1,6 @@
 import React from 'react';
 import { ArrowLeft, Grid, List } from 'lucide-react';
-import { DetailSortField } from '../utils/sorting';
-import { Breadcrumb, BreadcrumbItem } from './Breadcrumb';
+import { Breadcrumb, type BreadcrumbItem } from './Breadcrumb';
 
 interface DetailPageHeaderProps {
   onBack: () => void;

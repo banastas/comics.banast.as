@@ -1,4 +1,8 @@
-import { Comic } from '../types/Comic';
+import type { Comic, SortField } from '../types/Comic';
+
+export type ComicSlugInput = Pick<Comic, 'id' | 'seriesName' | 'isVariant'> & {
+  issueNumber: string | number;
+};
 
 // URL path constants
 export const ROUTES = {
@@ -27,9 +31,20 @@ export interface RouteParams {
   tab?: 'collection' | 'stats';
   viewMode?: 'grid' | 'list';
   searchTerm?: string;
-  sortField?: string;
+  sortField?: SortField;
   sortDirection?: 'asc' | 'desc';
 }
+
+const sortFields = ['title', 'seriesName', 'issueNumber', 'releaseDate', 'grade', 'purchaseDate', 'purchasePrice', 'currentValue'] as const;
+const viewModes = ['grid', 'list'] as const;
+
+export const isSortField = (value: string | null): value is SortField => {
+  return value !== null && sortFields.includes(value as SortField);
+};
+
+const isViewMode = (value: string | null): value is 'grid' | 'list' => {
+  return value !== null && viewModes.includes(value as 'grid' | 'list');
+};
 
 // Generate URLs for different routes
 export const generateUrl = (route: string, params?: RouteParams): string => {
@@ -98,13 +113,15 @@ export const parseCurrentUrl = (): { route: string; params: RouteParams } => {
       params.tab = searchParams.get('tab') as 'collection' | 'stats';
     }
     if (searchParams.has('view')) {
-      params.viewMode = searchParams.get('view') as 'grid' | 'list';
+      const view = searchParams.get('view');
+      if (isViewMode(view)) params.viewMode = view;
     }
     if (searchParams.has('search')) {
       params.searchTerm = searchParams.get('search') || undefined;
     }
     if (searchParams.has('sort')) {
-      params.sortField = searchParams.get('sort') || undefined;
+      const sort = searchParams.get('sort');
+      if (isSortField(sort)) params.sortField = sort;
     }
     if (searchParams.has('order')) {
       params.sortDirection = searchParams.get('order') as 'asc' | 'desc';
@@ -189,7 +206,7 @@ export const navigateToUrl = (url: string, replace = false): void => {
 };
 
 // Helper function to create SEO-friendly slug
-export const createComicSlug = (comic: Comic): string => {
+export const createComicSlug = (comic: ComicSlugInput): string => {
   // Create slug from series name and issue number
   const seriesSlug = comic.seriesName
     .toLowerCase()
@@ -264,4 +281,3 @@ export const getCoverArtistUrl = (artist: string, params?: RouteParams): string 
 export const getTagUrl = (tag: string, params?: RouteParams): string => {
   return urls.tag(tag, params);
 };
-

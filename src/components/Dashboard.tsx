@@ -1,7 +1,6 @@
 import React from 'react';
-import { Comic } from '../types/Comic';
-import { ComicStats } from '../types/Comic';
-import { BookOpen, DollarSign, Award, PenTool, Archive, Star, TrendingUp, TrendingDown, MapPin } from 'lucide-react';
+import type { Comic, ComicStats } from '../types/Comic';
+import { BookOpen, Award, PenTool, Archive, TrendingUp, TrendingDown, MapPin } from 'lucide-react';
 import { formatCurrency, formatPercentage } from '../utils/formatting';
 
 interface DashboardProps {

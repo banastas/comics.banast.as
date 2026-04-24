@@ -4,13 +4,12 @@ import { useRouting } from './hooks/useRouting';
 import { Dashboard } from './components/Dashboard';
 import { ComicCard } from './components/ComicCard';
 import { ComicListView } from './components/ComicListView';
-import { SEO, generateCollectionStructuredData } from './components/SEO';
-import { Comic } from './types/Comic';
+import { SEO } from './components/SEO';
+import type { Comic, SortField } from './types/Comic';
 import { BookOpen, Plus, BarChart3, Grid, List, SortAsc, SortDesc, Search, SlidersHorizontal, X, Trophy } from 'lucide-react';
-import { SortField } from './types/Comic';
-import { getComicUrl, getSeriesUrl, getStorageLocationUrl, getCoverArtistUrl, getTagUrl, urls, createComicSlug } from './utils/routing';
+import { createComicSlug } from './utils/routing';
 import { debounce } from './utils/performance';
-import { Breadcrumb } from './components/Breadcrumb';
+import type { BreadcrumbItem } from './components/Breadcrumb';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { MobileControls } from './components/MobileControls';
 import { ToastContainer } from './components/Toast';
@@ -19,6 +18,8 @@ import { AcquisitionTimeline } from './components/AcquisitionTimeline';
 import { CollectorInsights } from './components/CollectorInsights';
 import { CollectionHealth } from './components/CollectionHealth';
 import { formatCurrency } from './utils/formatting';
+import { getSeriesCountSummaries, getSeriesPerformance, getStorageLocationSummaries, getTopValueComics } from './utils/collection-analytics';
+import { generateCollectionStructuredData } from './utils/structured-data';
 
 // Lazy load components
 const ComicForm = React.lazy(() => import('./components/ComicForm').then(module => ({ default: module.ComicForm })));
@@ -92,13 +93,6 @@ function App() {
   // URL routing
   const { navigateToRoute } = useRouting({
     activeTab,
-    selectedComic,
-    selectedSeries,
-    selectedStorageLocation,
-    selectedCoverArtist,
-    selectedTag,
-    selectedCondition,
-    showVirtualBoxes,
     viewMode,
     searchTerm: filters.searchTerm,
     sortField,
@@ -115,6 +109,7 @@ function App() {
     setFilters,
     setSortField,
     setSortDirection,
+    setActiveComputedTag,
     allComics,
   });
 
@@ -133,7 +128,7 @@ function App() {
   const debouncedSetFilters = useMemo(
     () => debounce((searchTerm: string) => {
       const { activeTab: tab, viewMode: vm, sortField: sf, sortDirection: sd, navigateToRoute: nav } = searchContextRef.current;
-      setFilters(prevFilters => ({ ...prevFilters, searchTerm }));
+      setFilters({ searchTerm });
       nav(tab === 'stats' ? 'stats' : 'collection', undefined, {
         tab, viewMode: vm, searchTerm, sortField: sf, sortDirection: sd
       });
@@ -168,7 +163,7 @@ function App() {
   }, [debouncedSetFilters, setFilters]);
 
   useEffect(() => { setSearchInput(filters.searchTerm); }, [filters.searchTerm]);
-  useEffect(() => { setCurrentPage(0); }, [filters.searchTerm, filters.seriesName, filters.minGrade, filters.maxGrade, filters.minPrice, filters.maxPrice, filters.isSlabbed, filters.isSigned, sortField, sortDirection]);
+  useEffect(() => { setCurrentPage(0); }, [filters.searchTerm, filters.seriesName, filters.minGrade, filters.maxGrade, filters.minPrice, filters.maxPrice, filters.isSlabbed, filters.isSigned, sortField, sortDirection, activeComputedTag]);
 
   // Pagination
   const totalPages = Math.ceil(filteredComics.length / itemsPerPage);
@@ -334,8 +329,8 @@ function App() {
   };
 
   // Breadcrumb items
-  const breadcrumbItems = useMemo(() => {
-    const items = [{ label: 'Collection', onClick: handleBackToCollection }];
+  const breadcrumbItems: BreadcrumbItem[] = (() => {
+    const items: BreadcrumbItem[] = [{ label: 'Collection', onClick: handleBackToCollection }];
     if (selectedCondition === 'raw') items.push({ label: 'Raw Comics' });
     else if (selectedCondition === 'slabbed') items.push({ label: 'Slabbed Comics' });
     else if (selectedCondition === 'variants') items.push({ label: 'Variants' });
@@ -351,15 +346,16 @@ function App() {
       items.push({ label: `#${selectedComic.issueNumber}` });
     }
     return items;
-  }, [selectedComic, selectedSeries, selectedStorageLocation, selectedCoverArtist, selectedTag, selectedCondition, showVirtualBoxes]);
+  })();
 
   // Top 10 most valuable comics
   const top10Comics = useMemo(() => {
-    return [...allComics]
-      .filter(c => c.currentValue !== undefined)
-      .sort((a, b) => (b.currentValue || 0) - (a.currentValue || 0))
-      .slice(0, 10);
+    return getTopValueComics(allComics, 10);
   }, [allComics]);
+  const seriesPerformance = useMemo(() => getSeriesPerformance(allComics), [allComics]);
+  const valuedSeriesCount = seriesPerformance.length;
+  const seriesCountSummaries = useMemo(() => getSeriesCountSummaries(allComics), [allComics]);
+  const storageLocationSummaries = useMemo(() => getStorageLocationSummaries(allComics), [allComics]);
 
   if (loading) {
     return (
@@ -569,8 +565,9 @@ function App() {
                     <select
                       value={sortField}
                       onChange={(e) => {
-                        setSortField(e.target.value as SortField);
-                        navigateToRoute('collection', undefined, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField: e.target.value, sortDirection });
+                        const nextSortField = e.target.value as SortField;
+                        setSortField(nextSortField);
+                        navigateToRoute('collection', undefined, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField: nextSortField, sortDirection });
                       }}
                       aria-label="Sort by"
                       className="bg-surface-secondary border border-slate-700 rounded-xl px-3 py-2 text-sm text-white cursor-pointer hover:border-slate-600 transition-colors"
@@ -909,18 +906,7 @@ function App() {
                   <h3 className="text-base font-semibold text-white mb-4">Series Performance</h3>
                   {allSeries.length > 0 ? (
                     <div className="space-y-1">
-                      {allSeries
-                        .map(series => {
-                          const seriesComics = allComics.filter(comic => comic.seriesName === series);
-                          const seriesComicsWithValue = seriesComics.filter(comic => comic.currentValue !== undefined);
-                          const purchaseValue = seriesComicsWithValue.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0);
-                          const currentValue = seriesComicsWithValue.reduce((sum, comic) => sum + (comic.currentValue || 0), 0);
-                          const gainLoss = currentValue - purchaseValue;
-                          const gainLossPercentage = purchaseValue > 0 ? (gainLoss / purchaseValue) * 100 : 0;
-                          return { name: series, count: seriesComics.length, countWithValue: seriesComicsWithValue.length, purchaseValue, currentValue, gainLoss, gainLossPercentage };
-                        })
-                        .filter(series => series.countWithValue > 0)
-                        .sort((a, b) => Math.abs(b.gainLossPercentage) - Math.abs(a.gainLossPercentage))
+                      {seriesPerformance
                         .slice(0, showAllSeriesPerf ? undefined : 8)
                         .map(series => (
                           <div
@@ -942,7 +928,7 @@ function App() {
                             </div>
                           </div>
                         ))}
-                      {allSeries.filter(s => allComics.some(c => c.seriesName === s && c.currentValue !== undefined)).length > 8 && (
+                      {valuedSeriesCount > 8 && (
                         <button
                           onClick={() => setShowAllSeriesPerf(!showAllSeriesPerf)}
                           className="w-full text-center py-2 text-sm text-blue-400 hover:text-blue-300 transition-colors"
@@ -962,13 +948,7 @@ function App() {
                 <h3 className="text-base font-semibold text-white mb-4">Top Series by Count</h3>
                 {allSeries.length > 0 ? (
                   <div className="space-y-1">
-                    {allSeries
-                      .map(series => ({
-                        name: series,
-                        count: allComics.filter(comic => comic.seriesName === series).length,
-                        value: allComics.filter(comic => comic.seriesName === series).reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0)
-                      }))
-                      .sort((a, b) => b.count - a.count)
+                    {seriesCountSummaries
                       .slice(0, showAllSeriesCount ? undefined : 10)
                       .map(series => (
                         <div
@@ -1047,13 +1027,7 @@ function App() {
                 <h3 className="text-base font-semibold text-white mb-4">Virtual Boxes</h3>
                 {allVirtualBoxes.length > 0 ? (
                   <div className="space-y-1">
-                    {allVirtualBoxes
-                      .map(location => ({
-                        name: location,
-                        count: allComics.filter(comic => comic.storageLocation === location).length,
-                        value: allComics.filter(comic => comic.storageLocation === location).reduce((sum, comic) => sum + (comic.currentValue || comic.purchasePrice || 0), 0)
-                      }))
-                      .sort((a, b) => b.value - a.value)
+                    {storageLocationSummaries
                       .slice(0, 8)
                       .map(location => (
                         <div

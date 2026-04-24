@@ -1,6 +1,7 @@
 import React from 'react';
-import { Comic } from '../types/Comic';
-import { SEO, generateSeriesStructuredData } from './SEO';
+import type { Comic } from '../types/Comic';
+import { SEO } from './SEO';
+import { generateSeriesStructuredData } from '../utils/structured-data';
 import { DetailPageLayout } from './DetailPageLayout';
 import { calculateComicStats } from '../utils/stats';
 import { BreadcrumbItem } from './Breadcrumb';

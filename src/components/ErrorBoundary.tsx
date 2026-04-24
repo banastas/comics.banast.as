@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { Component, type ErrorInfo, type ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 
 interface Props {
@@ -39,7 +39,7 @@ export class ErrorBoundary extends Component<Props, State> {
     });
 
     // Log error to console in development
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.error('ErrorBoundary caught an error:', error, errorInfo);
     }
 
@@ -100,7 +100,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 We encountered an unexpected error. Please try again or contact support if the problem persists.
               </p>
 
-              {process.env.NODE_ENV === 'development' && this.state.error && (
+              {import.meta.env.DEV && this.state.error && (
                 <details className="text-left mb-6">
                   <summary className="text-slate-400 cursor-pointer hover:text-slate-300 mb-2">
                     Error Details (Development)
@@ -152,7 +152,7 @@ export class ErrorBoundary extends Component<Props, State> {
 export const useErrorHandler = () => {
   const handleError = (error: Error, errorInfo?: ErrorInfo) => {
     // Log error to console in development
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.error('Error caught by useErrorHandler:', error, errorInfo);
     }
 

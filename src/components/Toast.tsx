@@ -1,57 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { CheckCircle, Info, AlertTriangle, XCircle, X } from 'lucide-react';
-import { create } from 'zustand';
+import React from 'react';
+import { CheckCircle, Info, AlertTriangle, XCircle, X, type LucideIcon } from 'lucide-react';
+import { useToastStore, type ToastType } from '../stores/toastStore';
 
-type ToastType = 'success' | 'info' | 'warning' | 'error';
-
-interface Toast {
-  id: string;
-  message: string;
-  type: ToastType;
-  exiting?: boolean;
-}
-
-interface ToastStore {
-  toasts: Toast[];
-  addToast: (message: string, type?: ToastType) => void;
-  removeToast: (id: string) => void;
-}
-
-export const useToastStore = create<ToastStore>((set) => ({
-  toasts: [],
-  addToast: (message, type = 'info') => {
-    const id = crypto.randomUUID();
-    set((state) => ({
-      toasts: [...state.toasts, { id, message, type }],
-    }));
-    setTimeout(() => {
-      set((state) => ({
-        toasts: state.toasts.map((t) =>
-          t.id === id ? { ...t, exiting: true } : t
-        ),
-      }));
-      setTimeout(() => {
-        set((state) => ({
-          toasts: state.toasts.filter((t) => t.id !== id),
-        }));
-      }, 150);
-    }, 3000);
-  },
-  removeToast: (id) => {
-    set((state) => ({
-      toasts: state.toasts.map((t) =>
-        t.id === id ? { ...t, exiting: true } : t
-      ),
-    }));
-    setTimeout(() => {
-      set((state) => ({
-        toasts: state.toasts.filter((t) => t.id !== id),
-      }));
-    }, 150);
-  },
-}));
-
-const iconMap: Record<ToastType, React.FC<{ size: number; className?: string }>> = {
+const iconMap: Record<ToastType, LucideIcon> = {
   success: CheckCircle,
   info: Info,
   warning: AlertTriangle,

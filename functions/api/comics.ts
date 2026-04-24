@@ -1,14 +1,5 @@
 import data from '../../src/data/comics.json';
-
-interface Comic {
-  seriesName: string;
-  issueNumber: number;
-  coverImageUrl: string;
-  coverArtist: string;
-  signedBy: string;
-  notes: string;
-  [key: string]: unknown;
-}
+import type { Comic } from '../../src/types/Comic';
 
 const comics = data as Comic[];
 
