@@ -14,6 +14,7 @@ function corsHeaders() {
 
 function shape(c: Comic) {
   return {
+    id: c.id,
     seriesName: c.seriesName,
     issueNumber: c.issueNumber,
     releaseDate: c.releaseDate,
