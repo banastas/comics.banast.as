@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title>comics.banast.as</title>
+  <rect width="512" height="512" rx="72" fill="#3b82f6"/>
+  <path d="M132 104h76l34 304h-76L132 104Zm232 0h-76l-34 304h76l34-304Z" fill="#fff"/>
+  <path d="M208 104h80l-34 304h-20L208 104Z" fill="#bfdbfe"/>
+</svg>

@@ -1,11 +1,11 @@
 # App Icons TODO
 
-The following icon files are referenced in the HTML but need to be created:
+The manifest currently references `favicon.svg`, which exists. The PNG/mobile/social assets below are still useful polish, but they are no longer referenced until the files exist.
 
 ## Required Icons
 
 ### Favicons
-- [x] `favicon.svg` - SVG favicon (exists, using default Vite)
+- [x] `favicon.svg` - SVG favicon
 - [ ] `favicon-32x32.png` - 32x32 PNG favicon
 - [ ] `favicon-16x16.png` - 16x16 PNG favicon
 
@@ -80,10 +80,10 @@ The following icon files are referenced in the HTML but need to be created:
 
 ## Notes
 
-The site currently works with the default Vite favicon. Creating custom icons will:
+The site currently works with the checked-in SVG favicon. Creating the remaining image assets will:
 1. Improve brand recognition
 2. Enhance PWA experience
 3. Better social media previews
 4. Professional appearance in browser tabs
 
-Once icons are created, they will automatically be used by the existing HTML/manifest references.
+Once icons are created, add them back to `public/manifest.json` and keep `public/manifest.test.ts` passing so the app never references missing install assets again.

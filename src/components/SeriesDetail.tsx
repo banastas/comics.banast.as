@@ -61,13 +61,13 @@ export const SeriesDetail: React.FC<SeriesDetailProps> = React.memo(({
           title={`${seriesName} Series`}
           description={`Browse ${seriesComics.length} comics from the ${seriesName} series. Total value: $${stats.totalCurrentValue.toFixed(0)}. Issues ${lowestIssue}-${highestIssue}.`}
           keywords={`${seriesName}, comic book series, comic collection, ${seriesName} comics`}
-          url={`https://comics.banast.as/#/series/${encodeURIComponent(seriesName)}`}
+          url={`https://comics.banast.as/series/${encodeURIComponent(seriesName)}`}
           structuredData={generateSeriesStructuredData({
             name: seriesName,
             comics: seriesComics,
             totalValue: stats.totalCurrentValue,
           })}
-          canonical={`https://comics.banast.as/#/series/${encodeURIComponent(seriesName)}`}
+          canonical={`https://comics.banast.as/series/${encodeURIComponent(seriesName)}`}
         />
       }
     />

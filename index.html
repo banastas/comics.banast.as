@@ -4,13 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Primary Meta Tags — title/description/keywords are managed dynamically per-route by react-helmet-async (see src/components/SEO.tsx). These defaults show before JS runs. -->
+    <!-- Primary Meta Tags — title/description/keywords are managed dynamically per-route by src/components/SEO.tsx. These defaults show before JS runs. -->
     <title>comics.banast.as - Track, Organize & Value Your Comics</title>
     <meta name="description" content="Professional comic book collection management system. Track your comics, monitor values, organize by series, artists, and storage locations." />
     <meta name="author" content="banastas" />
     <meta name="theme-color" content="#0d1117" />
 
-    <!-- Canonical URL is managed dynamically by react-helmet-async per route -->
+    <!-- Canonical URL is managed dynamically per route -->
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -31,8 +31,8 @@
     <meta name="twitter:image" content="https://comics.banast.as/twitter-image.jpg" />
     <meta name="twitter:creator" content="@banastas" />
 
-    <!-- Favicon — inline SVG data URI to avoid 404s (no icon files in public/) -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%233b82f6'/%3E%3Cpath d='M8 7h4l2 18H10L8 7zm12 0h4l-2 18h-4l2-18z' fill='white'/%3E%3C/svg%3E" />
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/manifest.json" />
@@ -59,6 +59,13 @@
     <!-- Robots -->
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
 
+    <!-- Legacy hash-route bridge -->
+    <script>
+      if (window.location.hash && window.location.hash.startsWith('#/')) {
+        window.history.replaceState(null, '', window.location.hash.slice(1));
+      }
+    </script>
+
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZDMFMRZTBZ"></script>
     <script>
@@ -68,7 +75,7 @@
 
       gtag('config', 'G-ZDMFMRZTBZ', {
         send_page_view: false,
-        page_path: window.location.hash || '#/collection'
+        page_path: window.location.pathname + window.location.search + window.location.hash
       });
     </script>
   </head>

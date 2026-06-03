@@ -76,7 +76,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
 
   // Generate SEO-friendly slug for this comic
   const comicSlug = createComicSlug(comic);
-  const comicUrl = `https://comics.banast.as/#/comic/${comicSlug}`;
+  const comicUrl = `https://comics.banast.as/comic/${comicSlug}`;
 
   return (
     <div className="min-h-screen bg-surface-base">

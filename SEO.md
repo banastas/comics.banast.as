@@ -30,7 +30,7 @@ All pages start with comprehensive meta tags in the HTML head:
 - **Canonical URLs**: Links to canonical versions of pages
 - **App Icons**: Multiple icon sizes for various devices (favicon, apple-touch-icon, etc.)
 
-### Dynamic Meta Tags (react-helmet-async)
+### Dynamic Meta Tags (SEO component)
 
 Dynamic pages use the `<SEO>` component to override meta tags:
 
@@ -114,17 +114,28 @@ The sitemap is automatically generated from comic data during build time.
 - All tag pages (priority: 0.5)
 - Special collections (raw, slabbed, variants) (priority: 0.7)
 
-**Total URLs**: ~1,134 URLs (based on current data)
+**Total URLs**: ~1,224 URLs (based on current data)
 
 **URL Format Examples**:
-- Regular comic: `https://comics.banast.as/#/comic/batman-issue-1`
-- Variant cover: `https://comics.banast.as/#/comic/batman-issue-1-variant`
-- Series with year: `https://comics.banast.as/#/comic/alien-2021-issue-5`
-- Complex title: `https://comics.banast.as/#/comic/adventures-of-superman-issue-500`
+- Regular comic: `https://comics.banast.as/comic/batman-issue-1`
+- Variant cover: `https://comics.banast.as/comic/batman-issue-1-variant`
+- Series with year: `https://comics.banast.as/comic/alien-2021-issue-5`
+- Complex title: `https://comics.banast.as/comic/adventures-of-superman-issue-500`
 
 **Build Command**: `npm run generate:sitemap`
 
 **Auto-generation**: The sitemap is regenerated on every build via the `build` script.
+
+### Static Clean-URL Pages
+
+The production build now generates static HTML entry pages for every sitemap URL after Vite finishes.
+
+**Scripts**:
+- `scripts/site-routes.mjs` builds the shared route inventory from `src/data/comics.json`
+- `scripts/generate-static-pages.mjs` writes static clean-url pages into `dist/`
+- `scripts/verify-static-pages.mjs` verifies generated files, canonical URLs, sitemap parity, and JSON-LD
+
+Each generated page includes route-specific title, description, canonical URL, Open Graph/Twitter tags, Schema.org JSON-LD, and no-JS fallback body content. The hydrated React app still takes over for the full interactive experience.
 
 ---
 
@@ -138,7 +149,7 @@ The sitemap is automatically generated from comic data during build time.
 
 #### Code Splitting
 Manual chunks for optimal loading:
-- `react-vendor`: React, React DOM, react-helmet-async
+- `react-vendor`: React, React DOM
 - `icons`: Lucide React icons
 - `data`: Comics JSON data
 - `utils`: Hooks and utility functions
@@ -262,10 +273,9 @@ To complete PWA setup, create these icons in the `public/` directory:
 6. **HTTPS**: Secure connections
 7. **Cache Control**: Implemented via server headers
 
-### ⚠️ SPA Limitations & SEO-Friendly URLs
+### Clean URL Routing
 
-**Hash-Based Routing with SEO-Friendly Slugs**:
-The application uses hash-based routing with human-readable URLs (`#/comic/batman-issue-1-variant`), which provides improved SEO compared to ID-based routing:
+The application now uses clean, human-readable canonical URLs (`/comic/batman-issue-1-variant`) and still accepts legacy hash URLs for old bookmarks.
 
 **✅ SEO Improvements**:
 - Human-readable URLs include series name, issue number, and variant status
@@ -273,11 +283,13 @@ The application uses hash-based routing with human-readable URLs (`#/comic/batma
 - Easier to share and remember
 - Better for social media sharing
 - More accessible for users
+- Sitemap and canonical URLs use clean paths
+- Static HTML entry pages expose metadata and fallback content before JavaScript runs
 
 **⚠️ Remaining Limitations**:
-- Search engines still treat hash URLs differently than regular URLs
-- Dynamic routes are not as effectively crawlable as server-rendered pages
-- Hash fragments don't participate in traditional page ranking signals
+- The fully interactive UI is still a hydrated React SPA after the static fallback
+- Unknown clean routes currently fall through to the SPA shell in local preview/static hosting unless the host adds explicit 404 behavior
+- A full Astro/React-islands migration would make the rendered body and component structure cleaner, but indexable entry pages are already generated
 
 **Recommendations for Future**:
 1. **Option 1**: Implement server-side rendering (SSR) with Next.js or similar
@@ -288,7 +300,7 @@ The application uses hash-based routing with human-readable URLs (`#/comic/batma
 **Current Workaround**:
 - Comprehensive sitemap lists all routes
 - Structured data provides content context
-- Meta tags updated dynamically with react-helmet-async
+- Meta tags updated dynamically with the first-party SEO component
 - Social sharing works properly with Open Graph tags
 
 ---
@@ -355,7 +367,7 @@ npm run preview
 - [x] Open Graph tags for social sharing
 - [x] Twitter Card tags
 - [x] Structured data (JSON-LD) for comics, series, collections
-- [x] Dynamic sitemap generation (1,134+ URLs)
+- [x] Dynamic sitemap generation (1,224+ URLs)
 - [x] Robots.txt with crawler guidelines
 - [x] PWA manifest.json
 - [x] Lazy loading images
@@ -392,7 +404,7 @@ npm run preview
 - **JavaScript Bundle**: ~250KB gzipped (target: <250KB) ✅
 - **CSS Bundle**: ~50KB gzipped (target: <50KB) ✅
 - **Images**: Lazy loaded with async decoding ✅
-- **Total URLs in Sitemap**: 1,134 ✅
+- **Total URLs in Sitemap**: 1,224 ✅
 
 ### Expected Lighthouse Scores
 

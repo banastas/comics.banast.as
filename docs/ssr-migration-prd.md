@@ -5,11 +5,11 @@
 - **Version:** 1.0
 - **Date:** 2026-04-17
 - **Author:** Bill Anastas (@banastas)
-- **Status:** Draft — awaiting approval
+- **Status:** In progress — guardrails and clean-url static entry pages implemented
 
 ## Executive Summary
 
-Migrate comics.banast.as from a hash-routed React SPA to a server-rendered (or prerendered) Astro + React islands architecture deployed on Cloudflare Pages. The current `#/comic/...` hash URLs are invisible to search engines, which blocks organic discovery of the 792-comic collection and its 177 series, 210 cover artists, and 10 computed tag pages. After this migration, every detail page is a real indexable URL (`/comic/batman-1`), served as pre-rendered HTML with full meta tags, structured data, and social preview support — unlocking Google indexing, proper Twitter/Facebook link previews, and ~1,200 new entry points into the site.
+Migrate comics.banast.as from a hash-routed React SPA to a server-rendered (or prerendered) architecture deployed on Cloudflare Pages. The first migration step now ships clean static entry pages from the existing Vite app; a future Astro + React islands migration can still consolidate stack and improve body rendering. The former `#/comic/...` hash URLs blocked organic discovery of the 805-comic collection and its 177 series, 216 cover artists, and 10 computed tag pages. After this migration, every detail page is a real indexable URL (`/comic/batman-1`), served as pre-rendered HTML with full meta tags, structured data, and social preview support — unlocking Google indexing, proper Twitter/Facebook link previews, and ~1,200 new entry points into the site.
 
 This is SEO/infrastructure work, not a feature addition. The user-facing product stays identical: same dashboard, same filters, same detail layouts, same dark theme. The change is invisible to visitors but transforms the site from "unindexable SPA" to "normal web app."
 
@@ -17,16 +17,16 @@ This is SEO/infrastructure work, not a feature addition. The user-facing product
 
 ### Current state
 
-- Every internal URL is hash-based: `https://comics.banast.as/#/comic/batman-1`, `#/series/Alien`, `#/tag/Modern`
-- Search engines treat `#fragment` as an anchor within the root document, not a separate page
-- Sitemap lists 1,205 URLs, but Google effectively sees only one: `https://comics.banast.as/`
-- Social platforms (Twitter, Facebook, Slack, iMessage link unfurlers) don't execute JavaScript, so every shared link previews with the same generic default OG tags — never the specific comic/series being shared
-- The SPA's react-helmet-async meta tags are correct but only exist *after hydration*, which crawlers without JS don't see
+- Internal navigation now uses clean paths such as `/comic/predator-versus-planet-of-the-apes-issue-2-803`, `/series/Alien%20(Vol%201)`, and `/tag/Modern`
+- Legacy hash URLs such as `/#/comic/...` are still accepted and rewritten to clean paths before React reads the route
+- Sitemap lists 1,224 clean URLs and `npm run build` generates 1,224 static HTML entry pages in `dist/`
+- Static entry pages include route-specific title, description, canonical, Open Graph/Twitter tags, JSON-LD, and no-JS fallback body content
+- The hydrated UI is still the existing React SPA; Astro remains useful for future stack consolidation and cleaner server-rendered body markup
 
 ### Why now
 
-- Collection has grown to 792 comics with rich per-item data (cover art, grades, values, signed-by, variant info) that deserves to rank
-- Recent SEO improvements (dynamic Helmet tags, expanded sitemap, CLS fixes) are hitting the ceiling of what's possible in a hash-routed SPA
+- Collection has grown to 805 comics with rich per-item data (cover art, grades, values, signed-by, variant info) that deserves to rank
+- Recent SEO improvements (dynamic meta tags, expanded sitemap, CLS fixes, clean static entry pages) have removed the biggest hash-routing ceiling while keeping the current UI stable
 - Bill's other personal sites already use Astro patterns (blog, photo, yautja-wiki, dev) — moving comics to the same stack consolidates tooling and tracks his stated preference for Astro for static/content sites
 - Cloudflare Pages is already the deployment target; no new infrastructure needed
 
@@ -59,6 +59,7 @@ Non-goals:
 - Changing the data model or storage approach (`comics.json` stays as the source of truth)
 - Adding authentication or multi-user support
 - Server-rendering anything that requires dynamic data (everything is prerenderable)
+- Breaking n8n/nightly data sync, `src/data/comics.json`, or the existing Cloudflare Pages API
 
 ## Core Features (v1.0)
 
@@ -77,17 +78,17 @@ Non-goals:
 | `/#/stats` | `/stats` |
 
 **Acceptance criteria**:
-- All internal navigation uses real `<a href>` elements (or Astro's `<a>` with client routing)
+- Internal navigation uses clean paths through the existing router
 - Server returns 200 for every URL in sitemap.xml
-- Server returns 404 for unknown comic/series/artist/tag/storage slugs
-- URL slugs are lowercase-kebab-case (normalize `Box 1` → `box-1`)
+- Legacy hash URLs bridge to clean paths
+- Remaining future work: explicit 404 handling for unknown clean routes and slug normalization for non-comic grouping routes
 
 ### F2. Prerender at build time
 
 Every page in the sitemap is rendered to static HTML at build time. No server runtime needed. Build produces ~1,200 HTML files; Cloudflare Pages serves them directly.
 
 **Acceptance criteria**:
-- `npm run build` generates one `.html` file per sitemap URL
+- `npm run build` generates one `index.html` file per sitemap URL
 - Each HTML file contains:
   - Correct `<title>`, `<meta name="description">`, canonical link
   - Full Open Graph and Twitter Card meta tags
@@ -101,7 +102,7 @@ Every page in the sitemap is rendered to static HTML at build time. No server ru
 Anyone who bookmarked or shared a `#/...` URL must still land on the right page.
 
 **Acceptance criteria**:
-- A small client-side script on every page detects `window.location.hash` matching the old pattern and does `window.location.replace('/' + newPath)` — converting `/#/comic/batman-1` → `/comic/batman-1` before the user sees anything
+- A small client-side script on every page detects `window.location.hash` matching the old pattern and rewrites history to the clean path — converting `/#/comic/batman-1` → `/comic/batman-1` before React reads the route
 - Handles all old route types: `comic`, `series`, `storage`, `artist`, `tag`, `raw`, `slabbed`, `variants`, `boxes`, `stats`
 
 ### F4. Interactive features preserved
@@ -126,8 +127,19 @@ The collection view needs client-side interactivity for:
 **Acceptance criteria**:
 - `scripts/generate-sitemap.js` emits clean URLs (no `#/`)
 - `robots.txt` references the new sitemap
-- A 301 redirect rule or client script handles legacy URLs (F3)
+- A client script handles legacy URLs (F3)
 - Submit new sitemap to Google Search Console on launch
+
+### F6. Sync and API compatibility
+
+The import/sync pipeline is a permanent compatibility surface. n8n/nightly sync must continue writing `src/data/comics.json`, and that file must remain the single source consumed by the app, static page generation, sitemap generation, and Cloudflare Pages API endpoints.
+
+**Acceptance criteria**:
+- `npm run validate:data` passes after every sync and before every deploy
+- `GET /api/comics`, query filters (`series`, `artist`, `q`), CORS headers, and `GET /api/comics/stats` keep working after the rendering migration
+- API Functions continue importing from the same synced collection source or from a generated equivalent with the same response shape
+- Static/prerender work does not move data behind a browser-only import that would break Pages Functions
+- `npm run check` covers data validation, API response tests, sitemap freshness, typecheck, lint, and build
 
 ## User Interface & Design
 
@@ -236,11 +248,11 @@ New: At build time, every page gets exactly the data it needs inlined into its H
 
 ### Structured data
 
-Keep existing helpers from `src/components/SEO.tsx` (`generateComicStructuredData`, `generateSeriesStructuredData`, etc.) and inline the JSON-LD into the Astro `<head>` at build time. This replaces the current runtime Helmet-injected `<script type="application/ld+json">`, making the structured data visible to crawlers on first request.
+Keep existing helpers from `src/utils/structured-data.ts` (`generateComicStructuredData`, `generateSeriesStructuredData`, etc.) and inline the JSON-LD into the Astro `<head>` at build time. This replaces the current runtime-injected `<script type="application/ld+json">`, making the structured data visible to crawlers on first request.
 
 ### Analytics
 
-GA4 script (`G-ZDMFMRZTBZ`) remains in `Base.astro`. Update `page_path` config to use `window.location.pathname` instead of the current `window.location.hash || '#/collection'` workaround.
+GA4 script (`G-ZDMFMRZTBZ`) remains in the document head. `page_path` now uses `window.location.pathname + window.location.search + window.location.hash` so clean paths are reported correctly while legacy hash hits remain distinguishable during the bridge period.
 
 ## Data Model
 
@@ -277,6 +289,7 @@ Slug format (keep current): `{series-slug}-issue-{number}[-variant][-{id-suffix}
 
 ### Phase 1: Foundation (MVP — Week 1)
 
+0. Preserve current behavior with guardrails: `validate:data`, API tests, data contract tests, routing slug tests, sitemap tests, function typecheck, and `npm run check`
 1. Scaffold Astro project alongside existing code (`astro-poc/` subdirectory or new branch `feat/ssr-migration`)
 2. Set up Tailwind, `@astrojs/react`, `@astrojs/sitemap`
 3. Port `types/Comic.ts`, `utils/formatting.ts`, `utils/stats.ts`, `utils/slug.ts`

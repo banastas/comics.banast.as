@@ -8,7 +8,7 @@
 
 <img src="https://github.com/banastas/comics.banast.as/blob/main/comic.banast.as.png?raw=true">
 
-A personal comic book collection tracker with financial analytics, multi-view browsing, and comprehensive organization. Currently tracking **787 comics** across **176 series**. Built with React 18, TypeScript, and Tailwind CSS.
+A personal comic book collection tracker with financial analytics, multi-view browsing, and comprehensive organization. Currently tracking **805 comics** across **177 series**. Built with React 18, TypeScript, and Tailwind CSS.
 
 **Live Site**: [comics.banast.as](https://comics.banast.as)
 
@@ -27,7 +27,7 @@ A personal comic book collection tracker with financial analytics, multi-view br
 - **Zustand 5** for state management
 - **Zod 4** for data validation
 - **Lucide React** for icons
-- **react-helmet-async** for dynamic SEO meta tags
+- **First-party SEO component** for dynamic meta tags
 
 ## Quick Start
 
@@ -75,9 +75,14 @@ src/
 │   └── Comic.ts             # TypeScript interfaces
 ├── utils/                   # formatting, stats, sorting, analytics, routing
 ├── data/
-│   └── comics.json          # Collection data (787 comics)
+│   └── comics.json          # Collection data (805 comics)
 └── styles/
     └── responsive.css
+functions/
+└── api/                     # Cloudflare Pages API endpoints for external automation
+scripts/
+├── generate-sitemap.js      # Sitemap generation from synced collection data
+└── validate-data.mjs        # Nightly/import data contract validation
 ```
 
 ## Features
@@ -91,7 +96,7 @@ Total comics, collection value, average grade, raw vs. slabbed breakdown, varian
 - **Detail pages** for individual comics with related issues from the same series
 
 ### Organization
-- **By series** (176 series) with per-series stats
+- **By series** (177 series) with per-series stats
 - **By cover artist** with artist-specific collection views
 - **By tag** for custom grouping
 - **By storage location** (7 archive boxes + CGC + Loose)
@@ -102,15 +107,18 @@ Full-text search across multiple fields. Sort by title, series, issue number, re
 
 ### Data Management
 - JSON-based storage (`src/data/comics.json`)
-- Built-in CSV to JSON converter for bulk imports
+- n8n/nightly sync writes the collection JSON used by the app, API, sitemap, and build
+- Built-in CSV to JSON converter for bulk imports/manual fallback
 - Automatic timestamps on creation and updates
 
 ### SEO
-- Dynamic meta tags with react-helmet-async
+- Dynamic meta tags with the first-party SEO component
 - Schema.org structured data (ComicIssue, ComicSeries, Collection, Breadcrumb)
-- Auto-generated sitemap (~1,134 URLs)
+- Auto-generated clean-url sitemap (~1,224 URLs)
+- Static clean-url HTML entry pages generated at build time for comics, series, artists, tags, storage, and collection views
 - Open Graph and Twitter Card support
-- Hash-based SEO-friendly slugs (e.g., `#/comic/batman-issue-1-variant`)
+- SEO-friendly slugs (e.g., `/comic/batman-issue-1-variant`)
+- Legacy hash URLs (e.g., `/#/comic/batman-issue-1-variant`) are still supported and bridged to clean paths
 
 ### Performance
 - Lazy-loaded detail views with code splitting
@@ -136,10 +144,15 @@ Mobile-first layout from 320px to 4K. 44px minimum touch targets. Fluid typograp
 
 ```bash
 npm run dev              # Start dev server
-npm run build            # Generate sitemap + production build
+npm run check            # Validate data, typecheck app/API, lint, test, build
+npm run validate:data    # Validate synced src/data/comics.json contract
+npm run test:run         # Run Vitest regression tests
+npm run build            # Validate types, generate sitemap, build, generate static pages
+npm run verify:static-pages # Verify clean-url static pages and sitemap output
 npm run preview          # Preview production build
 npm run lint             # ESLint
 npm run generate:sitemap # Regenerate sitemap only
+npm run generate:static-pages # Generate clean-url pages from dist/index.html
 ```
 
 ## Adding Comics
@@ -152,6 +165,29 @@ npm run generate:sitemap # Regenerate sitemap only
 
 ### Manual Edit
 Add entries directly to `src/data/comics.json` following the Comic interface in `src/types/Comic.ts`.
+
+### Nightly Sync / n8n
+The production data source is still `src/data/comics.json`. Any n8n or scheduled sync should preserve that JSON array shape and then run:
+
+```bash
+npm run validate:data
+npm run generate:sitemap
+npm run check
+```
+
+The compatibility tests intentionally cover the synced data shape, unique IDs, unique route slugs, API responses, and sitemap freshness. Keep the Cloudflare Pages API endpoints in `functions/api/` available during future rendering/routing migrations.
+
+## API
+
+Cloudflare Pages Functions expose read-only JSON endpoints for automation and external consumers:
+
+- `GET /api/comics`
+- `GET /api/comics?series=Alien`
+- `GET /api/comics?artist=Jock`
+- `GET /api/comics?q=signature`
+- `GET /api/comics/stats`
+
+Both endpoints allow CORS for read-only clients. They import the same `src/data/comics.json` file as the app, so nightly sync updates the UI and API together.
 
 ## Deployment
 
@@ -167,7 +203,6 @@ Deploy the `dist/` folder to any static host (Netlify, Vercel, GitHub Pages, Clo
 - Single-user (no authentication)
 - Cover images hosted externally (covers.banast.as)
 - Hash-based routing (SPA limitations for crawlers)
-- No automated backup or sync
 
 ## License
 

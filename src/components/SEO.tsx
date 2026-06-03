@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+import { useEffect } from 'react';
 
 interface SEOProps {
   title?: string;
@@ -20,6 +20,45 @@ const defaultMeta = {
   type: 'website',
 };
 
+const upsertMeta = (attribute: 'name' | 'property', key: string, content: string) => {
+  let element = document.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`);
+  if (!element) {
+    element = document.createElement('meta');
+    element.setAttribute(attribute, key);
+    document.head.appendChild(element);
+  }
+  element.setAttribute('content', content);
+};
+
+const upsertCanonical = (href: string) => {
+  let element = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+  if (!element) {
+    element = document.createElement('link');
+    element.setAttribute('rel', 'canonical');
+    document.head.appendChild(element);
+  }
+  element.setAttribute('href', href);
+};
+
+const upsertStructuredData = (structuredData?: object) => {
+  const id = 'comics-structured-data';
+  const existing = document.getElementById(id);
+
+  if (!structuredData) {
+    existing?.remove();
+    return;
+  }
+
+  const element = existing || document.createElement('script');
+  element.id = id;
+  element.setAttribute('type', 'application/ld+json');
+  element.textContent = JSON.stringify(structuredData);
+
+  if (!existing) {
+    document.head.appendChild(element);
+  }
+};
+
 export function SEO({
   title,
   description,
@@ -39,37 +78,28 @@ export function SEO({
     type: type || defaultMeta.type,
   };
 
-  return (
-    <Helmet>
-      {/* Primary Meta Tags */}
-      <title>{seo.title}</title>
-      <meta name="title" content={seo.title} />
-      <meta name="description" content={seo.description} />
-      <meta name="keywords" content={seo.keywords} />
+  useEffect(() => {
+    document.title = seo.title;
 
-      {/* Canonical URL */}
-      <link rel="canonical" href={canonical || seo.url} />
+    upsertMeta('name', 'title', seo.title);
+    upsertMeta('name', 'description', seo.description);
+    upsertMeta('name', 'keywords', seo.keywords);
+    upsertCanonical(canonical || seo.url);
 
-      {/* Open Graph / Facebook */}
-      <meta property="og:type" content={seo.type} />
-      <meta property="og:url" content={seo.url} />
-      <meta property="og:title" content={seo.title} />
-      <meta property="og:description" content={seo.description} />
-      <meta property="og:image" content={seo.image} />
+    upsertMeta('property', 'og:type', seo.type);
+    upsertMeta('property', 'og:url', seo.url);
+    upsertMeta('property', 'og:title', seo.title);
+    upsertMeta('property', 'og:description', seo.description);
+    upsertMeta('property', 'og:image', seo.image);
 
-      {/* Twitter */}
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:url" content={seo.url} />
-      <meta name="twitter:title" content={seo.title} />
-      <meta name="twitter:description" content={seo.description} />
-      <meta name="twitter:image" content={seo.image} />
+    upsertMeta('name', 'twitter:card', 'summary_large_image');
+    upsertMeta('name', 'twitter:url', seo.url);
+    upsertMeta('name', 'twitter:title', seo.title);
+    upsertMeta('name', 'twitter:description', seo.description);
+    upsertMeta('name', 'twitter:image', seo.image);
 
-      {/* Structured Data */}
-      {structuredData && (
-        <script type="application/ld+json">
-          {JSON.stringify(structuredData)}
-        </script>
-      )}
-    </Helmet>
-  );
+    upsertStructuredData(structuredData);
+  }, [canonical, seo.description, seo.image, seo.keywords, seo.title, seo.type, seo.url, structuredData]);
+
+  return null;
 }

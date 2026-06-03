@@ -1,47 +1,22 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useComicStore } from './stores/comicStore';
 import { useRouting } from './hooks/useRouting';
-import { Dashboard } from './components/Dashboard';
-import { ComicCard } from './components/ComicCard';
-import { ComicListView } from './components/ComicListView';
 import { SEO } from './components/SEO';
 import type { Comic, SortField } from './types/Comic';
-import { BookOpen, Plus, BarChart3, Grid, List, SortAsc, SortDesc, Search, SlidersHorizontal, X, Trophy } from 'lucide-react';
+import { BookOpen, BarChart3, Grid, List, SortAsc, SortDesc, Search, SlidersHorizontal, X } from 'lucide-react';
 import { createComicSlug } from './utils/routing';
 import { debounce } from './utils/performance';
 import type { BreadcrumbItem } from './components/Breadcrumb';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { MobileControls } from './components/MobileControls';
 import { ToastContainer } from './components/Toast';
-import { GradeDistribution } from './components/GradeDistribution';
-import { AcquisitionTimeline } from './components/AcquisitionTimeline';
-import { CollectorInsights } from './components/CollectorInsights';
-import { CollectionHealth } from './components/CollectionHealth';
-import { formatCurrency } from './utils/formatting';
 import { getSeriesCountSummaries, getSeriesPerformance, getStorageLocationSummaries, getTopValueComics } from './utils/collection-analytics';
 import { generateCollectionStructuredData } from './utils/structured-data';
-
-// Lazy load components
-const ComicForm = React.lazy(() => import('./components/ComicForm').then(module => ({ default: module.ComicForm })));
-const ComicDetail = React.lazy(() => import('./components/ComicDetail').then(module => ({ default: module.ComicDetail })));
-const SeriesDetail = React.lazy(() => import('./components/SeriesDetail').then(module => ({ default: module.SeriesDetail })));
-const StorageLocationDetail = React.lazy(() => import('./components/StorageLocationDetail').then(module => ({ default: module.StorageLocationDetail })));
-const CoverArtistDetail = React.lazy(() => import('./components/CoverArtistDetail').then(module => ({ default: module.CoverArtistDetail })));
-const TagDetail = React.lazy(() => import('./components/TagDetail').then(module => ({ default: module.TagDetail })));
-const RawComicsDetail = React.lazy(() => import('./components/RawComicsDetail').then(module => ({ default: module.RawComicsDetail })));
-const SlabbedComicsDetail = React.lazy(() => import('./components/SlabbedComicsDetail').then(module => ({ default: module.SlabbedComicsDetail })));
-const StorageLocationsListing = React.lazy(() => import('./components/StorageLocationsListing').then(module => ({ default: module.StorageLocationsListing })));
-const VariantsDetail = React.lazy(() => import('./components/VariantsDetail').then(module => ({ default: module.VariantsDetail })));
-
-// Loading component for Suspense
-const LoadingSpinner = () => (
-  <div className="min-h-screen bg-surface-base flex items-center justify-center">
-    <div className="text-center">
-      <div className="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-      <p className="text-slate-400">Loading...</p>
-    </div>
-  </div>
-);
+import { AppRouteRenderer } from './components/AppRouteRenderer';
+import { CollectionLoading, LoadingSpinner } from './components/AppLoading';
+import { ComicForm } from './components/lazyRoutes';
+import { CollectionTab } from './components/CollectionTab';
+import { StatsTab } from './components/StatsTab';
 
 function App() {
   const allComics = useComicStore((s) => s.comics);
@@ -356,105 +331,44 @@ function App() {
   const valuedSeriesCount = seriesPerformance.length;
   const seriesCountSummaries = useMemo(() => getSeriesCountSummaries(allComics), [allComics]);
   const storageLocationSummaries = useMemo(() => getStorageLocationSummaries(allComics), [allComics]);
+  const collectionPageUrl = activeTab === 'stats' ? 'https://comics.banast.as/stats' : 'https://comics.banast.as/';
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-surface-base flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-400">Loading your collection...</p>
-        </div>
-      </div>
-    );
+    return <CollectionLoading />;
   }
 
-  // Show virtual boxes listing
-  if (showVirtualBoxes) {
-    return (
-      <ErrorBoundary><React.Suspense fallback={<LoadingSpinner />}>
-        <StorageLocationsListing allComics={allComics} onBack={handleBackToCollection} onViewStorageLocation={handleViewStorageLocation} breadcrumbItems={breadcrumbItems} />
-      </React.Suspense></ErrorBoundary>
-    );
-  }
+  const hasSelectedRoute = Boolean(
+    showVirtualBoxes ||
+    selectedComic ||
+    selectedSeries ||
+    selectedStorageLocation ||
+    selectedCoverArtist ||
+    selectedTag ||
+    selectedCondition
+  );
 
-  // Show detail pages
-  if (selectedComic) {
+  if (hasSelectedRoute) {
     return (
-      <ErrorBoundary><React.Suspense fallback={<LoadingSpinner />}>
-        <ComicDetail comic={selectedComic as Comic} allComics={allComics} onBack={handleBackToCollection} onView={handleViewComic}
-          onViewSeries={handleViewSeries} onViewStorageLocation={handleViewStorageLocation} onViewCoverArtist={handleViewCoverArtist}
-          onViewTag={handleViewTag} onViewRawComics={handleViewRawComics} onViewSlabbedComics={handleViewSlabbedComics} breadcrumbItems={breadcrumbItems} />
-      </React.Suspense></ErrorBoundary>
-    );
-  }
-
-  if (selectedSeries) {
-    const seriesComics = allComics.filter(comic => comic.seriesName === selectedSeries);
-    return (
-      <ErrorBoundary><React.Suspense fallback={<LoadingSpinner />}>
-        <SeriesDetail seriesName={selectedSeries || ''} seriesComics={seriesComics} onBack={handleBackToCollection} onView={handleViewComic} breadcrumbItems={breadcrumbItems} />
-      </React.Suspense></ErrorBoundary>
-    );
-  }
-
-  if (selectedStorageLocation) {
-    const locationComics = allComics.filter(comic => comic.storageLocation === selectedStorageLocation);
-    return (
-      <ErrorBoundary><React.Suspense fallback={<LoadingSpinner />}>
-        <StorageLocationDetail storageLocation={selectedStorageLocation || ''} locationComics={locationComics}
-          onBack={handleBackToCollection} onView={handleViewComic} onViewSeries={handleViewSeries} breadcrumbItems={breadcrumbItems} />
-      </React.Suspense></ErrorBoundary>
-    );
-  }
-
-  if (selectedCoverArtist) {
-    const artistComics = allComics.filter(comic => comic.coverArtist === selectedCoverArtist);
-    return (
-      <ErrorBoundary><React.Suspense fallback={<LoadingSpinner />}>
-        <CoverArtistDetail coverArtist={selectedCoverArtist || ''} artistComics={artistComics}
-          onBack={handleBackToCollection} onView={handleViewComic} onViewSeries={handleViewSeries} breadcrumbItems={breadcrumbItems} />
-      </React.Suspense></ErrorBoundary>
-    );
-  }
-
-  if (selectedTag) {
-    const tagComics = allComics.filter(comic =>
-      comic.tags.includes(selectedTag) ||
-      (computedTagsMap.get(comic.id) || []).includes(selectedTag)
-    );
-    return (
-      <ErrorBoundary><React.Suspense fallback={<LoadingSpinner />}>
-        <TagDetail tag={selectedTag || ''} tagComics={tagComics} onBack={handleBackToCollection}
-          onView={handleViewComic} onViewSeries={handleViewSeries} onViewTag={handleViewTag} breadcrumbItems={breadcrumbItems} />
-      </React.Suspense></ErrorBoundary>
-    );
-  }
-
-  if (selectedCondition === 'raw') {
-    const rawComics = allComics.filter(comic => !comic.isSlabbed);
-    return (
-      <ErrorBoundary><React.Suspense fallback={<LoadingSpinner />}>
-        <RawComicsDetail rawComics={rawComics} onBack={handleBackToCollection} onView={handleViewComic} onViewSeries={handleViewSeries} breadcrumbItems={breadcrumbItems} />
-      </React.Suspense></ErrorBoundary>
-    );
-  }
-
-  if (selectedCondition === 'slabbed') {
-    const slabbedComics = allComics.filter(comic => comic.isSlabbed);
-    return (
-      <ErrorBoundary><React.Suspense fallback={<LoadingSpinner />}>
-        <SlabbedComicsDetail slabbedComics={slabbedComics} onBack={handleBackToCollection} onView={handleViewComic} onViewSeries={handleViewSeries} breadcrumbItems={breadcrumbItems} />
-      </React.Suspense></ErrorBoundary>
-    );
-  }
-
-  if (selectedCondition === 'variants') {
-    const variantComics = allComics.filter(comic => comic.isVariant);
-    return (
-      <ErrorBoundary><React.Suspense fallback={<LoadingSpinner />}>
-        <VariantsDetail variantComics={variantComics} onBack={handleBackToCollection} onView={handleViewComic}
-          onViewRawComics={handleViewRawComics} onViewSlabbedComics={handleViewSlabbedComics} onViewSeries={handleViewSeries} breadcrumbItems={breadcrumbItems} />
-      </React.Suspense></ErrorBoundary>
+      <AppRouteRenderer
+        allComics={allComics}
+        computedTagsMap={computedTagsMap}
+        selectedComic={selectedComic}
+        selectedSeries={selectedSeries}
+        selectedStorageLocation={selectedStorageLocation}
+        selectedCoverArtist={selectedCoverArtist}
+        selectedTag={selectedTag}
+        selectedCondition={selectedCondition}
+        showVirtualBoxes={showVirtualBoxes}
+        breadcrumbItems={breadcrumbItems}
+        onBack={handleBackToCollection}
+        onViewComic={handleViewComic}
+        onViewSeries={handleViewSeries}
+        onViewStorageLocation={handleViewStorageLocation}
+        onViewCoverArtist={handleViewCoverArtist}
+        onViewTag={handleViewTag}
+        onViewRawComics={handleViewRawComics}
+        onViewSlabbedComics={handleViewSlabbedComics}
+      />
     );
   }
 
@@ -463,12 +377,13 @@ function App() {
       <SEO
         title={activeTab === 'stats' ? 'Collection Statistics' : 'My Collection'}
         description={`View and manage your comic book collection. ${stats.totalComics} comics across ${allSeries.length} series, total value: $${stats.totalValue.toFixed(0)}`}
+        url={collectionPageUrl}
         structuredData={generateCollectionStructuredData({
           totalComics: stats.totalComics,
           totalValue: stats.totalValue,
           uniqueSeries: allSeries.length,
         })}
-        canonical="https://comics.banast.as/"
+        canonical={collectionPageUrl}
       />
 
       {/* Sticky Header */}
@@ -704,353 +619,57 @@ function App() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 pb-4 sm:pb-6 lg:pb-8">
         {activeTab === 'collection' && (
-          <div className="animate-fade-in">
-            <div className="pt-4 sm:pt-6 lg:pt-8">
-              <Dashboard
-                stats={stats}
-                onViewComic={handleViewComic}
-                onViewRawComics={handleViewRawComics}
-                onViewSlabbedComics={handleViewSlabbedComics}
-                onViewVariants={handleViewVariants}
-                onViewVirtualBoxes={handleViewVirtualBoxes}
-                virtualBoxesCount={allVirtualBoxes.length}
-                variantsCount={variantsCount}
-              />
-            </div>
-
-            {/* Quick Filter Tags */}
-            <div className="flex items-center gap-2 flex-wrap pt-5 pb-3">
-              {allComputedTags
-              .filter((tag) => (computedTagCounts.get(tag) || 0) >= 5)
-              .slice(0, 10)
-              .map((tag) => {
-                const count = computedTagCounts.get(tag) || 0;
-                const isActive = activeComputedTag === tag;
-                return (
-                  <button
-                    key={tag}
-                    onClick={() => setActiveComputedTag(isActive ? null : tag)}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
-                      isActive
-                        ? 'bg-blue-500 text-white shadow-glow'
-                        : 'bg-surface-secondary text-slate-400 border border-slate-700/50 hover:border-slate-600 hover:text-slate-300'
-                    }`}
-                  >
-                    {tag}
-                    <span className={`tabular-nums ${isActive ? 'text-blue-200' : 'text-slate-500'}`}>{count}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Pagination Controls */}
-            {filteredComics.length > 0 && (
-              <div className="flex flex-col sm:flex-row items-center justify-between mb-6 space-y-3 sm:space-y-0">
-                <div className="flex items-center space-x-4">
-                  <span className="text-sm text-slate-500">
-                    Showing {currentPage * itemsPerPage + 1} to {Math.min((currentPage + 1) * itemsPerPage, filteredComics.length)} of {filteredComics.length}
-                  </span>
-                  <select
-                    value={itemsPerPage}
-                    onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-                    className="bg-surface-secondary border border-slate-700 rounded-xl px-3 py-1 text-sm text-white cursor-pointer"
-                  >
-                    <option value={48}>48 per page</option>
-                    <option value={96}>96 per page</option>
-                    <option value={192}>192 per page</option>
-                  </select>
-                </div>
-
-                {totalPages > 1 && (
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage === 0}
-                      className="px-3 py-1.5 bg-surface-secondary border border-slate-700 rounded-xl text-sm text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-elevated transition-colors"
-                    >
-                      Previous
-                    </button>
-                    <div className="flex items-center space-x-1">
-                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                        let pageNum;
-                        if (totalPages <= 5) pageNum = i;
-                        else if (currentPage < 3) pageNum = i;
-                        else if (currentPage >= totalPages - 3) pageNum = totalPages - 5 + i;
-                        else pageNum = currentPage - 2 + i;
-                        return (
-                          <button
-                            key={pageNum}
-                            onClick={() => handlePageChange(pageNum)}
-                            className={`px-3 py-1.5 rounded-xl text-sm transition-colors ${
-                              currentPage === pageNum
-                                ? 'bg-blue-500 text-white'
-                                : 'bg-surface-secondary text-slate-400 hover:bg-surface-elevated hover:text-white'
-                            }`}
-                          >
-                            {pageNum + 1}
-                          </button>
-                        );
-                      })}
-                    </div>
-                    <button
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === totalPages - 1}
-                      className="px-3 py-1.5 bg-surface-secondary border border-slate-700 rounded-xl text-sm text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-elevated transition-colors"
-                    >
-                      Next
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Comics Grid/List */}
-            {filteredComics.length === 0 ? (
-              <div className="text-center py-12 sm:py-16">
-                <BookOpen size={48} className="mx-auto text-slate-600 mb-4" />
-                <h3 className="text-lg font-medium text-white mb-2">
-                  {allComics.length === 0 ? 'No comics in your collection' : 'No comics match your filters'}
-                </h3>
-                <p className="text-sm text-slate-500 mb-6 px-4">
-                  {allComics.length === 0
-                    ? 'Start building your collection by adding your first comic!'
-                    : 'Try adjusting your search criteria or filters.'
-                  }
-                </p>
-                {allComics.length === 0 && (
-                  <button
-                    onClick={() => setShowForm(true)}
-                    className="inline-flex items-center space-x-2 px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors shadow-lg"
-                  >
-                    <Plus size={20} />
-                    <span>Add Your First Comic</span>
-                  </button>
-                )}
-              </div>
-            ) : (
-              <>
-                {viewMode === 'grid' ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
-                    {paginatedComics.map((comic) => (
-                      <ComicCard key={comic.id} comic={comic} onView={handleViewComic} />
-                    ))}
-                  </div>
-                ) : (
-                  <ComicListView comics={paginatedComics} onView={handleViewComic} />
-                )}
-              </>
-            )}
-          </div>
+          <CollectionTab
+            stats={stats}
+            allComics={allComics}
+            filteredComics={filteredComics}
+            paginatedComics={paginatedComics}
+            viewMode={viewMode}
+            currentPage={currentPage}
+            itemsPerPage={itemsPerPage}
+            totalPages={totalPages}
+            allVirtualBoxesCount={allVirtualBoxes.length}
+            variantsCount={variantsCount}
+            allComputedTags={allComputedTags}
+            computedTagCounts={computedTagCounts}
+            activeComputedTag={activeComputedTag}
+            onViewComic={handleViewComic}
+            onViewRawComics={handleViewRawComics}
+            onViewSlabbedComics={handleViewSlabbedComics}
+            onViewVariants={handleViewVariants}
+            onViewVirtualBoxes={handleViewVirtualBoxes}
+            onSetActiveComputedTag={setActiveComputedTag}
+            onPageChange={handlePageChange}
+            onItemsPerPageChange={handleItemsPerPageChange}
+            onShowForm={() => setShowForm(true)}
+          />
         )}
 
         {activeTab === 'stats' && (
-          <div className="space-y-6 pt-4 sm:pt-6 lg:pt-8 animate-fade-in">
-            <Dashboard
-              stats={stats}
-              showDetailed={true}
-              onViewComic={handleViewComic}
-              onViewRawComics={handleViewRawComics}
-              onViewSlabbedComics={handleViewSlabbedComics}
-              onViewVariants={handleViewVariants}
-              onViewVirtualBoxes={handleViewVirtualBoxes}
-              virtualBoxesCount={allVirtualBoxes.length}
-              variantsCount={variantsCount}
-              hideSlabbedCard={selectedCondition === 'slabbed'}
-              hideRawCard={selectedCondition === 'raw'}
-            />
-
-            {/* Analytics Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <GradeDistribution comics={allComics} />
-              <AcquisitionTimeline comics={allComics} />
-              <CollectorInsights comics={allComics} />
-              <CollectionHealth comics={allComics} />
-            </div>
-
-            {/* Top 10 Most Valuable */}
-            {top10Comics.length > 0 && (
-              <div className="bg-surface-primary rounded-xl border border-slate-800 p-5 sm:p-6">
-                <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
-                  <Trophy size={18} className="text-amber-400" />
-                  Top 10 Most Valuable
-                </h3>
-                <div className="space-y-2">
-                  {top10Comics.map((comic, i) => (
-                    <div
-                      key={comic.id}
-                      className="flex items-center gap-3 sm:gap-4 p-2 rounded-lg hover:bg-surface-secondary/50 cursor-pointer transition-colors"
-                      onClick={() => handleViewComic(comic)}
-                    >
-                      <span className="text-lg font-bold text-slate-600 w-7 text-right tabular-nums">{i + 1}</span>
-                      <div className="w-8 h-11 bg-surface-secondary rounded overflow-hidden flex-shrink-0">
-                        {comic.coverImageUrl && (
-                          <img src={comic.coverImageUrl} alt="" width={32} height={44} loading="lazy" decoding="async" className="w-full h-full object-cover" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-white text-sm truncate">{comic.seriesName} #{comic.issueNumber}</p>
-                        <p className="text-xs text-slate-500">Grade: {comic.grade} &middot; {comic.isSlabbed ? 'Slabbed' : 'Raw'}</p>
-                      </div>
-                      <p className="font-semibold text-white tabular-nums text-sm">{formatCurrency(comic.currentValue || 0)}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Series Performance & Count Tables */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              {/* Value Performance by Series */}
-              {stats.comicsWithCurrentValue > 0 && (
-                <div className="bg-surface-primary rounded-xl border border-slate-800 p-5 sm:p-6">
-                  <h3 className="text-base font-semibold text-white mb-4">Series Performance</h3>
-                  {allSeries.length > 0 ? (
-                    <div className="space-y-1">
-                      {seriesPerformance
-                        .slice(0, showAllSeriesPerf ? undefined : 8)
-                        .map(series => (
-                          <div
-                            key={series.name}
-                            className="flex items-center justify-between cursor-pointer hover:bg-surface-secondary/50 rounded-lg p-2.5 transition-colors"
-                            onClick={() => handleViewSeries(series.name)}
-                          >
-                            <div className="min-w-0 flex-1">
-                              <p className="font-medium text-white text-sm truncate">{series.name}</p>
-                              <p className="text-xs text-slate-500">{series.countWithValue} of {series.count} valued</p>
-                            </div>
-                            <div className="text-right flex-shrink-0 ml-3">
-                              <p className="font-semibold text-white text-sm tabular-nums">
-                                {(series.currentValue || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
-                              </p>
-                              <p className={`text-xs font-medium tabular-nums ${series.gainLoss >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                                {series.gainLoss >= 0 ? '+' : ''}{(series.gainLoss || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })} ({(series.gainLossPercentage || 0) >= 0 ? '+' : ''}{(series.gainLossPercentage || 0).toFixed(1)}%)
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      {valuedSeriesCount > 8 && (
-                        <button
-                          onClick={() => setShowAllSeriesPerf(!showAllSeriesPerf)}
-                          className="w-full text-center py-2 text-sm text-blue-400 hover:text-blue-300 transition-colors"
-                        >
-                          {showAllSeriesPerf ? 'Show Less' : 'Show All'}
-                        </button>
-                      )}
-                    </div>
-                  ) : (
-                    <p className="text-slate-500 text-sm">No series performance data available</p>
-                  )}
-                </div>
-              )}
-
-              {/* Series Breakdown by Count */}
-              <div className="bg-surface-primary rounded-xl border border-slate-800 p-5 sm:p-6">
-                <h3 className="text-base font-semibold text-white mb-4">Top Series by Count</h3>
-                {allSeries.length > 0 ? (
-                  <div className="space-y-1">
-                    {seriesCountSummaries
-                      .slice(0, showAllSeriesCount ? undefined : 10)
-                      .map(series => (
-                        <div
-                          key={series.name}
-                          className="flex items-center justify-between cursor-pointer hover:bg-surface-secondary/50 rounded-lg p-2.5 transition-colors"
-                          onClick={() => handleViewSeries(series.name)}
-                        >
-                          <div className="min-w-0 flex-1">
-                            <p className="font-medium text-white text-sm truncate">{series.name}</p>
-                            <p className="text-xs text-slate-500">{series.count} comics</p>
-                          </div>
-                          <p className="font-semibold text-white text-sm tabular-nums flex-shrink-0 ml-3">
-                            {(series.value || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
-                          </p>
-                        </div>
-                      ))}
-                    {allSeries.length > 10 && (
-                      <button
-                        onClick={() => setShowAllSeriesCount(!showAllSeriesCount)}
-                        className="w-full text-center py-2 text-sm text-blue-400 hover:text-blue-300 transition-colors"
-                      >
-                        {showAllSeriesCount ? 'Show Less' : 'Show All'}
-                      </button>
-                    )}
-                  </div>
-                ) : (
-                  <p className="text-slate-500 text-sm">No series data available</p>
-                )}
-              </div>
-
-              {/* Recent Additions */}
-              <div className="bg-surface-primary rounded-xl border border-slate-800 p-5 sm:p-6">
-                <h3 className="text-base font-semibold text-white mb-4">Recent Additions</h3>
-                {allComics.length > 0 ? (
-                  <div className="space-y-1">
-                    {[...allComics]
-                      .sort((a, b) => new Date(b.purchaseDate).getTime() - new Date(a.purchaseDate).getTime())
-                      .slice(0, 5)
-                      .map(comic => (
-                        <div
-                          key={comic.id}
-                          className="flex items-center justify-between cursor-pointer hover:bg-surface-secondary/50 rounded-lg p-2.5 transition-colors"
-                          onClick={() => handleViewComic(comic)}
-                        >
-                          <div className="min-w-0 flex-1">
-                            <p
-                              className="font-medium text-white text-sm hover:text-blue-400 transition-colors truncate"
-                              onClick={(e) => { e.stopPropagation(); handleViewSeries(comic.seriesName); }}
-                            >
-                              {comic.seriesName} #{comic.issueNumber}
-                            </p>
-                            <p className="text-xs text-slate-500">
-                              Purchased {new Date(comic.purchaseDate).toLocaleDateString()}
-                            </p>
-                          </div>
-                          <div className="text-right flex-shrink-0 ml-3">
-                            <p className="font-semibold text-white text-sm tabular-nums">
-                              {(comic.purchasePrice || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
-                            </p>
-                            {comic.currentValue && (
-                              <p className={`text-xs tabular-nums ${(comic.currentValue || 0) >= (comic.purchasePrice || 0) ? 'text-emerald-400' : 'text-red-400'}`}>
-                                Now: {(comic.currentValue || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                ) : (
-                  <p className="text-slate-500 text-sm">No comics added yet</p>
-                )}
-              </div>
-
-              {/* Storage Locations */}
-              <div className="bg-surface-primary rounded-xl border border-slate-800 p-5 sm:p-6">
-                <h3 className="text-base font-semibold text-white mb-4">Virtual Boxes</h3>
-                {allVirtualBoxes.length > 0 ? (
-                  <div className="space-y-1">
-                    {storageLocationSummaries
-                      .slice(0, 8)
-                      .map(location => (
-                        <div
-                          key={location.name}
-                          className="flex items-center justify-between cursor-pointer hover:bg-surface-secondary/50 rounded-lg p-2.5 transition-colors"
-                          onClick={() => handleViewStorageLocation(location.name)}
-                        >
-                          <div className="min-w-0 flex-1">
-                            <p className="font-medium text-white text-sm truncate">{location.name}</p>
-                            <p className="text-xs text-slate-500">{location.count} comics</p>
-                          </div>
-                          <p className="font-semibold text-white text-sm tabular-nums flex-shrink-0 ml-3">
-                            {formatCurrency(location.value)}
-                          </p>
-                        </div>
-                      ))}
-                  </div>
-                ) : (
-                  <p className="text-slate-500 text-sm">No virtual boxes specified</p>
-                )}
-              </div>
-            </div>
-          </div>
+          <StatsTab
+            stats={stats}
+            allComics={allComics}
+            allSeriesCount={allSeries.length}
+            allVirtualBoxesCount={allVirtualBoxes.length}
+            variantsCount={variantsCount}
+            selectedCondition={selectedCondition}
+            top10Comics={top10Comics}
+            seriesPerformance={seriesPerformance}
+            valuedSeriesCount={valuedSeriesCount}
+            seriesCountSummaries={seriesCountSummaries}
+            storageLocationSummaries={storageLocationSummaries}
+            showAllSeriesPerf={showAllSeriesPerf}
+            showAllSeriesCount={showAllSeriesCount}
+            onToggleSeriesPerf={() => setShowAllSeriesPerf(!showAllSeriesPerf)}
+            onToggleSeriesCount={() => setShowAllSeriesCount(!showAllSeriesCount)}
+            onViewComic={handleViewComic}
+            onViewSeries={handleViewSeries}
+            onViewStorageLocation={handleViewStorageLocation}
+            onViewRawComics={handleViewRawComics}
+            onViewSlabbedComics={handleViewSlabbedComics}
+            onViewVariants={handleViewVariants}
+            onViewVirtualBoxes={handleViewVirtualBoxes}
+          />
         )}
       </main>
 

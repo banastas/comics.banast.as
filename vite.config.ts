@@ -19,7 +19,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           // React and React DOM
-          'react-vendor': ['react', 'react-dom', 'react-helmet-async'],
+          'react-vendor': ['react', 'react-dom'],
           // Lucide icons
           'icons': ['lucide-react'],
           // Hooks and utilities (comics.json is loaded async and gets its own chunk automatically)
@@ -57,7 +57,7 @@ export default defineConfig({
   },
   optimizeDeps: {
     exclude: ['lucide-react'],
-    include: ['react', 'react-dom', 'react-helmet-async', 'zustand', 'zod'],
+    include: ['react', 'react-dom', 'zustand', 'zod'],
   },
   // Enable compression
   server: {

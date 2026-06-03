@@ -24,7 +24,7 @@ export const CoverArtistDetail: React.FC<CoverArtistDetailProps> = React.memo(({
   breadcrumbItems,
 }) => {
   const uniqueSeriesCount = new Set(artistComics.map(c => c.seriesName)).size;
-  const artistUrl = `https://comics.banast.as/#/artist/${encodeURIComponent(coverArtist)}`;
+  const artistUrl = `https://comics.banast.as/artist/${encodeURIComponent(coverArtist)}`;
 
   return (
     <DetailPageLayout

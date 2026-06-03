@@ -5,6 +5,7 @@ import { SEO } from './SEO';
 import { Tag } from 'lucide-react';
 import { formatCurrency } from '../utils/formatting';
 import { BreadcrumbItem } from './Breadcrumb';
+import { generateCollectionPageStructuredData } from '../utils/structured-data';
 
 interface TagDetailProps {
   tag: string;
@@ -89,7 +90,7 @@ export const TagDetail: React.FC<TagDetailProps> = React.memo(({
     </div>
   );
 
-  const tagUrl = `https://comics.banast.as/#/tag/${encodeURIComponent(tag)}`;
+  const tagUrl = `https://comics.banast.as/tag/${encodeURIComponent(tag)}`;
 
   return (
     <DetailPageLayout
@@ -104,6 +105,11 @@ export const TagDetail: React.FC<TagDetailProps> = React.memo(({
           keywords={`${tag}, comic book tag, ${tag} comics, comic collection`}
           url={tagUrl}
           canonical={tagUrl}
+          structuredData={generateCollectionPageStructuredData({
+            name: `#${tag}`,
+            url: tagUrl,
+            comics: tagComics,
+          })}
         />
       }
       icon={<Tag size={24} className="text-white" />}

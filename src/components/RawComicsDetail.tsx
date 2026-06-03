@@ -5,6 +5,7 @@ import { SEO } from './SEO';
 import { SeriesBreakdown } from './SeriesBreakdown';
 import { BookOpen } from 'lucide-react';
 import { BreadcrumbItem } from './Breadcrumb';
+import { generateCollectionPageStructuredData } from '../utils/structured-data';
 
 interface RawComicsDetailProps {
   rawComics: Comic[];
@@ -47,8 +48,13 @@ const RawComicsDetailComponent: React.FC<RawComicsDetailProps> = ({
           title="Raw Comics"
           description={`Browse ${rawComics.length} raw (ungraded) comics across ${uniqueSeriesCount} series.`}
           keywords="raw comics, ungraded comics, comic book collection, non-slabbed comics"
-          url="https://comics.banast.as/#/raw"
-          canonical="https://comics.banast.as/#/raw"
+          url="https://comics.banast.as/raw"
+          canonical="https://comics.banast.as/raw"
+          structuredData={generateCollectionPageStructuredData({
+            name: 'Raw Comics',
+            url: 'https://comics.banast.as/raw',
+            comics: rawComics,
+          })}
         />
       }
       comics={rawComics}

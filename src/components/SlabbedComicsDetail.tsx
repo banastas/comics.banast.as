@@ -5,6 +5,7 @@ import { SEO } from './SEO';
 import { SeriesBreakdown } from './SeriesBreakdown';
 import { Archive } from 'lucide-react';
 import { BreadcrumbItem } from './Breadcrumb';
+import { generateCollectionPageStructuredData } from '../utils/structured-data';
 
 interface SlabbedComicsDetailProps {
   slabbedComics: Comic[];
@@ -44,8 +45,13 @@ const SlabbedComicsDetailInner: React.FC<SlabbedComicsDetailProps> = ({
           title="Slabbed Comics"
           description={`Browse ${slabbedComics.length} slabbed (graded) comics across ${uniqueSeriesCount} series.`}
           keywords="slabbed comics, graded comics, CGC, CBCS, comic book collection"
-          url="https://comics.banast.as/#/slabbed"
-          canonical="https://comics.banast.as/#/slabbed"
+          url="https://comics.banast.as/slabbed"
+          canonical="https://comics.banast.as/slabbed"
+          structuredData={generateCollectionPageStructuredData({
+            name: 'Slabbed Comics',
+            url: 'https://comics.banast.as/slabbed',
+            comics: slabbedComics,
+          })}
         />
       }
       comics={slabbedComics}

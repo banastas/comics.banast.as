@@ -22,7 +22,7 @@ export function generateComicStructuredData(comic: {
     issueNumber: comic.issueNumber,
     datePublished: comic.releaseDate,
     image: comic.coverImageUrl,
-    url: `https://comics.banast.as/#/comic/${slug}`,
+    url: `https://comics.banast.as/comic/${slug}`,
     ...(comic.coverArtist && {
       artist: {
         '@type': 'Person',
@@ -86,6 +86,29 @@ export function generateCollectionStructuredData(stats: {
         priceCurrency: 'USD',
       },
     }),
+  };
+}
+
+export function generateCollectionPageStructuredData(page: {
+  name: string;
+  url: string;
+  comics: Comic[];
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: page.name,
+    url: page.url,
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: page.comics.length,
+      itemListElement: page.comics.slice(0, 25).map((comic, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        url: `https://comics.banast.as/comic/${createComicSlug(comic)}`,
+        name: `${comic.seriesName} #${comic.issueNumber}`,
+      })),
+    },
   };
 }
 

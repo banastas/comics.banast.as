@@ -32,7 +32,7 @@ export const calculateComicStats = (comics: Comic[]): ComicStats => {
 
   return {
     totalComics: comics.length,
-    totalValue: totalPurchaseValue,
+    totalValue: totalCurrentValue,
     totalPurchaseValue,
     totalCurrentValue,
     highestValuedComic: findHighestValued(comics),

@@ -5,17 +5,25 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run typecheck && npm run generate:sitemap && vite build",
+    "build": "npm run typecheck && npm run generate:sitemap && vite build && npm run generate:static-pages",
+    "check": "npm run validate:data && npm run typecheck && npm run lint && npm run test:run && npm run build && npm run verify:static-pages",
     "lint": "eslint .",
-    "typecheck": "tsc -p tsconfig.app.json --noEmit",
+    "typecheck": "npm run typecheck:app && npm run typecheck:functions && npm run typecheck:node",
+    "typecheck:app": "tsc -p tsconfig.app.json --noEmit",
+    "typecheck:functions": "tsc -p tsconfig.functions.json --noEmit",
+    "typecheck:node": "tsc -p tsconfig.node.json --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run",
     "preview": "vite preview",
-    "generate:sitemap": "node scripts/generate-sitemap.js"
+    "generate:sitemap": "node scripts/generate-sitemap.js",
+    "generate:static-pages": "node scripts/generate-static-pages.mjs",
+    "verify:static-pages": "node scripts/verify-static-pages.mjs",
+    "validate:data": "node scripts/validate-data.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-helmet-async": "^2.0.5",
     "zod": "^4.0.17",
     "zustand": "^5.0.7"
   },
@@ -29,11 +37,13 @@
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.11",
     "globals": "^15.9.0",
+    "jsdom": "^29.1.1",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
     "terser": "^5.44.1",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.3.0",
-    "vite": "^7.0.0"
+    "vite": "^7.0.0",
+    "vitest": "^4.1.8"
   }
 }

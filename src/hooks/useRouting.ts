@@ -136,8 +136,8 @@ export const useRouting = ({
     const queryString = searchParams.toString();
     const fullRoute = route + (queryString ? `?${queryString}` : '');
     
-    // Update URL
-    navigateToUrl(`#${fullRoute}`, replace);
+    // Update URL. Clean paths are canonical; hash routes remain supported by parseCurrentUrl.
+    navigateToUrl(fullRoute, replace);
   }, [
     setSelectedComic,
     setSelectedSeries,
@@ -153,7 +153,7 @@ export const useRouting = ({
     const { route, params } = parseCurrentUrl();
     const { type, params: routeParams } = parseRoute(route);
     
-    trackPageView(window.location.hash || '#/collection');
+    trackPageView(`${window.location.pathname}${window.location.search}${window.location.hash}`);
     
     // Update tab
     if (params.tab && params.tab !== activeTab) {

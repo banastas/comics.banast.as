@@ -5,6 +5,7 @@ import { SEO } from './SEO';
 import { SeriesBreakdown } from './SeriesBreakdown';
 import { Award } from 'lucide-react';
 import { BreadcrumbItem } from './Breadcrumb';
+import { generateCollectionPageStructuredData } from '../utils/structured-data';
 
 interface VariantsDetailProps {
   variantComics: Comic[];
@@ -34,8 +35,13 @@ const VariantsDetailInner: React.FC<VariantsDetailProps> = ({
           title="Variant Comics"
           description={`Browse ${variantComics.length} variant cover comics across ${uniqueSeriesCount} series.`}
           keywords="variant comics, variant covers, exclusive covers, comic book collection"
-          url="https://comics.banast.as/#/variants"
-          canonical="https://comics.banast.as/#/variants"
+          url="https://comics.banast.as/variants"
+          canonical="https://comics.banast.as/variants"
+          structuredData={generateCollectionPageStructuredData({
+            name: 'Variant Comics',
+            url: 'https://comics.banast.as/variants',
+            comics: variantComics,
+          })}
         />
       }
       comics={variantComics}

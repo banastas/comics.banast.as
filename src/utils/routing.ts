@@ -101,8 +101,9 @@ export const urls = {
 
 // Parse current URL to extract route and parameters
 export const parseCurrentUrl = (): { route: string; params: RouteParams } => {
-  const hash = window.location.hash.slice(1); // Remove the # from hash
-  const [route, queryString] = hash.split('?');
+  const hash = window.location.hash.slice(1); // Legacy hash route, without the #.
+  const routeSource = hash || `${window.location.pathname}${window.location.search}`;
+  const [route, queryString] = routeSource.split('?');
   const params: RouteParams = {};
   
   if (queryString) {

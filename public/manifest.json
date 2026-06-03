@@ -13,40 +13,10 @@
   "categories": ["entertainment", "lifestyle", "utilities"],
   "icons": [
     {
-      "src": "/android-chrome-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/android-chrome-512x512.png",
+      "src": "/favicon.svg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
-    },
-    {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshot-mobile.png",
-      "sizes": "375x812",
-      "type": "image/png",
-      "form_factor": "narrow"
-    },
-    {
-      "src": "/screenshot-desktop.png",
-      "sizes": "1920x1080",
-      "type": "image/png",
-      "form_factor": "wide"
     }
   ],
   "shortcuts": [
@@ -54,27 +24,13 @@
       "name": "Collection",
       "short_name": "Collection",
       "description": "View your comic collection",
-      "url": "/#/collection",
-      "icons": [
-        {
-          "src": "/icon-collection.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
+      "url": "/#/collection"
     },
     {
       "name": "Statistics",
       "short_name": "Stats",
       "description": "View collection statistics",
-      "url": "/#/stats",
-      "icons": [
-        {
-          "src": "/icon-stats.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
+      "url": "/#/stats"
     }
   ],
   "related_applications": [],

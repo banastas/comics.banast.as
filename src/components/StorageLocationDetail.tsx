@@ -5,6 +5,7 @@ import { SEO } from './SEO';
 import { SeriesBreakdown } from './SeriesBreakdown';
 import { MapPin } from 'lucide-react';
 import { BreadcrumbItem } from './Breadcrumb';
+import { generateCollectionPageStructuredData } from '../utils/structured-data';
 
 interface StorageLocationDetailProps {
   storageLocation: string;
@@ -24,7 +25,7 @@ export const StorageLocationDetail: React.FC<StorageLocationDetailProps> = React
   breadcrumbItems,
 }) => {
   const uniqueSeriesCount = new Set(locationComics.map(c => c.seriesName)).size;
-  const storageUrl = `https://comics.banast.as/#/storage/${encodeURIComponent(storageLocation)}`;
+  const storageUrl = `https://comics.banast.as/storage/${encodeURIComponent(storageLocation)}`;
 
   return (
     <DetailPageLayout
@@ -35,6 +36,11 @@ export const StorageLocationDetail: React.FC<StorageLocationDetailProps> = React
           keywords={`${storageLocation}, comic storage, virtual box, comic collection organization`}
           url={storageUrl}
           canonical={storageUrl}
+          structuredData={generateCollectionPageStructuredData({
+            name: `Virtual Box: ${storageLocation}`,
+            url: storageUrl,
+            comics: locationComics,
+          })}
         />
       }
       comics={locationComics}

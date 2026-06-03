@@ -8,6 +8,7 @@ import {
 import { Breadcrumb, BreadcrumbItem } from './Breadcrumb';
 import { SEO } from './SEO';
 import { formatCurrency } from '../utils/formatting';
+import { generateCollectionPageStructuredData } from '../utils/structured-data';
 
 interface StorageLocationsListingProps {
   allComics: Comic[];
@@ -73,8 +74,13 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
         title="Virtual Boxes"
         description={`Browse ${storageLocations.length} virtual boxes organizing your comic collection.`}
         keywords="virtual boxes, comic storage, comic collection organization"
-        url="https://comics.banast.as/#/boxes"
-        canonical="https://comics.banast.as/#/boxes"
+        url="https://comics.banast.as/boxes"
+        canonical="https://comics.banast.as/boxes"
+        structuredData={generateCollectionPageStructuredData({
+          name: 'Virtual Boxes',
+          url: 'https://comics.banast.as/boxes',
+          comics: allComics,
+        })}
       />
       {/* Header */}
       <div className="bg-surface-primary shadow-lg border-b border-slate-800">
