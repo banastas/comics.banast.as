@@ -8,9 +8,19 @@
 
 <img src="https://github.com/banastas/comics.banast.as/blob/main/comic.banast.as.png?raw=true">
 
-A personal comic book collection tracker with financial analytics, multi-view browsing, and comprehensive organization. Currently tracking **805 comics** across **177 series**. Built with React 18, TypeScript, and Tailwind CSS.
+A personal comic book collection tracker with financial analytics, multi-view browsing, and comprehensive organization. Currently tracking **811 comics** across **178 series**. Built with React 18, TypeScript, and Tailwind CSS.
 
 **Live Site**: [comics.banast.as](https://comics.banast.as)
+
+## Latest Build Snapshot
+
+The current production build is still a hydrated React/Vite app, but the routing and SEO surface have been upgraded so the site now ships real static entry pages for the collection.
+
+- **Clean URLs are canonical**: `/comic/...`, `/series/...`, `/artist/...`, `/tag/...`, `/storage/...`, `/raw`, `/slabbed`, `/variants`, `/boxes`, `/collection`, and `/stats`
+- **Legacy hash URLs still work**: old `/#/...` links are bridged to the clean path before React reads the route
+- **Static prerender output**: `npm run build` generates sitemap-driven HTML entry pages in `dist/` with route-specific title, description, canonical, Open Graph, Twitter Card, and JSON-LD metadata
+- **External automation preserved**: n8n/nightly sync, `src/data/comics.json`, and the Cloudflare Pages API remain the compatibility contract
+- **Regression gate added**: `npm run check` now validates data, typechecks app/API/node scripts, lints, runs Vitest, builds, and verifies the generated static pages
 
 ## What It Does
 
@@ -44,7 +54,10 @@ Open `http://localhost:5173` in your browser.
 
 ```
 src/
-├── components/              # React components (31 files)
+├── components/              # React components (35 runtime files)
+│   ├── AppRouteRenderer.tsx # Route switchboard for hydrated views
+│   ├── CollectionTab.tsx    # Main collection tab
+│   ├── StatsTab.tsx         # Stats/analytics tab
 │   ├── Dashboard.tsx        # Analytics dashboard with stats cards
 │   ├── ComicCard.tsx        # Grid view card (keyboard accessible)
 │   ├── ComicListView.tsx    # List view layout (keyboard accessible)
@@ -75,13 +88,16 @@ src/
 │   └── Comic.ts             # TypeScript interfaces
 ├── utils/                   # formatting, stats, sorting, analytics, routing
 ├── data/
-│   └── comics.json          # Collection data (805 comics)
+│   └── comics.json          # Collection data (811 comics)
 └── styles/
     └── responsive.css
 functions/
 └── api/                     # Cloudflare Pages API endpoints for external automation
 scripts/
 ├── generate-sitemap.js      # Sitemap generation from synced collection data
+├── generate-static-pages.mjs # Static clean-url HTML page generation
+├── site-routes.mjs          # Shared route inventory for sitemap/static pages
+├── verify-static-pages.mjs  # Static output and sitemap verification
 └── validate-data.mjs        # Nightly/import data contract validation
 ```
 
@@ -96,7 +112,7 @@ Total comics, collection value, average grade, raw vs. slabbed breakdown, varian
 - **Detail pages** for individual comics with related issues from the same series
 
 ### Organization
-- **By series** (177 series) with per-series stats
+- **By series** (178 series) with per-series stats
 - **By cover artist** with artist-specific collection views
 - **By tag** for custom grouping
 - **By storage location** (7 archive boxes + CGC + Loose)
@@ -110,11 +126,12 @@ Full-text search across multiple fields. Sort by title, series, issue number, re
 - n8n/nightly sync writes the collection JSON used by the app, API, sitemap, and build
 - Built-in CSV to JSON converter for bulk imports/manual fallback
 - Automatic timestamps on creation and updates
+- Zod/runtime validation plus standalone data validation guard against malformed sync/import payloads
 
 ### SEO
 - Dynamic meta tags with the first-party SEO component
 - Schema.org structured data (ComicIssue, ComicSeries, Collection, Breadcrumb)
-- Auto-generated clean-url sitemap (~1,224 URLs)
+- Auto-generated clean-url sitemap (1,234 URLs in the current build)
 - Static clean-url HTML entry pages generated at build time for comics, series, artists, tags, storage, and collection views
 - Open Graph and Twitter Card support
 - SEO-friendly slugs (e.g., `/comic/batman-issue-1-variant`)
@@ -144,8 +161,9 @@ Mobile-first layout from 320px to 4K. 44px minimum touch targets. Fluid typograp
 
 ```bash
 npm run dev              # Start dev server
-npm run check            # Validate data, typecheck app/API, lint, test, build
+npm run check            # Full gate: validate data, typecheck app/API/node, lint, test, build, verify static pages
 npm run validate:data    # Validate synced src/data/comics.json contract
+npm run typecheck        # Typecheck app, Cloudflare Functions, and node scripts
 npm run test:run         # Run Vitest regression tests
 npm run build            # Validate types, generate sitemap, build, generate static pages
 npm run verify:static-pages # Verify clean-url static pages and sitemap output
@@ -170,12 +188,12 @@ Add entries directly to `src/data/comics.json` following the Comic interface in 
 The production data source is still `src/data/comics.json`. Any n8n or scheduled sync should preserve that JSON array shape and then run:
 
 ```bash
-npm run validate:data
-npm run generate:sitemap
 npm run check
 ```
 
-The compatibility tests intentionally cover the synced data shape, unique IDs, unique route slugs, API responses, and sitemap freshness. Keep the Cloudflare Pages API endpoints in `functions/api/` available during future rendering/routing migrations.
+`npm run check` includes data validation, typechecking, linting, API tests, sitemap tests, static page generation, and static output verification. For a faster preflight during sync development, use `npm run validate:data`.
+
+The compatibility tests intentionally cover the synced data shape, unique IDs, unique route slugs, API responses, CORS headers, and sitemap freshness. Keep the Cloudflare Pages API endpoints in `functions/api/` available during future rendering/routing migrations.
 
 ## API
 
@@ -187,7 +205,7 @@ Cloudflare Pages Functions expose read-only JSON endpoints for automation and ex
 - `GET /api/comics?q=signature`
 - `GET /api/comics/stats`
 
-Both endpoints allow CORS for read-only clients. They import the same `src/data/comics.json` file as the app, so nightly sync updates the UI and API together.
+Both endpoints allow CORS for read-only clients and respond to `OPTIONS` preflight requests. They import the same `src/data/comics.json` file as the app, so nightly sync updates the UI, static pages, sitemap, and API together.
 
 ## Deployment
 
@@ -195,14 +213,18 @@ Both endpoints allow CORS for read-only clients. They import the same `src/data/
 npm run build
 ```
 
-Deploy the `dist/` folder to any static host (Netlify, Vercel, GitHub Pages, Cloudflare Pages, etc.). No server or environment variables required.
+Deploy the `dist/` folder to Cloudflare Pages. Cloudflare Pages Functions in `functions/api/` should be deployed with it so the public API remains available for n8n and other read-only clients. No environment variables are required for the current build.
+
+Cloudflare may redirect generated directory-style routes from `/stats` to `/stats/`; the generated canonical and sitemap URLs intentionally use the clean no-trailing-slash form.
 
 ## Limitations
 
 - JSON file storage (no database)
 - Single-user (no authentication)
 - Cover images hosted externally (covers.banast.as)
-- Hash-based routing (SPA limitations for crawlers)
+- The interactive app still hydrates as a React SPA after the static entry page loads
+- Static pages are generated at build time, so data changes require a rebuild/deploy
+- This is not a full SSR/Astro migration yet; `docs/ssr-migration-prd.md` tracks that possible next step
 
 ## License
 

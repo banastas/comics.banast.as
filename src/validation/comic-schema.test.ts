@@ -6,6 +6,6 @@ describe('comic data schema', () => {
   it('accepts the current nightly-synced comics.json payload', () => {
     const parsed = parseComics(comics);
 
-    expect(parsed).toHaveLength(805);
+    expect(parsed).toHaveLength(comics.length);
   });
 });
