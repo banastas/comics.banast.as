@@ -18,7 +18,8 @@ const seriesSortOptions = [
   { value: 'issue', label: 'Sort by Issue #' },
   { value: 'grade', label: 'Sort by Grade' },
   { value: 'value', label: 'Sort by Value' },
-  { value: 'date', label: 'Sort by Release Date' },
+  { value: 'dateDesc', label: 'Release Date: Newest' },
+  { value: 'dateAsc', label: 'Release Date: Oldest' },
 ];
 
 export const SeriesDetail: React.FC<SeriesDetailProps> = React.memo(({

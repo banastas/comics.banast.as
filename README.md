@@ -120,6 +120,7 @@ Total comics, collection value, average grade, raw vs. slabbed breakdown, varian
 
 ### Search & Filter
 Full-text search across multiple fields. Sort by title, series, issue number, release date, grade, purchase date, purchase price, or current value. Ascending/descending toggle.
+Drill-down pages such as virtual boxes, series, artists, tags, raw comics, slabbed comics, and variants also support release date sorting in both newest-first and oldest-first order.
 
 ### Data Management
 - JSON-based storage (`src/data/comics.json`)

@@ -1,6 +1,8 @@
 import { Comic } from '../types/Comic';
 
-export type DetailSortField = 'series' | 'issue' | 'grade' | 'value' | 'date';
+export type DetailSortField = 'series' | 'issue' | 'grade' | 'value' | 'date' | 'dateDesc' | 'dateAsc';
+
+const releaseDateTimestamp = (comic: Comic): number => new Date(comic.releaseDate).getTime();
 
 export const sortComics = (comics: Comic[], sortBy: DetailSortField): Comic[] => {
   return [...comics].sort((a, b) => {
@@ -18,8 +20,11 @@ export const sortComics = (comics: Comic[], sortBy: DetailSortField): Comic[] =>
         const bValue = b.currentValue || b.purchasePrice || 0;
         return bValue - aValue;
       }
+      case 'dateAsc':
+        return releaseDateTimestamp(a) - releaseDateTimestamp(b);
+      case 'dateDesc':
       case 'date':
-        return new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime();
+        return releaseDateTimestamp(b) - releaseDateTimestamp(a);
       default:
         return a.seriesName.localeCompare(b.seriesName);
     }

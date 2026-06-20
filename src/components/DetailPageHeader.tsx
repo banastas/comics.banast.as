@@ -17,7 +17,8 @@ const defaultSortOptions = [
   { value: 'issue', label: 'Sort by Issue #' },
   { value: 'grade', label: 'Sort by Grade' },
   { value: 'value', label: 'Sort by Value' },
-  { value: 'date', label: 'Sort by Release Date' },
+  { value: 'dateDesc', label: 'Release Date: Newest' },
+  { value: 'dateAsc', label: 'Release Date: Oldest' },
 ];
 
 export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
@@ -67,6 +68,7 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
           <select
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value)}
+            aria-label="Sort comics"
             className="bg-surface-secondary border border-slate-700 rounded-lg px-3 py-2 text-sm text-white"
           >
             {sortOptions.map(opt => (
