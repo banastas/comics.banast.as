@@ -2,6 +2,7 @@ import React from 'react';
 import type { Comic, ComicStats } from '../types/Comic';
 import { BookOpen, Award, PenTool, Archive, TrendingUp, TrendingDown, MapPin } from 'lucide-react';
 import { formatCurrency, formatPercentage } from '../utils/formatting';
+import { handleKeyboardActivation } from '../utils/accessibility';
 
 interface DashboardProps {
   stats: ComicStats;
@@ -175,6 +176,20 @@ export const Dashboard: React.FC<DashboardProps> = React.memo(({
     }] : []),
   ].filter(card => card.show !== false);
 
+  const activateStatsCard = (title: string) => {
+    if (title === 'Slabbed Comics') onViewSlabbedComics?.();
+    else if (title === 'Raw Comics') onViewRawComics?.();
+    else if (title === 'Virtual Boxes') onViewVirtualBoxes?.();
+    else if (title === 'Variants') onViewVariants?.();
+  };
+
+  const isStatsCardInteractive = (title: string) => (
+    title === 'Slabbed Comics' ||
+    title === 'Raw Comics' ||
+    title === 'Virtual Boxes' ||
+    title === 'Variants'
+  );
+
   return (
     <div className={showDetailed ? "space-y-6" : "mb-8"}>
       {renderPortfolioHero()}
@@ -186,14 +201,15 @@ export const Dashboard: React.FC<DashboardProps> = React.memo(({
             <div
               key={stat.title}
               className={`bg-surface-primary rounded-xl shadow-card border ${stat.borderColor} p-3 sm:p-4 hover:shadow-card-hover hover:border-slate-600 transition-all duration-200 ${stat.bgColor} ${
-                (stat.title === 'Slabbed Comics' || stat.title === 'Raw Comics' || stat.title === 'Virtual Boxes' || stat.title === 'Variants') ? 'cursor-pointer' : ''
+                isStatsCardInteractive(stat.title) ? 'cursor-pointer' : ''
               }`}
-              onClick={() => {
-                if (stat.title === 'Slabbed Comics') onViewSlabbedComics?.();
-                else if (stat.title === 'Raw Comics') onViewRawComics?.();
-                else if (stat.title === 'Virtual Boxes') onViewVirtualBoxes?.();
-                else if (stat.title === 'Variants') onViewVariants?.();
-              }}
+              onClick={() => activateStatsCard(stat.title)}
+              onKeyDown={isStatsCardInteractive(stat.title)
+                ? (event) => handleKeyboardActivation(event, () => activateStatsCard(stat.title))
+                : undefined}
+              role={isStatsCardInteractive(stat.title) ? 'button' : undefined}
+              tabIndex={isStatsCardInteractive(stat.title) ? 0 : undefined}
+              aria-label={isStatsCardInteractive(stat.title) ? `View ${stat.title}` : undefined}
             >
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0 flex-1">
@@ -221,6 +237,10 @@ export const Dashboard: React.FC<DashboardProps> = React.memo(({
             <div
               className="bg-gradient-to-br from-emerald-600/90 to-emerald-700/90 rounded-xl p-5 sm:p-6 text-white shadow-card border border-emerald-500/20 cursor-pointer hover:shadow-glow-emerald transition-all"
               onClick={() => onViewComic?.(stats.biggestGainer!)}
+              onKeyDown={(event) => handleKeyboardActivation(event, () => onViewComic?.(stats.biggestGainer!))}
+              role="button"
+              tabIndex={0}
+              aria-label={`View biggest gainer ${stats.biggestGainer.seriesName} issue ${stats.biggestGainer.issueNumber}`}
             >
               <h3 className="text-sm font-semibold mb-3 flex items-center text-emerald-200 uppercase tracking-wider">
                 <TrendingUp size={16} className="mr-2" />
@@ -258,6 +278,10 @@ export const Dashboard: React.FC<DashboardProps> = React.memo(({
             <div
               className="bg-gradient-to-br from-red-600/90 to-red-700/90 rounded-xl p-5 sm:p-6 text-white shadow-card border border-red-500/20 cursor-pointer hover:shadow-card-hover transition-all"
               onClick={() => onViewComic?.(stats.biggestLoser!)}
+              onKeyDown={(event) => handleKeyboardActivation(event, () => onViewComic?.(stats.biggestLoser!))}
+              role="button"
+              tabIndex={0}
+              aria-label={`View biggest decline ${stats.biggestLoser.seriesName} issue ${stats.biggestLoser.issueNumber}`}
             >
               <h3 className="text-sm font-semibold mb-3 flex items-center text-red-200 uppercase tracking-wider">
                 <TrendingDown size={16} className="mr-2" />
@@ -295,6 +319,10 @@ export const Dashboard: React.FC<DashboardProps> = React.memo(({
             <div
               className="bg-gradient-to-br from-purple-600/90 to-indigo-700/90 rounded-xl p-5 sm:p-6 text-white shadow-card border border-purple-500/20 cursor-pointer hover:shadow-card-hover transition-all"
               onClick={() => onViewComic?.(stats.highestValuedSlabbedComic!)}
+              onKeyDown={(event) => handleKeyboardActivation(event, () => onViewComic?.(stats.highestValuedSlabbedComic!))}
+              role="button"
+              tabIndex={0}
+              aria-label={`View most valuable slabbed comic ${stats.highestValuedSlabbedComic.seriesName} issue ${stats.highestValuedSlabbedComic.issueNumber}`}
             >
               <h3 className="text-sm font-semibold mb-3 flex items-center text-purple-200 uppercase tracking-wider">
                 <Award size={16} className="mr-2" />
@@ -318,6 +346,10 @@ export const Dashboard: React.FC<DashboardProps> = React.memo(({
             <div
               className="bg-gradient-to-br from-blue-600/90 to-cyan-700/90 rounded-xl p-5 sm:p-6 text-white shadow-card border border-blue-500/20 cursor-pointer hover:shadow-card-hover transition-all"
               onClick={() => onViewComic?.(stats.highestValuedRawComic!)}
+              onKeyDown={(event) => handleKeyboardActivation(event, () => onViewComic?.(stats.highestValuedRawComic!))}
+              role="button"
+              tabIndex={0}
+              aria-label={`View most valuable raw comic ${stats.highestValuedRawComic.seriesName} issue ${stats.highestValuedRawComic.issueNumber}`}
             >
               <h3 className="text-sm font-semibold mb-3 flex items-center text-blue-200 uppercase tracking-wider">
                 <BookOpen size={16} className="mr-2" />

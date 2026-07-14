@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { Comic } from '../types/Comic';
 import { X, Save } from 'lucide-react';
 
@@ -61,6 +61,46 @@ export const ComicForm: React.FC<ComicFormProps> = ({
 
   const [tagInput, setTagInput] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    titleInputRef.current?.focus();
+
+    const handleDialogKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onCancel();
+        return;
+      }
+
+      if (event.key !== 'Tab' || !dialogRef.current) return;
+      const focusable = [...dialogRef.current.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      )].filter((element) => !element.hasAttribute('hidden'));
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleDialogKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleDialogKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previouslyFocused?.focus();
+    };
+  }, [onCancel]);
 
   useEffect(() => {
     if (comic) {
@@ -141,14 +181,22 @@ export const ComicForm: React.FC<ComicFormProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50">
-      <div className="bg-surface-primary rounded-lg shadow-2xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto border border-slate-800">
+      <div
+        ref={dialogRef}
+        className="bg-surface-primary rounded-lg shadow-2xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto border border-slate-800"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="comic-form-title"
+      >
         <div className="sticky top-0 bg-surface-primary border-b border-slate-800 px-6 py-4 flex items-center justify-between">
-          <h2 className="text-lg sm:text-xl font-bold text-white">
+          <h2 id="comic-form-title" className="text-lg sm:text-xl font-bold text-white">
             {comic ? 'Edit Comic' : 'Add New Comic'}
           </h2>
           <button
             onClick={onCancel}
             className="p-2 text-slate-400 hover:text-slate-200 hover:bg-surface-secondary rounded-lg transition-colors"
+            type="button"
+            aria-label="Close comic form"
           >
             <X size={20} />
           </button>
@@ -160,11 +208,16 @@ export const ComicForm: React.FC<ComicFormProps> = ({
             <div className="space-y-3 sm:space-y-4">
               {/* Title */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
+                <label htmlFor="comic-title" className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Title *
                 </label>
                 <input
                   type="text"
+                  id="comic-title"
+                  ref={titleInputRef}
+                  required
+                  aria-invalid={Boolean(errors.title)}
+                  aria-describedby={errors.title ? 'comic-title-error' : undefined}
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
                   className={`w-full border rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm sm:text-base ${
@@ -172,16 +225,20 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                   }`}
                   placeholder="Enter comic title"
                 />
-                {errors.title && <p className="text-red-400 text-sm mt-1">{errors.title}</p>}
+                {errors.title && <p id="comic-title-error" className="text-red-400 text-sm mt-1">{errors.title}</p>}
               </div>
 
               {/* Series Name */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
+                <label htmlFor="comic-series" className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Series Name *
                 </label>
                 <input
                   type="text"
+                  id="comic-series"
+                  required
+                  aria-invalid={Boolean(errors.seriesName)}
+                  aria-describedby={errors.seriesName ? 'comic-series-error' : undefined}
                   list="series-list"
                   value={formData.seriesName}
                   onChange={(e) => handleInputChange('seriesName', e.target.value)}
@@ -195,16 +252,20 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                     <option key={series} value={series} />
                   ))}
                 </datalist>
-                {errors.seriesName && <p className="text-red-400 text-sm mt-1">{errors.seriesName}</p>}
+                {errors.seriesName && <p id="comic-series-error" className="text-red-400 text-sm mt-1">{errors.seriesName}</p>}
               </div>
 
               {/* Issue Number */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
+                <label htmlFor="comic-issue-number" className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Issue Number *
                 </label>
                 <input
                   type="number"
+                  id="comic-issue-number"
+                  required
+                  aria-invalid={Boolean(errors.issueNumber)}
+                  aria-describedby={errors.issueNumber ? 'comic-issue-number-error' : undefined}
                   min="0"
                   value={formData.issueNumber}
                   onChange={(e) => handleInputChange('issueNumber', parseInt(e.target.value) || 0)}
@@ -212,34 +273,39 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                     errors.issueNumber ? 'border-red-400 bg-surface-secondary' : 'border-slate-700 bg-surface-secondary'
                   }`}
                 />
-                {errors.issueNumber && <p className="text-red-400 text-sm mt-1">{errors.issueNumber}</p>}
+                {errors.issueNumber && <p id="comic-issue-number-error" className="text-red-400 text-sm mt-1">{errors.issueNumber}</p>}
               </div>
 
               {/* Release Date */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
+                <label htmlFor="comic-release-date" className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Release Date *
                 </label>
                 <input
                   type="date"
+                  id="comic-release-date"
+                  required
+                  aria-invalid={Boolean(errors.releaseDate)}
+                  aria-describedby={errors.releaseDate ? 'comic-release-date-error' : undefined}
                   value={formData.releaseDate}
                   onChange={(e) => handleInputChange('releaseDate', e.target.value)}
                   className={`w-full border rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white text-sm sm:text-base ${
                     errors.releaseDate ? 'border-red-400 bg-surface-secondary' : 'border-slate-700 bg-surface-secondary'
                   }`}
                 />
-                {errors.releaseDate && <p className="text-red-400 text-sm mt-1">{errors.releaseDate}</p>}
+                {errors.releaseDate && <p id="comic-release-date-error" className="text-red-400 text-sm mt-1">{errors.releaseDate}</p>}
               </div>
 
               {/* Cover Image URL */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
+                <label htmlFor="comic-cover-url" className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Cover Image URL
                 </label>
                 <div className="flex space-x-2 items-start">
                   <div className="flex-1">
                     <input
                       type="url"
+                      id="comic-cover-url"
                       value={formData.coverImageUrl}
                       onChange={(e) => handleInputChange('coverImageUrl', e.target.value)}
                       className="w-full border border-slate-700 bg-surface-secondary rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm sm:text-base"
@@ -263,10 +329,14 @@ export const ComicForm: React.FC<ComicFormProps> = ({
 
               {/* Grade */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
+                <label htmlFor="comic-grade" className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Grade *
                 </label>
                 <select
+                  id="comic-grade"
+                  required
+                  aria-invalid={Boolean(errors.grade)}
+                  aria-describedby={errors.grade ? 'comic-grade-error' : undefined}
                   value={formData.grade}
                   onChange={(e) => handleInputChange('grade', parseFloat(e.target.value))}
                   className={`w-full border rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white text-sm sm:text-base ${
@@ -277,7 +347,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                     <option key={grade} value={grade}>{grade}</option>
                   ))}
                 </select>
-                {errors.grade && <p className="text-red-400 text-sm mt-1">{errors.grade}</p>}
+                {errors.grade && <p id="comic-grade-error" className="text-red-400 text-sm mt-1">{errors.grade}</p>}
               </div>
             </div>
 
@@ -285,11 +355,14 @@ export const ComicForm: React.FC<ComicFormProps> = ({
             <div className="space-y-3 sm:space-y-4">
               {/* Purchase Price */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
+                <label htmlFor="comic-purchase-price" className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Purchase Price (USD)
                 </label>
                 <input
                   type="number"
+                  id="comic-purchase-price"
+                  aria-invalid={Boolean(errors.purchasePrice)}
+                  aria-describedby={errors.purchasePrice ? 'comic-purchase-price-error' : undefined}
                   min="0"
                   step="0.01"
                   value={formData.purchasePrice || ''}
@@ -299,16 +372,17 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                   }`}
                   placeholder="Enter purchase price"
                 />
-                {errors.purchasePrice && <p className="text-red-400 text-sm mt-1">{errors.purchasePrice}</p>}
+                {errors.purchasePrice && <p id="comic-purchase-price-error" className="text-red-400 text-sm mt-1">{errors.purchasePrice}</p>}
               </div>
 
               {/* Current Value */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
+                <label htmlFor="comic-current-value" className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Current Value (USD)
                 </label>
                 <input
                   type="number"
+                  id="comic-current-value"
                   min="0"
                   step="0.01"
                   value={formData.currentValue || ''}
@@ -320,27 +394,32 @@ export const ComicForm: React.FC<ComicFormProps> = ({
 
               {/* Purchase Date */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
+                <label htmlFor="comic-purchase-date" className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Purchase Date *
                 </label>
                 <input
                   type="date"
+                  id="comic-purchase-date"
+                  required
+                  aria-invalid={Boolean(errors.purchaseDate)}
+                  aria-describedby={errors.purchaseDate ? 'comic-purchase-date-error' : undefined}
                   value={formData.purchaseDate}
                   onChange={(e) => handleInputChange('purchaseDate', e.target.value)}
                   className={`w-full border rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white text-sm sm:text-base ${
                     errors.purchaseDate ? 'border-red-400 bg-surface-secondary' : 'border-slate-700 bg-surface-secondary'
                   }`}
                 />
-                {errors.purchaseDate && <p className="text-red-400 text-sm mt-1">{errors.purchaseDate}</p>}
+                {errors.purchaseDate && <p id="comic-purchase-date-error" className="text-red-400 text-sm mt-1">{errors.purchaseDate}</p>}
               </div>
 
               {/* Signed By */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
+                <label htmlFor="comic-signed-by" className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Signed By
                 </label>
                 <input
                   type="text"
+                  id="comic-signed-by"
                   value={formData.signedBy}
                   onChange={(e) => handleInputChange('signedBy', e.target.value)}
                   className="w-full border border-slate-700 bg-surface-secondary rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm sm:text-base"
@@ -350,11 +429,12 @@ export const ComicForm: React.FC<ComicFormProps> = ({
 
               {/* Storage Location */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
+                <label htmlFor="comic-storage-location" className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Virtual Box
                 </label>
                 <input
                   type="text"
+                  id="comic-storage-location"
                   list="virtualbox-list"
                   value={formData.storageLocation}
                   onChange={(e) => handleInputChange('storageLocation', e.target.value)}
@@ -409,12 +489,13 @@ export const ComicForm: React.FC<ComicFormProps> = ({
 
               {/* Tags */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
+                <label htmlFor="comic-tags" className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Tags
                 </label>
                 <div className="flex space-x-2 mb-2 items-stretch">
                   <input
                     type="text"
+                    id="comic-tags"
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
                     onKeyDown={handleKeyDown}
@@ -441,6 +522,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
                           type="button"
                           onClick={() => removeTag(tag)}
                           className="text-blue-300 hover:text-blue-100"
+                          aria-label={`Remove ${tag} tag`}
                         >
                           <X size={12} className="sm:w-3.5 sm:h-3.5" />
                         </button>
@@ -452,11 +534,12 @@ export const ComicForm: React.FC<ComicFormProps> = ({
 
               {/* Cover Artist */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
+                <label htmlFor="comic-cover-artist" className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Cover Artist
                 </label>
                 <input
                   type="text"
+                  id="comic-cover-artist"
                   value={formData.coverArtist}
                   onChange={(e) => handleInputChange('coverArtist', e.target.value)}
                   className="w-full border border-slate-700 bg-surface-secondary rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-white placeholder-gray-400 text-sm sm:text-base"
@@ -466,10 +549,11 @@ export const ComicForm: React.FC<ComicFormProps> = ({
 
               {/* Notes */}
               <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
+                <label htmlFor="comic-notes" className="block text-xs sm:text-sm font-medium text-slate-300 mb-1">
                   Notes
                 </label>
                 <textarea
+                  id="comic-notes"
                   value={formData.notes}
                   onChange={(e) => handleInputChange('notes', e.target.value)}
                   rows={4}

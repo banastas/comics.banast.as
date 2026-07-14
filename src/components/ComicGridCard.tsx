@@ -2,6 +2,7 @@ import React from 'react';
 import { Comic } from '../types/Comic';
 import { Star, Award } from 'lucide-react';
 import { formatCurrency } from '../utils/formatting';
+import { handleKeyboardActivation } from '../utils/accessibility';
 
 interface ComicGridCardProps {
   comic: Comic;
@@ -17,8 +18,12 @@ export const ComicGridCard: React.FC<ComicGridCardProps> = React.memo(({
   showSeriesName = true,
 }) => (
   <div
-    className="bg-surface-secondary/50 rounded-lg border border-slate-700 overflow-hidden hover:border-blue-500 transition-all cursor-pointer group"
+    className="bg-surface-secondary/50 rounded-lg border border-slate-700 overflow-hidden hover:border-blue-500 transition-all cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-base"
     onClick={() => onView(comic)}
+    onKeyDown={(event) => handleKeyboardActivation(event, () => onView(comic))}
+    role="button"
+    tabIndex={0}
+    aria-label={`View ${comic.seriesName} issue ${comic.issueNumber}`}
   >
     <div className="relative aspect-[2/3] bg-slate-700">
       {comic.coverImageUrl ? (

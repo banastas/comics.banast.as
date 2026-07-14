@@ -23,7 +23,11 @@ export const ToastContainer: React.FC = () => {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2 sm:bottom-6 sm:right-6 max-sm:left-4 max-sm:right-4 max-sm:items-center">
+    <div
+      className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2 sm:bottom-6 sm:right-6 max-sm:left-4 max-sm:right-4 max-sm:items-center"
+      aria-live="polite"
+      aria-atomic="false"
+    >
       {toasts.map((toast) => {
         const Icon = iconMap[toast.type];
         return (
@@ -32,12 +36,14 @@ export const ToastContainer: React.FC = () => {
             className={`flex items-center gap-3 px-4 py-3 rounded-xl bg-surface-elevated border border-slate-700/50 shadow-card-hover backdrop-blur-sm max-w-sm w-full ${
               toast.exiting ? 'animate-toast-out' : 'animate-toast-in'
             }`}
+            role={toast.type === 'error' ? 'alert' : 'status'}
           >
             <Icon size={18} className={colorMap[toast.type]} />
             <span className="text-sm text-slate-200 flex-1">{toast.message}</span>
             <button
               onClick={() => removeToast(toast.id)}
               className="text-slate-500 hover:text-slate-300 transition-colors flex-shrink-0"
+              aria-label="Dismiss notification"
             >
               <X size={14} />
             </button>

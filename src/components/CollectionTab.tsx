@@ -79,6 +79,7 @@ export const CollectionTab = ({
             <button
               key={tag}
               onClick={() => onSetActiveComputedTag(isActive ? null : tag)}
+              aria-pressed={isActive}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
                 isActive
                   ? 'bg-blue-500 text-white shadow-glow'
@@ -101,6 +102,7 @@ export const CollectionTab = ({
           <select
             value={itemsPerPage}
             onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
+            aria-label="Comics per page"
             className="bg-surface-secondary border border-slate-700 rounded-xl px-3 py-1 text-sm text-white cursor-pointer"
           >
             <option value={48}>48 per page</option>
@@ -135,6 +137,8 @@ export const CollectionTab = ({
                         ? 'bg-blue-500 text-white'
                         : 'bg-surface-secondary text-slate-400 hover:bg-surface-elevated hover:text-white'
                     }`}
+                    aria-current={currentPage === pageNum ? 'page' : undefined}
+                    aria-label={`Page ${pageNum + 1}`}
                   >
                     {pageNum + 1}
                   </button>

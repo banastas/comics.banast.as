@@ -52,6 +52,8 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
               className={`p-2 rounded-l-lg transition-colors ${
                 viewMode === 'grid' ? 'bg-blue-500 text-white' : 'text-slate-300 hover:text-white'
               }`}
+              aria-label="Grid view"
+              aria-pressed={viewMode === 'grid'}
             >
               <Grid size={16} />
             </button>
@@ -60,6 +62,8 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
               className={`p-2 rounded-r-lg transition-colors ${
                 viewMode === 'list' ? 'bg-blue-500 text-white' : 'text-slate-300 hover:text-white'
               }`}
+              aria-label="List view"
+              aria-pressed={viewMode === 'list'}
             >
               <List size={16} />
             </button>

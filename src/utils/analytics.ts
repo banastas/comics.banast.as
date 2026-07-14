@@ -13,25 +13,30 @@ export const trackPageView = (pagePath: string, pageTitle?: string): void => {
   if (!normalizedPath.startsWith('/')) {
     normalizedPath = '/' + normalizedPath;
   }
-  
-  const fullPath = '#' + normalizedPath;
+
+  const title = pageTitle || document.title;
   
   if (!window.dataLayer) {
     window.dataLayer = [];
   }
-  
+
+  if (typeof window.gtag === 'function') {
+    window.gtag('event', 'page_view', {
+      page_path: normalizedPath,
+      page_title: title,
+      page_location: window.location.href,
+    });
+    return;
+  }
+
+  // Preserve the event for a delayed analytics bootstrap without double-sending
+  // when gtag is already available.
   window.dataLayer.push({
     event: 'page_view',
-    page_path: fullPath,
-    page_title: pageTitle || document.title,
+    page_path: normalizedPath,
+    page_title: title,
+    page_location: window.location.href,
   });
-  
-  if (typeof window.gtag === 'function') {
-    window.gtag('config', 'G-ZDMFMRZTBZ', {
-      page_path: fullPath,
-      page_title: pageTitle || document.title,
-    });
-  }
 };
 
 export const trackEvent = (eventName: string, eventParams?: Record<string, unknown>): void => {
@@ -39,4 +44,3 @@ export const trackEvent = (eventName: string, eventParams?: Record<string, unkno
     window.gtag('event', eventName, eventParams);
   }
 };
-

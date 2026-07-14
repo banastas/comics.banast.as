@@ -2,6 +2,7 @@ import React from 'react';
 import { Comic } from '../types/Comic';
 import { Star, Award } from 'lucide-react';
 import { formatCurrency, formatDate } from '../utils/formatting';
+import { handleKeyboardActivation } from '../utils/accessibility';
 
 interface ComicListRowProps {
   comic: Comic;
@@ -17,8 +18,12 @@ export const ComicListRow: React.FC<ComicListRowProps> = React.memo(({
   extraInfo,
 }) => (
   <div
-    className="bg-surface-secondary/50 rounded-lg border border-slate-700 p-4 hover:border-blue-500 transition-all cursor-pointer group"
+    className="bg-surface-secondary/50 rounded-lg border border-slate-700 p-4 hover:border-blue-500 transition-all cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
     onClick={() => onView(comic)}
+    onKeyDown={(event) => handleKeyboardActivation(event, () => onView(comic))}
+    role="button"
+    tabIndex={0}
+    aria-label={`View ${comic.seriesName} issue ${comic.issueNumber}`}
   >
     <div className="flex items-center justify-between">
       <div className="flex items-center space-x-4">

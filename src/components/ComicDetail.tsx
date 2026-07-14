@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { Comic } from '../types/Comic';
 import { SEO } from './SEO';
 import { generateComicStructuredData } from '../utils/structured-data';
+import { handleKeyboardActivation } from '../utils/accessibility';
 import { createComicSlug } from '../utils/routing';
 import { formatCurrency, formatDateLong } from '../utils/formatting';
 import { useScrollToTop } from '../hooks/useScrollToTop';
@@ -187,6 +188,10 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                   <h2 
                     className="text-xl text-slate-300 hover:text-blue-400 cursor-pointer transition-colors"
                     onClick={() => onViewSeries?.(comic.seriesName)}
+                    onKeyDown={(event) => handleKeyboardActivation(event, () => onViewSeries?.(comic.seriesName))}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View ${comic.seriesName} series`}
                   >
                     {comic.seriesName}
                   </h2>
@@ -216,7 +221,15 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                       } else {
                         onViewRawComics?.();
                       }
-                    }}>
+                    }}
+                    onKeyDown={(event) => handleKeyboardActivation(event, () => {
+                      if (comic.isSlabbed) onViewSlabbedComics?.();
+                      else onViewRawComics?.();
+                    })}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View all ${comic.isSlabbed ? 'slabbed' : 'raw'} comics`}
+                    >
                       {comic.isSlabbed ? 'Slabbed' : 'Raw'}
                     </span>
                       
@@ -304,6 +317,10 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                           <p 
                             className="text-white font-medium hover:text-blue-400 cursor-pointer transition-colors"
                             onClick={() => onViewCoverArtist?.(comic.coverArtist)}
+                            onKeyDown={(event) => handleKeyboardActivation(event, () => onViewCoverArtist?.(comic.coverArtist))}
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`View comics with cover art by ${comic.coverArtist}`}
                           >
                             {comic.coverArtist}
                           </p>
@@ -319,6 +336,10 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                           <p 
                             className="text-white font-medium hover:text-blue-400 cursor-pointer transition-colors"
                             onClick={() => onViewStorageLocation?.(comic.storageLocation)}
+                            onKeyDown={(event) => handleKeyboardActivation(event, () => onViewStorageLocation?.(comic.storageLocation))}
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`View virtual box ${comic.storageLocation}`}
                           >
                             {comic.storageLocation}
                           </p>
@@ -341,6 +362,10 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                           key={tag}
                           className="px-3 py-1 bg-blue-500/20 text-blue-300 text-sm rounded border border-blue-500/30 cursor-pointer hover:bg-blue-500/30 transition-colors"
                           onClick={() => onViewTag?.(tag)}
+                          onKeyDown={(event) => handleKeyboardActivation(event, () => onViewTag?.(tag))}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`View ${tag} tag`}
                         >
                           {tag}
                         </span>
@@ -390,6 +415,10 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                 <h3 
                   className="text-lg font-semibold text-white mb-4 flex items-center hover:text-blue-400 cursor-pointer transition-colors"
                   onClick={() => onViewSeries?.(comic.seriesName)}
+                  onKeyDown={(event) => handleKeyboardActivation(event, () => onViewSeries?.(comic.seriesName))}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View all issues from ${comic.seriesName}`}
                 >
                   <Award size={20} className="mr-2 text-yellow-400" />
                   Related Issues from {comic.seriesName}
@@ -404,6 +433,10 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                         <div
                           key={relatedComic.id}
                           onClick={() => onView(relatedComic)}
+                          onKeyDown={(event) => handleKeyboardActivation(event, () => onView(relatedComic))}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`View ${relatedComic.seriesName} issue ${relatedComic.issueNumber}`}
                           className="bg-surface-secondary/50 rounded-lg p-3 border border-slate-700 hover:border-blue-500 transition-all cursor-pointer group"
                         >
                           <div className="aspect-[2/3] bg-slate-700 rounded mb-2 overflow-hidden">
@@ -445,6 +478,10 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                         <div
                           key={relatedComic.id}
                           onClick={() => onView(relatedComic)}
+                          onKeyDown={(event) => handleKeyboardActivation(event, () => onView(relatedComic))}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`View ${relatedComic.seriesName} issue ${relatedComic.issueNumber}`}
                           className={`bg-surface-secondary/50 rounded-lg p-2 border transition-all cursor-pointer text-center ${
                             consecutiveIssues.some(c => c.id === relatedComic.id)
                               ? 'border-blue-500/50 bg-blue-500/10'

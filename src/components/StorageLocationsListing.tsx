@@ -9,6 +9,7 @@ import { Breadcrumb, BreadcrumbItem } from './Breadcrumb';
 import { SEO } from './SEO';
 import { formatCurrency } from '../utils/formatting';
 import { generateCollectionPageStructuredData } from '../utils/structured-data';
+import { handleKeyboardActivation } from '../utils/accessibility';
 
 interface StorageLocationsListingProps {
   allComics: Comic[];
@@ -101,6 +102,7 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+              aria-label="Sort virtual boxes"
               className="bg-surface-secondary border border-slate-700 rounded-lg px-3 py-2 text-sm text-white"
             >
               <option value="name">Sort by Name</option>
@@ -172,6 +174,10 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
                     key={location.name}
                     className="bg-surface-secondary/50 rounded-lg border border-slate-700 p-4 hover:border-orange-500 transition-all cursor-pointer group"
                     onClick={() => onViewStorageLocation(location.name)}
+                    onKeyDown={(event) => handleKeyboardActivation(event, () => onViewStorageLocation(location.name))}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View virtual box ${location.name}`}
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                       <div className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">

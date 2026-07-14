@@ -1,6 +1,7 @@
 import React from 'react';
 import { Comic } from '../types/Comic';
 import { formatCurrency } from '../utils/formatting';
+import { handleKeyboardActivation } from '../utils/accessibility';
 
 interface SeriesBreakdownProps {
   comics: Comic[];
@@ -37,6 +38,10 @@ export const SeriesBreakdown: React.FC<SeriesBreakdownProps> = ({
               key={series}
               className="bg-surface-secondary/30 rounded-lg p-3 border border-slate-700 cursor-pointer hover:border-blue-500 transition-colors"
               onClick={() => onViewSeries?.(series)}
+              onKeyDown={(event) => handleKeyboardActivation(event, () => onViewSeries?.(series))}
+              role="button"
+              tabIndex={0}
+              aria-label={`View ${series} series`}
             >
               <p className="font-medium text-white text-sm truncate">{series}</p>
               <p className="text-xs text-slate-400">

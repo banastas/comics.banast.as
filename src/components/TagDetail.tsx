@@ -6,6 +6,7 @@ import { Tag } from 'lucide-react';
 import { formatCurrency } from '../utils/formatting';
 import { BreadcrumbItem } from './Breadcrumb';
 import { generateCollectionPageStructuredData } from '../utils/structured-data';
+import { handleKeyboardActivation } from '../utils/accessibility';
 
 interface TagDetailProps {
   tag: string;
@@ -56,6 +57,10 @@ export const TagDetail: React.FC<TagDetailProps> = React.memo(({
                   key={series}
                   className="bg-surface-secondary/30 rounded-lg p-3 border border-slate-700 cursor-pointer hover:border-blue-500 transition-colors"
                   onClick={() => onViewSeries?.(series)}
+                  onKeyDown={(event) => handleKeyboardActivation(event, () => onViewSeries?.(series))}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View ${series} series`}
                 >
                   <p className="font-medium text-white text-sm truncate">{series}</p>
                   <p className="text-xs text-slate-400">{seriesCount} issue{seriesCount !== 1 ? 's' : ''}</p>
@@ -132,15 +137,11 @@ export const TagDetail: React.FC<TagDetailProps> = React.memo(({
           {comic.tags.map(comicTag => (
             <span
               key={comicTag}
-              className={`px-2 py-0.5 text-xs rounded border cursor-pointer transition-colors ${
+              className={`px-2 py-0.5 text-xs rounded border ${
                 comicTag === tag
                   ? 'bg-blue-500/20 text-blue-300 border-blue-500/30'
-                  : 'bg-slate-700/20 text-slate-400 border-slate-700/30 hover:border-blue-500/30 hover:text-blue-400'
+                  : 'bg-slate-700/20 text-slate-400 border-slate-700/30'
               }`}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (comicTag !== tag) onViewTag?.(comicTag);
-              }}
             >
               #{comicTag}
             </span>

@@ -7,6 +7,7 @@ import { GradeDistribution } from './GradeDistribution';
 import type { Comic, ComicStats } from '../types/Comic';
 import type { SeriesCountSummary, SeriesPerformance, StorageLocationSummary } from '../utils/collection-analytics';
 import { formatCurrency } from '../utils/formatting';
+import { handleKeyboardActivation } from '../utils/accessibility';
 
 interface StatsTabProps {
   stats: ComicStats;
@@ -91,6 +92,10 @@ export const StatsTab = ({
               key={comic.id}
               className="flex items-center gap-3 sm:gap-4 p-2 rounded-lg hover:bg-surface-secondary/50 cursor-pointer transition-colors"
               onClick={() => onViewComic(comic)}
+              onKeyDown={(event) => handleKeyboardActivation(event, () => onViewComic(comic))}
+              role="button"
+              tabIndex={0}
+              aria-label={`View ${comic.seriesName} issue ${comic.issueNumber}`}
             >
               <span className="text-lg font-bold text-slate-600 w-7 text-right tabular-nums">{i + 1}</span>
               <div className="w-8 h-11 bg-surface-secondary rounded overflow-hidden flex-shrink-0">
@@ -122,6 +127,10 @@ export const StatsTab = ({
                     key={series.name}
                     className="flex items-center justify-between cursor-pointer hover:bg-surface-secondary/50 rounded-lg p-2.5 transition-colors"
                     onClick={() => onViewSeries(series.name)}
+                    onKeyDown={(event) => handleKeyboardActivation(event, () => onViewSeries(series.name))}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View ${series.name} series`}
                   >
                     <div className="min-w-0 flex-1">
                       <p className="font-medium text-white text-sm truncate">{series.name}</p>
@@ -163,6 +172,10 @@ export const StatsTab = ({
                   key={series.name}
                   className="flex items-center justify-between cursor-pointer hover:bg-surface-secondary/50 rounded-lg p-2.5 transition-colors"
                   onClick={() => onViewSeries(series.name)}
+                  onKeyDown={(event) => handleKeyboardActivation(event, () => onViewSeries(series.name))}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View ${series.name} series`}
                 >
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-white text-sm truncate">{series.name}</p>
@@ -199,11 +212,14 @@ export const StatsTab = ({
                   key={comic.id}
                   className="flex items-center justify-between cursor-pointer hover:bg-surface-secondary/50 rounded-lg p-2.5 transition-colors"
                   onClick={() => onViewComic(comic)}
+                  onKeyDown={(event) => handleKeyboardActivation(event, () => onViewComic(comic))}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View ${comic.seriesName} issue ${comic.issueNumber}`}
                 >
                   <div className="min-w-0 flex-1">
                     <p
-                      className="font-medium text-white text-sm hover:text-blue-400 transition-colors truncate"
-                      onClick={(e) => { e.stopPropagation(); onViewSeries(comic.seriesName); }}
+                      className="font-medium text-white text-sm truncate"
                     >
                       {comic.seriesName} #{comic.issueNumber}
                     </p>
@@ -240,6 +256,10 @@ export const StatsTab = ({
                   key={location.name}
                   className="flex items-center justify-between cursor-pointer hover:bg-surface-secondary/50 rounded-lg p-2.5 transition-colors"
                   onClick={() => onViewStorageLocation(location.name)}
+                  onKeyDown={(event) => handleKeyboardActivation(event, () => onViewStorageLocation(location.name))}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View virtual box ${location.name}`}
                 >
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-white text-sm truncate">{location.name}</p>

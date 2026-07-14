@@ -437,6 +437,8 @@ function App() {
                 <button
                   onClick={() => setShowMobileSearch(!showMobileSearch)}
                   className="sm:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-secondary transition-colors"
+                  aria-label="Search comics"
+                  aria-expanded={showMobileSearch}
                 >
                   <Search size={20} />
                 </button>
@@ -447,6 +449,7 @@ function App() {
                 <button
                   onClick={() => setShowMobileControls(true)}
                   className="sm:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-secondary transition-colors"
+                  aria-label="Open view and sort controls"
                 >
                   <SlidersHorizontal size={20} />
                 </button>
@@ -463,6 +466,8 @@ function App() {
                           navigateToRoute('collection', undefined, { tab: activeTab, viewMode: 'grid', searchTerm: filters.searchTerm, sortField, sortDirection });
                         }}
                         className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-blue-500 text-white' : 'text-slate-400 hover:text-white hover:bg-surface-secondary'}`}
+                        aria-label="Grid view"
+                        aria-pressed={viewMode === 'grid'}
                       >
                         <Grid size={16} />
                       </button>
@@ -472,6 +477,8 @@ function App() {
                           navigateToRoute('collection', undefined, { tab: activeTab, viewMode: 'list', searchTerm: filters.searchTerm, sortField, sortDirection });
                         }}
                         className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-blue-500 text-white' : 'text-slate-400 hover:text-white hover:bg-surface-secondary'}`}
+                        aria-label="List view"
+                        aria-pressed={viewMode === 'list'}
                       >
                         <List size={16} />
                       </button>
@@ -504,6 +511,7 @@ function App() {
                         navigateToRoute('collection', undefined, { tab: activeTab, viewMode, searchTerm: filters.searchTerm, sortField, sortDirection: newDirection });
                       }}
                       className="p-2 border border-slate-700 rounded-xl hover:bg-surface-secondary transition-colors text-slate-400 hover:text-white"
+                      aria-label={`Sort ${sortDirection === 'asc' ? 'descending' : 'ascending'}`}
                     >
                       {sortDirection === 'asc' ? <SortAsc size={16} /> : <SortDesc size={16} />}
                     </button>
@@ -531,6 +539,7 @@ function App() {
               <button
                 onClick={() => { clearSearch(); setShowMobileSearch(false); }}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400"
+                aria-label="Close search"
               >
                 <X size={16} />
               </button>
@@ -552,6 +561,7 @@ function App() {
                     ? 'border-blue-400 text-blue-400'
                     : 'border-transparent text-slate-500 hover:text-slate-300 hover:border-slate-600'
                 }`}
+                aria-current={activeTab === 'collection' ? 'page' : undefined}
               >
                 <div className="flex items-center space-x-1.5 whitespace-nowrap">
                   <BookOpen size={15} />
@@ -568,6 +578,7 @@ function App() {
                     ? 'border-blue-400 text-blue-400'
                     : 'border-transparent text-slate-500 hover:text-slate-300 hover:border-slate-600'
                 }`}
+                aria-current={activeTab === 'stats' ? 'page' : undefined}
               >
                 <div className="flex items-center space-x-1.5 whitespace-nowrap">
                   <BarChart3 size={15} />

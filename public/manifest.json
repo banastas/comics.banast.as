@@ -24,13 +24,13 @@
       "name": "Collection",
       "short_name": "Collection",
       "description": "View your comic collection",
-      "url": "/#/collection"
+      "url": "/collection"
     },
     {
       "name": "Statistics",
       "short_name": "Stats",
       "description": "View collection statistics",
-      "url": "/#/stats"
+      "url": "/stats"
     }
   ],
   "related_applications": [],

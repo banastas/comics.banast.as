@@ -8,7 +8,7 @@
 
 <img src="https://github.com/banastas/comics.banast.as/blob/main/comic.banast.as.png?raw=true">
 
-A personal comic book collection tracker with financial analytics, multi-view browsing, and comprehensive organization. Currently tracking **811 comics** across **178 series**. Built with React 18, TypeScript, and Tailwind CSS.
+A personal comic book collection tracker with financial analytics, multi-view browsing, and comprehensive organization. Currently tracking **818 comics** across **179 series**. Built with React 18, TypeScript, and Tailwind CSS.
 
 **Live Site**: [comics.banast.as](https://comics.banast.as)
 
@@ -88,7 +88,7 @@ src/
 │   └── Comic.ts             # TypeScript interfaces
 ├── utils/                   # formatting, stats, sorting, analytics, routing
 ├── data/
-│   └── comics.json          # Collection data (811 comics)
+│   └── comics.json          # Collection data (818 comics)
 └── styles/
     └── responsive.css
 functions/
@@ -112,7 +112,7 @@ Total comics, collection value, average grade, raw vs. slabbed breakdown, varian
 - **Detail pages** for individual comics with related issues from the same series
 
 ### Organization
-- **By series** (178 series) with per-series stats
+- **By series** (179 series) with per-series stats
 - **By cover artist** with artist-specific collection views
 - **By tag** for custom grouping
 - **By storage location** (7 archive boxes + CGC + Loose)
@@ -132,11 +132,13 @@ Drill-down pages such as virtual boxes, series, artists, tags, raw comics, slabb
 ### SEO
 - Dynamic meta tags with the first-party SEO component
 - Schema.org structured data (ComicIssue, ComicSeries, Collection, Breadcrumb)
-- Auto-generated clean-url sitemap (1,234 URLs in the current build)
+- Auto-generated clean-url sitemap (1,245 URLs in the current build)
 - Static clean-url HTML entry pages generated at build time for comics, series, artists, tags, storage, and collection views
 - Open Graph and Twitter Card support
 - SEO-friendly slugs (e.g., `/comic/batman-issue-1-variant`)
 - Legacy hash URLs (e.g., `/#/comic/batman-issue-1-variant`) are still supported and bridged to clean paths
+- Social previews use a verified collection cover fallback instead of advertising missing same-origin image assets
+- A custom `404.html` prevents unknown URLs and missing assets from returning a misleading `200` SPA shell
 
 ### Performance
 - Lazy-loaded detail views with code splitting
@@ -149,11 +151,15 @@ Drill-down pages such as virtual boxes, series, artists, tags, raw comics, slabb
 
 ### Accessibility
 - Keyboard-navigable comic cards (Enter/Space to activate)
-- ARIA labels on all interactive elements and form controls
+- Keyboard-navigable drill-down cards, dashboard rows, tags, storage boxes, and comic-detail links
+- Associated labels and error descriptions on form controls
+- Modal focus containment, Escape-to-close, and focus restoration
 - `aria-current="page"` on breadcrumbs
 - Loading skeletons with `role="status"` and `aria-busy`
 - `focus-visible` ring indicators for keyboard users
+- Reduced-motion support for animations, transitions, and smooth scrolling
 - Error boundaries on all lazy-loaded routes
+- A TypeScript-AST regression test rejects unnamed controls, unlabeled fields, missing image alt text, and mouse-only custom controls
 
 ### Responsive Design
 Mobile-first layout from 320px to 4K. 44px minimum touch targets. Fluid typography. Works on desktop, tablet, and phone.
@@ -217,6 +223,8 @@ npm run build
 Deploy the `dist/` folder to Cloudflare Pages. Cloudflare Pages Functions in `functions/api/` should be deployed with it so the public API remains available for n8n and other read-only clients. No environment variables are required for the current build.
 
 Cloudflare may redirect generated directory-style routes from `/stats` to `/stats/`; the generated canonical and sitemap URLs intentionally use the clean no-trailing-slash form.
+
+The checked-in `public/_headers` file adds static security headers and immutable caching for hashed assets. The checked-in `public/404.html` also disables Cloudflare Pages' implicit SPA fallback so unknown paths return a real 404 while every generated clean route continues to resolve from its own directory.
 
 ## Limitations
 

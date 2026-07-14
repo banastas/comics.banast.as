@@ -15,7 +15,7 @@ const defaultMeta = {
   title: 'comics.banast.as - Track, Organize & Value Your Comics',
   description: 'Professional comic book collection management system. Track your comics, monitor values, organize by series, artists, and storage locations. Discover variant covers, slabbed comics, and signed editions in your personal collection.',
   keywords: 'comic book collection, comic tracker, comic book manager, comic book database, comic book organizer, comic valuation, comic grading, variant covers, slabbed comics, comic storage',
-  image: 'https://comics.banast.as/og-image.jpg',
+  image: 'https://covers.banast.as/2010_01.jpg',
   url: 'https://comics.banast.as/',
   type: 'website',
 };

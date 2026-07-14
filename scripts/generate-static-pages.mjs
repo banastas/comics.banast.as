@@ -7,6 +7,7 @@ const indexPath = path.join(distDir, 'index.html');
 
 const html = fs.readFileSync(indexPath, 'utf8');
 const { comics, seriesNames, storageLocations, coverArtists, computedTags, entries } = getRouteEntries();
+const defaultSocialImage = comics.find((comic) => comic.coverImageUrl)?.coverImageUrl || `${siteOrigin}/favicon.svg`;
 
 const collectionStats = {
   totalComics: comics.length,
@@ -139,7 +140,7 @@ const pageMeta = (entry) => {
         title,
         description,
         keywords: `${comic.seriesName}, comic book, issue ${comic.issueNumber}, ${comic.coverArtist || 'comic'}, comic collection`,
-        image: comic.coverImageUrl || `${siteOrigin}/og-image.jpg`,
+        image: comic.coverImageUrl || defaultSocialImage,
         type: 'article',
         url,
         structuredData: comicStructuredData(comic, url),
@@ -161,7 +162,7 @@ const pageMeta = (entry) => {
         title: `${entry.value} Series`,
         description: `Browse ${entry.comics.length} comics from the ${entry.value} series in Bill's collection.`,
         keywords: `${entry.value}, comic book series, comic collection`,
-        image: entry.comics.find((comic) => comic.coverImageUrl)?.coverImageUrl || `${siteOrigin}/og-image.jpg`,
+        image: entry.comics.find((comic) => comic.coverImageUrl)?.coverImageUrl || defaultSocialImage,
         type: 'website',
         url,
         structuredData: seriesStructuredData(entry.value, entry.comics),
@@ -179,7 +180,7 @@ const pageMeta = (entry) => {
         title: `${entry.value} - Cover Artist`,
         description: `Browse ${entry.comics.length} comics with cover art by ${entry.value}.`,
         keywords: `${entry.value}, comic book cover artist, comic collection`,
-        image: entry.comics.find((comic) => comic.coverImageUrl)?.coverImageUrl || `${siteOrigin}/og-image.jpg`,
+        image: entry.comics.find((comic) => comic.coverImageUrl)?.coverImageUrl || defaultSocialImage,
         type: 'profile',
         url,
         structuredData: {
@@ -200,7 +201,7 @@ const pageMeta = (entry) => {
         title: `${entry.value} Storage`,
         description: `Browse ${entry.comics.length} comics stored in ${entry.value}.`,
         keywords: `${entry.value}, comic storage, comic collection`,
-        image: `${siteOrigin}/og-image.jpg`,
+        image: entry.comics.find((comic) => comic.coverImageUrl)?.coverImageUrl || defaultSocialImage,
         type: 'website',
         url,
         structuredData: itemListStructuredData(`${entry.value} Storage`, entry.comics, url),
@@ -215,7 +216,7 @@ const pageMeta = (entry) => {
         title: `${entry.value} Comics`,
         description: `Browse ${entry.comics.length} comics tagged ${entry.value}.`,
         keywords: `${entry.value}, tagged comics, comic collection`,
-        image: entry.comics.find((comic) => comic.coverImageUrl)?.coverImageUrl || `${siteOrigin}/og-image.jpg`,
+        image: entry.comics.find((comic) => comic.coverImageUrl)?.coverImageUrl || defaultSocialImage,
         type: 'website',
         url,
         structuredData: itemListStructuredData(`${entry.value} Comics`, entry.comics, url),
@@ -230,7 +231,7 @@ const pageMeta = (entry) => {
         title: 'Collection Statistics',
         description: `Collection analytics for ${collectionStats.totalComics} comics across ${collectionStats.uniqueSeries} series.`,
         keywords: 'comic collection statistics, comic values, comic analytics',
-        image: `${siteOrigin}/og-image.jpg`,
+        image: defaultSocialImage,
         type: 'website',
         url,
         structuredData: collectionStructuredData,
@@ -260,7 +261,7 @@ const pageMeta = (entry) => {
         title,
         description: `Browse ${count} ${String(title).toLowerCase()} in the collection.`,
         keywords: `${title}, comic collection`,
-        image: `${siteOrigin}/og-image.jpg`,
+        image: pageComics.find((comic) => comic.coverImageUrl)?.coverImageUrl || defaultSocialImage,
         type: 'website',
         url,
         structuredData: itemListStructuredData(title, pageComics, url),
@@ -278,7 +279,7 @@ const pageMeta = (entry) => {
         title: 'My Collection',
         description: `View and manage Bill's comic book collection. ${collectionStats.totalComics} comics across ${collectionStats.uniqueSeries} series, total value: ${formatCurrency(collectionStats.totalValue)}.`,
         keywords: 'comic book collection, comic tracker, comic book manager, comic book database, comic book organizer, comic valuation',
-        image: `${siteOrigin}/og-image.jpg`,
+        image: defaultSocialImage,
         type: 'website',
         url,
         structuredData: collectionStructuredData,
