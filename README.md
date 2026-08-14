@@ -8,7 +8,7 @@
 
 <img src="https://github.com/banastas/comics.banast.as/blob/main/comic.banast.as.png?raw=true">
 
-A personal comic book collection tracker with financial analytics, multi-view browsing, and comprehensive organization. Currently tracking **818 comics** across **179 series**. Built with React 18, TypeScript, and Tailwind CSS.
+A personal comic book collection tracker with financial analytics, multi-view browsing, and comprehensive organization. Currently tracking **836 comics** across **180 series**. Built with React 18, TypeScript, and Tailwind CSS.
 
 **Live Site**: [comics.banast.as](https://comics.banast.as)
 
@@ -88,7 +88,7 @@ src/
 │   └── Comic.ts             # TypeScript interfaces
 ├── utils/                   # formatting, stats, sorting, analytics, routing
 ├── data/
-│   └── comics.json          # Collection data (818 comics)
+│   └── comics.json          # Collection data (836 comics)
 └── styles/
     └── responsive.css
 functions/
@@ -112,7 +112,7 @@ Total comics, collection value, average grade, raw vs. slabbed breakdown, varian
 - **Detail pages** for individual comics with related issues from the same series
 
 ### Organization
-- **By series** (179 series) with per-series stats
+- **By series** (180 series) with per-series stats
 - **By cover artist** with artist-specific collection views
 - **By tag** for custom grouping
 - **By storage location** (7 archive boxes + CGC + Loose)
@@ -132,7 +132,7 @@ Drill-down pages such as virtual boxes, series, artists, tags, raw comics, slabb
 ### SEO
 - Dynamic meta tags with the first-party SEO component
 - Schema.org structured data (ComicIssue, ComicSeries, Collection, Breadcrumb)
-- Auto-generated clean-url sitemap (1,245 URLs in the current build)
+- Auto-generated clean-url sitemap (1,271 URLs in the current build)
 - Static clean-url HTML entry pages generated at build time for comics, series, artists, tags, storage, and collection views
 - Open Graph and Twitter Card support
 - SEO-friendly slugs (e.g., `/comic/batman-issue-1-variant`)
@@ -163,6 +163,8 @@ Drill-down pages such as virtual boxes, series, artists, tags, raw comics, slabb
 
 ### Responsive Design
 Mobile-first layout from 320px to 4K. 44px minimum touch targets. Fluid typography. Works on desktop, tablet, and phone.
+
+Mobile form controls render at a minimum of 16px so iOS Safari does not automatically zoom the visual viewport when search, sort, filter, or edit controls receive focus. User-controlled pinch zoom remains available.
 
 ## Scripts
 

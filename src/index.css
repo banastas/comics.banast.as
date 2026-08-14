@@ -12,6 +12,8 @@
 
   html {
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -69,5 +71,20 @@
       scroll-behavior: auto !important;
       transition-duration: 0.01ms !important;
     }
+  }
+}
+
+/*
+ * iOS Safari zooms the visual viewport when a focused form control renders
+ * below 16px. Keep mobile controls at the native readable size so opening
+ * search, sorting, filters, or the comic form never leaves the page enlarged.
+ * This intentionally does not disable user zoom.
+ */
+@media (max-width: 639px) {
+  input:not([type='checkbox']):not([type='radio']),
+  select,
+  textarea {
+    /* Override component-level text utilities below this breakpoint. */
+    font-size: 1rem !important;
   }
 }
