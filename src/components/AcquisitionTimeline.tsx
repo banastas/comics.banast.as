@@ -11,7 +11,7 @@ export const AcquisitionTimeline: React.FC<AcquisitionTimelineProps> = ({ comics
 
     comics.forEach((comic) => {
       const date = new Date(comic.purchaseDate);
-      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const key = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
       const existing = byMonth.get(key) || { count: 0, spend: 0 };
       byMonth.set(key, {
         count: existing.count + 1,

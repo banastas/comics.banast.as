@@ -7,7 +7,7 @@ const indexPath = path.join(distDir, 'index.html');
 
 const html = fs.readFileSync(indexPath, 'utf8');
 const { comics, seriesNames, storageLocations, coverArtists, computedTags, entries } = getRouteEntries();
-const defaultSocialImage = comics.find((comic) => comic.coverImageUrl)?.coverImageUrl || `${siteOrigin}/favicon.svg`;
+const defaultSocialImage = `${siteOrigin}/og-image.jpg`;
 
 const collectionStats = {
   totalComics: comics.length,

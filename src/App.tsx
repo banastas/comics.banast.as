@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useComicStore } from './stores/comicStore';
 import { useRouting } from './hooks/useRouting';
 import { SEO } from './components/SEO';
@@ -95,21 +95,22 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Refs for stable debounce closure
-  const searchContextRef = useRef({ activeTab, viewMode, sortField, sortDirection, navigateToRoute });
-  searchContextRef.current = { activeTab, viewMode, sortField, sortDirection, navigateToRoute };
-
-  // Debounced search function — stable across renders
+  // Recreate and cancel the debounce when its navigation context changes.
   const debouncedSetFilters = useMemo(
     () => debounce((searchTerm: string) => {
-      const { activeTab: tab, viewMode: vm, sortField: sf, sortDirection: sd, navigateToRoute: nav } = searchContextRef.current;
       setFilters({ searchTerm });
-      nav(tab === 'stats' ? 'stats' : 'collection', undefined, {
-        tab, viewMode: vm, searchTerm, sortField: sf, sortDirection: sd
+      navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, {
+        tab: activeTab,
+        viewMode,
+        searchTerm,
+        sortField,
+        sortDirection,
       });
     }, 300),
-    [setFilters]
+    [activeTab, navigateToRoute, setFilters, sortDirection, sortField, viewMode]
   );
+
+  useEffect(() => () => debouncedSetFilters.cancel(), [debouncedSetFilters]);
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -117,28 +118,42 @@ function App() {
     if (value === '') {
       debouncedSetFilters.cancel();
       setFilters({ searchTerm: '' });
-      const { activeTab: tab, viewMode: vm, sortField: sf, sortDirection: sd, navigateToRoute: nav } = searchContextRef.current;
-      nav(tab === 'stats' ? 'stats' : 'collection', undefined, {
-        tab, viewMode: vm, searchTerm: '', sortField: sf, sortDirection: sd
+      navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, {
+        tab: activeTab,
+        viewMode,
+        searchTerm: '',
+        sortField,
+        sortDirection,
       });
     } else {
       debouncedSetFilters(value);
     }
-  }, [debouncedSetFilters, setFilters]);
+  }, [activeTab, debouncedSetFilters, navigateToRoute, setFilters, sortDirection, sortField, viewMode]);
 
   const clearSearch = useCallback(() => {
     debouncedSetFilters.cancel();
     setSearchInput('');
     setFilters({ searchTerm: '' });
     setShowMobileSearch(false);
-    const { activeTab: tab, viewMode: vm, sortField: sf, sortDirection: sd, navigateToRoute: nav } = searchContextRef.current;
-    nav(tab === 'stats' ? 'stats' : 'collection', undefined, {
-      tab, viewMode: vm, searchTerm: '', sortField: sf, sortDirection: sd
+    navigateToRoute(activeTab === 'stats' ? 'stats' : 'collection', undefined, {
+      tab: activeTab,
+      viewMode,
+      searchTerm: '',
+      sortField,
+      sortDirection,
     });
-  }, [debouncedSetFilters, setFilters]);
+  }, [activeTab, debouncedSetFilters, navigateToRoute, setFilters, sortDirection, sortField, viewMode]);
 
-  useEffect(() => { setSearchInput(filters.searchTerm); }, [filters.searchTerm]);
-  useEffect(() => { setCurrentPage(0); }, [filters.searchTerm, filters.seriesName, filters.minGrade, filters.maxGrade, filters.minPrice, filters.maxPrice, filters.isSlabbed, filters.isSigned, sortField, sortDirection, activeComputedTag]);
+  useEffect(() => {
+    // Route navigation can update the store independently of the local draft input.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSearchInput(filters.searchTerm);
+  }, [filters.searchTerm]);
+  useEffect(() => {
+    // Any collection-shape change returns pagination to a valid, predictable page.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCurrentPage(0);
+  }, [filters.searchTerm, filters.seriesName, filters.minGrade, filters.maxGrade, filters.minPrice, filters.maxPrice, filters.isSlabbed, filters.isSigned, sortField, sortDirection, activeComputedTag]);
 
   // Pagination
   const totalPages = Math.ceil(filteredComics.length / itemsPerPage);
@@ -167,6 +182,11 @@ function App() {
     setShowForm(false);
     setEditingComic(undefined);
   };
+
+  const handleCancelComic = useCallback(() => {
+    setShowForm(false);
+    setEditingComic(undefined);
+  }, []);
 
   // Navigation handlers
   const handleViewComic = (comic: Comic) => {
@@ -703,9 +723,10 @@ function App() {
       {showForm && (
         <ErrorBoundary><React.Suspense fallback={<LoadingSpinner />}>
           <ComicForm
+            key={editingComic?.id ?? 'new'}
             comic={editingComic}
             onSave={handleSaveComic}
-            onCancel={() => { setShowForm(false); setEditingComic(undefined); }}
+            onCancel={handleCancelComic}
             allSeries={allSeries}
             allVirtualBoxes={allVirtualBoxes}
           />

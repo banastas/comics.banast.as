@@ -1,8 +1,9 @@
 import type { Comic } from '../types/Comic';
+import { getCalendarYear } from './formatting';
 
 export const computeTagsForComic = (comic: Comic): string[] => {
   const tags: string[] = [];
-  const year = new Date(comic.releaseDate).getFullYear();
+  const year = getCalendarYear(comic.releaseDate);
 
   if (year >= 1940 && year < 1950) tags.push('Golden Age');
   else if (year >= 1950 && year < 1970) tags.push('Silver Age');

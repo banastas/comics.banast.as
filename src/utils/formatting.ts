@@ -15,6 +15,7 @@ export const formatDate = (dateString: string): string => {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
+    timeZone: 'UTC',
   });
 };
 
@@ -23,7 +24,12 @@ export const formatDateLong = (dateString: string): string => {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
+    timeZone: 'UTC',
   });
+};
+
+export const getCalendarYear = (dateString: string): number => {
+  return new Date(dateString).getUTCFullYear();
 };
 
 export const formatPercentage = (percentage: number): string => {

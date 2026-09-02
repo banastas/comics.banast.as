@@ -1,7 +1,7 @@
 import React from 'react';
 import { Comic } from '../types/Comic';
 import { Star, Award } from 'lucide-react';
-import { formatCurrency } from '../utils/formatting';
+import { formatCurrency, getCalendarYear } from '../utils/formatting';
 import { handleKeyboardActivation } from '../utils/accessibility';
 
 interface ComicGridCardProps {
@@ -73,7 +73,7 @@ export const ComicGridCard: React.FC<ComicGridCardProps> = React.memo(({
         </div>
       </div>
       <p className="text-xs text-slate-400 mb-1">
-        {new Date(comic.releaseDate).getFullYear()}
+        {getCalendarYear(comic.releaseDate)}
       </p>
       <p className="text-xs font-semibold text-green-400">
         {formatCurrency(comic.currentValue || comic.purchasePrice || 0)}

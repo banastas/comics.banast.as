@@ -41,7 +41,7 @@ export const createComicSlug = (comic) => {
 
 export const computeTagsForComic = (comic) => {
   const computed = [];
-  const year = new Date(comic.releaseDate).getFullYear();
+  const year = new Date(comic.releaseDate).getUTCFullYear();
 
   if (year >= 1940 && year < 1950) computed.push('Golden Age');
   else if (year >= 1950 && year < 1970) computed.push('Silver Age');

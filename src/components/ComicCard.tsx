@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Comic } from '../types/Comic';
 import { Star, Award, TrendingUp, TrendingDown } from 'lucide-react';
-import { formatCurrency } from '../utils/formatting';
+import { formatCurrency, getCalendarYear } from '../utils/formatting';
 
 interface ComicCardProps {
   comic: Comic;
@@ -50,7 +50,7 @@ export const ComicCard: React.FC<ComicCardProps> = React.memo(({ comic, onView }
       role="button"
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      aria-label={`${comic.seriesName} #${comic.issueNumber} — Grade ${comic.grade}, Value ${formatCurrency(displayValue)}`}
+      aria-label={`${comic.seriesName} #${comic.issueNumber}, grade ${comic.grade}, value ${formatCurrency(displayValue)}`}
     >
       {/* Cover Image */}
       <div ref={imgRef} className="relative aspect-[2/3] bg-surface-secondary overflow-hidden" onClick={() => onView(comic)}>
@@ -116,7 +116,7 @@ export const ComicCard: React.FC<ComicCardProps> = React.memo(({ comic, onView }
         </h3>
 
         <p className="text-xs text-slate-500 mb-2">
-          #{comic.issueNumber} ({new Date(comic.releaseDate).getFullYear()})
+          #{comic.issueNumber} ({getCalendarYear(comic.releaseDate)})
         </p>
 
         {/* Grade and Value */}

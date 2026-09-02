@@ -16,6 +16,7 @@ describe('public deployment surface', () => {
     ];
 
     expect(referenced.filter((src) => !publicFileExists(src))).toEqual([]);
+    expect(manifest.icons.map((icon) => icon.sizes)).toEqual(['192x192', '512x512']);
   });
 
   it('uses clean canonical routes for installed-app shortcuts', () => {
@@ -34,5 +35,15 @@ describe('public deployment surface', () => {
 
     expect(images).toHaveLength(2);
     expect(images.every((image) => !image.startsWith('https://comics.banast.as/') || publicFileExists(new URL(image).pathname))).toBe(true);
+    expect(new Set(images)).toEqual(new Set(['https://comics.banast.as/og-image.jpg']));
+  });
+
+  it('ships every browser icon referenced by the base document', () => {
+    const html = fs.readFileSync('index.html', 'utf8');
+    const icons = [...html.matchAll(/<link rel="(?:icon|apple-touch-icon)"[^>]*href="([^"]+)"/g)]
+      .map((match) => match[1]);
+
+    expect(icons).toHaveLength(4);
+    expect(icons.filter((src) => !publicFileExists(src))).toEqual([]);
   });
 });

@@ -35,9 +35,6 @@ export default defineConfig({
             './src/components/Dashboard.tsx',
             './src/components/ComicCard.tsx',
             './src/components/ComicListView.tsx',
-            './src/components/FilterControls.tsx',
-            './src/components/LoadingSkeleton.tsx',
-            './src/components/ResponsiveImage.tsx',
             './src/components/SEO.tsx'
           ]
         },
@@ -58,11 +55,5 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
     include: ['react', 'react-dom', 'zustand', 'zod'],
-  },
-  // Enable compression
-  server: {
-    headers: {
-      'Cache-Control': 'public, max-age=31536000',
-    },
   },
 });

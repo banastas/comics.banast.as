@@ -1,12 +1,26 @@
 {
-  "name": "comic-collection-manager",
+  "name": "comics.banast.as",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "A static-first comic collection browser with analytics, clean routes, and a read-only API.",
+  "license": "MIT",
+  "homepage": "https://comics.banast.as",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/banastas/comics.banast.as.git"
+  },
+  "bugs": {
+    "url": "https://github.com/banastas/comics.banast.as/issues"
+  },
   "type": "module",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "packageManager": "npm@11.19.0",
   "scripts": {
     "dev": "vite",
     "build": "npm run typecheck && npm run generate:sitemap && vite build && npm run generate:static-pages",
-    "check": "npm run validate:data && npm run typecheck && npm run lint && npm run test:run && npm run build && npm run verify:static-pages",
+    "check": "npm run validate:data && npm run generate:sitemap && npm run typecheck && npm run lint && npm run test:run && npm run build && npm run verify:static-pages",
     "lint": "eslint .",
     "typecheck": "npm run typecheck:app && npm run typecheck:functions && npm run typecheck:node",
     "typecheck:app": "tsc -p tsconfig.app.json --noEmit",
@@ -28,15 +42,15 @@
     "zustand": "^5.0.7"
   },
   "devDependencies": {
-    "@eslint/js": "^9.9.1",
+    "@eslint/js": "^10.0.1",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.18",
-    "eslint": "^9.9.1",
-    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
-    "eslint-plugin-react-refresh": "^0.4.11",
-    "globals": "^15.9.0",
+    "eslint": "^10.9.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.5",
+    "globals": "^17.12.0",
     "jsdom": "^29.1.1",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",

@@ -1,4 +1,4 @@
-import React, { Component, type ErrorInfo, type ReactNode } from 'react';
+import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 
 interface Props {
@@ -147,35 +147,3 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
-
-// Hook for functional components to use error boundaries
-export const useErrorHandler = () => {
-  const handleError = (error: Error, errorInfo?: ErrorInfo) => {
-    // Log error to console in development
-    if (import.meta.env.DEV) {
-      console.error('Error caught by useErrorHandler:', error, errorInfo);
-    }
-
-    // In production, you might want to log to an error reporting service
-    // Example: Sentry.captureException(error, { extra: errorInfo });
-  };
-
-  return { handleError };
-};
-
-// Higher-order component for wrapping components with error boundaries
-export const withErrorBoundary = <P extends object>(
-  Component: React.ComponentType<P>,
-  fallback?: ReactNode,
-  onError?: (error: Error, errorInfo: ErrorInfo) => void
-) => {
-  const WrappedComponent = (props: P) => (
-    <ErrorBoundary fallback={fallback} onError={onError}>
-      <Component {...props} />
-    </ErrorBoundary>
-  );
-
-  WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name})`;
-
-  return WrappedComponent;
-};

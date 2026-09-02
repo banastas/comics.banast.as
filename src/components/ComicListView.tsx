@@ -38,7 +38,7 @@ export const ComicListView: React.FC<ComicListViewProps> = React.memo(({ comics,
                 onView(comic);
               }
             }}
-            aria-label={`${comic.seriesName} #${comic.issueNumber} — Grade ${comic.grade}, Value ${formatCurrency(comic.currentValue || comic.purchasePrice || 0)}`}
+            aria-label={`${comic.seriesName} #${comic.issueNumber}, grade ${comic.grade}, value ${formatCurrency(comic.currentValue || comic.purchasePrice || 0)}`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">

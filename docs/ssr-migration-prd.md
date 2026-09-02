@@ -1,15 +1,15 @@
-# comics.banast.as SSR Migration — Product Requirements Document
+# comics.banast.as SSR Migration: Product Requirements Document
 
 ## Metadata
 
 - **Version:** 1.0
 - **Date:** 2026-04-17
 - **Author:** Bill Anastas (@banastas)
-- **Status:** In progress — guardrails and clean-url static entry pages implemented
+- **Status:** Phase 1 shipped; a full framework migration remains optional
 
 ## Executive Summary
 
-Migrate comics.banast.as from a hash-routed React SPA to a server-rendered (or prerendered) architecture deployed on Cloudflare Pages. The first migration step now ships clean static entry pages from the existing Vite app; a future Astro + React islands migration can still consolidate stack and improve body rendering. The former `#/comic/...` hash URLs blocked organic discovery of the 805-comic collection and its 177 series, 216 cover artists, and 10 computed tag pages. After this migration, every detail page is a real indexable URL (`/comic/batman-1`), served as pre-rendered HTML with full meta tags, structured data, and social preview support — unlocking Google indexing, proper Twitter/Facebook link previews, and ~1,200 new entry points into the site.
+Migrate comics.banast.as from a hash-routed React SPA to a server-rendered or prerendered architecture deployed on Cloudflare Pages. The shipped first phase now generates clean static entry pages from the existing Vite app. A future Astro and React islands migration could still consolidate the stack and improve body rendering. As of September 2026, the route inventory covers 853 comics, 181 series, 232 cover artists, 10 computed tag pages, and 1,292 canonical URLs. Every detail page is a real indexable URL such as `/comic/batman-1`, with prerendered metadata, structured data, social preview support, and crawlable fallback content.
 
 This is SEO/infrastructure work, not a feature addition. The user-facing product stays identical: same dashboard, same filters, same detail layouts, same dark theme. The change is invisible to visitors but transforms the site from "unindexable SPA" to "normal web app."
 
@@ -19,13 +19,13 @@ This is SEO/infrastructure work, not a feature addition. The user-facing product
 
 - Internal navigation now uses clean paths such as `/comic/predator-versus-planet-of-the-apes-issue-2-803`, `/series/Alien%20(Vol%201)`, and `/tag/Modern`
 - Legacy hash URLs such as `/#/comic/...` are still accepted and rewritten to clean paths before React reads the route
-- Sitemap lists 1,224 clean URLs and `npm run build` generates 1,224 static HTML entry pages in `dist/`
+- Sitemap lists 1,292 clean URLs and `npm run build` generates 1,292 static HTML entry pages in `dist/`
 - Static entry pages include route-specific title, description, canonical, Open Graph/Twitter tags, JSON-LD, and no-JS fallback body content
 - The hydrated UI is still the existing React SPA; Astro remains useful for future stack consolidation and cleaner server-rendered body markup
 
 ### Why now
 
-- Collection has grown to 805 comics with rich per-item data (cover art, grades, values, signed-by, variant info) that deserves to rank
+- Collection has grown to 853 comics with rich per-item data (cover art, grades, values, signatures, and variant information) that deserves to rank
 - Recent SEO improvements (dynamic meta tags, expanded sitemap, CLS fixes, clean static entry pages) have removed the biggest hash-routing ceiling while keeping the current UI stable
 - Bill's other personal sites already use Astro patterns (blog, photo, yautja-wiki, dev) — moving comics to the same stack consolidates tooling and tracks his stated preference for Astro for static/content sites
 - Cloudflare Pages is already the deployment target; no new infrastructure needed
@@ -108,7 +108,7 @@ Anyone who bookmarked or shared a `#/...` URL must still land on the right page.
 ### F4. Interactive features preserved
 
 The collection view needs client-side interactivity for:
-- Search (debounced filter of 792 comics)
+- Search across the complete collection
 - Sort (by title/series/issue/release/grade/price/date)
 - View mode toggle (grid/list)
 - Pagination
@@ -240,7 +240,7 @@ const canonicalUrl = new URL(`/comic/${createComicSlug(comic)}`, Astro.site).toS
 
 Current: `comics.json` is 490KB, imported at module load, then lazy-chunked.
 
-New: At build time, every page gets exactly the data it needs inlined into its HTML. The client-side bundle still includes `comics.json` for the interactive CollectionView island (filter/sort need all 792 comics), but:
+New: At build time, every page gets exactly the data it needs inlined into its HTML. The client-side bundle still includes `comics.json` for the interactive CollectionView island because filtering and sorting need the complete collection, but:
 - Detail pages don't ship `comics.json` at all — only the one comic's data is inlined
 - Home/stats pages still need the full dataset for the Zustand store — ships as an async chunk
 - Total initial bundle on a detail page: ~30KB gzip (Astro runtime + React island for related-issues) vs. current ~40KB + 29KB data
@@ -302,7 +302,7 @@ Slug format (keep current): `{series-slug}-issue-{number}[-variant][-{id-suffix}
 
 ### Phase 2: Detail pages (Week 2)
 
-8. Build `/comic/[slug].astro` with `getStaticPaths()` enumerating all 792 comics
+8. Build `/comic/[slug].astro` with `getStaticPaths()` enumerating every comic
 9. Port `ComicDetail` component markup as server-rendered Astro (no hydration)
 10. Port `RelatedIssues` as a small `client:visible` island (interactive navigation between issues)
 11. Build `/series/[name].astro`, `/tag/[name].astro`, `/artist/[name].astro`, `/storage/[name].astro`
@@ -316,8 +316,8 @@ Slug format (keep current): `{series-slug}-issue-{number}[-variant][-{id-suffix}
 14. Add hash-URL redirect script to `Base.astro` (F3)
 15. Update `generate-sitemap.js` to emit clean URLs, OR replace with `@astrojs/sitemap` auto-generation
 16. Configure `_redirects` on Cloudflare Pages for any edge cases (legacy old-old-ID format, etc.)
-17. Create missing social preview assets: `og-image.jpg` (1200×630), `twitter-image.jpg` (1200×630), favicons — currently TODO per `public/ICONS-TODO.md`
-18. Update `CLAUDE.md` to reflect new stack and patterns
+17. Preserve the shipped social preview, install icons, and favicon set during any framework migration
+18. Update `AGENTS.md` and `CLAUDE.md` to reflect the migrated stack and patterns
 19. Performance testing: compare LCP/CLS/TTI against current site using Lighthouse
 20. Cross-browser smoke test: Chrome, Safari, Firefox, mobile Safari
 

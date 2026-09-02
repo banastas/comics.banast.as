@@ -14,6 +14,46 @@ const gradeOptions = [
   10.0, 9.9, 9.8, 9.6, 9.4, 9.2, 9.0, 8.5, 8.0, 7.5, 7.0, 6.5, 6.0, 5.5, 5.0, 4.5, 4.0, 3.5, 3.0, 2.5, 2.0, 1.8, 1.5, 1.0, 0.5
 ];
 
+type ComicFormData = Omit<Comic, 'id' | 'createdAt' | 'updatedAt'>;
+
+const createInitialFormData = (comic?: Comic): ComicFormData => comic ? {
+  title: comic.title,
+  seriesName: comic.seriesName,
+  issueNumber: comic.issueNumber,
+  releaseDate: comic.releaseDate,
+  coverImageUrl: comic.coverImageUrl,
+  coverArtist: comic.coverArtist,
+  grade: comic.grade,
+  purchasePrice: comic.purchasePrice,
+  purchaseDate: comic.purchaseDate,
+  currentValue: comic.currentValue,
+  notes: comic.notes,
+  signedBy: comic.signedBy,
+  storageLocation: comic.storageLocation,
+  tags: [...comic.tags],
+  isSlabbed: comic.isSlabbed,
+  isVariant: comic.isVariant || false,
+  isGraphicNovel: comic.isGraphicNovel || false,
+} : {
+  title: '',
+  seriesName: '',
+  issueNumber: 1,
+  releaseDate: '',
+  coverImageUrl: '',
+  coverArtist: '',
+  grade: 9.0,
+  purchasePrice: 0,
+  purchaseDate: new Date().toISOString().split('T')[0],
+  currentValue: undefined,
+  notes: '',
+  signedBy: '',
+  storageLocation: '',
+  tags: [],
+  isSlabbed: false,
+  isVariant: false,
+  isGraphicNovel: false,
+};
+
 export const ComicForm: React.FC<ComicFormProps> = ({
   comic,
   onSave,
@@ -21,43 +61,7 @@ export const ComicForm: React.FC<ComicFormProps> = ({
   allSeries,
   allVirtualBoxes,
 }) => {
-  const [formData, setFormData] = useState<{
-    title: string;
-    seriesName: string;
-    issueNumber: number;
-    releaseDate: string;
-    coverImageUrl: string;
-    coverArtist: string;
-    grade: number;
-    purchasePrice?: number;
-    purchaseDate: string;
-    currentValue?: number;
-    notes: string;
-    signedBy: string;
-    storageLocation: string;
-    tags: string[];
-    isSlabbed: boolean;
-    isVariant: boolean;
-    isGraphicNovel: boolean;
-  }>({
-    title: '',
-    seriesName: '',
-    issueNumber: 1,
-    releaseDate: '',
-    coverImageUrl: '',
-    coverArtist: '',
-    grade: 9.0,
-    purchasePrice: 0,
-    purchaseDate: new Date().toISOString().split('T')[0],
-    currentValue: undefined,
-    notes: '',
-    signedBy: '',
-    storageLocation: '',
-    tags: [],
-    isSlabbed: false,
-    isVariant: false,
-    isGraphicNovel: false,
-  });
+  const [formData, setFormData] = useState<ComicFormData>(() => createInitialFormData(comic));
 
   const [tagInput, setTagInput] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -101,30 +105,6 @@ export const ComicForm: React.FC<ComicFormProps> = ({
       previouslyFocused?.focus();
     };
   }, [onCancel]);
-
-  useEffect(() => {
-    if (comic) {
-      setFormData({
-        title: comic.title,
-        seriesName: comic.seriesName,
-        issueNumber: comic.issueNumber,
-        releaseDate: comic.releaseDate,
-        coverImageUrl: comic.coverImageUrl,
-        coverArtist: comic.coverArtist,
-        grade: comic.grade,
-        purchasePrice: comic.purchasePrice,
-        purchaseDate: comic.purchaseDate,
-        currentValue: comic.currentValue,
-        notes: comic.notes,
-        signedBy: comic.signedBy,
-        storageLocation: comic.storageLocation,
-        tags: [...comic.tags],
-        isSlabbed: comic.isSlabbed,
-        isVariant: comic.isVariant || false,
-        isGraphicNovel: comic.isGraphicNovel || false,
-      });
-    }
-  }, [comic]);
 
   const handleInputChange = (field: string, value: string | number | boolean | undefined) => {
     setFormData(prev => ({ ...prev, [field]: value }));

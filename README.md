@@ -1,242 +1,145 @@
 # comics.banast.as
 
-[![Live Site](https://img.shields.io/badge/Live-comics.banast.as-00d9ff?style=for-the-badge)](https://comics.banast.as)
-[![Built with React](https://img.shields.io/badge/Built%20with-React%2018-61dafb?style=for-the-badge&logo=react)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178c6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS%203.4-38bdf8?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com/)
-[![Vite](https://img.shields.io/badge/Vite-7.0-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
+[![Live site](https://img.shields.io/badge/live-comics.banast.as-3b82f6)](https://comics.banast.as)
+[![CI](https://github.com/banastas/comics.banast.as/actions/workflows/ci.yml/badge.svg)](https://github.com/banastas/comics.banast.as/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-22c55e.svg)](LICENSE)
 
-<img src="https://github.com/banastas/comics.banast.as/blob/main/comic.banast.as.png?raw=true">
+A public, responsive catalog for browsing a personal comic-book collection. It combines collection search, storage organization, grading and value analytics, clean shareable routes, and a read-only API in one static-first React application.
 
-A personal comic book collection tracker with financial analytics, multi-view browsing, and comprehensive organization. Currently tracking **836 comics** across **180 series**. Built with React 18, TypeScript, and Tailwind CSS.
+![Current comics.banast.as collection overview](docs/images/collection-overview.webp)
 
-**Live Site**: [comics.banast.as](https://comics.banast.as)
+_Live collection overview captured September 1, 2026._
 
-## Latest Build Snapshot
+## Highlights
 
-The current production build is still a hydrated React/Vite app, but the routing and SEO surface have been upgraded so the site now ships real static entry pages for the collection.
+- Browse the collection as a cover grid or compact list.
+- Search titles, series, artists, notes, and signatures.
+- Sort and filter by release date, issue number, grade, price, value, condition, and variant status.
+- Explore dedicated pages for comics, series, cover artists, computed tags, storage boxes, raw comics, slabbed comics, and variants.
+- Review acquisition, grade, value, and collection-health analytics.
+- Share clean canonical URLs while preserving old hash-route bookmarks.
+- Consume the same checked-in collection through read-only Cloudflare Pages Functions.
 
-- **Clean URLs are canonical**: `/comic/...`, `/series/...`, `/artist/...`, `/tag/...`, `/storage/...`, `/raw`, `/slabbed`, `/variants`, `/boxes`, `/collection`, and `/stats`
-- **Legacy hash URLs still work**: old `/#/...` links are bridged to the clean path before React reads the route
-- **Static prerender output**: `npm run build` generates sitemap-driven HTML entry pages in `dist/` with route-specific title, description, canonical, Open Graph, Twitter Card, and JSON-LD metadata
-- **External automation preserved**: n8n/nightly sync, `src/data/comics.json`, and the Cloudflare Pages API remain the compatibility contract
-- **Regression gate added**: `npm run check` now validates data, typechecks app/API/node scripts, lints, runs Vitest, builds, and verifies the generated static pages
+Visit the production site at [comics.banast.as](https://comics.banast.as).
 
-## What It Does
+## How it works
 
-- Track comics with full metadata: title, series, issue, grade, value, cover artist, storage location, tags, signatures, and more
-- Monitor financial performance with purchase vs. current value, gain/loss calculations, and top gainers/losers
-- Browse the collection multiple ways: grid view, list view, by series, by artist, by tag, by storage location, or by condition (raw/slabbed/variant)
-- Search across titles, series, artists, notes, and signatures with sorting by any field
-- View analytics on a dashboard with collection stats, value breakdowns, and highlighted comics
+The browser experience is a React and TypeScript app built with Vite and styled with Tailwind CSS. Zustand owns application state, Zod validates collection records, and Vitest covers routing, data contracts, accessibility guardrails, API behavior, and generated public files.
 
-## Tech Stack
+The production build adds a static entry page for every sitemap route. Each page includes route-specific titles, descriptions, canonical URLs, Open Graph and Twitter metadata, JSON-LD, and crawlable fallback content before React hydrates. Cloudflare Pages serves the generated files and the functions in `functions/api/`.
 
-- **React 18** + **TypeScript 5.5** + **Vite 7**
-- **Tailwind CSS 3.4** for styling
-- **Zustand 5** for state management
-- **Zod 4** for data validation
-- **Lucide React** for icons
-- **First-party SEO component** for dynamic meta tags
+`src/data/comics.json` is the shared source for the UI, sitemap, generated pages, and API. A collection update therefore requires a validated build and deployment.
 
-## Quick Start
+## Quick start
+
+Requirements:
+
+- Node.js 20.19 or newer, with Node.js 24 LTS recommended
+- npm 11
 
 ```bash
 git clone https://github.com/banastas/comics.banast.as.git
 cd comics.banast.as
-npm install
+npm ci
 npm run dev
 ```
 
-Open `http://localhost:5173` in your browser.
+Open [http://localhost:5173](http://localhost:5173).
 
-## Project Structure
-
-```
-src/
-├── components/              # React components (35 runtime files)
-│   ├── AppRouteRenderer.tsx # Route switchboard for hydrated views
-│   ├── CollectionTab.tsx    # Main collection tab
-│   ├── StatsTab.tsx         # Stats/analytics tab
-│   ├── Dashboard.tsx        # Analytics dashboard with stats cards
-│   ├── ComicCard.tsx        # Grid view card (keyboard accessible)
-│   ├── ComicListView.tsx    # List view layout (keyboard accessible)
-│   ├── ComicDetail.tsx      # Individual comic page
-│   ├── ComicForm.tsx        # Add/edit comic form
-│   ├── DetailPageLayout.tsx # Shared layout for all detail views
-│   ├── DetailPageHeader.tsx # Header component for detail pages
-│   ├── Breadcrumb.tsx       # Navigation breadcrumbs
-│   ├── SeriesDetail.tsx     # Series drill-down view
-│   ├── CoverArtistDetail.tsx
-│   ├── TagDetail.tsx
-│   ├── StorageLocationDetail.tsx
-│   ├── StorageLocationsListing.tsx
-│   ├── RawComicsDetail.tsx
-│   ├── SlabbedComicsDetail.tsx
-│   ├── VariantsDetail.tsx
-│   ├── FilterControls.tsx
-│   ├── SEO.tsx              # Dynamic meta tags + structured data
-│   ├── ResponsiveImage.tsx
-│   ├── ErrorBoundary.tsx
-│   ├── LoadingSkeleton.tsx  # Loading states with ARIA
-│   ├── Toast.tsx            # Toast notifications
-│   └── ...                  # Dashboard sub-components, mobile controls
-├── stores/
-│   └── comicStore.ts        # Zustand state store
-├── hooks/                   # useRouting, useScrollToTop, useResponsiveBreakpoint
-├── types/
-│   └── Comic.ts             # TypeScript interfaces
-├── utils/                   # formatting, stats, sorting, analytics, routing
-├── data/
-│   └── comics.json          # Collection data (836 comics)
-└── styles/
-    └── responsive.css
-functions/
-└── api/                     # Cloudflare Pages API endpoints for external automation
-scripts/
-├── generate-sitemap.js      # Sitemap generation from synced collection data
-├── generate-static-pages.mjs # Static clean-url HTML page generation
-├── site-routes.mjs          # Shared route inventory for sitemap/static pages
-├── verify-static-pages.mjs  # Static output and sitemap verification
-└── validate-data.mjs        # Nightly/import data contract validation
-```
-
-## Features
-
-### Dashboard
-Total comics, collection value, average grade, raw vs. slabbed breakdown, variant count, signed comics count, biggest gainer/loser, most valuable slabbed and raw comics. All cards are clickable and navigate to their respective detail views.
-
-### Collection Views
-- **Grid view** with cover art, grade badges, and value info
-- **List view** for compact browsing
-- **Detail pages** for individual comics with related issues from the same series
-
-### Organization
-- **By series** (180 series) with per-series stats
-- **By cover artist** with artist-specific collection views
-- **By tag** for custom grouping
-- **By storage location** (7 archive boxes + CGC + Loose)
-- **By condition**: raw comics, slabbed/graded comics, variant covers
-
-### Search & Filter
-Full-text search across multiple fields. Sort by title, series, issue number, release date, grade, purchase date, purchase price, or current value. Ascending/descending toggle.
-Drill-down pages such as virtual boxes, series, artists, tags, raw comics, slabbed comics, and variants also support release date sorting in both newest-first and oldest-first order.
-
-### Data Management
-- JSON-based storage (`src/data/comics.json`)
-- n8n/nightly sync writes the collection JSON used by the app, API, sitemap, and build
-- Built-in CSV to JSON converter for bulk imports/manual fallback
-- Automatic timestamps on creation and updates
-- Zod/runtime validation plus standalone data validation guard against malformed sync/import payloads
-
-### SEO
-- Dynamic meta tags with the first-party SEO component
-- Schema.org structured data (ComicIssue, ComicSeries, Collection, Breadcrumb)
-- Auto-generated clean-url sitemap (1,271 URLs in the current build)
-- Static clean-url HTML entry pages generated at build time for comics, series, artists, tags, storage, and collection views
-- Open Graph and Twitter Card support
-- SEO-friendly slugs (e.g., `/comic/batman-issue-1-variant`)
-- Legacy hash URLs (e.g., `/#/comic/batman-issue-1-variant`) are still supported and bridged to clean paths
-- Social previews use a verified collection cover fallback instead of advertising missing same-origin image assets
-- A custom `404.html` prevents unknown URLs and missing assets from returning a misleading `200` SPA shell
-
-### Performance
-- Lazy-loaded detail views with code splitting
-- Manual Vite chunks (react-vendor, icons, data, utils, components)
-- Terser minification with console/debugger stripping
-- Native lazy loading and async decoding for images
-- Skeleton loading states
-- Granular Zustand selectors to minimize re-renders
-- Stable debounce refs to prevent unnecessary recreations
-
-### Accessibility
-- Keyboard-navigable comic cards (Enter/Space to activate)
-- Keyboard-navigable drill-down cards, dashboard rows, tags, storage boxes, and comic-detail links
-- Associated labels and error descriptions on form controls
-- Modal focus containment, Escape-to-close, and focus restoration
-- `aria-current="page"` on breadcrumbs
-- Loading skeletons with `role="status"` and `aria-busy`
-- `focus-visible` ring indicators for keyboard users
-- Reduced-motion support for animations, transitions, and smooth scrolling
-- Error boundaries on all lazy-loaded routes
-- A TypeScript-AST regression test rejects unnamed controls, unlabeled fields, missing image alt text, and mouse-only custom controls
-
-### Responsive Design
-Mobile-first layout from 320px to 4K. 44px minimum touch targets. Fluid typography. Works on desktop, tablet, and phone.
-
-Mobile form controls render at a minimum of 16px so iOS Safari does not automatically zoom the visual viewport when search, sort, filter, or edit controls receive focus. User-controlled pinch zoom remains available.
-
-## Scripts
+To start with the small demonstration dataset instead of the public collection:
 
 ```bash
-npm run dev              # Start dev server
-npm run check            # Full gate: validate data, typecheck app/API/node, lint, test, build, verify static pages
-npm run validate:data    # Validate synced src/data/comics.json contract
-npm run typecheck        # Typecheck app, Cloudflare Functions, and node scripts
-npm run test:run         # Run Vitest regression tests
-npm run build            # Validate types, generate sitemap, build, generate static pages
-npm run verify:static-pages # Verify clean-url static pages and sitemap output
-npm run preview          # Preview production build
-npm run lint             # ESLint
-npm run generate:sitemap # Regenerate sitemap only
-npm run generate:static-pages # Generate clean-url pages from dist/index.html
+cp example-comic-collection.json src/data/comics.json
+npm run dev
 ```
 
-## Adding Comics
+## Commands
 
-### CSV Import
-1. Click the file upload icon in the header
-2. Upload a CSV with columns: title, seriesName, issueNumber, releaseDate, coverImageUrl, coverArtist, grade, purchasePrice, purchaseDate, currentValue, notes, signedBy, storageLocation, tags, isSlabbed, isVariant, isGraphicNovel
-3. Download the converted JSON
-4. Replace `src/data/comics.json` and restart the dev server
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the Vite development server. |
+| `npm run check` | Run the complete release gate. |
+| `npm run validate:data` | Validate the collection JSON contract. |
+| `npm run typecheck` | Typecheck the app, Cloudflare Functions, and Node scripts. |
+| `npm run lint` | Run ESLint across the repository. |
+| `npm run test:run` | Run the Vitest suite once. |
+| `npm run build` | Typecheck, regenerate the sitemap, build the app, and generate static pages. |
+| `npm run verify:static-pages` | Verify the built routes, metadata, assets, and custom 404. |
+| `npm run preview` | Preview the production build locally. |
 
-### Manual Edit
-Add entries directly to `src/data/comics.json` following the Comic interface in `src/types/Comic.ts`.
+`npm run check` is the authoritative pre-merge and pre-deploy command. It regenerates derived sitemap data before testing, so it also works immediately after a collection sync.
 
-### Nightly Sync / n8n
-The production data source is still `src/data/comics.json`. Any n8n or scheduled sync should preserve that JSON array shape and then run:
+## Repository map
+
+```text
+src/
+├── components/          React views and reusable UI
+├── data/comics.json     Canonical collection data
+├── hooks/               Routing and scroll behavior
+├── stores/              Zustand application state
+├── types/Comic.ts       Shared collection types
+├── utils/               Routing, analytics, accessibility, and formatting
+└── validation/          Zod collection schema
+functions/api/           Read-only Cloudflare Pages API
+scripts/                 Data, sitemap, static-page, and release checks
+public/                  Icons, manifest, headers, robots, sitemap, and 404
+docs/                    Architecture notes and repository images
+```
+
+## Data contract
+
+Each collection record follows the `Comic` interface in `src/types/Comic.ts`. Before committing synced or hand-edited data, run:
 
 ```bash
 npm run check
 ```
 
-`npm run check` includes data validation, typechecking, linting, API tests, sitemap tests, static page generation, and static output verification. For a faster preflight during sync development, use `npm run validate:data`.
+The checks reject malformed records, duplicate IDs, duplicate public slugs, stale sitemap output, missing public assets, and API incompatibilities. Do not commit credentials or private collection data. Cover images are referenced by URL and are not copied into this repository.
 
-The compatibility tests intentionally cover the synced data shape, unique IDs, unique route slugs, API responses, CORS headers, and sitemap freshness. Keep the Cloudflare Pages API endpoints in `functions/api/` available during future rendering/routing migrations.
+The root `example-comic-collection.json` provides a small self-hosting example without replacing the live collection contract.
 
-## API
+## Public API
 
-Cloudflare Pages Functions expose read-only JSON endpoints for automation and external consumers:
+Cloudflare Pages Functions expose read-only JSON endpoints:
 
 - `GET /api/comics`
 - `GET /api/comics?series=Alien`
 - `GET /api/comics?artist=Jock`
 - `GET /api/comics?q=signature`
 - `GET /api/comics/stats`
+- `OPTIONS /api/comics`
+- `OPTIONS /api/comics/stats`
 
-Both endpoints allow CORS for read-only clients and respond to `OPTIONS` preflight requests. They import the same `src/data/comics.json` file as the app, so nightly sync updates the UI, static pages, sitemap, and API together.
+The collection endpoint supports series, artist, and text-query filters. Both endpoints return CORS headers for read-only clients.
+
+## Routes and SEO
+
+Canonical routes include:
+
+- `/collection` and `/stats`
+- `/comic/:slug`
+- `/series/:slug`
+- `/artist/:slug`
+- `/tag/:slug`
+- `/storage/:slug` and `/boxes`
+- `/raw`, `/slabbed`, and `/variants`
+
+Legacy `/#/...` links are normalized to the matching clean route. The build generates a sitemap and a static HTML entry for every canonical route, then verifies that metadata, structured data, assets, and fallback content are present.
+
+See [SEO.md](SEO.md) for the current rendering contract and [docs/ssr-migration-prd.md](docs/ssr-migration-prd.md) for the longer-term rendering roadmap.
 
 ## Deployment
 
 ```bash
-npm run build
+npm run check
 ```
 
-Deploy the `dist/` folder to Cloudflare Pages. Cloudflare Pages Functions in `functions/api/` should be deployed with it so the public API remains available for n8n and other read-only clients. No environment variables are required for the current build.
+Deploy `dist/` to Cloudflare Pages with `functions/` available to the Pages project. No application environment variables are required. The checked-in `_headers` file supplies security and cache headers, and `404.html` prevents unknown routes from returning a misleading SPA success response.
 
-Cloudflare may redirect generated directory-style routes from `/stats` to `/stats/`; the generated canonical and sitemap URLs intentionally use the clean no-trailing-slash form.
+## Contributing and security
 
-The checked-in `public/_headers` file adds static security headers and immutable caching for hashed assets. The checked-in `public/404.html` also disables Cloudflare Pages' implicit SPA fallback so unknown paths return a real 404 while every generated clean route continues to resolve from its own directory.
-
-## Limitations
-
-- JSON file storage (no database)
-- Single-user (no authentication)
-- Cover images hosted externally (covers.banast.as)
-- The interactive app still hydrates as a React SPA after the static entry page loads
-- Static pages are generated at build time, so data changes require a rebuild/deploy
-- This is not a full SSR/Astro migration yet; `docs/ssr-migration-prd.md` tracks that possible next step
+Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. Report vulnerabilities through the process in [.github/SECURITY.md](.github/SECURITY.md).
 
 ## License
 
-MIT
+[MIT](LICENSE)

@@ -83,7 +83,7 @@ export const useRouting = ({
     setShowVirtualBoxes(false);
     
     // Build the route
-    let route = '';
+    let route: string;
     switch (type) {
       case 'home':
         route = '/';
