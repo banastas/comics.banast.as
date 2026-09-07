@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import { Pagination } from './Pagination';
+import React, { useState, useMemo, useRef } from 'react';
 import { Comic } from '../types/Comic';
 import { Dashboard } from './Dashboard';
 import { DetailPageHeader } from './DetailPageHeader';
@@ -6,6 +7,7 @@ import { ComicGridList } from './ComicGridList';
 import { calculateComicStats } from '../utils/stats';
 import { sortComics, DetailSortField } from '../utils/sorting';
 import { useScrollToTop } from '../hooks/useScrollToTop';
+import { parseCurrentUrl } from '../utils/routing';
 import { BreadcrumbItem } from './Breadcrumb';
 
 interface DetailPageLayoutProps {
@@ -61,8 +63,17 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = React.memo(({
   showSeriesName,
   seo,
 }) => {
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => parseCurrentUrl().params.viewMode || 'grid');
   const [sortBy, setSortBy] = useState<DetailSortField>(defaultSortBy);
+
+  const [requestedPage, setRequestedPage] = useState(0);
+  const listRef = useRef<HTMLElement>(null);
+  const totalPages = Math.ceil(comics.length / 48);
+  const currentPage = Math.min(requestedPage, Math.max(0, totalPages - 1));
+  const changePage = (page: number) => {
+    setRequestedPage(page);
+    listRef.current?.scrollIntoView({ block: 'start', behavior: 'auto' });
+  };
 
   useScrollToTop();
 
@@ -78,23 +89,23 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = React.memo(({
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         sortBy={sortBy}
-        onSortChange={(value) => setSortBy(value as DetailSortField)}
+        onSortChange={(value) => { setSortBy(value as DetailSortField); setRequestedPage(0); }}
         sortOptions={sortOptions}
         breadcrumbItems={breadcrumbItems}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
         <div className="space-y-8">
-          <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-6">
+          <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-3 sm:p-6">
             <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-3">
+              <div className="flex min-w-0 items-center space-x-3">
                 {icon && (
-                  <div className={`p-3 ${iconBgColor} rounded-lg`}>
+                  <div className={`shrink-0 p-3 ${iconBgColor} rounded-lg`}>
                     {icon}
                   </div>
                 )}
                 <div>
-                  <h1 className="text-3xl font-bold text-white mb-2">{title}</h1>
+                  <h1 className="text-2xl sm:text-3xl break-words font-bold text-white mb-2">{title}</h1>
                   <p className="text-slate-300">{subtitle}</p>
                 </div>
               </div>
@@ -103,6 +114,7 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = React.memo(({
             <Dashboard
               stats={stats}
               showDetailed={true}
+              variantsCount={comics.filter((comic) => comic.isVariant).length}
               onViewComic={onView}
               {...dashboardProps}
             />
@@ -110,10 +122,14 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = React.memo(({
             {afterDashboard}
           </div>
 
-          <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-6">
+          <section ref={listRef} className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-3 sm:p-6">
             <h3 className="text-lg font-semibold text-white mb-4">{comicsListTitle}</h3>
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <p role="status" className="text-sm text-slate-400">Showing {comics.length ? currentPage * 48 + 1 : 0} to {Math.min((currentPage + 1) * 48, comics.length)} of {comics.length}</p>
+              <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={changePage} />
+            </div>
             <ComicGridList
-              comics={sortedComics}
+              comics={sortedComics.slice(currentPage * 48, (currentPage + 1) * 48)}
               viewMode={viewMode}
               onView={onView}
               gridBadges={gridBadges}
@@ -121,9 +137,12 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = React.memo(({
               listExtraInfo={listExtraInfo}
               showSeriesName={showSeriesName}
             />
-          </div>
+            <div className="flex justify-center pt-6">
+              <Pagination label="More collection pages" currentPage={currentPage} totalPages={totalPages} onPageChange={changePage} />
+            </div>
+          </section>
         </div>
-      </div>
+      </main>
     </div>
   );
 });

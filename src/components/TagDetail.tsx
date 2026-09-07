@@ -49,7 +49,7 @@ export const TagDetail: React.FC<TagDetailProps> = React.memo(({
               const seriesComics = tagComics.filter(comic => comic.seriesName === series);
               const seriesCount = seriesComics.length;
               const seriesValue = seriesComics.reduce(
-                (sum, comic) => sum + (comic.currentValue || comic.purchasePrice || 0), 0
+                (sum, comic) => sum + (comic.currentValue ?? comic.purchasePrice ?? 0), 0
               );
 
               return (

@@ -32,7 +32,8 @@
     "generate:sitemap": "node scripts/generate-sitemap.js",
     "generate:static-pages": "node scripts/generate-static-pages.mjs",
     "verify:static-pages": "node scripts/verify-static-pages.mjs",
-    "validate:data": "node scripts/validate-data.mjs"
+    "validate:data": "node scripts/validate-data.mjs",
+    "verify:http": "node scripts/verify-http.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.344.0",

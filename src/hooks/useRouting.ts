@@ -1,6 +1,7 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import { parseCurrentUrl, parseRoute, navigateToUrl, type RouteParams, parseComicSlug, createComicSlug } from '../utils/routing';
 import type { Comic, FilterOptions, SortField } from '../types/Comic';
+import { computeTagsForComic } from '../utils/computed-tags';
 import { trackPageView } from '../utils/analytics';
 
 interface UseRoutingProps {
@@ -8,6 +9,7 @@ interface UseRoutingProps {
   activeTab: 'collection' | 'stats';
   viewMode: 'grid' | 'list';
   searchTerm: string;
+  activeComputedTag: string | null;
   sortField: SortField;
   sortDirection: 'asc' | 'desc';
   
@@ -48,6 +50,7 @@ export const useRouting = ({
   activeTab,
   viewMode,
   searchTerm,
+  activeComputedTag,
   sortField,
   sortDirection,
   setActiveTab,
@@ -66,6 +69,8 @@ export const useRouting = ({
   allComics,
 }: UseRoutingProps) => {
   
+  const [notFound, setNotFound] = useState(false);
+
   // Navigate to a specific route
   const navigateToRoute = useCallback((
     type: RouteType,
@@ -125,6 +130,8 @@ export const useRouting = ({
         route = '/';
     }
     
+    params = { tab: activeTab, viewMode, searchTerm, sortField, sortDirection, computedTag: activeComputedTag, ...params };
+
     // Add query parameters
     const searchParams = new URLSearchParams();
     if (params?.tab) searchParams.set('tab', params.tab);
@@ -132,6 +139,7 @@ export const useRouting = ({
     if (params?.searchTerm) searchParams.set('search', params.searchTerm);
     if (params?.sortField) searchParams.set('sort', params.sortField);
     if (params?.sortDirection) searchParams.set('order', params.sortDirection);
+    if (params?.computedTag) searchParams.set('filter', params.computedTag);
     
     const queryString = searchParams.toString();
     const fullRoute = route + (queryString ? `?${queryString}` : '');
@@ -139,6 +147,7 @@ export const useRouting = ({
     // Update URL. Clean paths are canonical; hash routes remain supported by parseCurrentUrl.
     navigateToUrl(fullRoute, replace);
   }, [
+    activeTab, viewMode, searchTerm, sortField, sortDirection, activeComputedTag,
     setSelectedComic,
     setSelectedSeries,
     setSelectedStorageLocation,
@@ -155,15 +164,16 @@ export const useRouting = ({
     
     trackPageView(`${window.location.pathname}${window.location.search}${window.location.hash}`);
     
+    setNotFound(false);
+    setActiveComputedTag(params.computedTag || null);
+
     // Update tab
     if (params.tab && params.tab !== activeTab) {
       setActiveTab(params.tab);
     }
     
     // Update view mode
-    if (params.viewMode && params.viewMode !== viewMode) {
-      setViewMode(params.viewMode);
-    }
+    setViewMode(params.viewMode || 'grid');
     
     // Update search term
     if (params.searchTerm !== undefined && params.searchTerm !== searchTerm) {
@@ -173,19 +183,14 @@ export const useRouting = ({
     }
     
     // Update sort parameters
-    if (params.sortField && params.sortField !== sortField) {
-      setSortField(params.sortField);
-    }
-    if (params.sortDirection && params.sortDirection !== sortDirection) {
-      setSortDirection(params.sortDirection);
-    }
+    setSortField(params.sortField || 'releaseDate');
+    setSortDirection(params.sortDirection || 'desc');
     
     // Handle route-specific navigation
     switch (type) {
       case 'home':
       case 'collection':
         setActiveTab('collection');
-        setActiveComputedTag(null);
         // Clear all selections
         setSelectedComic(undefined);
         setSelectedSeries(null);
@@ -208,6 +213,7 @@ export const useRouting = ({
         break;
         
       case 'comic':
+        setNotFound(true);
         if (routeParams.comicId) {
           // Try to parse as slug first (new format: series-name-issue-123-variant-575)
           let comic: Comic | undefined;
@@ -230,7 +236,7 @@ export const useRouting = ({
                 comic = allComics.find(c => {
                   const matchesIssue = c.issueNumber.toString() === issueNumber;
                   const matchesVariant = c.isVariant === isVariant;
-                  const seriesMatches = c.seriesName.toLowerCase().replace(/[^a-z0-9]+/g, '-') === seriesSlug;
+                  const seriesMatches = c.seriesName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') === seriesSlug;
                   return matchesIssue && matchesVariant && seriesMatches;
                 });
               }
@@ -241,6 +247,7 @@ export const useRouting = ({
           }
 
           if (comic) {
+            setNotFound(false);
             setSelectedComic(comic);
             setSelectedSeries(null);
             setSelectedStorageLocation(null);
@@ -253,6 +260,7 @@ export const useRouting = ({
         break;
         
       case 'series':
+        setNotFound(!allComics.some(c => c.seriesName === routeParams.seriesName));
         if (routeParams.seriesName) {
           setSelectedSeries(routeParams.seriesName);
           setSelectedComic(undefined);
@@ -265,6 +273,7 @@ export const useRouting = ({
         break;
         
       case 'storage':
+        setNotFound(!allComics.some(c => c.storageLocation === routeParams.storageLocation));
         if (routeParams.storageLocation) {
           setSelectedStorageLocation(routeParams.storageLocation);
           setSelectedComic(undefined);
@@ -277,6 +286,7 @@ export const useRouting = ({
         break;
         
       case 'artist':
+        setNotFound(!allComics.some(c => c.coverArtist === routeParams.coverArtist));
         if (routeParams.coverArtist) {
           setSelectedCoverArtist(routeParams.coverArtist);
           setSelectedComic(undefined);
@@ -289,6 +299,7 @@ export const useRouting = ({
         break;
         
       case 'tag':
+        setNotFound(!allComics.some(c => c.tags.includes(routeParams.tag || '') || computeTagsForComic(c).includes(routeParams.tag || '')));
         if (routeParams.tag) {
           setSelectedTag(routeParams.tag);
           setSelectedComic(undefined);
@@ -339,14 +350,12 @@ export const useRouting = ({
         setSelectedTag(null);
         setSelectedCondition(null);
         break;
-        
+      default:
+        setNotFound(true);
     }
   }, [
     activeTab,
-    viewMode,
     searchTerm,
-    sortField,
-    sortDirection,
     allComics,
     setActiveTab,
     setViewMode,
@@ -363,31 +372,24 @@ export const useRouting = ({
     setShowVirtualBoxes,
   ]);
   
-  // Set up URL change listeners
+  // React state changes must not replay navigation or erase a draft filter.
+  const handleUrlChangeRef = useRef(handleUrlChange);
+  useEffect(() => { handleUrlChangeRef.current = handleUrlChange; }, [handleUrlChange]);
   useEffect(() => {
-    // Handle initial URL
-    handleUrlChange();
-    
-    // Listen for browser back/forward
-    const handlePopState = () => {
-      handleUrlChange();
-    };
-    
-    // Listen for custom URL change events
-    const handleCustomUrlChange = () => {
-      handleUrlChange();
-    };
-    
-    window.addEventListener('popstate', handlePopState);
-    window.addEventListener('urlchange', handleCustomUrlChange);
-
+    const syncRoute = () => handleUrlChangeRef.current();
+    syncRoute();
+    window.addEventListener('popstate', syncRoute);
+    window.addEventListener('urlchange', syncRoute);
+    window.addEventListener('hashchange', syncRoute);
     return () => {
-      window.removeEventListener('popstate', handlePopState);
-      window.removeEventListener('urlchange', handleCustomUrlChange);
+      window.removeEventListener('popstate', syncRoute);
+      window.removeEventListener('urlchange', syncRoute);
+      window.removeEventListener('hashchange', syncRoute);
     };
-  }, [handleUrlChange]);
-  
+  }, [allComics]);
+
   return {
     navigateToRoute,
+    notFound,
   };
 };

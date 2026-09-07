@@ -9,6 +9,7 @@ interface SEOProps {
   type?: string;
   structuredData?: object;
   canonical?: string;
+  noindex?: boolean;
 }
 
 const defaultMeta = {
@@ -68,6 +69,7 @@ export function SEO({
   type = 'website',
   structuredData,
   canonical,
+  noindex = false,
 }: SEOProps) {
   const seo = {
     title: title ? `${title} | comics.banast.as` : defaultMeta.title,
@@ -84,7 +86,9 @@ export function SEO({
     upsertMeta('name', 'title', seo.title);
     upsertMeta('name', 'description', seo.description);
     upsertMeta('name', 'keywords', seo.keywords);
-    upsertCanonical(canonical || seo.url);
+    upsertMeta('name', 'robots', noindex ? 'noindex,follow' : 'index,follow');
+    if (noindex) document.querySelector('link[rel="canonical"]')?.remove();
+    else upsertCanonical(canonical || seo.url);
 
     upsertMeta('property', 'og:type', seo.type);
     upsertMeta('property', 'og:url', seo.url);
@@ -99,7 +103,7 @@ export function SEO({
     upsertMeta('name', 'twitter:image', seo.image);
 
     upsertStructuredData(structuredData);
-  }, [canonical, seo.description, seo.image, seo.keywords, seo.title, seo.type, seo.url, structuredData]);
+  }, [noindex, canonical, seo.description, seo.image, seo.keywords, seo.title, seo.type, seo.url, structuredData]);
 
   return null;
 }

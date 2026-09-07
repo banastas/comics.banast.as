@@ -32,7 +32,7 @@ export const ComicCard: React.FC<ComicCardProps> = React.memo(({ comic, onView }
   }, []);
 
   const hasValidCoverUrl = comic.coverImageUrl && comic.coverImageUrl.trim() !== '';
-  const displayValue = comic.currentValue || comic.purchasePrice || 0;
+  const displayValue = comic.currentValue ?? comic.purchasePrice ?? 0;
   const hasGainLoss = comic.currentValue !== undefined && comic.purchasePrice !== undefined && comic.purchasePrice > 0;
   const gainLoss = hasGainLoss ? ((comic.currentValue ?? 0) - (comic.purchasePrice ?? 0)) : 0;
   const isPositive = gainLoss >= 0;
@@ -76,7 +76,7 @@ export const ComicCard: React.FC<ComicCardProps> = React.memo(({ comic, onView }
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
-            <div className="text-center text-slate-500">
+            <div className="text-center text-slate-400">
               <Award size={32} className="mx-auto mb-2" />
               <p className="text-sm font-medium">
                 {!isVisible ? 'Loading...' : 'No Cover'}
@@ -115,7 +115,7 @@ export const ComicCard: React.FC<ComicCardProps> = React.memo(({ comic, onView }
           {comic.seriesName}
         </h3>
 
-        <p className="text-xs text-slate-500 mb-2">
+        <p className="text-xs text-slate-400 mb-2">
           #{comic.issueNumber} ({getCalendarYear(comic.releaseDate)})
         </p>
 

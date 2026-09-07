@@ -1,3 +1,4 @@
+import { Pagination } from './Pagination';
 import { BookOpen, Plus } from 'lucide-react';
 import { Dashboard } from './Dashboard';
 import { ComicCard } from './ComicCard';
@@ -87,16 +88,16 @@ export const CollectionTab = ({
               }`}
             >
               {tag}
-              <span className={`tabular-nums ${isActive ? 'text-blue-200' : 'text-slate-500'}`}>{count}</span>
+              <span className={`tabular-nums ${isActive ? 'text-blue-200' : 'text-slate-400'}`}>{count}</span>
             </button>
           );
         })}
     </div>
 
     {filteredComics.length > 0 && (
-      <div className="flex flex-col sm:flex-row items-center justify-between mb-6 space-y-3 sm:space-y-0">
-        <div className="flex items-center space-x-4">
-          <span className="text-sm text-slate-500">
+      <div className="flex flex-col md:flex-row items-center justify-between mb-6 space-y-3 md:space-y-0">
+        <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-4">
+          <span role="status" className="text-sm text-slate-400">
             Showing {currentPage * itemsPerPage + 1} to {Math.min((currentPage + 1) * itemsPerPage, filteredComics.length)} of {filteredComics.length}
           </span>
           <select
@@ -112,47 +113,7 @@ export const CollectionTab = ({
         </div>
 
         {totalPages > 1 && (
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => onPageChange(currentPage - 1)}
-              disabled={currentPage === 0}
-              className="px-3 py-1.5 bg-surface-secondary border border-slate-700 rounded-xl text-sm text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-elevated transition-colors"
-            >
-              Previous
-            </button>
-            <div className="flex items-center space-x-1">
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNum;
-                if (totalPages <= 5) pageNum = i;
-                else if (currentPage < 3) pageNum = i;
-                else if (currentPage >= totalPages - 3) pageNum = totalPages - 5 + i;
-                else pageNum = currentPage - 2 + i;
-
-                return (
-                  <button
-                    key={pageNum}
-                    onClick={() => onPageChange(pageNum)}
-                    className={`px-3 py-1.5 rounded-xl text-sm transition-colors ${
-                      currentPage === pageNum
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-surface-secondary text-slate-400 hover:bg-surface-elevated hover:text-white'
-                    }`}
-                    aria-current={currentPage === pageNum ? 'page' : undefined}
-                    aria-label={`Page ${pageNum + 1}`}
-                  >
-                    {pageNum + 1}
-                  </button>
-                );
-              })}
-            </div>
-            <button
-              onClick={() => onPageChange(currentPage + 1)}
-              disabled={currentPage === totalPages - 1}
-              className="px-3 py-1.5 bg-surface-secondary border border-slate-700 rounded-xl text-sm text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-elevated transition-colors"
-            >
-              Next
-            </button>
-          </div>
+          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={onPageChange} />
         )}
       </div>
     )}
@@ -163,7 +124,7 @@ export const CollectionTab = ({
         <h3 className="text-lg font-medium text-white mb-2">
           {allComics.length === 0 ? 'No comics in your collection' : 'No comics match your filters'}
         </h3>
-        <p className="text-sm text-slate-500 mb-6 px-4">
+        <p className="text-sm text-slate-400 mb-6 px-4">
           {allComics.length === 0
             ? 'Start building your collection by adding your first comic!'
             : 'Try adjusting your search criteria or filters.'
@@ -190,6 +151,9 @@ export const CollectionTab = ({
         ) : (
           <ComicListView comics={paginatedComics} onView={onViewComic} />
         )}
+        <div className="flex justify-center pt-6">
+          <Pagination label="More collection pages" currentPage={currentPage} totalPages={totalPages} onPageChange={onPageChange} />
+        </div>
       </>
     )}
   </div>

@@ -17,8 +17,9 @@ const applyFilters = (
 
   // Apply search filter
   if (filters.searchTerm && filters.searchTerm.trim() !== '') {
-    const searchLower = filters.searchTerm.toLowerCase();
+    const searchLower = filters.searchTerm.trim().toLowerCase();
     filtered = filtered.filter(comic =>
+      `${comic.seriesName} #${comic.issueNumber}`.toLowerCase().includes(searchLower) ||
       comic.title.toLowerCase().includes(searchLower) ||
       comic.seriesName.toLowerCase().includes(searchLower) ||
       comic.notes.toLowerCase().includes(searchLower) ||
@@ -118,6 +119,7 @@ interface ComicStore {
   sortField: SortField;
   sortDirection: SortDirection;
   loading: boolean;
+  loadError: boolean;
 
   // Cached computed values (updated when comics change)
   stats: ComicStats;
@@ -171,14 +173,15 @@ export const useComicStore = create<ComicStore>((set, get) => {
     .then((mod) => {
       const data = parseComics(mod.default ?? mod);
       const derived = computeDerivedData(data);
-      const filtered = applyFilters(data, defaultFilters, 'releaseDate', 'desc');
-      set({ comics: data, filteredComics: filtered, ...derived, loading: false });
+      const state = get();
+      const filtered = applyFilters(data, state.filters, state.sortField, state.sortDirection, state.activeComputedTag, derived.computedTagsMap);
+      set({ comics: data, filteredComics: filtered, ...derived, loading: false, loadError: false });
     })
     .catch((err) => {
       if (err instanceof Error) {
         console.error('Failed to load comics data', err.message);
       }
-      set({ loading: false });
+      set({ loading: false, loadError: true });
     });
 
   return {
@@ -189,6 +192,7 @@ export const useComicStore = create<ComicStore>((set, get) => {
     sortField: 'releaseDate',
     sortDirection: 'desc',
     loading: true,
+    loadError: false,
 
     // Cached computed values
     ...initialDerived,

@@ -39,7 +39,7 @@ export const ComicGridCard: React.FC<ComicGridCardProps> = React.memo(({
         />
       ) : (
         <div className="w-full h-full flex items-center justify-center">
-          <Award size={32} className="text-slate-500" />
+          <Award size={32} className="text-slate-400" />
         </div>
       )}
 
@@ -76,7 +76,7 @@ export const ComicGridCard: React.FC<ComicGridCardProps> = React.memo(({
         {getCalendarYear(comic.releaseDate)}
       </p>
       <p className="text-xs font-semibold text-green-400">
-        {formatCurrency(comic.currentValue || comic.purchasePrice || 0)}
+        {formatCurrency(comic.currentValue ?? comic.purchasePrice ?? 0)}
       </p>
     </div>
   </div>

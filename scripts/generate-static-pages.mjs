@@ -1,3 +1,4 @@
+import { staticRoutePath } from './static-route-path.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { getRouteEntries, siteOrigin, createComicSlug } from './site-routes.mjs';
@@ -337,10 +338,7 @@ const renderPage = (entry) => {
   return output;
 };
 
-const routeToFile = (route) => {
-  if (route === '/') return indexPath;
-  return path.join(distDir, ...route.slice(1).split('/'), 'index.html');
-};
+const routeToFile = (route) => staticRoutePath(distDir, route);
 
 for (const entry of entries) {
   const filePath = routeToFile(entry.route);

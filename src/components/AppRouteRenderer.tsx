@@ -76,6 +76,7 @@ export const AppRouteRenderer = ({
   if (selectedComic) {
     return withRouteBoundary(
       <ComicDetail
+        key={selectedComic.id}
         comic={selectedComic}
         allComics={allComics}
         onBack={onBack}
@@ -96,6 +97,7 @@ export const AppRouteRenderer = ({
 
     return withRouteBoundary(
       <SeriesDetail
+        key={selectedSeries}
         seriesName={selectedSeries}
         seriesComics={seriesComics}
         onBack={onBack}
@@ -144,6 +146,7 @@ export const AppRouteRenderer = ({
 
     return withRouteBoundary(
       <TagDetail
+        key={selectedTag}
         tag={selectedTag}
         tagComics={tagComics}
         onBack={onBack}

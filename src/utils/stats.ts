@@ -4,27 +4,29 @@ export const calculateComicStats = (comics: Comic[]): ComicStats => {
   const comicsWithCurrentValue = comics.filter(comic => comic.currentValue !== undefined);
   const totalPurchaseValue = comics.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0);
   const totalCurrentValue = comicsWithCurrentValue.reduce((sum, comic) => sum + (comic.currentValue || 0), 0);
-  const purchaseValueOfValued = comicsWithCurrentValue.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0);
-  const totalGainLoss = totalCurrentValue - purchaseValueOfValued;
+  const comparableComics = comicsWithCurrentValue.filter(comic => comic.purchasePrice !== undefined);
+  const comparableCurrentValue = comparableComics.reduce((sum, comic) => sum + (comic.currentValue ?? 0), 0);
+  const purchaseValueOfValued = comparableComics.reduce((sum, comic) => sum + (comic.purchasePrice || 0), 0);
+  const totalGainLoss = comparableCurrentValue - purchaseValueOfValued;
   const totalGainLossPercentage = comicsWithCurrentValue.length > 0 && purchaseValueOfValued > 0
     ? (totalGainLoss / purchaseValueOfValued) * 100
     : 0;
 
   const findHighestValued = (subset: Comic[]): Comic | null => {
     return subset.reduce((highest, comic) => {
-      const comicValue = comic.currentValue || comic.purchasePrice || 0;
-      const highestValue = highest ? (highest.currentValue || highest.purchasePrice || 0) : 0;
+      const comicValue = comic.currentValue ?? comic.purchasePrice ?? 0;
+      const highestValue = highest ? (highest.currentValue ?? highest.purchasePrice ?? 0) : 0;
       return comicValue > highestValue ? comic : highest;
     }, null as Comic | null);
   };
 
-  const biggestGainer = comicsWithCurrentValue.reduce((biggest, comic) => {
+  const biggestGainer = comparableComics.filter(c => (c.currentValue ?? 0) > (c.purchasePrice ?? 0)).reduce((biggest, comic) => {
     const gain = (comic.currentValue || 0) - (comic.purchasePrice || 0);
     const biggestGain = biggest ? ((biggest.currentValue || 0) - (biggest.purchasePrice || 0)) : -Infinity;
     return gain > biggestGain ? comic : biggest;
   }, null as Comic | null);
 
-  const biggestLoser = comicsWithCurrentValue.reduce((biggest, comic) => {
+  const biggestLoser = comparableComics.filter(c => (c.currentValue ?? 0) < (c.purchasePrice ?? 0)).reduce((biggest, comic) => {
     const loss = (comic.currentValue || 0) - (comic.purchasePrice || 0);
     const biggestLoss = biggest ? ((biggest.currentValue || 0) - (biggest.purchasePrice || 0)) : Infinity;
     return loss < biggestLoss ? comic : biggest;
@@ -49,5 +51,6 @@ export const calculateComicStats = (comics: Comic[]): ComicStats => {
     totalGainLoss,
     totalGainLossPercentage,
     comicsWithCurrentValue: comicsWithCurrentValue.length,
+    comicsWithKnownReturn: comparableComics.length,
   };
 };

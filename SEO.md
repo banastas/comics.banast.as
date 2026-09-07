@@ -1,6 +1,6 @@
 # Search and sharing contract
 
-This document describes the SEO surface that the current production build actually ships. The implementation is a Vite and React application with generated static entry pages, not a server-rendered framework.
+This document describes the SEO surface that the repository build produces. The implementation is a Vite and React application with generated static entry pages, not a server-rendered framework.
 
 ## Public URL model
 
@@ -26,7 +26,9 @@ Route creation and slug behavior live in `scripts/site-routes.mjs` and `src/util
 1. Typecheck the app, Cloudflare Functions, and Node scripts.
 2. Regenerate `public/sitemap.xml` from `src/data/comics.json`.
 3. Build the Vite application.
-4. Generate one `dist/**/index.html` file per sitemap route.
+4. Generate a decoded `.html` asset per sitemap route, with `dist/index.html` for the root.
+
+Public URLs stay unchanged and extensionless. Filesystem paths use decoded names, such as `dist/series/Action Comics.html`. Flat HTML assets avoid directory redirects that can corrupt `?`, `#`, or Unicode names. `scripts/static-route-path.mjs` owns the safe URL-to-file mapping.
 
 `scripts/generate-static-pages.mjs` replaces the generic shell with route-specific metadata and crawlable fallback content. React then hydrates the page in the browser.
 
@@ -94,6 +96,8 @@ npm run check
 ```
 
 The gate validates data, refreshes the sitemap, typechecks, lints, tests, builds, and verifies every generated page. `scripts/verify-static-pages.mjs` checks canonical URLs, social metadata, JSON-LD validity, built assets, sitemap coverage, fallback content, security files, and the custom 404.
+
+Run `npm run verify:http -- <origin>` against a Cloudflare Pages local preview to check all sitemap routes, canonical metadata, a real HTTP 404, and collection/API agreement. Run it again against production after an authorized deployment.
 
 For a deployed release, also verify:
 

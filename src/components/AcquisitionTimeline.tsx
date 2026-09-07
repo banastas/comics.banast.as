@@ -46,7 +46,7 @@ export const AcquisitionTimeline: React.FC<AcquisitionTimelineProps> = ({ comics
 
   return (
     <div className="bg-surface-primary rounded-xl border border-slate-800 p-5 sm:p-6">
-      <div className="flex items-baseline justify-between mb-5">
+      <div className="flex flex-wrap gap-2 items-baseline justify-between mb-5">
         <h3 className="text-base font-semibold text-white">Acquisition Timeline</h3>
         <div className="text-xs text-slate-400">
           <span className="tabular-nums">{totalCount}</span> comics &middot;{' '}
@@ -73,7 +73,7 @@ export const AcquisitionTimeline: React.FC<AcquisitionTimelineProps> = ({ comics
                 style={{ height: `${barHeight}px` }}
               />
               {/* Tooltip */}
-              <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-surface-elevated border border-slate-700 rounded-md px-2 py-1 text-[10px] text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-lg">
+              <div className={`absolute bottom-full mb-2 ${i < 3 ? 'left-0' : i >= timeline.length - 3 ? 'right-0' : 'left-1/2 -translate-x-1/2'} bg-surface-elevated border border-slate-700 rounded-md px-2 py-1 text-[10px] text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-lg`}>
                 <div className="font-medium">{month.fullLabel}</div>
                 <div className="text-slate-400">{month.count} comics &middot; ${month.spend.toFixed(0)}</div>
               </div>
@@ -82,12 +82,23 @@ export const AcquisitionTimeline: React.FC<AcquisitionTimelineProps> = ({ comics
         })}
       </div>
 
+      <details className="mt-3 text-xs text-slate-400">
+        <summary className="cursor-pointer py-2">View monthly data</summary>
+        <table className="w-full text-left mt-2">
+          <caption className="sr-only">Acquisitions by month</caption>
+          <thead><tr><th scope="col">Month</th><th scope="col">Comics</th><th scope="col" className="text-right">Spent</th></tr></thead>
+          <tbody>{timeline.map(month => <tr key={month.fullLabel}>
+            <th scope="row" className="font-normal py-1">{month.fullLabel}</th><td>{month.count}</td><td className="text-right">${month.spend.toFixed(2)}</td>
+          </tr>)}</tbody>
+        </table>
+      </details>
+
       {/* Labels */}
       <div className="flex gap-[2px] sm:gap-1 mt-2">
         {timeline.map((month, i) => (
           <div key={i} className="flex-1 text-center overflow-hidden">
             {(i % 3 === 0 || i === timeline.length - 1) ? (
-              <span className="text-[9px] sm:text-[10px] text-slate-500 whitespace-nowrap">{month.label}</span>
+              <span className="text-[9px] sm:text-[10px] text-slate-400 whitespace-nowrap">{month.label}</span>
             ) : null}
           </div>
         ))}

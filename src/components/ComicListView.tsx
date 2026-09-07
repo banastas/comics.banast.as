@@ -12,7 +12,7 @@ export const ComicListView: React.FC<ComicListViewProps> = React.memo(({ comics,
   return (
     <div className="space-y-0">
       {/* Column Headers (desktop) */}
-      <div className="hidden sm:flex items-center px-4 py-2 text-xs font-medium text-slate-500 uppercase tracking-wider border-b border-slate-800 mb-1">
+      <div className="hidden sm:flex items-center px-4 py-2 text-xs font-medium text-slate-400 uppercase tracking-wider border-b border-slate-800 mb-1">
         <div className="flex-1 min-w-0">Comic</div>
         <div className="w-24 text-right">Grade</div>
         <div className="w-32 text-right">Value</div>
@@ -38,7 +38,7 @@ export const ComicListView: React.FC<ComicListViewProps> = React.memo(({ comics,
                 onView(comic);
               }
             }}
-            aria-label={`${comic.seriesName} #${comic.issueNumber}, grade ${comic.grade}, value ${formatCurrency(comic.currentValue || comic.purchasePrice || 0)}`}
+            aria-label={`${comic.seriesName} #${comic.issueNumber}, grade ${comic.grade}, value ${formatCurrency(comic.currentValue ?? comic.purchasePrice ?? 0)}`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
@@ -90,7 +90,7 @@ export const ComicListView: React.FC<ComicListViewProps> = React.memo(({ comics,
                     </div>
                   </div>
                   <p className="text-xs sm:text-sm text-slate-400 truncate mb-0.5">{comic.title}</p>
-                  <div className="flex items-center gap-3 text-xs text-slate-500">
+                  <div className="flex items-center gap-3 text-xs text-slate-400">
                     <span>{formatDate(comic.releaseDate)}</span>
                     {comic.coverArtist && <span className="hidden sm:inline">&middot; {comic.coverArtist}</span>}
                     {comic.storageLocation && <span className="hidden md:inline">&middot; {comic.storageLocation}</span>}
@@ -116,7 +116,7 @@ export const ComicListView: React.FC<ComicListViewProps> = React.memo(({ comics,
                       )
                     )}
                     <p className="font-semibold text-white tabular-nums text-sm">
-                      {formatCurrency(comic.currentValue || comic.purchasePrice || 0)}
+                      {formatCurrency(comic.currentValue ?? comic.purchasePrice ?? 0)}
                     </p>
                   </div>
                   {hasGainLoss && (
@@ -125,8 +125,8 @@ export const ComicListView: React.FC<ComicListViewProps> = React.memo(({ comics,
                       {comic.purchasePrice && comic.purchasePrice > 0 && ` (${((gainLoss / comic.purchasePrice) * 100).toFixed(1)}%)`}
                     </p>
                   )}
-                  <p className="text-[10px] sm:text-xs text-slate-500 tabular-nums">
-                    Paid: {formatCurrency(comic.purchasePrice || 0)}
+                  <p className="text-[10px] sm:text-xs text-slate-400 tabular-nums">
+                    Paid: {comic.purchasePrice === undefined ? 'Not recorded' : formatCurrency(comic.purchasePrice)}
                   </p>
                 </div>
               </div>

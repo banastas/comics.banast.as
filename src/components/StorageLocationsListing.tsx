@@ -34,7 +34,7 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
   const storageLocations = Array.from(new Set(allComics.map(comic => comic.storageLocation).filter(Boolean)))
     .map(location => {
       const locationComics = allComics.filter(comic => comic.storageLocation === location);
-      const totalValue = locationComics.reduce((sum, comic) => sum + (comic.currentValue || comic.purchasePrice || 0), 0);
+      const totalValue = locationComics.reduce((sum, comic) => sum + (comic.currentValue ?? comic.purchasePrice ?? 0), 0);
       const slabbedCount = locationComics.filter(comic => comic.isSlabbed).length;
       const rawCount = locationComics.filter(comic => !comic.isSlabbed).length;
       
@@ -86,7 +86,7 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
       {/* Header */}
       <div className="bg-surface-primary shadow-lg border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex flex-col gap-2 py-3 md:flex-row md:items-center md:justify-between md:min-h-16">
             {breadcrumbItems && breadcrumbItems.length > 1 ? (
               <Breadcrumb items={breadcrumbItems} />
             ) : (
@@ -103,7 +103,7 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
               aria-label="Sort virtual boxes"
-              className="bg-surface-secondary border border-slate-700 rounded-lg px-3 py-2 text-sm text-white"
+              className="min-w-0 bg-surface-secondary border border-slate-700 rounded-lg px-3 py-2 text-sm text-white"
             >
               <option value="name">Sort by Name</option>
               <option value="totalValue">Sort by Total Value</option>
@@ -116,10 +116,10 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
         <div className="space-y-8">
           {/* Storage Locations Header */}
-          <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-6">
+          <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-3 sm:p-6">
             <div className="flex items-center space-x-3 mb-6">
               <div className="p-3 bg-orange-500 rounded-lg">
                 <MapPin size={24} className="text-white" />
@@ -133,7 +133,7 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
             </div>
 
             {/* Summary Stats */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-1 min-[400px]:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               <div className="bg-surface-secondary/30 rounded-lg p-4 text-center">
                 <p className="text-2xl font-bold text-white">{storageLocations.length}</p>
                 <p className="text-sm text-slate-400">Virtual Boxes</p>
@@ -164,7 +164,7 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
           </div>
 
           {/* Storage Locations List */}
-          <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-6">
+          <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-3 sm:p-6">
             <h3 className="text-lg font-semibold text-white mb-4">All Virtual Boxes</h3>
             
             {storageLocations.length > 0 ? (
@@ -226,7 +226,7 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
               </div>
             ) : (
               <div className="text-center py-8">
-                <MapPin size={48} className="mx-auto text-slate-500 mb-4" />
+                <MapPin size={48} className="mx-auto text-slate-400 mb-4" />
                 <h3 className="text-lg font-medium text-white mb-2">No Virtual Boxes</h3>
                 <p className="text-slate-400">
                   Add virtual box information to your comics to see them organized here.
@@ -235,7 +235,7 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
             )}
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

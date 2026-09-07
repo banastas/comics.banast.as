@@ -80,7 +80,7 @@
  * search, sorting, filters, or the comic form never leaves the page enlarged.
  * This intentionally does not disable user zoom.
  */
-@media (max-width: 639px) {
+@media (max-width: 767px) {
   input:not([type='checkbox']):not([type='radio']),
   select,
   textarea {

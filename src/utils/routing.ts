@@ -31,6 +31,7 @@ export interface RouteParams {
   tab?: 'collection' | 'stats';
   viewMode?: 'grid' | 'list';
   searchTerm?: string;
+  computedTag?: string | null;
   sortField?: SortField;
   sortDirection?: 'asc' | 'desc';
 }
@@ -48,7 +49,7 @@ const isViewMode = (value: string | null): value is 'grid' | 'list' => {
 
 // Generate URLs for different routes
 export const generateUrl = (route: string, params?: RouteParams): string => {
-  const baseUrl = window.location.origin + window.location.pathname;
+  const baseUrl = window.location.origin;
   
   if (!params) return baseUrl + route;
   
@@ -69,6 +70,8 @@ export const generateUrl = (route: string, params?: RouteParams): string => {
     searchParams.set('search', params.searchTerm);
   }
   
+  if (params.computedTag) searchParams.set('filter', params.computedTag);
+
   // Add sort parameters
   if (params.sortField) {
     searchParams.set('sort', params.sortField);
@@ -101,17 +104,22 @@ export const urls = {
 
 // Parse current URL to extract route and parameters
 export const parseCurrentUrl = (): { route: string; params: RouteParams } => {
-  const hash = window.location.hash.slice(1); // Legacy hash route, without the #.
+  const hash = window.location.hash.startsWith('#/') ? window.location.hash.slice(1) : ''; // Legacy hash route, without the #.
   const routeSource = hash || `${window.location.pathname}${window.location.search}`;
-  const [route, queryString] = routeSource.split('?');
+  const queryStart = routeSource.indexOf('?');
+  const route = queryStart < 0 ? routeSource : routeSource.slice(0, queryStart);
+  const queryString = queryStart < 0 ? '' : routeSource.slice(queryStart + 1);
   const params: RouteParams = {};
   
   if (queryString) {
     const searchParams = new URLSearchParams(queryString);
     
+    if (searchParams.has('filter')) params.computedTag = searchParams.get('filter');
+
     // Parse query parameters
     if (searchParams.has('tab')) {
-      params.tab = searchParams.get('tab') as 'collection' | 'stats';
+      const tab = searchParams.get('tab');
+      if (tab === 'collection' || tab === 'stats') params.tab = tab;
     }
     if (searchParams.has('view')) {
       const view = searchParams.get('view');
@@ -125,7 +133,8 @@ export const parseCurrentUrl = (): { route: string; params: RouteParams } => {
       if (isSortField(sort)) params.sortField = sort;
     }
     if (searchParams.has('order')) {
-      params.sortDirection = searchParams.get('order') as 'asc' | 'desc';
+      const order = searchParams.get('order');
+      if (order === 'asc' || order === 'desc') params.sortDirection = order;
     }
   }
   
@@ -134,6 +143,7 @@ export const parseCurrentUrl = (): { route: string; params: RouteParams } => {
 
 // Parse route to extract parameters
 export const parseRoute = (route: string): { type: string; params: RouteParams } => {
+  try { decodeURIComponent(route); } catch { return { type: 'not-found', params: {} }; }
   const parts = route.split('/').filter(Boolean);
   const params: RouteParams = {};
   
@@ -152,22 +162,22 @@ export const parseRoute = (route: string): { type: string; params: RouteParams }
       break;
     case 'series':
       if (routeParams.length > 0) {
-        params.seriesName = decodeURIComponent(routeParams[0]);
+        params.seriesName = decodeURIComponent(routeParams.join('/'));
       }
       break;
     case 'storage':
       if (routeParams.length > 0) {
-        params.storageLocation = decodeURIComponent(routeParams[0]);
+        params.storageLocation = decodeURIComponent(routeParams.join('/'));
       }
       break;
     case 'artist':
       if (routeParams.length > 0) {
-        params.coverArtist = decodeURIComponent(routeParams[0]);
+        params.coverArtist = decodeURIComponent(routeParams.join('/'));
       }
       break;
     case 'tag':
       if (routeParams.length > 0) {
-        params.tag = decodeURIComponent(routeParams[0]);
+        params.tag = decodeURIComponent(routeParams.join('/'));
       }
       break;
     case 'raw':
@@ -229,7 +239,7 @@ export const createComicSlug = (comic: ComicSlugInput): string => {
 // Helper function to parse comic slug back to search parameters
 export const parseComicSlug = (slug: string): { seriesSlug: string; issueNumber: string; isVariant: boolean; comicId?: string } => {
   const parts = slug.split('-');
-  const isVariant = slug.includes('-variant-');
+  const isVariant = /-variant(?:-|$)/.test(slug);
 
   // Find the "issue" part
   const issueIndex = parts.findIndex(part => part === 'issue');
@@ -247,7 +257,7 @@ export const parseComicSlug = (slug: string): { seriesSlug: string; issueNumber:
   // Extract the numeric ID from the end if it exists
   // The ID will be the last part if it's all digits
   const lastPart = parts[parts.length - 1];
-  const comicId = /^\d+$/.test(lastPart) ? `comic-${lastPart}` : undefined;
+  const comicId = parts.length > issueIndex + 2 && /^\d+$/.test(lastPart) ? `comic-${lastPart}` : undefined;
 
   return {
     seriesSlug,

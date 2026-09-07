@@ -25,8 +25,8 @@ export const ComicListRow: React.FC<ComicListRowProps> = React.memo(({
     tabIndex={0}
     aria-label={`View ${comic.seriesName} issue ${comic.issueNumber}`}
   >
-    <div className="flex items-center justify-between">
-      <div className="flex items-center space-x-4">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex min-w-0 items-center gap-3">
         <div className="w-12 h-16 bg-slate-700 rounded overflow-hidden flex-shrink-0">
           {comic.coverImageUrl ? (
             <img
@@ -40,13 +40,13 @@ export const ComicListRow: React.FC<ComicListRowProps> = React.memo(({
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <Award size={16} className="text-slate-500" />
+              <Award size={16} className="text-slate-400" />
             </div>
           )}
         </div>
 
-        <div>
-          <div className="flex items-center space-x-3">
+        <div className="min-w-0 break-words">
+          <div className="flex flex-wrap items-center gap-2">
             <h4 className="font-bold text-white">{comic.seriesName} #{comic.issueNumber}</h4>
             <div className="flex items-center space-x-1">
               <Star size={12} className="text-amber-400" />
@@ -76,11 +76,11 @@ export const ComicListRow: React.FC<ComicListRowProps> = React.memo(({
         </div>
       </div>
 
-      <div className="text-right">
+      <div className="text-left sm:text-right shrink-0">
         <p className="font-semibold text-white">
-          {formatCurrency(comic.currentValue || comic.purchasePrice || 0)}
+          {formatCurrency(comic.currentValue ?? comic.purchasePrice ?? 0)}
         </p>
-        {comic.currentValue && comic.currentValue !== (comic.purchasePrice || 0) && (
+        {comic.currentValue !== undefined && comic.purchasePrice !== undefined && comic.currentValue !== comic.purchasePrice && (
           <p className={`text-xs ${
             comic.currentValue > (comic.purchasePrice || 0) ? 'text-emerald-400' : 'text-red-400'
           }`}>

@@ -1,3 +1,4 @@
+import { staticRoutePath } from './static-route-path.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { getRouteEntries, createComicSlug, siteOrigin } from './site-routes.mjs';
@@ -5,10 +6,7 @@ import { getRouteEntries, createComicSlug, siteOrigin } from './site-routes.mjs'
 const distDir = path.resolve('dist');
 const { comics, entries } = getRouteEntries();
 
-const routeToFile = (route) => {
-  if (route === '/') return path.join(distDir, 'index.html');
-  return path.join(distDir, ...route.slice(1).split('/'), 'index.html');
-};
+const routeToFile = (route) => staticRoutePath(distDir, route);
 
 const readPage = (route) => fs.readFileSync(routeToFile(route), 'utf8');
 const assert = (condition, message) => {

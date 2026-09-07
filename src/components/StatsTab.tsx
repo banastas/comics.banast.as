@@ -6,7 +6,7 @@ import { Dashboard } from './Dashboard';
 import { GradeDistribution } from './GradeDistribution';
 import type { Comic, ComicStats } from '../types/Comic';
 import type { SeriesCountSummary, SeriesPerformance, StorageLocationSummary } from '../utils/collection-analytics';
-import { formatCurrency } from '../utils/formatting';
+import { formatCurrency, formatDate } from '../utils/formatting';
 import { handleKeyboardActivation } from '../utils/accessibility';
 
 interface StatsTabProps {
@@ -105,7 +105,7 @@ export const StatsTab = ({
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-white text-sm truncate">{comic.seriesName} #{comic.issueNumber}</p>
-                <p className="text-xs text-slate-500">Grade: {comic.grade} &middot; {comic.isSlabbed ? 'Slabbed' : 'Raw'}</p>
+                <p className="text-xs text-slate-400">Grade: {comic.grade} &middot; {comic.isSlabbed ? 'Slabbed' : 'Raw'}</p>
               </div>
               <p className="font-semibold text-white tabular-nums text-sm">{formatCurrency(comic.currentValue || 0)}</p>
             </div>
@@ -134,7 +134,7 @@ export const StatsTab = ({
                   >
                     <div className="min-w-0 flex-1">
                       <p className="font-medium text-white text-sm truncate">{series.name}</p>
-                      <p className="text-xs text-slate-500">{series.countWithValue} of {series.count} valued</p>
+                      <p className="text-xs text-slate-400">{series.countWithKnownReturn} of {series.count} with known costs and values</p>
                     </div>
                     <div className="text-right flex-shrink-0 ml-3">
                       <p className="font-semibold text-white text-sm tabular-nums">
@@ -156,7 +156,7 @@ export const StatsTab = ({
               )}
             </div>
           ) : (
-            <p className="text-slate-500 text-sm">No series performance data available</p>
+            <p className="text-slate-400 text-sm">No series performance data available</p>
           )}
         </div>
       )}
@@ -179,7 +179,7 @@ export const StatsTab = ({
                 >
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-white text-sm truncate">{series.name}</p>
-                    <p className="text-xs text-slate-500">{series.count} comics</p>
+                    <p className="text-xs text-slate-400">{series.count} comics</p>
                   </div>
                   <p className="font-semibold text-white text-sm tabular-nums flex-shrink-0 ml-3">
                     {(series.value || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 })}
@@ -196,7 +196,7 @@ export const StatsTab = ({
             )}
           </div>
         ) : (
-          <p className="text-slate-500 text-sm">No series data available</p>
+          <p className="text-slate-400 text-sm">No series data available</p>
         )}
       </div>
 
@@ -223,8 +223,8 @@ export const StatsTab = ({
                     >
                       {comic.seriesName} #{comic.issueNumber}
                     </p>
-                    <p className="text-xs text-slate-500">
-                      Purchased {new Date(comic.purchaseDate).toLocaleDateString()}
+                    <p className="text-xs text-slate-400">
+                      Purchased {formatDate(comic.purchaseDate)}
                     </p>
                   </div>
                   <div className="text-right flex-shrink-0 ml-3">
@@ -241,7 +241,7 @@ export const StatsTab = ({
               ))}
           </div>
         ) : (
-          <p className="text-slate-500 text-sm">No comics added yet</p>
+          <p className="text-slate-400 text-sm">No comics added yet</p>
         )}
       </div>
 
@@ -263,7 +263,7 @@ export const StatsTab = ({
                 >
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-white text-sm truncate">{location.name}</p>
-                    <p className="text-xs text-slate-500">{location.count} comics</p>
+                    <p className="text-xs text-slate-400">{location.count} comics</p>
                   </div>
                   <p className="font-semibold text-white text-sm tabular-nums flex-shrink-0 ml-3">
                     {formatCurrency(location.value)}
@@ -272,7 +272,7 @@ export const StatsTab = ({
               ))}
           </div>
         ) : (
-          <p className="text-slate-500 text-sm">No virtual boxes specified</p>
+          <p className="text-slate-400 text-sm">No virtual boxes specified</p>
         )}
       </div>
     </div>

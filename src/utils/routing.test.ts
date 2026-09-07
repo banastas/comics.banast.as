@@ -46,3 +46,14 @@ describe('comic routing slugs', () => {
     });
   });
 });
+
+describe('defensive URL state parsing', () => {
+  it('ignores invalid view, tab, sort and direction values', () => {
+    window.history.replaceState(null, '', '/?view=wrong&tab=wrong&sort=wrong&order=wrong');
+    expect(parseCurrentUrl().params).toEqual({});
+  });
+  it('preserves question marks in search queries and ignores ordinary anchors', () => {
+    window.history.replaceState(null, '', '/collection?search=What%20If%3F#main-content');
+    expect(parseCurrentUrl()).toEqual({route: '/collection', params: { searchTerm: 'What If?' }});
+  });
+});

@@ -125,7 +125,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
         <div className="space-y-8">
           {/* Title Section with Cover */}
           <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-4">
@@ -273,17 +273,17 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                       <DollarSign size={16} className="text-green-400 mt-0.5" />
                       <div>
                         <span className="text-sm text-slate-400">Purchased Price</span>
-                        <p className="text-white font-medium text-lg">{formatCurrency(comic.purchasePrice || 0)}</p>
+                        <p className="text-white font-medium text-lg">{comic.purchasePrice === undefined ? 'Not recorded' : formatCurrency(comic.purchasePrice)}</p>
                       </div>
                     </div>
                     
-                    {comic.currentValue && (
+                    {comic.currentValue !== undefined && (
                       <div className="flex items-start space-x-2">
                         <DollarSign size={16} className="text-blue-400 mt-0.5" />
                         <div>
                           <span className="text-sm text-slate-400">Current Value</span>
                           <p className="text-white font-medium text-lg">{formatCurrency(comic.currentValue)}</p>
-                          {comic.currentValue !== comic.purchasePrice && (
+                          {comic.purchasePrice !== undefined && comic.currentValue !== comic.purchasePrice && (
                             <p className={`text-xs font-medium ${
                               comic.currentValue > (comic.purchasePrice || 0) ? 'text-green-400' : 'text-red-400'
                             }`}>
@@ -391,7 +391,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
           </div>
 
             {/* Metadata */}
-            <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-6">
+            <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-3 sm:p-6">
               <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
                 <User size={20} className="mr-2 text-slate-400" />
                 Record Information
@@ -411,7 +411,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
 
             {/* Related Issues */}
             {relatedComics.length > 0 && (
-              <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-6">
+              <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-3 sm:p-6">
                 <h3 
                   className="text-lg font-semibold text-white mb-4 flex items-center hover:text-blue-400 cursor-pointer transition-colors"
                   onClick={() => onViewSeries?.(comic.seriesName)}
@@ -452,7 +452,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">
-                                <Award size={24} className="text-slate-500" />
+                                <Award size={24} className="text-slate-400" />
                               </div>
                             )}
                           </div>
@@ -498,7 +498,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
               </div>
             )}
           </div>
-      </div>
+      </main>
     </div>
   );
 };

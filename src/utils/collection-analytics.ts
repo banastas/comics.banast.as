@@ -4,6 +4,8 @@ export interface SeriesPerformance {
   name: string;
   count: number;
   countWithValue: number;
+  countWithKnownReturn: number;
+  comparableCurrentValue: number;
   purchaseValue: number;
   currentValue: number;
   gainLoss: number;
@@ -37,6 +39,8 @@ export const getSeriesPerformance = (comics: Comic[]): SeriesPerformance[] => {
       name: comic.seriesName,
       count: 0,
       countWithValue: 0,
+      countWithKnownReturn: 0,
+      comparableCurrentValue: 0,
       purchaseValue: 0,
       currentValue: 0,
       gainLoss: 0,
@@ -47,7 +51,11 @@ export const getSeriesPerformance = (comics: Comic[]): SeriesPerformance[] => {
 
     if (comic.currentValue !== undefined) {
       summary.countWithValue += 1;
-      summary.purchaseValue += comic.purchasePrice || 0;
+      if (comic.purchasePrice !== undefined) {
+        summary.purchaseValue += comic.purchasePrice;
+        summary.comparableCurrentValue += comic.currentValue;
+        summary.countWithKnownReturn += 1;
+      }
       summary.currentValue += comic.currentValue;
     }
 
@@ -56,11 +64,11 @@ export const getSeriesPerformance = (comics: Comic[]): SeriesPerformance[] => {
 
   return Array.from(summaries.values())
     .map((summary) => {
-      const gainLoss = summary.currentValue - summary.purchaseValue;
+      const gainLoss = summary.comparableCurrentValue - summary.purchaseValue;
       const gainLossPercentage = summary.purchaseValue > 0 ? (gainLoss / summary.purchaseValue) * 100 : 0;
       return { ...summary, gainLoss, gainLossPercentage };
     })
-    .filter((summary) => summary.countWithValue > 0)
+    .filter((summary) => summary.countWithKnownReturn > 0)
     .sort((a, b) => Math.abs(b.gainLossPercentage) - Math.abs(a.gainLossPercentage));
 };
 
@@ -93,7 +101,7 @@ export const getStorageLocationSummaries = (comics: Comic[]): StorageLocationSum
       value: 0,
     };
     summary.count += 1;
-    summary.value += comic.currentValue || comic.purchasePrice || 0;
+    summary.value += comic.currentValue ?? comic.purchasePrice ?? 0;
     summaries.set(comic.storageLocation, summary);
   });
 

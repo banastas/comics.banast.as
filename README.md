@@ -66,6 +66,7 @@ npm run dev
 | `npm run build` | Typecheck, regenerate the sitemap, build the app, and generate static pages. |
 | `npm run verify:static-pages` | Verify the built routes, metadata, assets, and custom 404. |
 | `npm run preview` | Preview the production build locally. |
+| `npm run verify:http -- <origin>` | Crawl every public route and validate the API against a running Cloudflare preview or deployed site. |
 
 `npm run check` is the authoritative pre-merge and pre-deploy command. It regenerates derived sitemap data before testing, so it also works immediately after a collection sync.
 
@@ -134,7 +135,23 @@ See [SEO.md](SEO.md) for the current rendering contract and [docs/ssr-migration-
 npm run check
 ```
 
+For release QA, start Cloudflare's local Pages runtime with the built assets and Functions, then run the HTTP gate against that preview:
+
+```bash
+npx wrangler pages dev dist --port 5198 --compatibility-date 2026-07-17
+# In a second terminal:
+npm run verify:http -- http://127.0.0.1:5198
+```
+
+The HTTP gate catches asset-path and redirect failures that file-existence checks cannot detect. After an authorized deployment, run it again with `https://comics.banast.as` as the origin.
+
 Deploy `dist/` to Cloudflare Pages with `functions/` available to the Pages project. No application environment variables are required. The checked-in `_headers` file supplies security and cache headers, and `404.html` prevents unknown routes from returning a misleading SPA success response.
+
+## Browsing and statistics
+
+Search, view, sort, and computed-tag filters travel with navigation URLs. Detail lists show 48 comics per page, and list pagination is available above and below the results. Missing purchase prices display as unrecorded; returns and series performance use only comics with both a recorded purchase price and a current value. The dashboard states that coverage explicitly.
+
+The latest full QA findings and verification evidence are in [docs/qa-2026-09-07.md](docs/qa-2026-09-07.md).
 
 ## Contributing and security
 

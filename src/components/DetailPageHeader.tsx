@@ -32,7 +32,7 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
 }) => (
   <div className="bg-surface-primary shadow-lg border-b border-slate-800">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="flex items-center justify-between h-16">
+      <div className="flex flex-col gap-2 py-3 md:flex-row md:items-center md:justify-between md:min-h-16">
         {breadcrumbItems && breadcrumbItems.length > 1 ? (
           <Breadcrumb items={breadcrumbItems} />
         ) : (
@@ -45,8 +45,8 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
           </button>
         )}
 
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2 border border-slate-700 rounded-lg">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex shrink-0 items-center space-x-2 border border-slate-700 rounded-lg">
             <button
               onClick={() => onViewModeChange('grid')}
               className={`p-2 rounded-l-lg transition-colors ${
@@ -73,7 +73,7 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value)}
             aria-label="Sort comics"
-            className="bg-surface-secondary border border-slate-700 rounded-lg px-3 py-2 text-sm text-white"
+            className="min-w-0 flex-1 md:flex-none bg-surface-secondary border border-slate-700 rounded-lg px-3 py-2 text-sm text-white"
           >
             {sortOptions.map(opt => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>

@@ -40,6 +40,9 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
   useEffect(() => {
     if (!isOpen) return;
 
+    const trigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     closeButtonRef.current?.focus();
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -63,7 +66,11 @@ export const MobileControls: React.FC<MobileControlsProps> = ({
     };
 
     document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      if (trigger?.isConnected) trigger.focus();
+    };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;

@@ -45,7 +45,7 @@ export const CollectionHealth: React.FC<CollectionHealthProps> = ({ comics }) =>
   const overallScore = useMemo(() => {
     const totalFilled = metrics.reduce((s, m) => s + m.filled, 0);
     const totalPossible = metrics.reduce((s, m) => s + m.total, 0);
-    return Math.round((totalFilled / totalPossible) * 100);
+    return totalPossible > 0 ? Math.round((totalFilled / totalPossible) * 100) : 0;
   }, [metrics]);
 
   return (
@@ -60,12 +60,12 @@ export const CollectionHealth: React.FC<CollectionHealthProps> = ({ comics }) =>
       </div>
       <div className="space-y-3">
         {metrics.map((metric) => {
-          const pct = Math.round((metric.filled / metric.total) * 100);
+          const pct = metric.total > 0 ? Math.round((metric.filled / metric.total) * 100) : 0;
           return (
             <div key={metric.label}>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs text-slate-400">{metric.label}</span>
-                <span className="text-xs text-slate-500 tabular-nums">
+                <span className="text-xs text-slate-400 tabular-nums">
                   {metric.filled}/{metric.total}
                 </span>
               </div>

@@ -26,6 +26,7 @@ function App() {
   const sortField = useComicStore((s) => s.sortField);
   const sortDirection = useComicStore((s) => s.sortDirection);
   const loading = useComicStore((s) => s.loading);
+  const loadError = useComicStore((s) => s.loadError);
   const addComic = useComicStore((s) => s.addComic);
   const updateComic = useComicStore((s) => s.updateComic);
   const setFilters = useComicStore((s) => s.setFilters);
@@ -55,7 +56,8 @@ function App() {
   const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState<number>(() => {
     if (typeof window === 'undefined') return 48;
-    const stored = window.localStorage.getItem('comics:itemsPerPage');
+    let stored: string | null = null;
+    try { stored = window.localStorage.getItem('comics:itemsPerPage'); } catch { /* Storage can be blocked by browser privacy settings. */ }
     const parsed = stored ? Number.parseInt(stored, 10) : NaN;
     return [48, 96, 192].includes(parsed) ? parsed : 48;
   });
@@ -66,10 +68,11 @@ function App() {
   const [showAllSeriesCount, setShowAllSeriesCount] = useState(false);
 
   // URL routing
-  const { navigateToRoute } = useRouting({
+  const { navigateToRoute, notFound } = useRouting({
     activeTab,
     viewMode,
     searchTerm: filters.searchTerm,
+    activeComputedTag,
     sortField,
     sortDirection,
     setActiveTab,
@@ -155,6 +158,11 @@ function App() {
     setCurrentPage(0);
   }, [filters.searchTerm, filters.seriesName, filters.minGrade, filters.maxGrade, filters.minPrice, filters.maxPrice, filters.isSlabbed, filters.isSigned, sortField, sortDirection, activeComputedTag]);
 
+  const handleComputedTagChange = (tag: string | null) => {
+    navigateToRoute('collection', undefined, { computedTag: tag });
+  };
+  const closeMobileControls = useCallback(() => setShowMobileControls(false), []);
+
   // Pagination
   const totalPages = Math.ceil(filteredComics.length / itemsPerPage);
   const paginatedComics = useMemo(() => {
@@ -164,7 +172,7 @@ function App() {
 
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   }, []);
 
   const handleItemsPerPageChange = useCallback((newItemsPerPage: number) => {
@@ -357,6 +365,25 @@ function App() {
     return <CollectionLoading />;
   }
 
+  if (loadError) {
+    return <main className="min-h-screen bg-surface-base grid place-content-center gap-4 p-6 text-center">
+      <h1 className="text-2xl font-bold text-white">The collection could not be loaded.</h1>
+      <p role="alert" className="text-slate-400">Please reload to try again.</p>
+      <button className="bg-blue-600 text-white rounded-xl px-4 py-3" onClick={() => window.location.reload()}>Reload collection</button>
+    </main>;
+  }
+
+  if (notFound) {
+    return <div className="min-h-screen bg-surface-base grid place-items-center p-6">
+      <SEO title="Page Not Found" description="This page is not in the collection." noindex />
+      <main className="text-center space-y-4">
+        <h1 className="text-2xl font-bold text-white">That page is not in this collection.</h1>
+        <p className="text-slate-400">The link may be outdated. Return to browse the collection.</p>
+        <button className="bg-blue-600 text-white rounded-xl px-4 py-3" onClick={handleBackToCollection}>Return to the collection</button>
+      </main>
+    </div>;
+  }
+
   const hasSelectedRoute = Boolean(
     showVirtualBoxes ||
     selectedComic ||
@@ -413,7 +440,7 @@ function App() {
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14 sm:h-16">
             <a
-              href="https://comics.banast.as"
+              href="/"
               className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-shrink-0 hover:opacity-80 transition-opacity group"
             >
               <div className="p-1.5 sm:p-2 bg-blue-500 rounded-lg shadow-lg group-hover:bg-blue-400 transition-colors">
@@ -421,27 +448,27 @@ function App() {
               </div>
               <div className="min-w-0">
                 <h1 className="text-base sm:text-lg font-bold text-white truncate group-hover:text-blue-200 transition-colors">comics.banast.as</h1>
-                <p className="text-xs text-slate-500 hidden sm:block">{stats.totalComics} comics</p>
+                <p className="text-xs text-slate-400 hidden sm:block">{stats.totalComics} comics</p>
               </div>
             </a>
 
             {/* Desktop Search and Controls */}
             {activeTab === 'collection' && (
-              <div className="hidden sm:flex items-center space-x-2 sm:space-x-4 flex-1 max-w-2xl mx-4">
+              <div className="hidden md:flex items-center space-x-2 sm:space-x-4 flex-1 max-w-2xl mx-4">
                 <div className="relative flex-1 max-w-md">
-                  <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500" />
+                  <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
                   <input
                     type="text"
                     placeholder="Search comics..."
                     value={searchInput}
                     onChange={handleSearchChange}
                     aria-label="Search comics"
-                    className="w-full pl-9 pr-10 py-2 bg-surface-secondary border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500 text-white placeholder-slate-500 text-sm transition-all"
+                    className="w-full pl-9 pr-10 py-2 bg-surface-secondary border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500 text-white placeholder-slate-400 text-sm transition-all"
                   />
                   {searchInput && (
                     <button
                       onClick={clearSearch}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-300 transition-colors"
                       aria-label="Clear search"
                     >
                       <X size={14} />
@@ -456,7 +483,7 @@ function App() {
               {activeTab === 'collection' && (
                 <button
                   onClick={() => setShowMobileSearch(!showMobileSearch)}
-                  className="sm:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-secondary transition-colors"
+                  className="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-secondary transition-colors"
                   aria-label="Search comics"
                   aria-expanded={showMobileSearch}
                 >
@@ -468,7 +495,7 @@ function App() {
               {activeTab === 'collection' && (
                 <button
                   onClick={() => setShowMobileControls(true)}
-                  className="sm:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-secondary transition-colors"
+                  className="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-secondary transition-colors"
                   aria-label="Open view and sort controls"
                 >
                   <SlidersHorizontal size={20} />
@@ -476,7 +503,7 @@ function App() {
               )}
 
               {/* Desktop controls */}
-              <div className="hidden sm:flex items-center space-x-2 flex-shrink-0">
+              <div className="hidden md:flex items-center space-x-2 flex-shrink-0">
                 {activeTab === 'collection' && (
                   <>
                     <div className="flex items-center border border-slate-700 rounded-xl overflow-hidden">
@@ -544,9 +571,9 @@ function App() {
 
         {/* Mobile Search Bar (slides down) */}
         {showMobileSearch && (
-          <div className="sm:hidden px-3 pb-3 animate-slide-down">
+          <div className="md:hidden px-3 pb-3 animate-slide-down">
             <div className="relative">
-              <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500" />
+              <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 placeholder="Search comics..."
@@ -554,7 +581,7 @@ function App() {
                 onChange={handleSearchChange}
                 autoFocus
                 aria-label="Search comics"
-                className="w-full pl-9 pr-10 py-2.5 bg-surface-secondary border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500 text-white placeholder-slate-500 text-sm"
+                className="w-full pl-9 pr-10 py-2.5 bg-surface-secondary border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500 text-white placeholder-slate-400 text-sm"
               />
               <button
                 onClick={() => { clearSearch(); setShowMobileSearch(false); }}
@@ -579,7 +606,7 @@ function App() {
                 className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === 'collection'
                     ? 'border-blue-400 text-blue-400'
-                    : 'border-transparent text-slate-500 hover:text-slate-300 hover:border-slate-600'
+                    : 'border-transparent text-slate-400 hover:text-slate-300 hover:border-slate-600'
                 }`}
                 aria-current={activeTab === 'collection' ? 'page' : undefined}
               >
@@ -596,7 +623,7 @@ function App() {
                 className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === 'stats'
                     ? 'border-blue-400 text-blue-400'
-                    : 'border-transparent text-slate-500 hover:text-slate-300 hover:border-slate-600'
+                    : 'border-transparent text-slate-400 hover:text-slate-300 hover:border-slate-600'
                 }`}
                 aria-current={activeTab === 'stats' ? 'page' : undefined}
               >
@@ -614,7 +641,7 @@ function App() {
       {activeTab === 'collection' && (filters.searchTerm || activeComputedTag) && (
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 pt-3">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-slate-500">Filtered:</span>
+            <span className="text-xs text-slate-400">Filtered:</span>
             {filters.searchTerm && (
               <button
                 onClick={clearSearch}
@@ -626,7 +653,7 @@ function App() {
             )}
             {activeComputedTag && (
               <button
-                onClick={() => setActiveComputedTag(null)}
+                onClick={() => handleComputedTagChange(null)}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-400 text-xs border border-blue-500/20 hover:bg-blue-500/20 transition-colors"
               >
                 Tag: {activeComputedTag}
@@ -635,7 +662,7 @@ function App() {
             )}
             {Number(!!filters.searchTerm) + Number(!!activeComputedTag) >= 2 && (
               <button
-                onClick={() => { clearSearch(); setActiveComputedTag(null); }}
+                onClick={() => { debouncedSetFilters.cancel(); setSearchInput(''); navigateToRoute('collection', undefined, { searchTerm: '', computedTag: null }); }}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-slate-400 text-xs border border-slate-700 hover:border-slate-500 hover:text-white transition-colors"
                 aria-label="Clear all filters"
               >
@@ -669,7 +696,7 @@ function App() {
             onViewSlabbedComics={handleViewSlabbedComics}
             onViewVariants={handleViewVariants}
             onViewVirtualBoxes={handleViewVirtualBoxes}
-            onSetActiveComputedTag={setActiveComputedTag}
+            onSetActiveComputedTag={handleComputedTagChange}
             onPageChange={handlePageChange}
             onItemsPerPageChange={handleItemsPerPageChange}
             onShowForm={() => setShowForm(true)}
@@ -707,7 +734,7 @@ function App() {
       {/* Mobile Controls Bottom Sheet */}
       <MobileControls
         isOpen={showMobileControls}
-        onClose={() => setShowMobileControls(false)}
+        onClose={closeMobileControls}
         viewMode={viewMode}
         onViewModeChange={handleMobileViewModeChange}
         sortField={sortField}

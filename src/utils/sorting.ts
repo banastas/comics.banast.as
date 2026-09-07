@@ -16,8 +16,8 @@ export const sortComics = (comics: Comic[], sortBy: DetailSortField): Comic[] =>
       case 'grade':
         return b.grade - a.grade;
       case 'value': {
-        const aValue = a.currentValue || a.purchasePrice || 0;
-        const bValue = b.currentValue || b.purchasePrice || 0;
+        const aValue = a.currentValue ?? a.purchasePrice ?? 0;
+        const bValue = b.currentValue ?? b.purchasePrice ?? 0;
         return bValue - aValue;
       }
       case 'dateAsc':

@@ -38,6 +38,7 @@ export interface ComicStats {
   totalGainLoss: number;
   totalGainLossPercentage: number;
   comicsWithCurrentValue: number;
+  comicsWithKnownReturn: number;
 }
 
 export type SortField = 'title' | 'seriesName' | 'issueNumber' | 'releaseDate' | 'grade' | 'purchaseDate' | 'purchasePrice' | 'currentValue';

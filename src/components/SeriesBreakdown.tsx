@@ -30,7 +30,7 @@ export const SeriesBreakdown: React.FC<SeriesBreakdownProps> = ({
         {displayed.map(series => {
           const seriesComics = comics.filter(c => c.seriesName === series);
           const seriesValue = seriesComics.reduce(
-            (sum, c) => sum + (c.currentValue || c.purchasePrice || 0), 0
+            (sum, c) => sum + (c.currentValue ?? c.purchasePrice ?? 0), 0
           );
 
           return (

@@ -41,20 +41,20 @@ export const Dashboard: React.FC<DashboardProps> = React.memo(({
 
     return (
       <div className="bg-surface-primary rounded-xl border border-slate-800 p-5 sm:p-8 mb-6">
-        <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-4">Portfolio Overview</p>
+        <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-4">Portfolio Overview</p>
 
         {/* Primary metrics row */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-8 mb-6">
+        <div className="grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 mb-6">
           <div>
             <p className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tabular-nums tracking-tight">
-              {stats.totalCurrentValue > 0
+              {stats.comicsWithCurrentValue > 0
                 ? stats.totalCurrentValue.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 })
                 : formatCurrency(stats.totalPurchaseValue)}
             </p>
             <p className="text-xs sm:text-sm text-slate-400 mt-1">Current Value</p>
           </div>
 
-          {stats.comicsWithCurrentValue > 0 && !isNaN(gainLoss) && (
+          {stats.comicsWithKnownReturn > 0 && !isNaN(gainLoss) && (
             <div>
               <p className={`text-2xl sm:text-3xl lg:text-4xl font-extrabold tabular-nums tracking-tight ${
                 isPositive ? 'text-emerald-400' : 'text-red-400'
@@ -62,7 +62,7 @@ export const Dashboard: React.FC<DashboardProps> = React.memo(({
                 {isPositive ? '+' : ''}{formatCurrency(gainLoss)}
               </p>
               <p className="text-xs sm:text-sm text-slate-400 mt-1">
-                Return{' '}
+                Return on known costs{' '}
                 <span className={`font-medium ${isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
                   ({formatPercentage(gainLossPercent)})
                 </span>
@@ -78,26 +78,30 @@ export const Dashboard: React.FC<DashboardProps> = React.memo(({
           </div>
         </div>
 
+        {stats.comicsWithKnownReturn < stats.totalComics && (
+          <p className="text-xs text-slate-400 mb-4">Returns use {stats.comicsWithKnownReturn} of {stats.totalComics} comics with both purchase price and current value recorded.</p>
+        )}
+
         {/* Secondary metrics row */}
         <div className="flex flex-wrap gap-x-8 gap-y-2 pt-4 border-t border-slate-800">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-500">Invested</span>
+            <span className="text-sm text-slate-400">Invested</span>
             <span className="text-sm text-slate-300 font-medium tabular-nums">{formatCurrency(stats.totalPurchaseValue)}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-500">Avg Grade</span>
+            <span className="text-sm text-slate-400">Avg Grade</span>
             <span className="text-sm text-slate-300 font-medium tabular-nums">{stats.averageGrade.toFixed(1)}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-500">Raw</span>
+            <span className="text-sm text-slate-400">Raw</span>
             <span className="text-sm text-slate-300 font-medium tabular-nums">{stats.rawComics}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-500">Slabbed</span>
+            <span className="text-sm text-slate-400">Slabbed</span>
             <span className="text-sm text-slate-300 font-medium tabular-nums">{stats.slabbedComics}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-500">Variants</span>
+            <span className="text-sm text-slate-400">Variants</span>
             <span className="text-sm text-slate-300 font-medium tabular-nums">{variantsCount}</span>
           </div>
         </div>
@@ -235,7 +239,7 @@ export const Dashboard: React.FC<DashboardProps> = React.memo(({
           {/* Biggest Gainer */}
           {stats.biggestGainer && (
             <div
-              className="bg-gradient-to-br from-emerald-600/90 to-emerald-700/90 rounded-xl p-5 sm:p-6 text-white shadow-card border border-emerald-500/20 cursor-pointer hover:shadow-glow-emerald transition-all"
+              className="bg-gradient-to-br from-emerald-800/90 to-emerald-900/90 rounded-xl p-5 sm:p-6 text-white shadow-card border border-emerald-500/20 cursor-pointer hover:shadow-glow-emerald transition-all"
               onClick={() => onViewComic?.(stats.biggestGainer!)}
               onKeyDown={(event) => handleKeyboardActivation(event, () => onViewComic?.(stats.biggestGainer!))}
               role="button"
@@ -251,13 +255,13 @@ export const Dashboard: React.FC<DashboardProps> = React.memo(({
                   <p className="text-lg sm:text-xl font-bold">
                     {stats.biggestGainer.seriesName} #{stats.biggestGainer.issueNumber}
                   </p>
-                  <p className="text-emerald-200/70 text-sm truncate">{stats.biggestGainer.title}</p>
-                  <p className="text-xs text-emerald-200/50 mt-1">
+                  <p className="text-emerald-100 text-sm truncate">{stats.biggestGainer.title}</p>
+                  <p className="text-xs text-emerald-100 mt-1">
                     Grade: {stats.biggestGainer.grade} &middot; {stats.biggestGainer.isSlabbed ? 'Slabbed' : 'Raw'}
                   </p>
                 </div>
                 <div className="text-left sm:text-right">
-                  <p className="text-xs text-emerald-200/60">
+                  <p className="text-xs text-emerald-100">
                     Paid: {stats.biggestGainer.purchasePrice ? formatCurrency(stats.biggestGainer.purchasePrice) : 'N/A'}
                   </p>
                   <p className="text-xl font-bold tabular-nums">{formatCurrency(stats.biggestGainer.currentValue || 0)}</p>
@@ -276,7 +280,7 @@ export const Dashboard: React.FC<DashboardProps> = React.memo(({
           {/* Biggest Loser */}
           {stats.biggestLoser && (stats.biggestLoser.currentValue || 0) < (stats.biggestLoser.purchasePrice || 0) && (
             <div
-              className="bg-gradient-to-br from-red-600/90 to-red-700/90 rounded-xl p-5 sm:p-6 text-white shadow-card border border-red-500/20 cursor-pointer hover:shadow-card-hover transition-all"
+              className="bg-gradient-to-br from-red-800/90 to-red-900/90 rounded-xl p-5 sm:p-6 text-white shadow-card border border-red-500/20 cursor-pointer hover:shadow-card-hover transition-all"
               onClick={() => onViewComic?.(stats.biggestLoser!)}
               onKeyDown={(event) => handleKeyboardActivation(event, () => onViewComic?.(stats.biggestLoser!))}
               role="button"
@@ -292,13 +296,13 @@ export const Dashboard: React.FC<DashboardProps> = React.memo(({
                   <p className="text-lg sm:text-xl font-bold">
                     {stats.biggestLoser.seriesName} #{stats.biggestLoser.issueNumber}
                   </p>
-                  <p className="text-red-200/70 text-sm truncate">{stats.biggestLoser.title}</p>
-                  <p className="text-xs text-red-200/50 mt-1">
+                  <p className="text-red-100 text-sm truncate">{stats.biggestLoser.title}</p>
+                  <p className="text-xs text-red-100 mt-1">
                     Grade: {stats.biggestLoser.grade} &middot; {stats.biggestLoser.isSlabbed ? 'Slabbed' : 'Raw'}
                   </p>
                 </div>
                 <div className="text-left sm:text-right">
-                  <p className="text-xs text-red-200/60">
+                  <p className="text-xs text-red-100">
                     Paid: {stats.biggestLoser.purchasePrice ? formatCurrency(stats.biggestLoser.purchasePrice) : 'N/A'}
                   </p>
                   <p className="text-xl font-bold tabular-nums">{formatCurrency(stats.biggestLoser.currentValue || 0)}</p>
@@ -317,7 +321,7 @@ export const Dashboard: React.FC<DashboardProps> = React.memo(({
           {/* Most Valuable Slabbed Comic */}
           {stats.highestValuedSlabbedComic && (
             <div
-              className="bg-gradient-to-br from-purple-600/90 to-indigo-700/90 rounded-xl p-5 sm:p-6 text-white shadow-card border border-purple-500/20 cursor-pointer hover:shadow-card-hover transition-all"
+              className="bg-gradient-to-br from-purple-800/90 to-indigo-900/90 rounded-xl p-5 sm:p-6 text-white shadow-card border border-purple-500/20 cursor-pointer hover:shadow-card-hover transition-all"
               onClick={() => onViewComic?.(stats.highestValuedSlabbedComic!)}
               onKeyDown={(event) => handleKeyboardActivation(event, () => onViewComic?.(stats.highestValuedSlabbedComic!))}
               role="button"
@@ -333,10 +337,10 @@ export const Dashboard: React.FC<DashboardProps> = React.memo(({
                   <p className="text-lg sm:text-xl font-bold">
                     {stats.highestValuedSlabbedComic.seriesName} #{stats.highestValuedSlabbedComic.issueNumber}
                   </p>
-                  <p className="text-purple-200/70 text-sm truncate">{stats.highestValuedSlabbedComic.title}</p>
-                  <p className="text-xs text-purple-200/50 mt-1">Grade: {stats.highestValuedSlabbedComic.grade}</p>
+                  <p className="text-purple-100 text-sm truncate">{stats.highestValuedSlabbedComic.title}</p>
+                  <p className="text-xs text-purple-100 mt-1">Grade: {stats.highestValuedSlabbedComic.grade}</p>
                 </div>
-                <p className="text-2xl font-bold tabular-nums">{formatCurrency(stats.highestValuedSlabbedComic.currentValue || stats.highestValuedSlabbedComic.purchasePrice || 0)}</p>
+                <p className="text-2xl font-bold tabular-nums">{formatCurrency(stats.highestValuedSlabbedComic.currentValue ?? stats.highestValuedSlabbedComic.purchasePrice ?? 0)}</p>
               </div>
             </div>
           )}
@@ -344,7 +348,7 @@ export const Dashboard: React.FC<DashboardProps> = React.memo(({
           {/* Most Valuable Raw Comic */}
           {stats.highestValuedRawComic && (
             <div
-              className="bg-gradient-to-br from-blue-600/90 to-cyan-700/90 rounded-xl p-5 sm:p-6 text-white shadow-card border border-blue-500/20 cursor-pointer hover:shadow-card-hover transition-all"
+              className="bg-gradient-to-br from-blue-800/90 to-cyan-900/90 rounded-xl p-5 sm:p-6 text-white shadow-card border border-blue-500/20 cursor-pointer hover:shadow-card-hover transition-all"
               onClick={() => onViewComic?.(stats.highestValuedRawComic!)}
               onKeyDown={(event) => handleKeyboardActivation(event, () => onViewComic?.(stats.highestValuedRawComic!))}
               role="button"
@@ -360,10 +364,10 @@ export const Dashboard: React.FC<DashboardProps> = React.memo(({
                   <p className="text-lg sm:text-xl font-bold">
                     {stats.highestValuedRawComic.seriesName} #{stats.highestValuedRawComic.issueNumber}
                   </p>
-                  <p className="text-blue-200/70 text-sm truncate">{stats.highestValuedRawComic.title}</p>
-                  <p className="text-xs text-blue-200/50 mt-1">Grade: {stats.highestValuedRawComic.grade}</p>
+                  <p className="text-blue-100 text-sm truncate">{stats.highestValuedRawComic.title}</p>
+                  <p className="text-xs text-blue-100 mt-1">Grade: {stats.highestValuedRawComic.grade}</p>
                 </div>
-                <p className="text-2xl font-bold tabular-nums">{formatCurrency(stats.highestValuedRawComic.currentValue || stats.highestValuedRawComic.purchasePrice || 0)}</p>
+                <p className="text-2xl font-bold tabular-nums">{formatCurrency(stats.highestValuedRawComic.currentValue ?? stats.highestValuedRawComic.purchasePrice ?? 0)}</p>
               </div>
             </div>
           )}

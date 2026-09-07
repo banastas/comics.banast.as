@@ -13,7 +13,7 @@ describe('mobile viewport contracts', () => {
 
   it('keeps focusable mobile form controls at Safari-safe text size', () => {
     const css = fs.readFileSync('src/index.css', 'utf8');
-    const mobileRule = css.match(/@media \(max-width: 639px\) \{([\s\S]*?)\n\}/)?.[1] || '';
+    const mobileRule = css.match(/@media \(max-width: 767px\) \{([\s\S]*?)\n\}/)?.[1] || '';
 
     expect(mobileRule).toContain("input:not([type='checkbox']):not([type='radio'])");
     expect(mobileRule).toContain('select');

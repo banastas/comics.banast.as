@@ -67,3 +67,27 @@ describe('calculateComicStats', () => {
     expect(stats.totalGainLossPercentage).toBe(150);
   });
 });
+
+describe('known purchase costs and explicit zero values', () => {
+  it('excludes unknown purchase costs from returns and biggest gains', () => {
+    const stats = calculateComicStats([baseComic, { ...baseComic, id: 'unknown', currentValue: 450, purchasePrice: undefined }]);
+    expect(stats.totalCurrentValue).toBe(475);
+    expect(stats.totalGainLoss).toBe(15);
+    expect(stats.totalGainLossPercentage).toBe(150);
+    expect(stats.comicsWithKnownReturn).toBe(1);
+    expect(stats.biggestGainer?.id).toBe(baseComic.id);
+  });
+  it('does not replace a zero current value with the purchase price', () => {
+    const stats = calculateComicStats([{ ...baseComic, currentValue: 0 }, { ...baseComic, id: 'valued', currentValue: 5, purchasePrice: 1 }]);
+    expect(stats.highestValuedComic?.id).toBe('valued');
+    expect(stats.totalGainLoss).toBe(-6);
+  });
+  it('does not call a loss a biggest gain', () => {
+    expect(calculateComicStats([{ ...baseComic, currentValue: 1 }]).biggestGainer).toBeNull();
+  });
+  it('accepts an explicitly recorded free purchase', () => {
+    const stats = calculateComicStats([{ ...baseComic, purchasePrice: 0 }]);
+    expect(stats.totalGainLoss).toBe(25);
+    expect(stats.comicsWithKnownReturn).toBe(1);
+  });
+});
