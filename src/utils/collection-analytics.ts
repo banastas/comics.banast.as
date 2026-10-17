@@ -15,6 +15,7 @@ export interface SeriesPerformance {
 export interface SeriesCountSummary {
   name: string;
   count: number;
+  /** Sum of recorded current values. */
   value: number;
 }
 
@@ -82,11 +83,11 @@ export const getSeriesCountSummaries = (comics: Comic[]): SeriesCountSummary[] =
       value: 0,
     };
     summary.count += 1;
-    summary.value += comic.purchasePrice || 0;
+    summary.value += comic.currentValue ?? 0;
     summaries.set(comic.seriesName, summary);
   });
 
-  return Array.from(summaries.values()).sort((a, b) => b.count - a.count);
+  return Array.from(summaries.values()).sort((a, b) => b.count - a.count || b.value - a.value || a.name.localeCompare(b.name));
 };
 
 export const getStorageLocationSummaries = (comics: Comic[]): StorageLocationSummary[] => {
@@ -101,7 +102,7 @@ export const getStorageLocationSummaries = (comics: Comic[]): StorageLocationSum
       value: 0,
     };
     summary.count += 1;
-    summary.value += comic.currentValue ?? comic.purchasePrice ?? 0;
+    summary.value += comic.currentValue ?? 0;
     summaries.set(comic.storageLocation, summary);
   });
 

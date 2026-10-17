@@ -52,5 +52,16 @@ export const calculateComicStats = (comics: Comic[]): ComicStats => {
     totalGainLossPercentage,
     comicsWithCurrentValue: comicsWithCurrentValue.length,
     comicsWithKnownReturn: comparableComics.length,
+    knownCostBasis: purchaseValueOfValued,
   };
 };
+
+// Returns are only headlined when at least half of the comics have both a recorded cost and value;
+// otherwise one lucky record (Spawn: 1 of 21 priced) would stand in for the whole set.
+export const MIN_RETURN_COVERAGE = 0.5;
+
+export const hasMeaningfulReturn = (stats: ComicStats): boolean =>
+  stats.comicsWithKnownReturn > 0 &&
+  stats.totalComics > 0 &&
+  stats.comicsWithKnownReturn / stats.totalComics >= MIN_RETURN_COVERAGE &&
+  Number.isFinite(stats.totalGainLoss);

@@ -44,3 +44,14 @@ export const trackEvent = (eventName: string, eventParams?: Record<string, unkno
     window.gtag('event', eventName, eventParams);
   }
 };
+
+// One page_view per distinct URL, sent after the page's own title is in place.
+let lastTrackedLocation: string | null = null;
+
+export const trackPageViewOnce = (location: string, pageTitle: string): void => {
+  if (location === lastTrackedLocation) return;
+  lastTrackedLocation = location;
+  trackPageView(location, pageTitle);
+};
+
+export const resetPageViewTracking = (): void => { lastTrackedLocation = null; };

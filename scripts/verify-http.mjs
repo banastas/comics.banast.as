@@ -16,7 +16,7 @@ await Promise.all(Array.from({ length: 6 }, async () => {
       assert.equal(response.status, 200, `HTTP ${response.status}`);
       const html = await response.text();
       const canonical = html.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
-      assert.equal(canonical, entry.loc.replaceAll('&', '&amp;').replaceAll("'", '&#39;'));
+      assert.equal(canonical, entry.canonical.replaceAll('&', '&amp;').replaceAll("'", '&#39;'));
       assert(html.includes('comics-structured-data'), 'Missing structured data');
     } catch (error) { failures.push(`${entry.route}: ${error.message}`); }
   }

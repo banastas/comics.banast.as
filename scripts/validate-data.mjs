@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { findDataWarnings, formatDataWarnings } from './data-warnings.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -128,5 +129,14 @@ if (!Array.isArray(comics)) {
     fail(errors);
   } else {
     console.log(`Data validation passed: ${comics.length} comics, ${ids.size} unique IDs, ${slugs.size} unique slugs`);
+  }
+
+  // Data quality warnings never change the exit code. Fix them in the source app;
+  // src/data/comics.json is overwritten by the collection sync.
+  try {
+    const records = comics.filter((comic) => comic && typeof comic === 'object' && !Array.isArray(comic));
+    console.log(formatDataWarnings(findDataWarnings(records)));
+  } catch (error) {
+    console.log(`WARNINGS: skipped (${error.message})`);
   }
 }

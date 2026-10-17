@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import type { Comic } from '../types/Comic';
 import { TrendingUp, Layers, Star, User, BarChart3, Archive, type LucideIcon } from 'lucide-react';
+import { formatPercentage, formatWholeCurrency } from '../utils/formatting';
 
 interface CollectorInsightsProps {
   comics: Comic[];
@@ -44,7 +45,7 @@ export const CollectorInsights: React.FC<CollectorInsightsProps> = ({ comics }) 
     if (bestRoiSeries) {
       result.push({
         icon: TrendingUp,
-        text: `Best ROI series: ${bestRoiSeries} at +${bestRoi.toFixed(0)}% return`,
+        text: `Best-performing series with 3+ priced comics: ${bestRoiSeries} (${formatPercentage(bestRoi)})`,
         color: 'text-emerald-400',
       });
     }
@@ -54,7 +55,7 @@ export const CollectorInsights: React.FC<CollectorInsightsProps> = ({ comics }) 
     const variantPct = ((variantCount / comics.length) * 100).toFixed(0);
     result.push({
       icon: Layers,
-      text: `${variantPct}% of your collection (${variantCount}) are variant covers`,
+      text: `${variantPct}% of the collection (${variantCount.toLocaleString('en-US')} comics) are variant covers`,
       color: 'text-orange-400',
     });
 
@@ -67,7 +68,7 @@ export const CollectorInsights: React.FC<CollectorInsightsProps> = ({ comics }) 
       const multiplier = (avgSlabbed / avgRaw).toFixed(0);
       result.push({
         icon: Archive,
-        text: `Slabbed comics average ${multiplier}x more value than raw ($${avgSlabbed.toFixed(0)} vs $${avgRaw.toFixed(0)})`,
+        text: `Slabbed comics are worth ${multiplier}× more than raw on average (${formatWholeCurrency(avgSlabbed)} vs ${formatWholeCurrency(avgRaw)})`,
         color: 'text-purple-400',
       });
     }
@@ -101,7 +102,7 @@ export const CollectorInsights: React.FC<CollectorInsightsProps> = ({ comics }) 
     const highGradePct = ((highGradeCount / comics.length) * 100).toFixed(0);
     result.push({
       icon: Star,
-      text: `${highGradePct}% of your collection is graded 9.4 or higher (avg: ${avgGrade.toFixed(1)})`,
+      text: `${highGradePct}% of the collection is graded 9.4 or higher (average ${avgGrade.toFixed(1)})`,
       color: 'text-amber-400',
     });
 
@@ -110,7 +111,7 @@ export const CollectorInsights: React.FC<CollectorInsightsProps> = ({ comics }) 
     if (noValueCount > 0) {
       result.push({
         icon: BarChart3,
-        text: `${noValueCount} comics have no current value tracked \u2014 consider updating`,
+        text: `${noValueCount} comics don't have a current value yet, so totals may understate the collection`,
         color: 'text-slate-400',
       });
     }
@@ -120,11 +121,11 @@ export const CollectorInsights: React.FC<CollectorInsightsProps> = ({ comics }) 
 
   return (
     <div className="bg-surface-primary rounded-xl border border-slate-800 p-5 sm:p-6">
-      <h3 className="text-base font-semibold text-white mb-4">Collector Insights</h3>
+      <h2 className="text-base font-semibold text-white mb-4">Insights</h2>
       <div className="space-y-3">
         {insights.map((insight, i) => (
           <div key={i} className="flex items-start gap-3">
-            <insight.icon size={16} className={`${insight.color} flex-shrink-0 mt-0.5`} />
+            <insight.icon size={16} className={`${insight.color} flex-shrink-0 mt-0.5`} aria-hidden="true" />
             <p className="text-sm text-slate-300 leading-relaxed">{insight.text}</p>
           </div>
         ))}

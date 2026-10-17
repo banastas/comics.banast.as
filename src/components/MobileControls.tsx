@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Grid, List, SortAsc, SortDesc, X } from 'lucide-react';
-import { SortField } from '../types/Comic';
+import type { SortField } from '../types/Comic';
+import { sortFieldOptions as sortOptions } from '../utils/sort-options';
 
 interface MobileControlsProps {
   isOpen: boolean;
@@ -13,16 +14,6 @@ interface MobileControlsProps {
   onSortDirectionChange: () => void;
 }
 
-const sortOptions: { value: SortField; label: string }[] = [
-  { value: 'releaseDate', label: 'Release Date' },
-  { value: 'title', label: 'Title' },
-  { value: 'seriesName', label: 'Series' },
-  { value: 'issueNumber', label: 'Issue #' },
-  { value: 'grade', label: 'Grade' },
-  { value: 'purchasePrice', label: 'Purchase Price' },
-  { value: 'currentValue', label: 'Current Value' },
-  { value: 'purchaseDate', label: 'Purchase Date' },
-];
 
 export const MobileControls: React.FC<MobileControlsProps> = ({
   isOpen,

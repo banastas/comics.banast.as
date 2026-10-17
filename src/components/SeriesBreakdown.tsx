@@ -1,13 +1,12 @@
 import React from 'react';
-import { Comic } from '../types/Comic';
-import { formatCurrency } from '../utils/formatting';
-import { handleKeyboardActivation } from '../utils/accessibility';
+import type { Comic } from '../types/Comic';
+import { formatWholeCurrency } from '../utils/formatting';
+import { SiteLink } from './SiteLink';
 
 interface SeriesBreakdownProps {
   comics: Comic[];
   title: string;
   maxItems?: number;
-  onViewSeries?: (seriesName: string) => void;
   itemLabel?: string;
 }
 
@@ -15,43 +14,40 @@ export const SeriesBreakdown: React.FC<SeriesBreakdownProps> = ({
   comics,
   title,
   maxItems,
-  onViewSeries,
   itemLabel = 'issue',
 }) => {
-  const uniqueSeries = Array.from(new Set(comics.map(c => c.seriesName))).sort();
-  if (uniqueSeries.length === 0) return null;
+  const series = Array.from(
+    comics.reduce((map, comic) => {
+      const entry = map.get(comic.seriesName) ?? { count: 0, value: 0 };
+      entry.count += 1;
+      entry.value += comic.currentValue ?? 0;
+      return map.set(comic.seriesName, entry);
+    }, new Map<string, { count: number; value: number }>())
+  ).sort(([a, x], [b, y]) => y.count - x.count || a.localeCompare(b));
+  if (series.length === 0) return null;
 
-  const displayed = maxItems ? uniqueSeries.slice(0, maxItems) : uniqueSeries;
+  const displayed = maxItems ? series.slice(0, maxItems) : series;
 
   return (
-    <div className="mt-6">
-      <h3 className="text-lg font-semibold text-white mb-3">{title}</h3>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-        {displayed.map(series => {
-          const seriesComics = comics.filter(c => c.seriesName === series);
-          const seriesValue = seriesComics.reduce(
-            (sum, c) => sum + (c.currentValue ?? c.purchasePrice ?? 0), 0
-          );
-
-          return (
-            <div
-              key={series}
-              className="bg-surface-secondary/30 rounded-lg p-3 border border-slate-700 cursor-pointer hover:border-blue-500 transition-colors"
-              onClick={() => onViewSeries?.(series)}
-              onKeyDown={(event) => handleKeyboardActivation(event, () => onViewSeries?.(series))}
-              role="button"
-              tabIndex={0}
-              aria-label={`View ${series} series`}
+    <div>
+      <h3 className="mb-3 text-base font-semibold text-white">
+        {title}
+        {maxItems && series.length > maxItems && <span className="ml-2 text-sm font-normal text-slate-400">(top {maxItems} of {series.length})</span>}
+      </h3>
+      <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+        {displayed.map(([name, { count, value }]) => (
+          <li key={name}>
+            <SiteLink
+              to={{ type: 'series', name }}
+              className="block h-full rounded-lg border border-slate-700 bg-surface-secondary/40 p-3 transition-colors hover:border-blue-400"
             >
-              <p className="font-medium text-white text-sm truncate">{series}</p>
-              <p className="text-xs text-slate-400">
-                {seriesComics.length} {itemLabel}{seriesComics.length !== 1 ? 's' : ''}
-              </p>
-              <p className="text-xs text-green-400">{formatCurrency(seriesValue)}</p>
-            </div>
-          );
-        })}
-      </div>
+              <span className="block truncate text-sm font-medium text-white">{name}</span>
+              <span className="block text-xs text-slate-400">{count} {itemLabel}{count !== 1 ? 's' : ''}</span>
+              <span className="block text-xs text-emerald-300">{value > 0 ? `${formatWholeCurrency(value)} value` : 'No value recorded'}</span>
+            </SiteLink>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

@@ -15,11 +15,11 @@ it('paginates long detail lists and resets to the first page after sorting', asy
   window.history.replaceState(null,'','/raw');
   root=createRoot(document.getElementById('test')!);
   await act(async()=>root.render(<DetailPageLayout comics={(data as Comic[]).slice(0,60)} onBack={()=>{}} onView={()=>{}} icon={null} iconBgColor="" title="Raw" subtitle="60 comics" comicsListTitle="Comics"/>));
-  expect(document.querySelector('[role="status"]')?.textContent).toBe('Showing 1 to 48 of 60');
+  expect(document.querySelector('[role="status"]')?.textContent).toBe('Showing 1–48 of 60');
   const next=[...document.querySelectorAll('button')].find(b=>b.textContent?.trim()==='Next')!;
   await act(async()=>next.click());
-  expect(document.querySelector('[role="status"]')?.textContent).toBe('Showing 49 to 60 of 60');
+  expect(document.querySelector('[role="status"]')?.textContent).toBe('Showing 49–60 of 60');
   const select=document.querySelector('select')!;
   await act(async()=>{select.value='grade';select.dispatchEvent(new Event('change',{bubbles:true}));});
-  expect(document.querySelector('[role="status"]')?.textContent).toBe('Showing 1 to 48 of 60');
+  expect(document.querySelector('[role="status"]')?.textContent).toBe('Showing 1–48 of 60');
 });

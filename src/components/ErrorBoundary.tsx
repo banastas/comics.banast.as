@@ -85,7 +85,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
       // Default error UI
       return (
-        <div className="min-h-screen bg-surface-base flex items-center justify-center p-4">
+        <div className="flex flex-1 items-center justify-center bg-surface-base p-4 py-16">
           <div className="max-w-md w-full bg-surface-primary rounded-lg shadow-xl p-6">
             <div className="text-center">
               <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">

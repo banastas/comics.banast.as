@@ -30,7 +30,7 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
   sortOptions = defaultSortOptions,
   breadcrumbItems,
 }) => (
-  <div className="bg-surface-primary shadow-lg border-b border-slate-800">
+  <div className="border-b border-slate-800 bg-surface-primary/60">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-2 py-3 md:flex-row md:items-center md:justify-between md:min-h-16">
         {breadcrumbItems && breadcrumbItems.length > 1 ? (
@@ -46,11 +46,11 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
         )}
 
         <div className="flex items-center gap-3 min-w-0">
-          <div className="flex shrink-0 items-center space-x-2 border border-slate-700 rounded-lg">
+          <div className="flex shrink-0 items-center border border-slate-700 rounded-lg" role="group" aria-label="Layout">
             <button
               onClick={() => onViewModeChange('grid')}
               className={`p-2 rounded-l-lg transition-colors ${
-                viewMode === 'grid' ? 'bg-blue-500 text-white' : 'text-slate-300 hover:text-white'
+                viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:text-white'
               }`}
               aria-label="Grid view"
               aria-pressed={viewMode === 'grid'}
@@ -60,7 +60,7 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
             <button
               onClick={() => onViewModeChange('list')}
               className={`p-2 rounded-r-lg transition-colors ${
-                viewMode === 'list' ? 'bg-blue-500 text-white' : 'text-slate-300 hover:text-white'
+                viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:text-white'
               }`}
               aria-label="List view"
               aria-pressed={viewMode === 'list'}

@@ -1,15 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Comic } from '../types/Comic';
-import {
-  ArrowLeft,
-  MapPin,
-  Archive,
-} from 'lucide-react';
-import { Breadcrumb, BreadcrumbItem } from './Breadcrumb';
+import React, { useMemo, useState } from 'react';
+import { Archive, MapPin } from 'lucide-react';
+import type { Comic } from '../types/Comic';
+import { Breadcrumb, type BreadcrumbItem } from './Breadcrumb';
 import { SEO } from './SEO';
-import { formatCurrency } from '../utils/formatting';
+import { formatCurrency, formatWholeCurrency } from '../utils/formatting';
 import { generateCollectionPageStructuredData } from '../utils/structured-data';
-import { handleKeyboardActivation } from '../utils/accessibility';
+import { useScrollToTop } from '../hooks/useScrollToTop';
+import { SiteLink } from './SiteLink';
 
 interface StorageLocationsListingProps {
   allComics: Comic[];
@@ -18,62 +15,52 @@ interface StorageLocationsListingProps {
   breadcrumbItems?: BreadcrumbItem[];
 }
 
-export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = ({
-  allComics,
-  onBack,
-  onViewStorageLocation,
-  breadcrumbItems,
-}) => {
-  const [sortBy, setSortBy] = useState<'name' | 'totalValue' | 'avgValue' | 'grade' | 'count'>('name');
+type BoxSort = 'name' | 'totalValue' | 'avgValue' | 'grade' | 'count';
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = ({ allComics, breadcrumbItems }) => {
+  const [sortBy, setSortBy] = useState<BoxSort>('name');
+  useScrollToTop();
 
-  // Get unique storage locations with statistics
-  const storageLocations = Array.from(new Set(allComics.map(comic => comic.storageLocation).filter(Boolean)))
-    .map(location => {
-      const locationComics = allComics.filter(comic => comic.storageLocation === location);
-      const totalValue = locationComics.reduce((sum, comic) => sum + (comic.currentValue ?? comic.purchasePrice ?? 0), 0);
-      const slabbedCount = locationComics.filter(comic => comic.isSlabbed).length;
-      const rawCount = locationComics.filter(comic => !comic.isSlabbed).length;
-      
+  const storageLocations = useMemo(() => {
+    const byBox = new Map<string, Comic[]>();
+    allComics.forEach((comic) => {
+      if (!comic.storageLocation) return;
+      byBox.set(comic.storageLocation, [...(byBox.get(comic.storageLocation) ?? []), comic]);
+    });
+    return Array.from(byBox, ([name, comics]) => {
+      const valued = comics.filter((comic) => comic.currentValue !== undefined);
+      const totalValue = valued.reduce((sum, comic) => sum + (comic.currentValue ?? 0), 0);
       return {
-        name: location,
-        count: locationComics.length,
+        name,
+        count: comics.length,
         totalValue,
-        slabbedCount,
-        rawCount,
-        averageGrade: locationComics.length > 0 
-          ? locationComics.reduce((sum, comic) => sum + comic.grade, 0) / locationComics.length 
-          : 0
+        averageValue: valued.length > 0 ? totalValue / valued.length : 0,
+        slabbedCount: comics.filter((comic) => comic.isSlabbed).length,
+        rawCount: comics.filter((comic) => !comic.isSlabbed).length,
+        averageGrade: comics.reduce((sum, comic) => sum + comic.grade, 0) / comics.length,
       };
-    })
-    .sort((a, b) => {
+    }).sort((a, b) => {
       switch (sortBy) {
-        case 'name':
-          return a.name.localeCompare(b.name);
-        case 'totalValue':
-          return b.totalValue - a.totalValue;
-        case 'avgValue': {
-          const aAvg = a.count > 0 ? a.totalValue / a.count : 0;
-          const bAvg = b.count > 0 ? b.totalValue / b.count : 0;
-          return bAvg - aAvg;
-        }
-        case 'grade':
-          return b.averageGrade - a.averageGrade;
-        case 'count':
-          return b.count - a.count;
-        default:
-          return a.name.localeCompare(b.name);
+        case 'totalValue': return b.totalValue - a.totalValue;
+        case 'avgValue': return b.averageValue - a.averageValue;
+        case 'grade': return b.averageGrade - a.averageGrade;
+        case 'count': return b.count - a.count;
+        default: return a.name.localeCompare(b.name, 'en', { numeric: true });
       }
     });
+  }, [allComics, sortBy]);
+
+  const boxedComics = storageLocations.reduce((sum, loc) => sum + loc.count, 0);
+  const totalValue = storageLocations.reduce((sum, loc) => sum + loc.totalValue, 0);
+  const averageGrade = boxedComics > 0
+    ? storageLocations.reduce((sum, loc) => sum + loc.averageGrade * loc.count, 0) / boxedComics
+    : 0;
 
   return (
-    <div className="min-h-screen bg-surface-base">
+    <main id="main-content" className="flex-1">
       <SEO
         title="Virtual Boxes"
-        description={`Browse ${storageLocations.length} virtual boxes organizing your comic collection.`}
+        description={`Browse ${storageLocations.length} virtual boxes in the collection.`}
         keywords="virtual boxes, comic storage, comic collection organization"
         url="https://comics.banast.as/boxes"
         canonical="https://comics.banast.as/boxes"
@@ -83,159 +70,88 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
           comics: allComics,
         })}
       />
-      {/* Header */}
-      <div className="bg-surface-primary shadow-lg border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-2 py-3 md:flex-row md:items-center md:justify-between md:min-h-16">
-            {breadcrumbItems && breadcrumbItems.length > 1 ? (
-              <Breadcrumb items={breadcrumbItems} />
-            ) : (
-              <button
-                onClick={onBack}
-                className="flex items-center space-x-2 text-slate-300 hover:text-white transition-colors"
-              >
-                <ArrowLeft size={20} />
-                <span>Back to Collection</span>
-              </button>
-            )}
 
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-              aria-label="Sort virtual boxes"
-              className="min-w-0 bg-surface-secondary border border-slate-700 rounded-lg px-3 py-2 text-sm text-white"
-            >
-              <option value="name">Sort by Name</option>
-              <option value="totalValue">Sort by Total Value</option>
-              <option value="avgValue">Sort by Average Value</option>
-              <option value="grade">Sort by Average Grade</option>
-              <option value="count">Sort by Comic Count</option>
-            </select>
-          </div>
+      <div className="border-b border-slate-800 bg-surface-primary/60">
+        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-3 sm:px-6 md:min-h-16 md:flex-row md:items-center md:justify-between lg:px-8">
+          {breadcrumbItems && <Breadcrumb items={breadcrumbItems} />}
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as BoxSort)}
+            aria-label="Sort virtual boxes"
+            className="min-w-0 rounded-lg border border-slate-700 bg-surface-secondary px-3 py-2 text-sm text-white"
+          >
+            <option value="name">Sort by Name</option>
+            <option value="totalValue">Sort by Total Value</option>
+            <option value="avgValue">Sort by Average Value</option>
+            <option value="grade">Sort by Average Grade</option>
+            <option value="count">Sort by Comic Count</option>
+          </select>
         </div>
       </div>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
-        <div className="space-y-8">
-          {/* Storage Locations Header */}
-          <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-3 sm:p-6">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="p-3 bg-orange-500 rounded-lg">
-                <MapPin size={24} className="text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-white mb-2">Virtual Boxes</h1>
-                <p className="text-slate-300">
-                  {storageLocations.length} virtual box{storageLocations.length !== 1 ? 'es' : ''} in your collection
-                </p>
-              </div>
-            </div>
-
-            {/* Summary Stats */}
-            <div className="grid grid-cols-1 min-[400px]:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <div className="bg-surface-secondary/30 rounded-lg p-4 text-center">
-                <p className="text-2xl font-bold text-white">{storageLocations.length}</p>
-                <p className="text-sm text-slate-400">Virtual Boxes</p>
-              </div>
-              <div className="bg-surface-secondary/30 rounded-lg p-4 text-center">
-                <p className="text-2xl font-bold text-white">
-                  {storageLocations.reduce((sum, loc) => sum + loc.count, 0)}
-                </p>
-                <p className="text-sm text-slate-400">Total Comics</p>
-              </div>
-              <div className="bg-surface-secondary/30 rounded-lg p-4 text-center">
-                <p className="text-2xl font-bold text-white">
-                  {formatCurrency(storageLocations.reduce((sum, loc) => sum + loc.totalValue, 0))}
-                </p>
-                <p className="text-sm text-slate-400">Total Value</p>
-              </div>
-              <div className="bg-surface-secondary/30 rounded-lg p-4 text-center">
-                <p className="text-2xl font-bold text-white">
-                  {storageLocations.length > 0 
-                    ? (storageLocations.reduce((sum, loc) => sum + (loc.averageGrade * loc.count), 0) / 
-                       storageLocations.reduce((sum, loc) => sum + loc.count, 0)).toFixed(1)
-                    : '0.0'
-                  }
-                </p>
-                <p className="text-sm text-slate-400">Avg Grade</p>
-              </div>
+      <div className="mx-auto max-w-7xl space-y-6 px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
+        <section className="rounded-xl border border-slate-800 bg-surface-primary p-4 sm:p-6">
+          <div className="mb-5 flex items-center gap-3">
+            <div className="rounded-lg bg-orange-600 p-3" aria-hidden="true"><MapPin size={24} className="text-white" /></div>
+            <div>
+              <h1 className="text-2xl font-bold text-white sm:text-3xl">Virtual Boxes</h1>
+              <p className="mt-1 text-slate-300">Where each comic is stored, box by box.</p>
             </div>
           </div>
+          <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:flex sm:flex-wrap sm:gap-x-10">
+            {[
+              ['Boxes', storageLocations.length.toLocaleString('en-US')],
+              ['Comics', boxedComics.toLocaleString('en-US')],
+              ['Current value', formatWholeCurrency(totalValue)],
+              ['Avg grade', averageGrade.toFixed(1)],
+            ].map(([label, value]) => (
+              <div key={label}>
+                <dt className="text-xs uppercase tracking-wide text-slate-400">{label}</dt>
+                <dd className="text-lg font-bold tabular-nums text-white">{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
 
-          {/* Storage Locations List */}
-          <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-3 sm:p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">All Virtual Boxes</h3>
-            
-            {storageLocations.length > 0 ? (
-              <div className="space-y-3">
-                {storageLocations.map((location) => (
-                  <div
-                    key={location.name}
-                    className="bg-surface-secondary/50 rounded-lg border border-slate-700 p-4 hover:border-orange-500 transition-all cursor-pointer group"
-                    onClick={() => onViewStorageLocation(location.name)}
-                    onKeyDown={(event) => handleKeyboardActivation(event, () => onViewStorageLocation(location.name))}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`View virtual box ${location.name}`}
+        <section aria-labelledby="boxes-heading" className="rounded-xl border border-slate-800 bg-surface-primary p-3 sm:p-6">
+          <h2 id="boxes-heading" className="mb-4 text-lg font-semibold text-white">All boxes</h2>
+          {storageLocations.length > 0 ? (
+            <ul className="space-y-3">
+              {storageLocations.map((location) => (
+                <li key={location.name}>
+                  <SiteLink
+                    to={{ type: 'storage', name: location.name }}
+                    className="group flex flex-col gap-3 rounded-lg border border-slate-700 bg-surface-secondary/40 p-4 transition-colors hover:border-orange-400 sm:flex-row sm:items-center sm:justify-between"
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-                      <div className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
-                        <div className="p-3 bg-orange-500/20 rounded-lg border border-orange-500/30">
-                          <MapPin size={20} className="text-orange-400" />
-                        </div>
-                        
-                        <div className="min-w-0 flex-1">
-                          <h4 className="font-bold text-white text-lg group-hover:text-orange-400 transition-colors">
-                            {location.name}
-                          </h4>
-                          <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-slate-400 mt-1">
-                            <span>{location.count} comics</span>
-                            <span className="hidden sm:inline">•</span>
-                            <span>Avg Grade: {location.averageGrade.toFixed(1)}</span>
-                            {location.slabbedCount > 0 && (
-                              <>
-                                <span className="hidden sm:inline">•</span>
-                                <div className="flex items-center space-x-1">
-                                  <Archive size={12} className="text-purple-400" />
-                                  <span>{location.slabbedCount} slabbed</span>
-                                </div>
-                              </>
-                            )}
-                            {location.rawCount > 0 && (
-                              <>
-                                <span className="hidden sm:inline">•</span>
-                                <span>{location.rawCount} raw</span>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="text-left sm:text-right flex-shrink-0">
-                        <p className="text-xl font-bold text-white">
-                          {formatCurrency(location.totalValue)}
-                        </p>
-                        <p className="text-sm text-slate-400">
-                          {formatCurrency(location.count > 0 ? location.totalValue / location.count : 0)} avg
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <MapPin size={48} className="mx-auto text-slate-400 mb-4" />
-                <h3 className="text-lg font-medium text-white mb-2">No Virtual Boxes</h3>
-                <p className="text-slate-400">
-                  Add virtual box information to your comics to see them organized here.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </main>
-    </div>
+                    <span className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
+                      <span className="rounded-lg border border-orange-500/30 bg-orange-500/15 p-3" aria-hidden="true">
+                        <MapPin size={20} className="text-orange-300" />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-lg font-bold text-white transition-colors group-hover:text-orange-200">{location.name}</span>
+                        <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-400">
+                          <span>{location.count} comics</span>
+                          <span>Avg grade {location.averageGrade.toFixed(1)}</span>
+                          {location.slabbedCount > 0 && (
+                            <span className="flex items-center gap-1"><Archive size={12} className="text-purple-300" aria-hidden="true" />{location.slabbedCount} slabbed</span>
+                          )}
+                          {location.rawCount > 0 && <span>{location.rawCount} raw</span>}
+                        </span>
+                      </span>
+                    </span>
+                    <span className="flex-shrink-0 text-left sm:text-right">
+                      <span className="block text-xl font-bold tabular-nums text-white">{formatCurrency(location.totalValue)}</span>
+                      <span className="block text-sm text-slate-400">{formatCurrency(location.averageValue)} avg</span>
+                    </span>
+                  </SiteLink>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="py-8 text-center text-slate-400">No comics have a storage box recorded yet.</p>
+          )}
+        </section>
+      </div>
+    </main>
   );
 };
