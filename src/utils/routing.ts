@@ -34,7 +34,25 @@ export interface RouteParams {
   computedTag?: string | null;
   sortField?: SortField;
   sortDirection?: 'asc' | 'desc';
+  /** Zero-based collection page. Written to the URL as a one-based `page` parameter. */
+  page?: number;
 }
+
+export const DEFAULT_VIEW_MODE = 'grid';
+export const DEFAULT_SORT_FIELD: SortField = 'releaseDate';
+export const DEFAULT_SORT_DIRECTION = 'desc';
+
+// Only non-default state is written, so a plain visit reads "/" and shared links stay short.
+export const buildQueryString = (params: RouteParams): string => {
+  const searchParams = new URLSearchParams();
+  if (params.viewMode && params.viewMode !== DEFAULT_VIEW_MODE) searchParams.set('view', params.viewMode);
+  if (params.searchTerm) searchParams.set('search', params.searchTerm);
+  if (params.computedTag) searchParams.set('filter', params.computedTag);
+  if (params.sortField && params.sortField !== DEFAULT_SORT_FIELD) searchParams.set('sort', params.sortField);
+  if (params.sortDirection && params.sortDirection !== DEFAULT_SORT_DIRECTION) searchParams.set('order', params.sortDirection);
+  if (params.page && params.page > 0) searchParams.set('page', String(params.page + 1));
+  return searchParams.toString();
+};
 
 const sortFields = ['title', 'seriesName', 'issueNumber', 'releaseDate', 'grade', 'purchaseDate', 'purchasePrice', 'currentValue'] as const;
 const viewModes = ['grid', 'list'] as const;
@@ -49,41 +67,8 @@ const isViewMode = (value: string | null): value is 'grid' | 'list' => {
 
 // Generate URLs for different routes
 export const generateUrl = (route: string, params?: RouteParams): string => {
-  const baseUrl = window.location.origin;
-  
-  if (!params) return baseUrl + route;
-  
-  const searchParams = new URLSearchParams();
-  
-  // Add tab parameter
-  if (params.tab) {
-    searchParams.set('tab', params.tab);
-  }
-  
-  // Add view mode
-  if (params.viewMode) {
-    searchParams.set('view', params.viewMode);
-  }
-  
-  // Add search term
-  if (params.searchTerm) {
-    searchParams.set('search', params.searchTerm);
-  }
-  
-  if (params.computedTag) searchParams.set('filter', params.computedTag);
-
-  // Add sort parameters
-  if (params.sortField) {
-    searchParams.set('sort', params.sortField);
-  }
-  if (params.sortDirection) {
-    searchParams.set('order', params.sortDirection);
-  }
-  
-  const queryString = searchParams.toString();
-  const fullRoute = route + (queryString ? `?${queryString}` : '');
-  
-  return baseUrl + fullRoute;
+  const queryString = params ? buildQueryString(params) : '';
+  return `${window.location.origin}${route}${queryString ? `?${queryString}` : ''}`;
 };
 
 // Generate specific route URLs
@@ -135,6 +120,10 @@ export const parseCurrentUrl = (): { route: string; params: RouteParams } => {
     if (searchParams.has('order')) {
       const order = searchParams.get('order');
       if (order === 'asc' || order === 'desc') params.sortDirection = order;
+    }
+    if (searchParams.has('page')) {
+      const page = Number(searchParams.get('page'));
+      if (Number.isInteger(page) && page > 1) params.page = page - 1;
     }
   }
   

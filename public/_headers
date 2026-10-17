@@ -1,10 +1,56 @@
+# Static asset headers. Pages Functions (functions/api/*) do not receive these
+# rules; their security and cache headers are set in functions/_shared/http.ts.
+#
+# Content-Security-Policy notes (keep in sync with index.html):
+# - script-src hashes cover the two static inline scripts in index.html (the
+#   legacy hash-route bridge and the gtag bootstrap) plus, via 'unsafe-hashes',
+#   the font preload onload handler. Any byte change to those snippets changes
+#   the hash: rebuild and recompute from dist/index.html.
+# - style-src needs 'unsafe-inline' for the style attributes in generated
+#   preview HTML and the <style> block in 404.html.
+# - Google Analytics 4 hosts follow Google's published CSP guidance.
 /*
-  Content-Security-Policy: base-uri 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-Ckj/M0M0nOvt1Yk/1BCFRUIeNan/EyuPWrSy7Xctvdw=' 'sha256-6ghGcPDNgBx9gi62KioiP25r5kyv8CcNfbADPpH46aY=' 'unsafe-hashes' 'sha256-1jAmyYXcRq6zFldLe/GCgIDJBiOONdXjTLgEFMDnDSM=' https://*.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://covers.banast.as https://*.google-analytics.com https://*.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; manifest-src 'self'; worker-src 'self'; frame-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests
+  Cross-Origin-Opener-Policy: same-origin
   Permissions-Policy: camera=(), geolocation=(), microphone=(), payment=(), usb=()
   Referrer-Policy: strict-origin-when-cross-origin
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
 
+# Fingerprinted build output never changes at a given URL.
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Crawler files change on deploy; keep them short-lived. HTML keeps the
+# Cloudflare Pages default (revalidate on every request).
+/sitemap.xml
+  Cache-Control: public, max-age=3600
+
+/robots.txt
+  Cache-Control: public, max-age=3600
+
+# Unhashed icons, manifest, and social image: cache for a day.
+/manifest.json
+  Cache-Control: public, max-age=86400
+
+/favicon.svg
+  Cache-Control: public, max-age=86400
+
+/favicon-16x16.png
+  Cache-Control: public, max-age=86400
+
+/favicon-32x32.png
+  Cache-Control: public, max-age=86400
+
+/apple-touch-icon.png
+  Cache-Control: public, max-age=86400
+
+/icon-192.png
+  Cache-Control: public, max-age=86400
+
+/icon-512.png
+  Cache-Control: public, max-age=86400
+
+/og-image.jpg
+  Cache-Control: public, max-age=86400

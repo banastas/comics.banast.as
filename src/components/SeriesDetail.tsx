@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { Comic } from '../types/Comic';
 import { SEO } from './SEO';
 import { generateSeriesStructuredData } from '../utils/structured-data';
 import { DetailPageLayout } from './DetailPageLayout';
 import { calculateComicStats } from '../utils/stats';
-import { BreadcrumbItem } from './Breadcrumb';
+import type { BreadcrumbItem } from './Breadcrumb';
+import { absoluteUrl, seriesPath } from '../utils/paths';
+import { plural } from './detailText';
 
 interface SeriesDetailProps {
   seriesName: string;
@@ -32,7 +34,9 @@ export const SeriesDetail: React.FC<SeriesDetailProps> = React.memo(({
   const issueNumbers = seriesComics.map(comic => comic.issueNumber).sort((a, b) => a - b);
   const lowestIssue = issueNumbers[0];
   const highestIssue = issueNumbers[issueNumbers.length - 1];
-  const stats = calculateComicStats(seriesComics);
+  const hasRange = seriesComics.length > 1 && lowestIssue !== highestIssue;
+  const stats = useMemo(() => calculateComicStats(seriesComics), [seriesComics]);
+  const url = absoluteUrl(seriesPath(seriesName));
 
   return (
     <DetailPageLayout
@@ -45,32 +49,30 @@ export const SeriesDetail: React.FC<SeriesDetailProps> = React.memo(({
       title={seriesName}
       subtitle={
         <>
-          {seriesComics.length} issue{seriesComics.length !== 1 ? 's' : ''} in collection
-          {lowestIssue && highestIssue && (
-            <span className="text-slate-400 ml-2">
-              (#{lowestIssue} - #{highestIssue})
-            </span>
-          )}
+          {plural(seriesComics.length, 'issue')} in the collection
+          {hasRange && <span className="ml-2 text-slate-400">(#{lowestIssue}–#{highestIssue})</span>}
         </>
       }
       defaultSortBy="issue"
       sortOptions={seriesSortOptions}
-      comicsListTitle="Issues in Collection"
+      comicsListTitle="Issues"
       showSeriesName={false}
       seo={
         <SEO
           title={`${seriesName} Series`}
-          description={`Browse ${seriesComics.length} comics from the ${seriesName} series. Total value: $${stats.totalCurrentValue.toFixed(0)}. Issues ${lowestIssue}-${highestIssue}.`}
+          description={`Browse ${seriesComics.length} comics from the ${seriesName} series in the collection.`}
           keywords={`${seriesName}, comic book series, comic collection, ${seriesName} comics`}
-          url={`https://comics.banast.as/series/${encodeURIComponent(seriesName)}`}
+          url={url}
           structuredData={generateSeriesStructuredData({
             name: seriesName,
             comics: seriesComics,
             totalValue: stats.totalCurrentValue,
           })}
-          canonical={`https://comics.banast.as/series/${encodeURIComponent(seriesName)}`}
+          canonical={url}
         />
       }
     />
   );
 });
+
+SeriesDetail.displayName = 'SeriesDetail';

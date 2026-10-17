@@ -1,14 +1,16 @@
-import { Pagination } from './Pagination';
 import React, { useState, useMemo, useRef } from 'react';
-import { Comic } from '../types/Comic';
-import { Dashboard } from './Dashboard';
+import type { Comic } from '../types/Comic';
+import { Pagination } from './Pagination';
+import { KeyStats, PerformanceHighlights } from './Dashboard';
 import { DetailPageHeader } from './DetailPageHeader';
 import { ComicGridList } from './ComicGridList';
 import { calculateComicStats } from '../utils/stats';
-import { sortComics, DetailSortField } from '../utils/sorting';
+import { sortComics, type DetailSortField } from '../utils/sorting';
 import { useScrollToTop } from '../hooks/useScrollToTop';
 import { parseCurrentUrl } from '../utils/routing';
-import { BreadcrumbItem } from './Breadcrumb';
+import type { BreadcrumbItem } from './Breadcrumb';
+
+const PAGE_SIZE = 48;
 
 interface DetailPageLayoutProps {
   comics: Comic[];
@@ -16,33 +18,26 @@ interface DetailPageLayoutProps {
   onView: (comic: Comic) => void;
   breadcrumbItems?: BreadcrumbItem[];
 
-  // Header
   icon: React.ReactNode;
   iconBgColor: string;
   title: string;
   subtitle: React.ReactNode;
 
-  // Sort
   defaultSortBy?: DetailSortField;
   sortOptions?: { value: string; label: string }[];
 
-  // Dashboard extra props
-  dashboardProps?: Record<string, unknown>;
-
-  // Custom content after dashboard (e.g. SeriesBreakdown, related tags)
+  /** Extra sections shown below the comics, e.g. series breakdowns or related tags. */
   afterDashboard?: React.ReactNode;
 
-  // Comics list section
   comicsListTitle: string;
-  gridBadges?: (comic: Comic) => React.ReactNode;
-  listBadges?: (comic: Comic) => React.ReactNode;
   listExtraInfo?: (comic: Comic) => React.ReactNode;
   showSeriesName?: boolean;
 
-  // Optional SEO element
   seo?: React.ReactNode;
 }
 
+// Comics come first; aggregate statistics follow the list so phones reach covers without scrolling
+// past two screens of numbers.
 export const DetailPageLayout: React.FC<DetailPageLayoutProps> = React.memo(({
   comics,
   onBack,
@@ -54,11 +49,8 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = React.memo(({
   subtitle,
   defaultSortBy = 'series',
   sortOptions,
-  dashboardProps,
   afterDashboard,
   comicsListTitle,
-  gridBadges,
-  listBadges,
   listExtraInfo,
   showSeriesName,
   seo,
@@ -68,7 +60,7 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = React.memo(({
 
   const [requestedPage, setRequestedPage] = useState(0);
   const listRef = useRef<HTMLElement>(null);
-  const totalPages = Math.ceil(comics.length / 48);
+  const totalPages = Math.ceil(comics.length / PAGE_SIZE);
   const currentPage = Math.min(requestedPage, Math.max(0, totalPages - 1));
   const changePage = (page: number) => {
     setRequestedPage(page);
@@ -79,9 +71,10 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = React.memo(({
 
   const stats = useMemo(() => calculateComicStats(comics), [comics]);
   const sortedComics = useMemo(() => sortComics(comics, sortBy), [comics, sortBy]);
+  const hasHighlights = Boolean(stats.biggestGainer || stats.biggestLoser || stats.highestValuedSlabbedComic || stats.highestValuedRawComic);
 
   return (
-    <div className="min-h-screen bg-surface-base">
+    <main id="main-content" className="flex-1">
       {seo}
 
       <DetailPageHeader
@@ -94,55 +87,48 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = React.memo(({
         breadcrumbItems={breadcrumbItems}
       />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
-        <div className="space-y-8">
-          <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-3 sm:p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex min-w-0 items-center space-x-3">
-                {icon && (
-                  <div className={`shrink-0 p-3 ${iconBgColor} rounded-lg`}>
-                    {icon}
-                  </div>
-                )}
-                <div>
-                  <h1 className="text-2xl sm:text-3xl break-words font-bold text-white mb-2">{title}</h1>
-                  <p className="text-slate-300">{subtitle}</p>
-                </div>
-              </div>
+      <div className="mx-auto max-w-7xl space-y-6 px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
+        <section className="rounded-xl border border-slate-800 bg-surface-primary p-4 sm:p-6">
+          <div className="mb-5 flex min-w-0 items-center gap-3">
+            {icon && <div className={`shrink-0 rounded-lg p-3 ${iconBgColor}`} aria-hidden="true">{icon}</div>}
+            <div className="min-w-0">
+              <h1 className="break-words text-2xl font-bold text-white sm:text-3xl">{title}</h1>
+              <p className="mt-1 text-slate-300">{subtitle}</p>
             </div>
-
-            <Dashboard
-              stats={stats}
-              showDetailed={true}
-              variantsCount={comics.filter((comic) => comic.isVariant).length}
-              onViewComic={onView}
-              {...dashboardProps}
-            />
-
-            {afterDashboard}
           </div>
+          <KeyStats stats={stats} />
+        </section>
 
-          <section ref={listRef} className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-3 sm:p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">{comicsListTitle}</h3>
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-              <p role="status" className="text-sm text-slate-400">Showing {comics.length ? currentPage * 48 + 1 : 0} to {Math.min((currentPage + 1) * 48, comics.length)} of {comics.length}</p>
-              <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={changePage} />
-            </div>
-            <ComicGridList
-              comics={sortedComics.slice(currentPage * 48, (currentPage + 1) * 48)}
-              viewMode={viewMode}
-              onView={onView}
-              gridBadges={gridBadges}
-              listBadges={listBadges}
-              listExtraInfo={listExtraInfo}
-              showSeriesName={showSeriesName}
-            />
-            <div className="flex justify-center pt-6">
-              <Pagination label="More collection pages" currentPage={currentPage} totalPages={totalPages} onPageChange={changePage} />
-            </div>
+        <section ref={listRef} aria-labelledby="detail-comics-heading" className="scroll-mt-32 rounded-xl border border-slate-800 bg-surface-primary p-3 sm:p-6">
+          <h2 id="detail-comics-heading" className="mb-3 text-lg font-semibold text-white">{comicsListTitle}</h2>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <p role="status" className="text-sm text-slate-300">
+              Showing {comics.length ? currentPage * PAGE_SIZE + 1 : 0}–{Math.min((currentPage + 1) * PAGE_SIZE, comics.length)} of {comics.length}
+            </p>
+            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={changePage} />
+          </div>
+          <ComicGridList
+            comics={sortedComics.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE)}
+            viewMode={viewMode}
+            onView={onView}
+            listExtraInfo={listExtraInfo}
+            showSeriesName={showSeriesName}
+          />
+          <div className="flex justify-center pt-6">
+            <Pagination label="More pages of comics" currentPage={currentPage} totalPages={totalPages} onPageChange={changePage} />
+          </div>
+        </section>
+
+        {(hasHighlights || afterDashboard) && (
+          <section aria-labelledby="detail-highlights-heading" className="space-y-6 rounded-xl border border-slate-800 bg-surface-primary p-4 sm:p-6">
+            <h2 id="detail-highlights-heading" className="text-lg font-semibold text-white">Highlights</h2>
+            <PerformanceHighlights stats={stats} />
+            {afterDashboard}
           </section>
-        </div>
-      </main>
-    </div>
+        )}
+      </div>
+    </main>
   );
 });
+
+DetailPageLayout.displayName = 'DetailPageLayout';

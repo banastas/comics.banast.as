@@ -26,7 +26,7 @@ Visit the production site at [comics.banast.as](https://comics.banast.as).
 
 The browser experience is a React and TypeScript app built with Vite and styled with Tailwind CSS. Zustand owns application state, Zod validates collection records, and Vitest covers routing, data contracts, accessibility guardrails, API behavior, and generated public files.
 
-The production build adds a static entry page for every sitemap route. Each page includes route-specific titles, descriptions, canonical URLs, Open Graph and Twitter metadata, JSON-LD, and crawlable fallback content before React hydrates. Cloudflare Pages serves the generated files and the functions in `functions/api/`.
+The production build adds a static entry page for every public route. Each page includes route-specific titles, descriptions, canonical URLs, Open Graph and Twitter metadata, JSON-LD, and crawlable fallback content before React hydrates. Cloudflare Pages serves the generated files and the functions in `functions/api/`.
 
 `src/data/comics.json` is the shared source for the UI, sitemap, generated pages, and API. A collection update therefore requires a validated build and deployment.
 
@@ -59,7 +59,7 @@ npm run dev
 | --- | --- |
 | `npm run dev` | Start the Vite development server. |
 | `npm run check` | Run the complete release gate. |
-| `npm run validate:data` | Validate the collection JSON contract. |
+| `npm run validate:data` | Validate the collection JSON contract and print non-failing data quality warnings. |
 | `npm run typecheck` | Typecheck the app, Cloudflare Functions, and Node scripts. |
 | `npm run lint` | Run ESLint across the repository. |
 | `npm run test:run` | Run the Vitest suite once. |
@@ -68,7 +68,7 @@ npm run dev
 | `npm run preview` | Preview the production build locally. |
 | `npm run verify:http -- <origin>` | Crawl every public route and validate the API against a running Cloudflare preview or deployed site. |
 
-`npm run check` is the authoritative pre-merge and pre-deploy command. It regenerates derived sitemap data before testing, so it also works immediately after a collection sync.
+`npm run check` is the authoritative pre-merge and pre-deploy command. `public/sitemap.xml` is derived output and is not tracked in git: `npm run generate:sitemap` and `npm run build` regenerate it from the collection, so a collection sync never leaves a stale sitemap in the repository.
 
 ## Repository map
 
@@ -83,7 +83,7 @@ src/
 └── validation/          Zod collection schema
 functions/api/           Read-only Cloudflare Pages API
 scripts/                 Data, sitemap, static-page, and release checks
-public/                  Icons, manifest, headers, robots, sitemap, and 404
+public/                  Icons, manifest, headers, robots, and 404 (sitemap.xml is generated here, untracked)
 docs/                    Architecture notes and repository images
 ```
 
@@ -95,7 +95,7 @@ Each collection record follows the `Comic` interface in `src/types/Comic.ts`. Be
 npm run check
 ```
 
-The checks reject malformed records, duplicate IDs, duplicate public slugs, stale sitemap output, missing public assets, and API incompatibilities. Do not commit credentials or private collection data. Cover images are referenced by URL and are not copied into this repository.
+The checks reject malformed records, duplicate IDs, duplicate public slugs, sitemap and static-page drift, missing public assets, and API incompatibilities. `npm run validate:data` also prints a non-failing WARNINGS section with record IDs for data to fix in the source app, such as purchase dates before release dates, inconsistent series or artist spellings, raw 9.8+ grades, records without any price, and placeholder covers. Do not commit credentials or private collection data. Cover images are referenced by URL and are not copied into this repository.
 
 The root `example-comic-collection.json` provides a small self-hosting example without replacing the live collection contract.
 
@@ -107,11 +107,15 @@ Cloudflare Pages Functions expose read-only JSON endpoints:
 - `GET /api/comics?series=Alien`
 - `GET /api/comics?artist=Jock`
 - `GET /api/comics?q=signature`
+- `GET /api/comics?limit=50&offset=100`
 - `GET /api/comics/stats`
-- `OPTIONS /api/comics`
-- `OPTIONS /api/comics/stats`
+- `HEAD` and `OPTIONS` on both endpoints
 
-The collection endpoint supports series, artist, and text-query filters. Both endpoints return CORS headers for read-only clients.
+The collection endpoint supports series, artist, and text-query filters, plus optional `limit` (1–1000) and `offset` pagination applied after filtering. Responses include `count` (records in this response), `total` (matching records), `offset`, `limit`, and `comics`; without pagination parameters every matching record is returned. Invalid parameters return a JSON 400, and other methods return 405. Both endpoints return CORS, security, and short-lived cache headers for read-only clients.
+
+## Cover thumbnails
+
+Covers are served full size from `covers.banast.as`. If Cloudflare Image Transformations are enabled for the zone, build with `VITE_COVER_RESIZE=cloudflare` to serve resized, modern-format thumbnails with `srcset` through `/cdn-cgi/image`. Without the variable the original files are used unchanged.
 
 ## Routes and SEO
 
@@ -125,7 +129,7 @@ Canonical routes include:
 - `/storage/:slug` and `/boxes`
 - `/raw`, `/slabbed`, and `/variants`
 
-Legacy `/#/...` links are normalized to the matching clean route. The build generates a sitemap and a static HTML entry for every canonical route, then verifies that metadata, structured data, assets, and fallback content are present.
+Legacy `/#/...` links are normalized to the matching clean route. The build generates a sitemap and a static HTML entry for every public route, then verifies that metadata, structured data, assets, and fallback content are present. `/collection` renders the same view as `/`, so its page declares `https://comics.banast.as/` as canonical and the sitemap lists only `/`.
 
 See [SEO.md](SEO.md) for the current rendering contract and [docs/ssr-migration-prd.md](docs/ssr-migration-prd.md) for the longer-term rendering roadmap.
 
@@ -151,7 +155,7 @@ Deploy `dist/` to Cloudflare Pages with `functions/` available to the Pages proj
 
 Search, view, sort, and computed-tag filters travel with navigation URLs. Detail lists show 48 comics per page, and list pagination is available above and below the results. Missing purchase prices display as unrecorded; returns and series performance use only comics with both a recorded purchase price and a current value. The dashboard states that coverage explicitly.
 
-The latest full QA findings and verification evidence are in [docs/qa-2026-09-07.md](docs/qa-2026-09-07.md).
+The latest full QA findings and verification evidence are in [docs/qa-2026-10-17.md](docs/qa-2026-10-17.md).
 
 ## Contributing and security
 

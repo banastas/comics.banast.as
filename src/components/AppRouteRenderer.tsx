@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Comic } from '../types/Comic';
 import type { BreadcrumbItem } from './Breadcrumb';
+import type { RouteSelection } from '../hooks/useRouting';
 import { ErrorBoundary } from './ErrorBoundary';
 import { LoadingSpinner } from './AppLoading';
 import {
@@ -18,13 +19,7 @@ import {
 interface AppRouteRendererProps {
   allComics: Comic[];
   computedTagsMap: Map<string, string[]>;
-  selectedComic?: Comic;
-  selectedSeries: string | null;
-  selectedStorageLocation: string | null;
-  selectedCoverArtist: string | null;
-  selectedTag: string | null;
-  selectedCondition: 'raw' | 'slabbed' | 'variants' | null;
-  showVirtualBoxes: boolean;
+  selection: RouteSelection;
   breadcrumbItems: BreadcrumbItem[];
   onBack: () => void;
   onViewComic: (comic: Comic) => void;
@@ -32,26 +27,21 @@ interface AppRouteRendererProps {
   onViewStorageLocation: (storageLocation: string) => void;
   onViewCoverArtist: (coverArtist: string) => void;
   onViewTag: (tag: string) => void;
-  onViewRawComics: () => void;
-  onViewSlabbedComics: () => void;
 }
 
-const withRouteBoundary = (children: React.ReactNode) => (
-  <ErrorBoundary>
-    <React.Suspense fallback={<LoadingSpinner />}>{children}</React.Suspense>
-  </ErrorBoundary>
-);
+const selectionKey = (selection: RouteSelection): string =>
+  selection.comic?.id
+  ?? selection.series
+  ?? selection.storageLocation
+  ?? selection.coverArtist
+  ?? selection.tag
+  ?? selection.condition
+  ?? (selection.showVirtualBoxes ? 'boxes' : 'none');
 
 export const AppRouteRenderer = ({
   allComics,
   computedTagsMap,
-  selectedComic,
-  selectedSeries,
-  selectedStorageLocation,
-  selectedCoverArtist,
-  selectedTag,
-  selectedCondition,
-  showVirtualBoxes,
+  selection,
   breadcrumbItems,
   onBack,
   onViewComic,
@@ -59,10 +49,16 @@ export const AppRouteRenderer = ({
   onViewStorageLocation,
   onViewCoverArtist,
   onViewTag,
-  onViewRawComics,
-  onViewSlabbedComics,
 }: AppRouteRendererProps) => {
-  if (showVirtualBoxes) {
+  // A failed route resets when the reader navigates elsewhere instead of sticking until reload.
+  const withRouteBoundary = (children: React.ReactNode) => (
+    <ErrorBoundary resetKey={selectionKey(selection)}>
+      <React.Suspense fallback={<LoadingSpinner />}>{children}</React.Suspense>
+    </ErrorBoundary>
+  );
+  const shared = { onBack, onView: onViewComic, onViewSeries, breadcrumbItems };
+
+  if (selection.showVirtualBoxes) {
     return withRouteBoundary(
       <StorageLocationsListing
         allComics={allComics}
@@ -73,11 +69,11 @@ export const AppRouteRenderer = ({
     );
   }
 
-  if (selectedComic) {
+  if (selection.comic) {
     return withRouteBoundary(
       <ComicDetail
-        key={selectedComic.id}
-        comic={selectedComic}
+        key={selection.comic.id}
+        comic={selection.comic}
         allComics={allComics}
         onBack={onBack}
         onView={onViewComic}
@@ -85,121 +81,67 @@ export const AppRouteRenderer = ({
         onViewStorageLocation={onViewStorageLocation}
         onViewCoverArtist={onViewCoverArtist}
         onViewTag={onViewTag}
-        onViewRawComics={onViewRawComics}
-        onViewSlabbedComics={onViewSlabbedComics}
         breadcrumbItems={breadcrumbItems}
       />
     );
   }
 
-  if (selectedSeries) {
-    const seriesComics = allComics.filter((comic) => comic.seriesName === selectedSeries);
-
+  if (selection.series) {
     return withRouteBoundary(
       <SeriesDetail
-        key={selectedSeries}
-        seriesName={selectedSeries}
-        seriesComics={seriesComics}
-        onBack={onBack}
-        onView={onViewComic}
-        breadcrumbItems={breadcrumbItems}
+        key={selection.series}
+        seriesName={selection.series}
+        seriesComics={allComics.filter((comic) => comic.seriesName === selection.series)}
+        {...shared}
       />
     );
   }
 
-  if (selectedStorageLocation) {
-    const locationComics = allComics.filter((comic) => comic.storageLocation === selectedStorageLocation);
-
+  if (selection.storageLocation) {
     return withRouteBoundary(
       <StorageLocationDetail
-        storageLocation={selectedStorageLocation}
-        locationComics={locationComics}
-        onBack={onBack}
-        onView={onViewComic}
-        onViewSeries={onViewSeries}
-        breadcrumbItems={breadcrumbItems}
+        key={selection.storageLocation}
+        storageLocation={selection.storageLocation}
+        locationComics={allComics.filter((comic) => comic.storageLocation === selection.storageLocation)}
+        {...shared}
       />
     );
   }
 
-  if (selectedCoverArtist) {
-    const artistComics = allComics.filter((comic) => comic.coverArtist === selectedCoverArtist);
-
+  if (selection.coverArtist) {
     return withRouteBoundary(
       <CoverArtistDetail
-        coverArtist={selectedCoverArtist}
-        artistComics={artistComics}
-        onBack={onBack}
-        onView={onViewComic}
-        onViewSeries={onViewSeries}
-        breadcrumbItems={breadcrumbItems}
+        key={selection.coverArtist}
+        coverArtist={selection.coverArtist}
+        artistComics={allComics.filter((comic) => comic.coverArtist === selection.coverArtist)}
+        {...shared}
       />
     );
   }
 
-  if (selectedTag) {
-    const tagComics = allComics.filter(
-      (comic) =>
-        comic.tags.includes(selectedTag) ||
-        (computedTagsMap.get(comic.id) || []).includes(selectedTag)
-    );
-
+  if (selection.tag) {
+    const tag = selection.tag;
     return withRouteBoundary(
       <TagDetail
-        key={selectedTag}
-        tag={selectedTag}
-        tagComics={tagComics}
-        onBack={onBack}
-        onView={onViewComic}
-        onViewSeries={onViewSeries}
+        key={tag}
+        tag={tag}
+        tagComics={allComics.filter((comic) => comic.tags.includes(tag) || (computedTagsMap.get(comic.id) || []).includes(tag))}
         onViewTag={onViewTag}
-        breadcrumbItems={breadcrumbItems}
+        {...shared}
       />
     );
   }
 
-  if (selectedCondition === 'raw') {
-    const rawComics = allComics.filter((comic) => !comic.isSlabbed);
-
-    return withRouteBoundary(
-      <RawComicsDetail
-        rawComics={rawComics}
-        onBack={onBack}
-        onView={onViewComic}
-        onViewSeries={onViewSeries}
-        breadcrumbItems={breadcrumbItems}
-      />
-    );
+  if (selection.condition === 'raw') {
+    return withRouteBoundary(<RawComicsDetail rawComics={allComics.filter((comic) => !comic.isSlabbed)} {...shared} />);
   }
 
-  if (selectedCondition === 'slabbed') {
-    const slabbedComics = allComics.filter((comic) => comic.isSlabbed);
-
-    return withRouteBoundary(
-      <SlabbedComicsDetail
-        slabbedComics={slabbedComics}
-        onBack={onBack}
-        onView={onViewComic}
-        onViewSeries={onViewSeries}
-        breadcrumbItems={breadcrumbItems}
-      />
-    );
+  if (selection.condition === 'slabbed') {
+    return withRouteBoundary(<SlabbedComicsDetail slabbedComics={allComics.filter((comic) => comic.isSlabbed)} {...shared} />);
   }
 
-  if (selectedCondition === 'variants') {
-    const variantComics = allComics.filter((comic) => comic.isVariant);
-
-    return withRouteBoundary(
-      <VariantsDetail
-        variantComics={variantComics}
-        onBack={onBack}
-        onView={onViewComic}
-        onViewRawComics={onViewRawComics}
-        onViewSlabbedComics={onViewSlabbedComics}
-        onViewSeries={onViewSeries}
-        breadcrumbItems={breadcrumbItems}
-      />
-    );
+  if (selection.condition === 'variants') {
+    return withRouteBoundary(<VariantsDetail variantComics={allComics.filter((comic) => comic.isVariant)} {...shared} />);
   }
 
   return null;

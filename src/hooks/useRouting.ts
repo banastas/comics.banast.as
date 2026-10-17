@@ -1,38 +1,62 @@
 import { useEffect, useCallback, useRef, useState } from 'react';
-import { parseCurrentUrl, parseRoute, navigateToUrl, type RouteParams, parseComicSlug, createComicSlug } from '../utils/routing';
+import {
+  buildQueryString,
+  createComicSlug,
+  DEFAULT_SORT_DIRECTION,
+  DEFAULT_SORT_FIELD,
+  navigateToUrl,
+  parseComicSlug,
+  parseCurrentUrl,
+  parseRoute,
+  type RouteParams,
+} from '../utils/routing';
 import type { Comic, FilterOptions, SortField } from '../types/Comic';
 import { computeTagsForComic } from '../utils/computed-tags';
-import { trackPageView } from '../utils/analytics';
+
+export type ConditionView = 'raw' | 'slabbed' | 'variants';
+
+export interface RouteSelection {
+  comic?: Comic;
+  series: string | null;
+  storageLocation: string | null;
+  coverArtist: string | null;
+  tag: string | null;
+  condition: ConditionView | null;
+  showVirtualBoxes: boolean;
+}
+
+export const emptySelection: RouteSelection = {
+  comic: undefined,
+  series: null,
+  storageLocation: null,
+  coverArtist: null,
+  tag: null,
+  condition: null,
+  showVirtualBoxes: false,
+};
 
 interface UseRoutingProps {
-  // Current state
-  activeTab: 'collection' | 'stats';
+  /** Routes resolve only after the collection has loaded, so valid URLs never flash "not found". */
+  ready: boolean;
   viewMode: 'grid' | 'list';
   searchTerm: string;
   activeComputedTag: string | null;
   sortField: SortField;
   sortDirection: 'asc' | 'desc';
-  
-  // State setters
+
   setActiveTab: (tab: 'collection' | 'stats') => void;
-  setSelectedComic: (comic: Comic | undefined) => void;
-  setSelectedSeries: (series: string | null) => void;
-  setSelectedStorageLocation: (location: string | null) => void;
-  setSelectedCoverArtist: (artist: string | null) => void;
-  setSelectedTag: (tag: string | null) => void;
-  setSelectedCondition: (condition: 'raw' | 'slabbed' | 'variants' | null) => void;
-  setShowVirtualBoxes: (show: boolean) => void;
+  setSelection: (selection: RouteSelection) => void;
   setViewMode: (mode: 'grid' | 'list') => void;
   setFilters: (filters: Partial<FilterOptions>) => void;
   setSortField: (field: SortField) => void;
   setSortDirection: (direction: 'asc' | 'desc') => void;
   setActiveComputedTag: (tag: string | null) => void;
-  
-  // Data
+  setCurrentPage: (page: number) => void;
+
   allComics: Comic[];
 }
 
-type RouteType =
+export type RouteType =
   | 'home'
   | 'collection'
   | 'stats'
@@ -46,336 +70,155 @@ type RouteType =
   | 'variants'
   | 'boxes';
 
+const routePath = (type: RouteType, identifier?: string): string => {
+  switch (type) {
+    case 'home':
+    case 'collection':
+      return '/';
+    case 'stats':
+    case 'raw':
+    case 'slabbed':
+    case 'variants':
+    case 'boxes':
+      return `/${type}`;
+    default:
+      return `/${type}/${encodeURIComponent(identifier || '')}`;
+  }
+};
+
+const findComicForSlug = (allComics: Comic[], slug: string): Comic | undefined => {
+  try {
+    const { seriesSlug, issueNumber, isVariant, comicId } = parseComicSlug(slug);
+    if (comicId) return allComics.find(c => c.id === comicId);
+    return allComics.find(c => createComicSlug(c) === slug)
+      ?? allComics.find(c => {
+        const matchesSeries = c.seriesName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') === seriesSlug;
+        return matchesSeries && c.issueNumber.toString() === issueNumber && c.isVariant === isVariant;
+      });
+  } catch {
+    // Legacy record-ID URLs.
+    return allComics.find(c => c.id === slug);
+  }
+};
+
 export const useRouting = ({
-  activeTab,
+  ready,
   viewMode,
   searchTerm,
   activeComputedTag,
   sortField,
   sortDirection,
   setActiveTab,
-  setSelectedComic,
-  setSelectedSeries,
-  setSelectedStorageLocation,
-  setSelectedCoverArtist,
-  setSelectedTag,
-  setSelectedCondition,
-  setShowVirtualBoxes,
+  setSelection,
   setViewMode,
   setFilters,
   setSortField,
   setSortDirection,
   setActiveComputedTag,
+  setCurrentPage,
   allComics,
 }: UseRoutingProps) => {
-  
   const [notFound, setNotFound] = useState(false);
 
-  // Navigate to a specific route
+  // Collection state (search, tag, view, sort) travels with every navigation so returning to the
+  // collection restores it. Only non-default values are written.
   const navigateToRoute = useCallback((
     type: RouteType,
     identifier?: string,
     params?: RouteParams,
     replace = false
   ) => {
-    // Clear all selections first
-    setSelectedComic(undefined);
-    setSelectedSeries(null);
-    setSelectedStorageLocation(null);
-    setSelectedCoverArtist(null);
-    setSelectedTag(null);
-    setSelectedCondition(null);
-    setShowVirtualBoxes(false);
-    
-    // Build the route
-    let route: string;
-    switch (type) {
-      case 'home':
-        route = '/';
-        break;
-      case 'collection':
-        route = '/collection';
-        break;
-      case 'stats':
-        route = '/stats';
-        break;
-      case 'comic':
-        route = `/comic/${encodeURIComponent(identifier || '')}`;
-        break;
-      case 'series':
-        route = `/series/${encodeURIComponent(identifier || '')}`;
-        break;
-      case 'storage':
-        route = `/storage/${encodeURIComponent(identifier || '')}`;
-        break;
-      case 'artist':
-        route = `/artist/${encodeURIComponent(identifier || '')}`;
-        break;
-      case 'tag':
-        route = `/tag/${encodeURIComponent(identifier || '')}`;
-        break;
-      case 'raw':
-        route = '/raw';
-        break;
-      case 'slabbed':
-        route = '/slabbed';
-        break;
-      case 'variants':
-        route = '/variants';
-        break;
-      case 'boxes':
-        route = '/boxes';
-        break;
-      default:
-        route = '/';
-    }
-    
-    params = { tab: activeTab, viewMode, searchTerm, sortField, sortDirection, computedTag: activeComputedTag, ...params };
+    const merged: RouteParams = {
+      viewMode,
+      searchTerm,
+      sortField,
+      sortDirection,
+      computedTag: activeComputedTag,
+      ...params,
+    };
+    if (type !== 'home' && type !== 'collection') delete merged.page;
+    const queryString = buildQueryString(merged);
+    navigateToUrl(routePath(type, identifier) + (queryString ? `?${queryString}` : ''), replace);
+  }, [viewMode, searchTerm, sortField, sortDirection, activeComputedTag]);
 
-    // Add query parameters
-    const searchParams = new URLSearchParams();
-    if (params?.tab) searchParams.set('tab', params.tab);
-    if (params?.viewMode) searchParams.set('view', params.viewMode);
-    if (params?.searchTerm) searchParams.set('search', params.searchTerm);
-    if (params?.sortField) searchParams.set('sort', params.sortField);
-    if (params?.sortDirection) searchParams.set('order', params.sortDirection);
-    if (params?.computedTag) searchParams.set('filter', params.computedTag);
-    
-    const queryString = searchParams.toString();
-    const fullRoute = route + (queryString ? `?${queryString}` : '');
-    
-    // Update URL. Clean paths are canonical; hash routes remain supported by parseCurrentUrl.
-    navigateToUrl(fullRoute, replace);
-  }, [
-    activeTab, viewMode, searchTerm, sortField, sortDirection, activeComputedTag,
-    setSelectedComic,
-    setSelectedSeries,
-    setSelectedStorageLocation,
-    setSelectedCoverArtist,
-    setSelectedTag,
-    setSelectedCondition,
-    setShowVirtualBoxes,
-  ]);
-  
-  // Handle URL changes
   const handleUrlChange = useCallback(() => {
     const { route, params } = parseCurrentUrl();
     const { type, params: routeParams } = parseRoute(route);
-    
-    trackPageView(`${window.location.pathname}${window.location.search}${window.location.hash}`);
-    
-    setNotFound(false);
-    setActiveComputedTag(params.computedTag || null);
 
-    // Update tab
-    if (params.tab && params.tab !== activeTab) {
-      setActiveTab(params.tab);
-    }
-    
-    // Update view mode
+    setActiveComputedTag(params.computedTag || null);
     setViewMode(params.viewMode || 'grid');
-    
-    // Update search term
-    if (params.searchTerm !== undefined && params.searchTerm !== searchTerm) {
-      setFilters({ searchTerm: params.searchTerm });
-    } else if (params.searchTerm === undefined && searchTerm !== '') {
-      setFilters({ searchTerm: '' });
-    }
-    
-    // Update sort parameters
-    setSortField(params.sortField || 'releaseDate');
-    setSortDirection(params.sortDirection || 'desc');
-    
-    // Handle route-specific navigation
+    if ((params.searchTerm ?? '') !== searchTerm) setFilters({ searchTerm: params.searchTerm ?? '' });
+    setSortField(params.sortField || DEFAULT_SORT_FIELD);
+    setSortDirection(params.sortDirection || DEFAULT_SORT_DIRECTION);
+
+    let selection: RouteSelection = emptySelection;
+    let found = true;
+
     switch (type) {
       case 'home':
       case 'collection':
         setActiveTab('collection');
-        // Clear all selections
-        setSelectedComic(undefined);
-        setSelectedSeries(null);
-        setSelectedStorageLocation(null);
-        setSelectedCoverArtist(null);
-        setSelectedTag(null);
-        setSelectedCondition(null);
-        setShowVirtualBoxes(false);
+        setCurrentPage(params.page ?? 0);
         break;
-        
       case 'stats':
         setActiveTab('stats');
-        setSelectedComic(undefined);
-        setSelectedSeries(null);
-        setSelectedStorageLocation(null);
-        setSelectedCoverArtist(null);
-        setSelectedTag(null);
-        setSelectedCondition(null);
-        setShowVirtualBoxes(false);
         break;
-        
-      case 'comic':
-        setNotFound(true);
-        if (routeParams.comicId) {
-          // Try to parse as slug first (new format: series-name-issue-123-variant-575)
-          let comic: Comic | undefined;
-
-          try {
-            const { seriesSlug, issueNumber, isVariant, comicId } = parseComicSlug(routeParams.comicId);
-
-            // If we have a specific comic ID in the slug, use it directly
-            if (comicId) {
-              comic = allComics.find(c => c.id === comicId);
-            } else {
-              // Find comic by exact slug match
-              comic = allComics.find(c => {
-                const comicSlug = createComicSlug(c);
-                return comicSlug === routeParams.comicId;
-              });
-
-              // Fallback: try to match by series and issue number more loosely
-              if (!comic) {
-                comic = allComics.find(c => {
-                  const matchesIssue = c.issueNumber.toString() === issueNumber;
-                  const matchesVariant = c.isVariant === isVariant;
-                  const seriesMatches = c.seriesName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') === seriesSlug;
-                  return matchesIssue && matchesVariant && seriesMatches;
-                });
-              }
-            }
-          } catch {
-            // If slug parsing fails, try old ID format for backward compatibility
-            comic = allComics.find(c => c.id === routeParams.comicId);
-          }
-
-          if (comic) {
-            setNotFound(false);
-            setSelectedComic(comic);
-            setSelectedSeries(null);
-            setSelectedStorageLocation(null);
-            setSelectedCoverArtist(null);
-            setSelectedTag(null);
-            setSelectedCondition(null);
-            setShowVirtualBoxes(false);
-          }
-        }
+      case 'comic': {
+        const comic = routeParams.comicId ? findComicForSlug(allComics, routeParams.comicId) : undefined;
+        found = Boolean(comic);
+        selection = { ...emptySelection, comic };
         break;
-        
+      }
       case 'series':
-        setNotFound(!allComics.some(c => c.seriesName === routeParams.seriesName));
-        if (routeParams.seriesName) {
-          setSelectedSeries(routeParams.seriesName);
-          setSelectedComic(undefined);
-          setSelectedStorageLocation(null);
-          setSelectedCoverArtist(null);
-          setSelectedTag(null);
-          setSelectedCondition(null);
-          setShowVirtualBoxes(false);
-        }
+        found = allComics.some(c => c.seriesName === routeParams.seriesName);
+        selection = { ...emptySelection, series: routeParams.seriesName ?? null };
         break;
-        
       case 'storage':
-        setNotFound(!allComics.some(c => c.storageLocation === routeParams.storageLocation));
-        if (routeParams.storageLocation) {
-          setSelectedStorageLocation(routeParams.storageLocation);
-          setSelectedComic(undefined);
-          setSelectedSeries(null);
-          setSelectedCoverArtist(null);
-          setSelectedTag(null);
-          setSelectedCondition(null);
-          setShowVirtualBoxes(false);
-        }
+        found = allComics.some(c => c.storageLocation === routeParams.storageLocation);
+        selection = { ...emptySelection, storageLocation: routeParams.storageLocation ?? null };
         break;
-        
       case 'artist':
-        setNotFound(!allComics.some(c => c.coverArtist === routeParams.coverArtist));
-        if (routeParams.coverArtist) {
-          setSelectedCoverArtist(routeParams.coverArtist);
-          setSelectedComic(undefined);
-          setSelectedSeries(null);
-          setSelectedStorageLocation(null);
-          setSelectedTag(null);
-          setSelectedCondition(null);
-          setShowVirtualBoxes(false);
-        }
+        found = allComics.some(c => c.coverArtist === routeParams.coverArtist);
+        selection = { ...emptySelection, coverArtist: routeParams.coverArtist ?? null };
         break;
-        
-      case 'tag':
-        setNotFound(!allComics.some(c => c.tags.includes(routeParams.tag || '') || computeTagsForComic(c).includes(routeParams.tag || '')));
-        if (routeParams.tag) {
-          setSelectedTag(routeParams.tag);
-          setSelectedComic(undefined);
-          setSelectedSeries(null);
-          setSelectedStorageLocation(null);
-          setSelectedCoverArtist(null);
-          setSelectedCondition(null);
-          setShowVirtualBoxes(false);
-        }
+      case 'tag': {
+        const tag = routeParams.tag || '';
+        found = allComics.some(c => c.tags.includes(tag) || computeTagsForComic(c).includes(tag));
+        selection = { ...emptySelection, tag: routeParams.tag ?? null };
         break;
-        
+      }
       case 'raw':
-        setSelectedCondition('raw');
-        setSelectedComic(undefined);
-        setSelectedSeries(null);
-        setSelectedStorageLocation(null);
-        setSelectedCoverArtist(null);
-        setSelectedTag(null);
-        setShowVirtualBoxes(false);
-        break;
-        
       case 'slabbed':
-        setSelectedCondition('slabbed');
-        setSelectedComic(undefined);
-        setSelectedSeries(null);
-        setSelectedStorageLocation(null);
-        setSelectedCoverArtist(null);
-        setSelectedTag(null);
-        setShowVirtualBoxes(false);
-        break;
-        
       case 'variants':
-        setSelectedCondition('variants');
-        setSelectedComic(undefined);
-        setSelectedSeries(null);
-        setSelectedStorageLocation(null);
-        setSelectedCoverArtist(null);
-        setSelectedTag(null);
-        setShowVirtualBoxes(false);
+        selection = { ...emptySelection, condition: type };
         break;
-        
       case 'boxes':
-        setShowVirtualBoxes(true);
-        setSelectedComic(undefined);
-        setSelectedSeries(null);
-        setSelectedStorageLocation(null);
-        setSelectedCoverArtist(null);
-        setSelectedTag(null);
-        setSelectedCondition(null);
+        selection = { ...emptySelection, showVirtualBoxes: true };
         break;
       default:
-        setNotFound(true);
+        found = false;
     }
+
+    setNotFound(!found);
+    setSelection(found ? selection : emptySelection);
   }, [
-    activeTab,
     searchTerm,
     allComics,
     setActiveTab,
+    setSelection,
     setViewMode,
     setFilters,
     setSortField,
     setSortDirection,
     setActiveComputedTag,
-    setSelectedComic,
-    setSelectedSeries,
-    setSelectedStorageLocation,
-    setSelectedCoverArtist,
-    setSelectedTag,
-    setSelectedCondition,
-    setShowVirtualBoxes,
+    setCurrentPage,
   ]);
-  
+
   // React state changes must not replay navigation or erase a draft filter.
   const handleUrlChangeRef = useRef(handleUrlChange);
   useEffect(() => { handleUrlChangeRef.current = handleUrlChange; }, [handleUrlChange]);
   useEffect(() => {
+    if (!ready) return undefined;
     const syncRoute = () => handleUrlChangeRef.current();
     syncRoute();
     window.addEventListener('popstate', syncRoute);
@@ -386,7 +229,7 @@ export const useRouting = ({
       window.removeEventListener('urlchange', syncRoute);
       window.removeEventListener('hashchange', syncRoute);
     };
-  }, [allComics]);
+  }, [ready, allComics]);
 
   return {
     navigateToRoute,

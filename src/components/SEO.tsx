@@ -1,4 +1,6 @@
 import { useEffect } from 'react';
+import { trackPageViewOnce } from '../utils/analytics';
+import { INDEXABLE_ROBOTS, NOINDEX_ROBOTS } from '../utils/seo';
 
 interface SEOProps {
   title?: string;
@@ -13,9 +15,9 @@ interface SEOProps {
 }
 
 const defaultMeta = {
-  title: 'comics.banast.as - Track, Organize & Value Your Comics',
+  title: 'Comic Collection | comics.banast.as',
   description: 'Browse a personal comic-book collection with cover art, grades, values, variants, artists, and storage details.',
-  keywords: 'comic book collection, comic tracker, comic book manager, comic book database, comic book organizer, comic valuation, comic grading, variant covers, slabbed comics, comic storage',
+  keywords: 'comic book collection, comic covers, graded comics, slabbed comics, variant covers, comic values',
   image: 'https://comics.banast.as/og-image.jpg',
   url: 'https://comics.banast.as/',
   type: 'website',
@@ -41,11 +43,11 @@ const upsertCanonical = (href: string) => {
   element.setAttribute('href', href);
 };
 
-const upsertStructuredData = (structuredData?: object) => {
+const upsertStructuredData = (structuredJson: string) => {
   const id = 'comics-structured-data';
   const existing = document.getElementById(id);
 
-  if (!structuredData) {
+  if (!structuredJson) {
     existing?.remove();
     return;
   }
@@ -53,7 +55,7 @@ const upsertStructuredData = (structuredData?: object) => {
   const element = existing || document.createElement('script');
   element.id = id;
   element.setAttribute('type', 'application/ld+json');
-  element.textContent = JSON.stringify(structuredData);
+  if (element.textContent !== structuredJson) element.textContent = structuredJson;
 
   if (!existing) {
     document.head.appendChild(element);
@@ -80,13 +82,16 @@ export function SEO({
     type: type || defaultMeta.type,
   };
 
+  // Compare by content so callers can build structured data inline without rewriting the head each render.
+  const structuredJson = structuredData ? JSON.stringify(structuredData) : '';
+
   useEffect(() => {
     document.title = seo.title;
 
     upsertMeta('name', 'title', seo.title);
     upsertMeta('name', 'description', seo.description);
     upsertMeta('name', 'keywords', seo.keywords);
-    upsertMeta('name', 'robots', noindex ? 'noindex,follow' : 'index,follow');
+    upsertMeta('name', 'robots', noindex ? NOINDEX_ROBOTS : INDEXABLE_ROBOTS);
     if (noindex) document.querySelector('link[rel="canonical"]')?.remove();
     else upsertCanonical(canonical || seo.url);
 
@@ -102,8 +107,14 @@ export function SEO({
     upsertMeta('name', 'twitter:description', seo.description);
     upsertMeta('name', 'twitter:image', seo.image);
 
-    upsertStructuredData(structuredData);
-  }, [noindex, canonical, seo.description, seo.image, seo.keywords, seo.title, seo.type, seo.url, structuredData]);
+    upsertStructuredData(structuredJson);
+  }, [noindex, canonical, seo.description, seo.image, seo.keywords, seo.title, seo.type, seo.url, structuredJson]);
+
+  // Runs after every render (declared after the metadata effect) so client-side navigations that
+  // keep the same title, such as a new search, are still recorded once.
+  useEffect(() => {
+    trackPageViewOnce(`${window.location.pathname}${window.location.search}`, document.title);
+  });
 
   return null;
 }

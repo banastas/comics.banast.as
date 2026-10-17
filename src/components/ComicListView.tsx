@@ -1,139 +1,95 @@
 import React from 'react';
-import { Comic } from '../types/Comic';
-import { Star, Award, TrendingUp, TrendingDown } from 'lucide-react';
-import { formatCurrency, formatDate } from '../utils/formatting';
+import type { Comic } from '../types/Comic';
+import { formatCurrency, formatDate, formatValueChange, getValueChange } from '../utils/formatting';
+import { comicPath } from '../utils/paths';
+import { AppLink } from './AppLink';
+import { GradeBadge } from './ComicCard';
+import { comicAccessibleName } from '../utils/comic-labels';
+import { CoverImage } from './CoverImage';
+
+interface ComicListItemProps {
+  comic: Comic;
+  onView: (comic: Comic) => void;
+  extraInfo?: React.ReactNode;
+}
+
+export const ComicListItem: React.FC<ComicListItemProps> = React.memo(({ comic, onView, extraInfo }) => {
+  const change = getValueChange(comic.purchasePrice, comic.currentValue);
+  const value = comic.currentValue ?? comic.purchasePrice;
+
+  return (
+    <li>
+      <AppLink
+        href={comicPath(comic)}
+        onNavigate={() => onView(comic)}
+        aria-label={comicAccessibleName(comic)}
+        className="flex items-center gap-3 rounded-xl border border-slate-800 bg-surface-primary p-3 transition-colors hover:border-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 sm:gap-4 sm:p-4"
+      >
+        <div className="h-14 w-10 flex-shrink-0 overflow-hidden rounded-md bg-surface-secondary sm:h-16 sm:w-11">
+          <CoverImage comic={comic} displayWidth={48} sizes="48px" decorative compact />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="mb-0.5 flex flex-wrap items-center gap-1.5">
+            <h3 className="truncate text-sm font-semibold text-white sm:text-base">{comic.seriesName} #{comic.issueNumber}</h3>
+            {comic.isSlabbed && <span className="rounded-md border border-purple-500/30 bg-purple-500/15 px-1.5 py-0.5 text-[10px] text-purple-200 sm:text-xs">Slabbed</span>}
+            {comic.isVariant && <span className="rounded-md border border-orange-500/30 bg-orange-500/15 px-1.5 py-0.5 text-[10px] text-orange-200 sm:text-xs">Variant</span>}
+            {comic.isGraphicNovel && <span className="rounded-md border border-emerald-500/30 bg-emerald-500/15 px-1.5 py-0.5 text-[10px] text-emerald-200 sm:text-xs">GN</span>}
+            {comic.signedBy.trim() && <span className="rounded-md border border-rose-500/30 bg-rose-500/15 px-1.5 py-0.5 text-[10px] text-rose-200 sm:text-xs">Signed</span>}
+          </div>
+          <p className="flex flex-wrap gap-x-2 text-xs text-slate-400">
+            <span>{formatDate(comic.releaseDate)}</span>
+            {comic.coverArtist && <span className="truncate">· {comic.coverArtist}</span>}
+            {comic.storageLocation && <span className="hidden md:inline">· {comic.storageLocation}</span>}
+          </p>
+          {extraInfo && <div className="mt-1 text-xs text-slate-400">{extraInfo}</div>}
+        </div>
+
+        <div className="hidden w-20 flex-shrink-0 justify-end sm:flex">
+          <GradeBadge comic={comic} />
+        </div>
+
+        <div className="min-w-[88px] flex-shrink-0 text-right">
+          <p className="text-sm font-semibold tabular-nums text-white">
+            {value === undefined ? <span className="text-xs font-normal text-slate-400">No value</span> : formatCurrency(value)}
+          </p>
+          {change && change.trend !== 'flat' && (
+            <p className={`text-[11px] tabular-nums sm:text-xs ${change.trend === 'up' ? 'text-emerald-400' : 'text-red-400'}`}>
+              {formatValueChange(change)}
+            </p>
+          )}
+          <p className="text-[11px] tabular-nums text-slate-400 sm:text-xs">
+            <span className="sm:hidden">Grade {comic.grade} · </span>
+            Paid {comic.purchasePrice === undefined ? '—' : formatCurrency(comic.purchasePrice)}
+          </p>
+        </div>
+      </AppLink>
+    </li>
+  );
+});
+
+ComicListItem.displayName = 'ComicListItem';
 
 interface ComicListViewProps {
   comics: Comic[];
   onView: (comic: Comic) => void;
+  extraInfo?: (comic: Comic) => React.ReactNode;
 }
 
-export const ComicListView: React.FC<ComicListViewProps> = React.memo(({ comics, onView }) => {
-  return (
-    <div className="space-y-0">
-      {/* Column Headers (desktop) */}
-      <div className="hidden sm:flex items-center px-4 py-2 text-xs font-medium text-slate-400 uppercase tracking-wider border-b border-slate-800 mb-1">
-        <div className="flex-1 min-w-0">Comic</div>
-        <div className="w-24 text-right">Grade</div>
-        <div className="w-32 text-right">Value</div>
-      </div>
-
-      {comics.map((comic, index) => {
-        const hasGainLoss = comic.currentValue !== undefined && comic.purchasePrice !== undefined && comic.purchasePrice > 0;
-        const gainLoss = hasGainLoss ? ((comic.currentValue ?? 0) - (comic.purchasePrice ?? 0)) : 0;
-        const isPositive = gainLoss >= 0;
-
-        return (
-          <div
-            key={comic.id}
-            className={`rounded-xl border border-slate-800 p-3 sm:p-4 hover:border-slate-600 transition-all cursor-pointer group active:scale-[0.995] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
-              index % 2 === 0 ? 'bg-surface-primary' : 'bg-surface-primary/50'
-            }`}
-            onClick={() => onView(comic)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onView(comic);
-              }
-            }}
-            aria-label={`${comic.seriesName} #${comic.issueNumber}, grade ${comic.grade}, value ${formatCurrency(comic.currentValue ?? comic.purchasePrice ?? 0)}`}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
-                <div className="w-10 h-14 sm:w-12 sm:h-16 bg-surface-secondary rounded-lg overflow-hidden flex-shrink-0">
-                  {comic.coverImageUrl ? (
-                    <img
-                      src={comic.coverImageUrl}
-                      alt={`${comic.seriesName} #${comic.issueNumber}`}
-                      width={48}
-                      height={64}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                      decoding="async"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Award size={16} className="text-slate-600" />
-                    </div>
-                  )}
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                    <h4 className="font-semibold text-white text-sm sm:text-base truncate">{comic.seriesName} #{comic.issueNumber}</h4>
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
-                      {comic.isSlabbed && (
-                        <span className="px-1.5 py-0.5 bg-purple-500/15 text-purple-300 text-[10px] sm:text-xs rounded-md border border-purple-500/20">
-                          Slabbed
-                        </span>
-                      )}
-                      {comic.isVariant && (
-                        <span className="px-1.5 py-0.5 bg-orange-500/15 text-orange-300 text-[10px] sm:text-xs rounded-md border border-orange-500/20">
-                          Variant
-                        </span>
-                      )}
-                      {comic.isGraphicNovel && (
-                        <span className="px-1.5 py-0.5 bg-emerald-500/15 text-emerald-300 text-[10px] sm:text-xs rounded-md border border-emerald-500/20">
-                          GN
-                        </span>
-                      )}
-                      {comic.signedBy && (
-                        <span className="px-1.5 py-0.5 bg-rose-500/15 text-rose-300 text-[10px] sm:text-xs rounded-md border border-rose-500/20">
-                          Signed
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <p className="text-xs sm:text-sm text-slate-400 truncate mb-0.5">{comic.title}</p>
-                  <div className="flex items-center gap-3 text-xs text-slate-400">
-                    <span>{formatDate(comic.releaseDate)}</span>
-                    {comic.coverArtist && <span className="hidden sm:inline">&middot; {comic.coverArtist}</span>}
-                    {comic.storageLocation && <span className="hidden md:inline">&middot; {comic.storageLocation}</span>}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4 sm:gap-6 flex-shrink-0 ml-3">
-                {/* Grade */}
-                <div className="hidden sm:flex items-center gap-1 w-16 justify-end">
-                  <Star size={12} className="text-amber-400" />
-                  <span className="text-sm text-white font-medium tabular-nums">{comic.grade}</span>
-                </div>
-
-                {/* Value */}
-                <div className="text-right min-w-[80px]">
-                  <div className="flex items-center justify-end gap-1">
-                    {hasGainLoss && (
-                      isPositive ? (
-                        <TrendingUp size={12} className="text-emerald-400" />
-                      ) : (
-                        <TrendingDown size={12} className="text-red-400" />
-                      )
-                    )}
-                    <p className="font-semibold text-white tabular-nums text-sm">
-                      {formatCurrency(comic.currentValue ?? comic.purchasePrice ?? 0)}
-                    </p>
-                  </div>
-                  {hasGainLoss && (
-                    <p className={`text-[10px] sm:text-xs tabular-nums ${isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
-                      {isPositive ? '+' : ''}{formatCurrency(gainLoss)}
-                      {comic.purchasePrice && comic.purchasePrice > 0 && ` (${((gainLoss / comic.purchasePrice) * 100).toFixed(1)}%)`}
-                    </p>
-                  )}
-                  <p className="text-[10px] sm:text-xs text-slate-400 tabular-nums">
-                    Paid: {comic.purchasePrice === undefined ? 'Not recorded' : formatCurrency(comic.purchasePrice)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      })}
+export const ComicListView: React.FC<ComicListViewProps> = React.memo(({ comics, onView, extraInfo }) => (
+  <div>
+    <div className="mb-1 hidden items-center gap-4 px-4 py-2 text-xs font-medium uppercase tracking-wider text-slate-400 sm:flex" aria-hidden="true">
+      <div className="w-11 flex-shrink-0" />
+      <div className="flex-1">Comic</div>
+      <div className="w-20 text-right">Grade</div>
+      <div className="min-w-[88px] text-right">Value</div>
     </div>
-  );
-});
+    <ul className="space-y-2">
+      {comics.map((comic) => (
+        <ComicListItem key={comic.id} comic={comic} onView={onView} extraInfo={extraInfo?.(comic)} />
+      ))}
+    </ul>
+  </div>
+));
+
+ComicListView.displayName = 'ComicListView';

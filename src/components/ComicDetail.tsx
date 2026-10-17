@@ -1,25 +1,18 @@
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
+import { ChevronLeft, ChevronRight, Maximize2, PenTool } from 'lucide-react';
 import type { Comic } from '../types/Comic';
 import { SEO } from './SEO';
 import { generateComicStructuredData } from '../utils/structured-data';
-import { handleKeyboardActivation } from '../utils/accessibility';
-import { createComicSlug } from '../utils/routing';
-import { formatCurrency, formatDateLong } from '../utils/formatting';
+import { formatComicLabel, formatCurrency, formatDateLong, formatValueChange, getValueChange } from '../utils/formatting';
 import { useScrollToTop } from '../hooks/useScrollToTop';
-import {
-  ArrowLeft,
-  Calendar,
-  Star,
-  DollarSign,
-  MapPin,
-  Award,
-  PenTool,
-  Palette,
-  Tag,
-  FileText,
-  User
-} from 'lucide-react';
-import { Breadcrumb, BreadcrumbItem } from './Breadcrumb';
+import { Breadcrumb, type BreadcrumbItem } from './Breadcrumb';
+import { absoluteUrl, comicPath } from '../utils/paths';
+import { hasRealCover } from '../utils/covers';
+import { SiteLink } from './SiteLink';
+import { CoverImage } from './CoverImage';
+import { coverAltText } from '../utils/comic-labels';
+import { ComicCard, GradeBadge } from './ComicCard';
+import { CoverLightbox } from './CoverLightbox';
 
 interface ComicDetailProps {
   comic: Comic;
@@ -30,64 +23,65 @@ interface ComicDetailProps {
   onViewStorageLocation?: (storageLocation: string) => void;
   onViewCoverArtist?: (coverArtist: string) => void;
   onViewTag?: (tag: string) => void;
-  onViewRawComics?: () => void;
-  onViewSlabbedComics?: () => void;
   breadcrumbItems?: BreadcrumbItem[];
 }
+
+const RELATED_LIMIT = 6;
+
+const byIssue = (a: Comic, b: Comic) =>
+  a.issueNumber - b.issueNumber || Number(a.isVariant) - Number(b.isVariant) || a.id.localeCompare(b.id, 'en', { numeric: true });
+
+const Fact: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
+  <div>
+    <dt className="text-xs uppercase tracking-wide text-slate-400">{label}</dt>
+    <dd className="mt-0.5 font-medium text-white">{children}</dd>
+  </div>
+);
+
+const linkClass = 'text-blue-300 underline-offset-2 hover:text-blue-200 hover:underline';
 
 export const ComicDetail: React.FC<ComicDetailProps> = ({
   comic,
   allComics,
-  onBack,
   onView,
-  onViewSeries,
-  onViewStorageLocation,
-  onViewCoverArtist,
-  onViewTag,
-  onViewRawComics,
-  onViewSlabbedComics,
   breadcrumbItems,
 }) => {
-  const [imageError, setImageError] = useState(false);
-  const [imageLoading, setImageLoading] = useState(true);
-
-  // Check if we have a valid cover image URL
-  const hasValidCoverUrl = comic.coverImageUrl && comic.coverImageUrl.trim() !== '';
-
+  const [showCover, setShowCover] = useState(false);
+  const closeCover = useCallback(() => setShowCover(false), []);
   useScrollToTop();
 
-  const handleImageLoad = () => {
-    setImageLoading(false);
-  };
+  const seriesComics = useMemo(
+    () => allComics.filter(c => c.seriesName === comic.seriesName).sort(byIssue),
+    [allComics, comic.seriesName]
+  );
+  const position = seriesComics.findIndex(c => c.id === comic.id);
+  const previous = position > 0 ? seriesComics[position - 1] : undefined;
+  const next = position >= 0 && position < seriesComics.length - 1 ? seriesComics[position + 1] : undefined;
 
-  const handleImageError = () => {
-    setImageError(true);
-    setImageLoading(false);
-  };
-
-  // Get related comics from the same series
-  const relatedComics = allComics
-    .filter(c => c.id !== comic.id && c.seriesName === comic.seriesName)
-    .sort((a, b) => a.issueNumber - b.issueNumber);
-
-  // Get consecutive issues (within 5 issues before/after)
-  const consecutiveIssues = relatedComics.filter(c => 
-    Math.abs(c.issueNumber - comic.issueNumber) <= 5
+  // The nearest issues by number, excluding this record.
+  const relatedComics = useMemo(
+    () => seriesComics
+      .filter(c => c.id !== comic.id)
+      .sort((a, b) => Math.abs(a.issueNumber - comic.issueNumber) - Math.abs(b.issueNumber - comic.issueNumber) || byIssue(a, b))
+      .slice(0, RELATED_LIMIT)
+      .sort(byIssue),
+    [seriesComics, comic.id, comic.issueNumber]
   );
 
-  // Generate SEO-friendly slug for this comic
-  const comicSlug = createComicSlug(comic);
-  const comicUrl = `https://comics.banast.as/comic/${comicSlug}`;
+  const change = getValueChange(comic.purchasePrice, comic.currentValue);
+  const label = formatComicLabel(comic);
+  const url = absoluteUrl(comicPath(comic));
+  const realCover = hasRealCover(comic.coverImageUrl);
+  const signedBy = comic.signedBy.trim();
 
   return (
-    <div className="min-h-screen bg-surface-base">
-      {/* SEO Meta Tags */}
+    <main id="main-content" className="flex-1">
       <SEO
-        title={`${comic.seriesName} #${comic.issueNumber}${comic.isVariant ? ' (Variant)' : ''}`}
-        description={`${comic.seriesName} Issue #${comic.issueNumber}${comic.coverArtist ? ` - Cover art by ${comic.coverArtist}` : ''}. ${comic.grade ? `Grade: ${comic.grade}` : ''}${comic.isSlabbed ? ' (Slabbed)' : ''}${comic.isVariant ? ' (Variant Cover)' : ''}${comic.signedBy.trim() ? ` Signed by ${comic.signedBy}` : ''}`}
+        title={label}
+        description={`${comic.seriesName} Issue #${comic.issueNumber}${comic.coverArtist ? ` - Cover art by ${comic.coverArtist}` : ''}. Grade: ${comic.grade}${comic.isSlabbed ? ' (Slabbed)' : ''}${comic.isVariant ? ' (Variant Cover)' : ''}${signedBy ? ` Signed by ${signedBy}` : ''}`}
         keywords={`${comic.seriesName}, comic book, issue ${comic.issueNumber}, ${comic.coverArtist || 'comic'}, ${comic.isSlabbed ? 'slabbed comic, graded comic,' : ''} ${comic.isVariant ? 'variant cover,' : ''} comic collection`}
-        image={comic.coverImageUrl}
-        url={comicUrl}
+        image={realCover ? comic.coverImageUrl : undefined}
+        url={url}
         type="article"
         structuredData={generateComicStructuredData({
           id: comic.id,
@@ -102,403 +96,154 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
           signedBy: comic.signedBy,
           isVariant: comic.isVariant,
         })}
-        canonical={comicUrl}
+        canonical={url}
       />
 
-      {/* Header */}
-      <div className="bg-surface-primary shadow-lg border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {breadcrumbItems && breadcrumbItems.length > 1 ? (
-              <Breadcrumb items={breadcrumbItems} />
-            ) : (
-              <button
-                onClick={onBack}
-                className="flex items-center space-x-2 text-slate-300 hover:text-white transition-colors"
-              >
-                <ArrowLeft size={20} />
-                <span>Back to Collection</span>
-              </button>
-            )}
-          </div>
+      <div className="border-b border-slate-800 bg-surface-primary/60">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-6 md:min-h-16 lg:px-8">
+          {breadcrumbItems && <Breadcrumb items={breadcrumbItems} />}
+          {(previous || next) && (
+            <nav aria-label="Issues in this series" className="flex gap-2 text-sm">
+              {previous ? (
+                <SiteLink to={{ type: 'comic', comic: previous }} className="flex items-center gap-1 rounded-lg border border-slate-700 px-2.5 py-1.5 text-slate-200 hover:border-slate-500" aria-label={`Previous: ${formatComicLabel(previous)}`}>
+                  <ChevronLeft size={16} aria-hidden="true" />#{previous.issueNumber}{previous.isVariant ? ' var.' : ''}
+                </SiteLink>
+              ) : <span />}
+              {next && (
+                <SiteLink to={{ type: 'comic', comic: next }} className="flex items-center gap-1 rounded-lg border border-slate-700 px-2.5 py-1.5 text-slate-200 hover:border-slate-500" aria-label={`Next: ${formatComicLabel(next)}`}>
+                  #{next.issueNumber}{next.isVariant ? ' var.' : ''}<ChevronRight size={16} aria-hidden="true" />
+                </SiteLink>
+              )}
+            </nav>
+          )}
         </div>
       </div>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
-        <div className="space-y-8">
-          {/* Title Section with Cover */}
-          <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-4">
-            <div className="flex flex-col lg:flex-row gap-6">
-              {/* Cover Image */}
-              <div className="flex-shrink-0">
-                <div className="relative aspect-[2/3] w-48 bg-surface-secondary rounded-lg overflow-hidden shadow-xl border border-slate-700">
-                  {hasValidCoverUrl && imageLoading && (
-                    <div className="absolute inset-0 bg-surface-secondary animate-pulse flex items-center justify-center">
-                      <div className="w-6 h-6 border-4 border-slate-700 border-t-blue-400 rounded-full animate-spin"></div>
-                    </div>
-                  )}
-                  {hasValidCoverUrl && !imageError ? (
-                    <img
-                      src={comic.coverImageUrl}
-                      alt={`${comic.seriesName} #${comic.issueNumber}`}
-                      width={400}
-                      height={600}
-                      className={`w-full h-full object-cover transition-opacity duration-300 ${
-                        imageLoading ? 'opacity-0' : 'opacity-100'
-                      }`}
-                      onLoad={handleImageLoad}
-                      onError={handleImageError}
-                      fetchPriority="high"
-                      decoding="async"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
-                      <div className="text-center text-slate-400">
-                        <Award size={32} className="mx-auto mb-2" />
-                        <p className="text-xs font-medium">No Cover</p>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Status Badges */}
-                  <div className="absolute top-2 left-2 flex flex-col space-y-2">
-                    {comic.isSlabbed && (
-                      <span className="px-1.5 py-0.5 bg-purple-500 text-white text-xs font-medium rounded shadow-lg backdrop-blur-sm">
-                        Slabbed
-                      </span>
-                    )}
-                    {comic.signedBy && (
-                      <span className="px-1.5 py-0.5 bg-rose-500 text-white text-xs font-medium rounded flex items-center shadow-lg backdrop-blur-sm">
-                        <PenTool size={8} className="mr-1" />
-                        Signed
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Main Information Grid */}
-              <div className="flex-1 min-w-0">
-                {/* Title */}
-                <div className="mb-6">
-                  <h1 className="text-3xl font-bold text-white">
-                    #{comic.issueNumber}
-                  </h1>
-                  <h2 
-                    className="text-xl text-slate-300 hover:text-blue-400 cursor-pointer transition-colors"
-                    onClick={() => onViewSeries?.(comic.seriesName)}
-                    onKeyDown={(event) => handleKeyboardActivation(event, () => onViewSeries?.(comic.seriesName))}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`View ${comic.seriesName} series`}
-                  >
-                    {comic.seriesName}
-                  </h2>
-                  {comic.title && comic.title !== comic.seriesName && (
-                    <h3 className="text-lg text-slate-400">{comic.title}</h3>
-                  )}
-                </div>
-
-                {/* Information Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {/* Column 1: Grade & Status */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-white border-b border-slate-700 pb-2">Grade & Status</h3>
-                    
-                  <div className="flex items-center space-x-2">
-                    <Star size={20} className="text-amber-400" />
-                      <span className="text-lg font-bold text-white">{comic.grade}</span>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-2">
-                      <span className={`inline-block px-3 py-1 text-sm font-medium rounded ${
-                      comic.isSlabbed ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30 cursor-pointer hover:bg-purple-500/30' : 'bg-slate-700/30 text-slate-300 border border-slate-700/50 cursor-pointer hover:bg-slate-700/50'
-                    } transition-colors`}
-                    onClick={() => {
-                      if (comic.isSlabbed) {
-                        onViewSlabbedComics?.();
-                      } else {
-                        onViewRawComics?.();
-                      }
-                    }}
-                    onKeyDown={(event) => handleKeyboardActivation(event, () => {
-                      if (comic.isSlabbed) onViewSlabbedComics?.();
-                      else onViewRawComics?.();
-                    })}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`View all ${comic.isSlabbed ? 'slabbed' : 'raw'} comics`}
-                    >
-                      {comic.isSlabbed ? 'Slabbed' : 'Raw'}
-                    </span>
-                      
-                      {comic.isVariant && (
-                        <span className="inline-block px-3 py-1 bg-orange-500/20 text-orange-300 text-sm font-medium rounded border border-orange-500/30">
-                          Variant Cover
-                        </span>
-                      )}
-                      
-                      {comic.isGraphicNovel && (
-                        <span className="inline-block px-3 py-1 bg-emerald-500/20 text-emerald-300 text-sm font-medium rounded border border-emerald-500/30">
-                          Graphic Novel
-                        </span>
-                      )}
-                    </div>
-                    
-                    {comic.signedBy && (
-                      <div className="flex items-start space-x-2">
-                        <PenTool size={16} className="text-rose-400 mt-0.5" />
-                        <div>
-                          <span className="text-sm text-slate-400">Signed By:</span>
-                          <p className="text-white font-medium">{comic.signedBy}</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Column 2: Dates & Pricing */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-white border-b border-slate-700 pb-2">Dates & Pricing</h3>
-                    
-                    <div className="flex items-start space-x-2">
-                      <Calendar size={16} className="text-blue-400 mt-0.5" />
-                      <div>
-                        <span className="text-sm text-slate-400">Release Date</span>
-                        <p className="text-white font-medium">{formatDateLong(comic.releaseDate)}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start space-x-2">
-                      <DollarSign size={16} className="text-green-400 mt-0.5" />
-                      <div>
-                        <span className="text-sm text-slate-400">Purchased Price</span>
-                        <p className="text-white font-medium text-lg">{comic.purchasePrice === undefined ? 'Not recorded' : formatCurrency(comic.purchasePrice)}</p>
-                      </div>
-                    </div>
-                    
-                    {comic.currentValue !== undefined && (
-                      <div className="flex items-start space-x-2">
-                        <DollarSign size={16} className="text-blue-400 mt-0.5" />
-                        <div>
-                          <span className="text-sm text-slate-400">Current Value</span>
-                          <p className="text-white font-medium text-lg">{formatCurrency(comic.currentValue)}</p>
-                          {comic.purchasePrice !== undefined && comic.currentValue !== comic.purchasePrice && (
-                            <p className={`text-xs font-medium ${
-                              comic.currentValue > (comic.purchasePrice || 0) ? 'text-green-400' : 'text-red-400'
-                            }`}>
-                              {comic.currentValue > (comic.purchasePrice || 0) ? '+' : ''}
-                              {formatCurrency(comic.currentValue - (comic.purchasePrice || 0))} 
-                              {(comic.purchasePrice || 0) > 0 && ` (${((comic.currentValue - (comic.purchasePrice || 0)) / (comic.purchasePrice || 0) * 100).toFixed(1)}%)`}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                    
-                    <div className="flex items-start space-x-2">
-                      <Calendar size={16} className="text-blue-400 mt-0.5" />
-                      <div>
-                        <span className="text-sm text-slate-400">Purchase Date</span>
-                        <p className="text-white font-medium">{formatDateLong(comic.purchaseDate)}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Column 3: Details & Storage */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-white border-b border-slate-700 pb-2">Details & Storage</h3>
-                    
-                    {comic.coverArtist && (
-                      <div className="flex items-start space-x-2">
-                        <Palette size={16} className="text-purple-400 mt-0.5" />
-                        <div>
-                          <span className="text-sm text-slate-400">Cover Artist</span>
-                          <p 
-                            className="text-white font-medium hover:text-blue-400 cursor-pointer transition-colors"
-                            onClick={() => onViewCoverArtist?.(comic.coverArtist)}
-                            onKeyDown={(event) => handleKeyboardActivation(event, () => onViewCoverArtist?.(comic.coverArtist))}
-                            role="button"
-                            tabIndex={0}
-                            aria-label={`View comics with cover art by ${comic.coverArtist}`}
-                          >
-                            {comic.coverArtist}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {comic.storageLocation && (
-                      <div className="flex items-start space-x-2">
-                        <MapPin size={16} className="text-orange-400 mt-0.5" />
-                        <div>
-                          <span className="text-sm text-slate-400">Virtual Box</span>
-                          <p 
-                            className="text-white font-medium hover:text-blue-400 cursor-pointer transition-colors"
-                            onClick={() => onViewStorageLocation?.(comic.storageLocation)}
-                            onKeyDown={(event) => handleKeyboardActivation(event, () => onViewStorageLocation?.(comic.storageLocation))}
-                            role="button"
-                            tabIndex={0}
-                            aria-label={`View virtual box ${comic.storageLocation}`}
-                          >
-                            {comic.storageLocation}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Tags Section */}
-                {comic.tags.length > 0 && (
-                  <div className="mt-6">
-                    <div className="flex items-center space-x-2 mb-3">
-                      <Tag size={16} className="text-blue-400" />
-                      <span className="text-sm text-slate-400">Tags</span>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {comic.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-3 py-1 bg-blue-500/20 text-blue-300 text-sm rounded border border-blue-500/30 cursor-pointer hover:bg-blue-500/30 transition-colors"
-                          onClick={() => onViewTag?.(tag)}
-                          onKeyDown={(event) => handleKeyboardActivation(event, () => onViewTag?.(tag))}
-                          role="button"
-                          tabIndex={0}
-                          aria-label={`View ${tag} tag`}
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Notes Section */}
-                {comic.notes && (
-                  <div className="mt-6">
-                    <div className="flex items-center space-x-2 mb-3">
-                      <FileText size={16} className="text-green-400" />
-                      <span className="text-sm text-slate-400">Notes</span>
-                    </div>
-                    <div className="bg-surface-secondary/50 rounded-lg p-4 border border-slate-700">
-                      <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">{comic.notes}</p>
-                    </div>
-                  </div>
-                )}
-                      </div>
-            </div>
-          </div>
-
-            {/* Metadata */}
-            <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-3 sm:p-6">
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-                <User size={20} className="mr-2 text-slate-400" />
-                Record Information
-              </h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-slate-400 mb-1">Added to Collection</p>
-                  <p className="text-white">{formatDateLong(comic.createdAt)}</p>
-                </div>
-                <div>
-                  <p className="text-slate-400 mb-1">Last Updated</p>
-                  <p className="text-white">{formatDateLong(comic.updatedAt)}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Related Issues */}
-            {relatedComics.length > 0 && (
-              <div className="bg-surface-primary rounded-lg shadow-lg border border-slate-800 p-3 sm:p-6">
-                <h3 
-                  className="text-lg font-semibold text-white mb-4 flex items-center hover:text-blue-400 cursor-pointer transition-colors"
-                  onClick={() => onViewSeries?.(comic.seriesName)}
-                  onKeyDown={(event) => handleKeyboardActivation(event, () => onViewSeries?.(comic.seriesName))}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`View all issues from ${comic.seriesName}`}
+      <div className="mx-auto max-w-7xl space-y-6 px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
+        <article className="rounded-xl border border-slate-800 bg-surface-primary p-4 sm:p-6">
+          <div className="flex flex-col gap-6 md:flex-row md:gap-8">
+            <div className="mx-auto w-full max-w-[280px] flex-shrink-0 md:mx-0 md:w-64 lg:w-72">
+              {realCover ? (
+                <button
+                  type="button"
+                  onClick={() => setShowCover(true)}
+                  className="group relative block aspect-[2/3] w-full overflow-hidden rounded-lg border border-slate-700 bg-surface-secondary shadow-xl"
+                  aria-label={`Enlarge cover: ${coverAltText(comic)}`}
                 >
-                  <Award size={20} className="mr-2 text-yellow-400" />
-                  Related Issues from {comic.seriesName}
-                </h3>
-                
-                {/* Consecutive Issues */}
-                {consecutiveIssues.length > 0 && (
-                  <div className="mb-6">
-                    <h4 className="text-md font-medium text-slate-300 mb-3">Consecutive Issues</h4>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                      {consecutiveIssues.map((relatedComic) => (
-                        <div
-                          key={relatedComic.id}
-                          onClick={() => onView(relatedComic)}
-                          onKeyDown={(event) => handleKeyboardActivation(event, () => onView(relatedComic))}
-                          role="button"
-                          tabIndex={0}
-                          aria-label={`View ${relatedComic.seriesName} issue ${relatedComic.issueNumber}`}
-                          className="bg-surface-secondary/50 rounded-lg p-3 border border-slate-700 hover:border-blue-500 transition-all cursor-pointer group"
-                        >
-                          <div className="aspect-[2/3] bg-slate-700 rounded mb-2 overflow-hidden">
-                            {relatedComic.coverImageUrl ? (
-                              <img
-                                src={relatedComic.coverImageUrl}
-                                alt={`${relatedComic.seriesName} #${relatedComic.issueNumber}`}
-                                width={200}
-                                height={300}
-                                loading="lazy"
-                                decoding="async"
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <Award size={24} className="text-slate-400" />
-                              </div>
-                            )}
-                          </div>
-                          <div className="text-center">
-                            <p className="text-sm font-medium text-white">#{relatedComic.issueNumber}</p>
-                            <p className="text-xs text-slate-400">Grade: {relatedComic.grade}</p>
-                            <p className="text-xs text-green-400">{formatCurrency(relatedComic.purchasePrice || 0)}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  <CoverImage comic={comic} displayWidth={288} sizes="(max-width: 768px) 280px, 288px" decorative priority />
+                  <span className="absolute bottom-2 right-2 rounded-md bg-black/70 p-1.5 text-white opacity-80 transition-opacity group-hover:opacity-100" aria-hidden="true">
+                    <Maximize2 size={16} />
+                  </span>
+                </button>
+              ) : (
+                <div className="aspect-[2/3] w-full overflow-hidden rounded-lg border border-slate-700">
+                  <CoverImage comic={comic} displayWidth={288} />
+                </div>
+              )}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <h1 className="text-2xl font-bold leading-tight text-white sm:text-3xl">
+                <SiteLink to={{ type: 'series', name: comic.seriesName }} className="hover:text-blue-200">{comic.seriesName}</SiteLink>
+                {' '}#{comic.issueNumber}
+              </h1>
+              {comic.title && comic.title !== comic.seriesName && <p className="mt-1 text-lg text-slate-300">{comic.title}</p>}
+
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <GradeBadge comic={comic} size="md" />
+                <SiteLink
+                  to={{ type: comic.isSlabbed ? 'slabbed' : 'raw' }}
+                  className={`rounded-md border px-2.5 py-1 text-sm transition-colors ${comic.isSlabbed ? 'border-purple-500/40 bg-purple-500/15 text-purple-200 hover:bg-purple-500/25' : 'border-slate-600 bg-slate-700/30 text-slate-200 hover:bg-slate-700/60'}`}
+                >
+                  {comic.isSlabbed ? 'Slabbed' : 'Raw'}
+                </SiteLink>
+                {comic.isVariant && (
+                  <SiteLink to={{ type: 'variants' }} className="rounded-md border border-orange-500/40 bg-orange-500/15 px-2.5 py-1 text-sm text-orange-200 hover:bg-orange-500/25">Variant cover</SiteLink>
                 )}
-                
-                {/* All Series Issues */}
-                {relatedComics.length > consecutiveIssues.length && (
-                  <div>
-                    <h4 className="text-md font-medium text-slate-300 mb-3">
-                      All Issues in Collection ({relatedComics.length} total)
-                    </h4>
-                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
-                      {relatedComics.map((relatedComic) => (
-                        <div
-                          key={relatedComic.id}
-                          onClick={() => onView(relatedComic)}
-                          onKeyDown={(event) => handleKeyboardActivation(event, () => onView(relatedComic))}
-                          role="button"
-                          tabIndex={0}
-                          aria-label={`View ${relatedComic.seriesName} issue ${relatedComic.issueNumber}`}
-                          className={`bg-surface-secondary/50 rounded-lg p-2 border transition-all cursor-pointer text-center ${
-                            consecutiveIssues.some(c => c.id === relatedComic.id)
-                              ? 'border-blue-500/50 bg-blue-500/10'
-                              : 'border-slate-700 hover:border-slate-600'
-                          }`}
-                        >
-                          <p className="text-sm font-medium text-white">#{relatedComic.issueNumber}</p>
-                          <p className="text-xs text-slate-400">{relatedComic.grade}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                {comic.isGraphicNovel && <span className="rounded-md border border-emerald-500/40 bg-emerald-500/15 px-2.5 py-1 text-sm text-emerald-200">Graphic novel</span>}
+                {signedBy && (
+                  <span className="flex items-center gap-1 rounded-md border border-rose-500/40 bg-rose-500/15 px-2.5 py-1 text-sm text-rose-200">
+                    <PenTool size={13} aria-hidden="true" />Signed
+                  </span>
                 )}
               </div>
-            )}
+
+              <dl className="mt-6 grid grid-cols-1 gap-x-8 gap-y-4 min-[420px]:grid-cols-2 lg:grid-cols-3">
+                <Fact label="Current value">
+                  {comic.currentValue === undefined ? <span className="text-slate-400">Not recorded</span> : (
+                    <>
+                      <span className="text-lg">{formatCurrency(comic.currentValue)}</span>
+                      {change && change.trend !== 'flat' && (
+                        <span className={`block text-xs ${change.trend === 'up' ? 'text-emerald-400' : 'text-red-400'}`}>{formatValueChange(change)} since purchase</span>
+                      )}
+                    </>
+                  )}
+                </Fact>
+                <Fact label="Purchase price">
+                  {comic.purchasePrice === undefined ? <span className="text-slate-400">Not recorded</span> : formatCurrency(comic.purchasePrice)}
+                </Fact>
+                <Fact label="Release date">{formatDateLong(comic.releaseDate)}</Fact>
+                <Fact label="Purchased">{formatDateLong(comic.purchaseDate)}</Fact>
+                {comic.coverArtist && (
+                  <Fact label={comic.isVariant ? 'Variant cover by' : 'Cover by'}>
+                    <SiteLink to={{ type: 'artist', name: comic.coverArtist }} className={linkClass}>{comic.coverArtist}</SiteLink>
+                  </Fact>
+                )}
+                {signedBy && <Fact label="Signed by">{signedBy}</Fact>}
+                {comic.storageLocation && (
+                  <Fact label="Stored in">
+                    <SiteLink to={{ type: 'storage', name: comic.storageLocation }} className={linkClass}>{comic.storageLocation}</SiteLink>
+                  </Fact>
+                )}
+              </dl>
+
+              {comic.tags.length > 0 && (
+                <div className="mt-6">
+                  <h2 className="mb-2 text-xs uppercase tracking-wide text-slate-400">Tags</h2>
+                  <ul className="flex flex-wrap gap-2">
+                    {comic.tags.map((tag) => (
+                      <li key={tag}>
+                        <SiteLink to={{ type: 'tag', name: tag }} className="inline-block rounded border border-blue-500/30 bg-blue-500/15 px-3 py-1 text-sm text-blue-200 transition-colors hover:bg-blue-500/25">
+                          {tag}
+                        </SiteLink>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {comic.notes && (
+                <div className="mt-6">
+                  <h2 className="mb-2 text-xs uppercase tracking-wide text-slate-400">Notes</h2>
+                  <p className="whitespace-pre-wrap rounded-lg border border-slate-700 bg-surface-secondary/50 p-4 text-sm leading-relaxed text-slate-200">{comic.notes}</p>
+                </div>
+              )}
+            </div>
           </div>
-      </main>
-    </div>
+        </article>
+
+        {relatedComics.length > 0 && (
+          <section aria-labelledby="related-heading" className="rounded-xl border border-slate-800 bg-surface-primary p-4 sm:p-6">
+            <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
+              <h2 id="related-heading" className="text-lg font-semibold text-white">More from {comic.seriesName}</h2>
+              <SiteLink to={{ type: 'series', name: comic.seriesName }} className={`text-sm ${linkClass}`}>
+                View all {seriesComics.length} in the series
+              </SiteLink>
+            </div>
+            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">
+              {relatedComics.map((related) => (
+                <li key={related.id} className="flex">
+                  <ComicCard comic={related} onView={onView} showSeriesName={false} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
+
+      {showCover && realCover && (
+        <CoverLightbox src={comic.coverImageUrl} alt={coverAltText(comic)} onClose={closeCover} />
+      )}
+    </main>
   );
 };

@@ -11,21 +11,6 @@ export const siteOrigin = 'https://comics.banast.as';
 
 export const readComics = () => JSON.parse(fs.readFileSync(comicsPath, 'utf8'));
 
-export const toDateOnly = (date) => new Date(date).toISOString().split('T')[0];
-
-export const maxDate = (dates) => {
-  const validDates = dates
-    .filter(Boolean)
-    .map((date) => new Date(date).getTime())
-    .filter((timestamp) => !Number.isNaN(timestamp));
-
-  if (validDates.length === 0) {
-    return toDateOnly(new Date());
-  }
-
-  return toDateOnly(Math.max(...validDates));
-};
-
 export const createComicSlug = (comic) => {
   const seriesSlug = comic.seriesName
     .toLowerCase()
@@ -39,6 +24,10 @@ export const createComicSlug = (comic) => {
   return `${seriesSlug}-${issueSlug}${variantSlug}${idSuffix}`;
 };
 
+const hasNumber = (value) => value !== undefined && value !== null;
+
+// Mirrors src/utils/computed-tags.ts. scripts/site-routes.test.ts compares both
+// implementations across the collection so generated tag routes match the client.
 export const computeTagsForComic = (comic) => {
   const computed = [];
   const year = new Date(comic.releaseDate).getUTCFullYear();
@@ -56,9 +45,9 @@ export const computeTagsForComic = (comic) => {
   else if (comic.grade >= 9.6) computed.push('High Grade');
 
   if (comic.issueNumber === 1) computed.push('First Issue');
-  if (comic.currentValue && comic.currentValue >= 50) computed.push('High Value');
+  if (hasNumber(comic.currentValue) && comic.currentValue >= 50) computed.push('High Value');
 
-  if (comic.currentValue && comic.purchasePrice && comic.purchasePrice > 0) {
+  if (hasNumber(comic.currentValue) && hasNumber(comic.purchasePrice) && comic.purchasePrice > 0) {
     const change = ((comic.currentValue - comic.purchasePrice) / comic.purchasePrice) * 100;
     if (change >= 50) computed.push('Appreciating');
     else if (change <= -20) computed.push('Depreciating');
@@ -104,66 +93,34 @@ export const absoluteUrl = (route) => `${siteOrigin}${cleanRoute(route) === '/' 
 
 export const encodedRoute = (base, value) => `${base}/${encodeURIComponent(value)}`;
 
+// Every entry gets a static HTML page. `canonical` is the URL the page declares
+// as canonical, and only entries with `inSitemap` are listed in the sitemap.
+// `/collection` renders the same view as `/`, so it canonicalizes to the home
+// page and stays out of the sitemap while its URL keeps working.
 export const getRouteEntries = (comics = readComics()) => {
   const inventory = getCollectionInventory(comics);
-  const siteLastModified = maxDate(comics.map((comic) => comic.updatedAt));
-  const lastModifiedFor = (predicate) => maxDate(comics.filter(predicate).map((comic) => comic.updatedAt));
   const entries = [];
 
-  const add = (route, options) => {
+  const add = (route, { canonicalRoute = route, inSitemap = true, ...options }) => {
     entries.push({
       route: cleanRoute(route),
       loc: absoluteUrl(route),
+      canonical: absoluteUrl(canonicalRoute),
+      inSitemap,
       ...options,
     });
   };
 
-  add('/', {
-    lastmod: siteLastModified,
-    changefreq: 'daily',
-    priority: '1.0',
-    type: 'home',
-  });
-  add('/collection', {
-    lastmod: siteLastModified,
-    changefreq: 'daily',
-    priority: '0.9',
-    type: 'collection',
-  });
-  add('/stats', {
-    lastmod: siteLastModified,
-    changefreq: 'weekly',
-    priority: '0.8',
-    type: 'stats',
-  });
-  add('/raw', {
-    lastmod: lastModifiedFor((comic) => !comic.isSlabbed),
-    changefreq: 'weekly',
-    priority: '0.7',
-    type: 'raw',
-  });
-  add('/slabbed', {
-    lastmod: lastModifiedFor((comic) => comic.isSlabbed),
-    changefreq: 'weekly',
-    priority: '0.7',
-    type: 'slabbed',
-  });
-  add('/variants', {
-    lastmod: lastModifiedFor((comic) => comic.isVariant),
-    changefreq: 'weekly',
-    priority: '0.7',
-    type: 'variants',
-  });
-  add('/boxes', {
-    lastmod: siteLastModified,
-    changefreq: 'weekly',
-    priority: '0.6',
-    type: 'boxes',
-  });
+  add('/', { changefreq: 'daily', priority: '1.0', type: 'home' });
+  add('/collection', { canonicalRoute: '/', inSitemap: false, type: 'collection' });
+  add('/stats', { changefreq: 'weekly', priority: '0.8', type: 'stats' });
+  add('/raw', { changefreq: 'weekly', priority: '0.7', type: 'raw' });
+  add('/slabbed', { changefreq: 'weekly', priority: '0.7', type: 'slabbed' });
+  add('/variants', { changefreq: 'weekly', priority: '0.7', type: 'variants' });
+  add('/boxes', { changefreq: 'weekly', priority: '0.6', type: 'boxes' });
 
   comics.forEach((comic) => {
     add(`/comic/${createComicSlug(comic)}`, {
-      lastmod: comic.updatedAt ? toDateOnly(comic.updatedAt) : siteLastModified,
       changefreq: 'monthly',
       priority: '0.6',
       type: 'comic',
@@ -173,7 +130,6 @@ export const getRouteEntries = (comics = readComics()) => {
 
   inventory.seriesNames.forEach((series) => {
     add(encodedRoute('/series', series), {
-      lastmod: lastModifiedFor((comic) => comic.seriesName === series),
       changefreq: 'weekly',
       priority: '0.7',
       type: 'series',
@@ -184,7 +140,6 @@ export const getRouteEntries = (comics = readComics()) => {
 
   inventory.storageLocations.forEach((location) => {
     add(encodedRoute('/storage', location), {
-      lastmod: lastModifiedFor((comic) => comic.storageLocation === location),
       changefreq: 'weekly',
       priority: '0.5',
       type: 'storage',
@@ -195,7 +150,6 @@ export const getRouteEntries = (comics = readComics()) => {
 
   inventory.coverArtists.forEach((artist) => {
     add(encodedRoute('/artist', artist), {
-      lastmod: lastModifiedFor((comic) => comic.coverArtist === artist),
       changefreq: 'monthly',
       priority: '0.5',
       type: 'artist',
@@ -206,7 +160,6 @@ export const getRouteEntries = (comics = readComics()) => {
 
   inventory.userTags.forEach((tag) => {
     add(encodedRoute('/tag', tag), {
-      lastmod: lastModifiedFor((comic) => (comic.tags || []).includes(tag)),
       changefreq: 'monthly',
       priority: '0.5',
       type: 'tag',
@@ -217,7 +170,6 @@ export const getRouteEntries = (comics = readComics()) => {
 
   inventory.computedTags.forEach((tag) => {
     add(encodedRoute('/tag', tag), {
-      lastmod: lastModifiedFor((comic) => computeTagsForComic(comic).includes(tag)),
       changefreq: 'monthly',
       priority: '0.5',
       type: 'tag',
@@ -228,3 +180,34 @@ export const getRouteEntries = (comics = readComics()) => {
 
   return { ...inventory, entries };
 };
+
+export const getSitemapEntries = (entries) => entries.filter((entry) => entry.inSitemap);
+
+const escapeXml = (value) => String(value)
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&apos;');
+
+// No <lastmod>: the collection sync rewrites every record's updatedAt (and many
+// createdAt values) on each run, so record timestamps do not describe page
+// changes. Search engines ignore lastmod values that are not accurate.
+export const buildSitemapXml = (entries) => `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${getSitemapEntries(entries).map((entry) => `  <url>
+    <loc>${escapeXml(entry.loc)}</loc>
+    <changefreq>${entry.changefreq}</changefreq>
+    <priority>${entry.priority}</priority>
+  </url>`).join('\n')}
+</urlset>
+`;
+
+const unescapeXml = (value) => value
+  .replace(/&lt;/g, '<')
+  .replace(/&gt;/g, '>')
+  .replace(/&quot;/g, '"')
+  .replace(/&apos;/g, "'")
+  .replace(/&amp;/g, '&');
+
+export const parseSitemapLocs = (xml) => [...xml.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => unescapeXml(match[1]));

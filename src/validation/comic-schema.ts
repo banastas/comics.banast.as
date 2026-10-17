@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+// The site's Content-Security-Policy forbids eval; skip Zod's `new Function` JIT probe.
+z.config({ jitless: true });
+
 export const comicSchema = z.object({
   id: z.string().min(1),
   title: z.string(),

@@ -1,378 +1,157 @@
 import React from 'react';
 import type { Comic, ComicStats } from '../types/Comic';
-import { BookOpen, Award, PenTool, Archive, TrendingUp, TrendingDown, MapPin } from 'lucide-react';
-import { formatCurrency, formatPercentage } from '../utils/formatting';
-import { handleKeyboardActivation } from '../utils/accessibility';
+import { Award, BookOpen, TrendingDown, TrendingUp, type LucideIcon } from 'lucide-react';
+import { formatComicLabel, formatCurrency, formatPercentage, formatSignedCurrency, formatValueChange, formatWholeCurrency, getValueChange } from '../utils/formatting';
+import { SiteLink } from './SiteLink';
+import { hasMeaningfulReturn } from '../utils/stats';
 
-interface DashboardProps {
-  stats: ComicStats;
-  showDetailed?: boolean;
-  onViewComic?: (comic: Comic) => void;
-  onViewRawComics?: () => void;
-  onViewSlabbedComics?: () => void;
-  onViewVirtualBoxes?: () => void;
-  virtualBoxesCount?: number;
-  onViewVariants?: () => void;
-  variantsCount?: number;
-  hideSlabbedCard?: boolean;
-  hideRawCard?: boolean;
-}
+const coverageNote = (stats: ComicStats) =>
+  `${stats.comicsWithKnownReturn.toLocaleString('en-US')} of ${stats.totalComics.toLocaleString('en-US')} comics that have both a recorded price and a current value`;
 
-export const Dashboard: React.FC<DashboardProps> = React.memo(({
-  stats,
-  showDetailed = false,
-  onViewComic,
-  onViewRawComics,
-  onViewSlabbedComics,
-  onViewVirtualBoxes,
-  virtualBoxesCount = 0,
-  onViewVariants,
-  variantsCount = 0,
-  hideSlabbedCard = false,
-  hideRawCard = false
-}) => {
-  // Portfolio Hero (only on detailed/stats view)
-  const renderPortfolioHero = () => {
-    if (!showDetailed) return null;
-
-    const gainLoss = stats.totalGainLoss;
-    const gainLossPercent = stats.totalGainLossPercentage;
-    const isPositive = gainLoss >= 0;
-
+const ReturnValue: React.FC<{ stats: ComicStats; size: 'lg' | 'sm' }> = ({ stats, size }) => {
+  const positive = stats.totalGainLoss >= 0;
+  const change = { amount: stats.totalGainLoss, percentage: stats.totalGainLossPercentage, trend: positive ? 'up' as const : 'down' as const };
+  if (size === 'lg') {
     return (
-      <div className="bg-surface-primary rounded-xl border border-slate-800 p-5 sm:p-8 mb-6">
-        <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-4">Portfolio Overview</p>
+      <span className={`flex flex-wrap items-baseline gap-x-2 font-bold tabular-nums ${positive ? 'text-emerald-400' : 'text-red-400'}`}>
+        <span className="text-2xl sm:text-3xl lg:text-4xl">{formatSignedCurrency(change.amount)}</span>
+        <span className="text-base sm:text-lg">({formatPercentage(change.percentage)})</span>
+      </span>
+    );
+  }
+  return (
+    <span className={`text-lg font-bold tabular-nums ${positive ? 'text-emerald-400' : 'text-red-400'}`}>
+      {formatValueChange(change)}
+    </span>
+  );
+};
 
-        {/* Primary metrics row */}
-        <div className="grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 mb-6">
-          <div>
-            <p className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tabular-nums tracking-tight">
-              {stats.comicsWithCurrentValue > 0
-                ? stats.totalCurrentValue.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 })
-                : formatCurrency(stats.totalPurchaseValue)}
-            </p>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1">Current Value</p>
-          </div>
+/** Compact summary for detail-page headers. */
+export const KeyStats: React.FC<{ stats: ComicStats }> = ({ stats }) => (
+  <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:flex sm:flex-wrap sm:gap-x-10">
+    <div>
+      <dt className="text-xs uppercase tracking-wide text-slate-400">Comics</dt>
+      <dd className="text-lg font-bold tabular-nums text-white">{stats.totalComics.toLocaleString('en-US')}</dd>
+    </div>
+    <div>
+      <dt className="text-xs uppercase tracking-wide text-slate-400">Current value</dt>
+      <dd className="text-lg font-bold tabular-nums text-white">
+        {stats.comicsWithCurrentValue > 0 ? formatWholeCurrency(stats.totalCurrentValue) : '—'}
+      </dd>
+    </div>
+    <div className="col-span-2 sm:col-span-1">
+      <dt className="text-xs uppercase tracking-wide text-slate-400">Return on known costs</dt>
+      <dd>
+        {hasMeaningfulReturn(stats)
+          ? <ReturnValue stats={stats} size="sm" />
+          : <span className="text-sm text-slate-400" title={`Only ${coverageNote(stats)}`}>Not enough recorded costs ({stats.comicsWithKnownReturn} of {stats.totalComics} priced)</span>}
+      </dd>
+    </div>
+    <div>
+      <dt className="text-xs uppercase tracking-wide text-slate-400">Avg grade</dt>
+      <dd className="text-lg font-bold tabular-nums text-white">{stats.totalComics ? stats.averageGrade.toFixed(1) : '—'}</dd>
+    </div>
+  </dl>
+);
 
-          {stats.comicsWithKnownReturn > 0 && !isNaN(gainLoss) && (
-            <div>
-              <p className={`text-2xl sm:text-3xl lg:text-4xl font-extrabold tabular-nums tracking-tight ${
-                isPositive ? 'text-emerald-400' : 'text-red-400'
-              }`}>
-                {isPositive ? '+' : ''}{formatCurrency(gainLoss)}
-              </p>
-              <p className="text-xs sm:text-sm text-slate-400 mt-1">
-                Return on known costs{' '}
-                <span className={`font-medium ${isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
-                  ({formatPercentage(gainLossPercent)})
-                </span>
-              </p>
-            </div>
-          )}
-
-          <div>
-            <p className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tabular-nums tracking-tight">
-              {stats.totalComics.toLocaleString()}
-            </p>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1">Comics</p>
-          </div>
+/** Headline numbers for the statistics page. */
+export const PortfolioOverview: React.FC<{ stats: ComicStats; variantsCount: number }> = ({ stats, variantsCount }) => {
+  return (
+    <section aria-labelledby="portfolio-heading" className="rounded-xl border border-slate-800 bg-surface-primary p-5 sm:p-8">
+      <h2 id="portfolio-heading" className="mb-4 text-xs font-medium uppercase tracking-wider text-slate-400">Portfolio overview</h2>
+      <dl className="mb-6 grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 sm:gap-8 lg:grid-cols-3">
+        <div>
+          <dt className="sr-only">Current value</dt>
+          <dd className="text-2xl font-extrabold tabular-nums tracking-tight text-white sm:text-3xl lg:text-4xl">{formatWholeCurrency(stats.totalCurrentValue)}</dd>
+          <dd className="mt-1 text-xs text-slate-400 sm:text-sm">Current value</dd>
         </div>
+        <div>
+          <dt className="sr-only">Return on known costs</dt>
+          <dd>{hasMeaningfulReturn(stats) ? <ReturnValue stats={stats} size="lg" /> : <span className="text-lg text-slate-400">—</span>}</dd>
+          <dd className="mt-1 text-xs text-slate-400 sm:text-sm">
+            Return on {formatCurrency(stats.knownCostBasis)} of recorded costs
+          </dd>
+        </div>
+        <div>
+          <dt className="sr-only">Comics</dt>
+          <dd className="text-2xl font-extrabold tabular-nums tracking-tight text-white sm:text-3xl lg:text-4xl">{stats.totalComics.toLocaleString('en-US')}</dd>
+          <dd className="mt-1 text-xs text-slate-400 sm:text-sm">Comics</dd>
+        </div>
+      </dl>
 
-        {stats.comicsWithKnownReturn < stats.totalComics && (
-          <p className="text-xs text-slate-400 mb-4">Returns use {stats.comicsWithKnownReturn} of {stats.totalComics} comics with both purchase price and current value recorded.</p>
-        )}
+      {stats.comicsWithKnownReturn < stats.totalComics && (
+        <p className="mb-4 text-xs text-slate-400">Returns use only the {coverageNote(stats)}.</p>
+      )}
 
-        {/* Secondary metrics row */}
-        <div className="flex flex-wrap gap-x-8 gap-y-2 pt-4 border-t border-slate-800">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-400">Invested</span>
-            <span className="text-sm text-slate-300 font-medium tabular-nums">{formatCurrency(stats.totalPurchaseValue)}</span>
+      <dl className="flex flex-wrap gap-x-8 gap-y-2 border-t border-slate-800 pt-4 text-sm">
+        {[
+          ['Total paid (all recorded prices)', formatCurrency(stats.totalPurchaseValue)],
+          ['Avg grade', stats.averageGrade.toFixed(1)],
+          ['Raw', stats.rawComics.toLocaleString('en-US')],
+          ['Slabbed', stats.slabbedComics.toLocaleString('en-US')],
+          ['Variants', variantsCount.toLocaleString('en-US')],
+        ].map(([label, value]) => (
+          <div key={label} className="flex items-center gap-2">
+            <dt className="text-slate-400">{label}</dt>
+            <dd className="font-medium tabular-nums text-slate-200">{value}</dd>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-400">Avg Grade</span>
-            <span className="text-sm text-slate-300 font-medium tabular-nums">{stats.averageGrade.toFixed(1)}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-400">Raw</span>
-            <span className="text-sm text-slate-300 font-medium tabular-nums">{stats.rawComics}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-400">Slabbed</span>
-            <span className="text-sm text-slate-300 font-medium tabular-nums">{stats.slabbedComics}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-400">Variants</span>
-            <span className="text-sm text-slate-300 font-medium tabular-nums">{variantsCount}</span>
-          </div>
+        ))}
+      </dl>
+    </section>
+  );
+};
+
+const HighlightCard: React.FC<{
+  comic: Comic;
+  label: string;
+  icon: LucideIcon;
+  accent: 'emerald' | 'red' | 'purple' | 'blue';
+  showChange?: boolean;
+}> = ({ comic, label, icon: Icon, accent, showChange }) => {
+  const change = getValueChange(comic.purchasePrice, comic.currentValue);
+  const accents = {
+    emerald: 'border-l-emerald-400 text-emerald-300',
+    red: 'border-l-red-400 text-red-300',
+    purple: 'border-l-purple-400 text-purple-300',
+    blue: 'border-l-blue-400 text-blue-300',
+  } as const;
+  return (
+    <SiteLink
+      to={{ type: 'comic', comic }}
+      className={`block rounded-xl border border-l-4 border-slate-800 bg-surface-primary p-5 transition-colors hover:border-slate-600 ${accents[accent].split(' ')[0]}`}
+    >
+      <p className={`mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider ${accents[accent].split(' ')[1]}`}>
+        <Icon size={15} aria-hidden="true" />
+        {label}
+      </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-lg font-bold text-white">{formatComicLabel(comic)}</p>
+          <p className="mt-0.5 text-xs text-slate-400">Grade {comic.grade} · {comic.isSlabbed ? 'Slabbed' : 'Raw'}</p>
+        </div>
+        <div className="text-right">
+          {showChange && comic.purchasePrice !== undefined && (
+            <p className="text-xs text-slate-400">Paid {formatCurrency(comic.purchasePrice)}</p>
+          )}
+          <p className="text-xl font-bold tabular-nums text-white">{formatCurrency(comic.currentValue ?? comic.purchasePrice ?? 0)}</p>
+          {showChange && change && (
+            <p className={`text-xs font-medium tabular-nums ${change.trend === 'down' ? 'text-red-400' : 'text-emerald-400'}`}>{formatValueChange(change)}</p>
+          )}
         </div>
       </div>
-    );
-  };
-
-  const statsCards = [
-    {
-      title: 'Total Comics',
-      value: stats.totalComics.toLocaleString(),
-      icon: BookOpen,
-      color: 'bg-blue-500',
-      bgColor: 'bg-blue-500/10',
-      borderColor: 'border-blue-500/20',
-      show: stats.totalComics > 0,
-    },
-    ...(stats.comicsWithCurrentValue > 0 ? [{
-      title: 'Current Value',
-      value: (stats.totalCurrentValue || 0).toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-      }),
-      icon: TrendingUp,
-      color: 'bg-blue-500',
-      bgColor: 'bg-blue-500/10',
-      borderColor: 'border-blue-500/20',
-      show: stats.totalCurrentValue > 0,
-    }] : []),
-    ...(stats.slabbedComics > 0 && !hideSlabbedCard ? [{
-      title: 'Slabbed Comics',
-      value: stats.slabbedComics.toLocaleString(),
-      icon: Archive,
-      color: 'bg-purple-500',
-      bgColor: 'bg-purple-500/10',
-      borderColor: 'border-purple-500/20',
-      show: stats.slabbedComics > 0,
-    }] : []),
-    ...(stats.rawComics > 0 && !hideRawCard ? [{
-      title: 'Raw Comics',
-      value: stats.rawComics.toLocaleString(),
-      icon: Award,
-      color: 'bg-indigo-500',
-      bgColor: 'bg-indigo-500/10',
-      borderColor: 'border-indigo-500/20',
-      show: stats.rawComics > 0,
-    }] : []),
-    ...(virtualBoxesCount > 0 ? [{
-      title: 'Virtual Boxes',
-      value: virtualBoxesCount.toLocaleString(),
-      icon: MapPin,
-      color: 'bg-orange-500',
-      bgColor: 'bg-orange-500/10',
-      borderColor: 'border-orange-500/20',
-      show: virtualBoxesCount > 0,
-    }] : []),
-    ...(variantsCount > 0 ? [{
-      title: 'Variants',
-      value: variantsCount.toLocaleString(),
-      icon: Award,
-      color: 'bg-emerald-500',
-      bgColor: 'bg-emerald-500/10',
-      borderColor: 'border-emerald-500/20',
-      show: variantsCount > 0,
-    }] : []),
-    ...(showDetailed && stats.signedComics > 0 ? [{
-      title: 'Signed Comics',
-      value: stats.signedComics.toLocaleString(),
-      icon: PenTool,
-      color: 'bg-rose-500',
-      bgColor: 'bg-rose-500/10',
-      borderColor: 'border-rose-500/20',
-      show: stats.signedComics > 0,
-    }] : []),
-  ].filter(card => card.show !== false);
-
-  const activateStatsCard = (title: string) => {
-    if (title === 'Slabbed Comics') onViewSlabbedComics?.();
-    else if (title === 'Raw Comics') onViewRawComics?.();
-    else if (title === 'Virtual Boxes') onViewVirtualBoxes?.();
-    else if (title === 'Variants') onViewVariants?.();
-  };
-
-  const isStatsCardInteractive = (title: string) => (
-    title === 'Slabbed Comics' ||
-    title === 'Raw Comics' ||
-    title === 'Virtual Boxes' ||
-    title === 'Variants'
+    </SiteLink>
   );
+};
 
-  return (
-    <div className={showDetailed ? "space-y-6" : "mb-8"}>
-      {renderPortfolioHero()}
+/** Biggest movers and most valuable comics for a set of comics. */
+export const PerformanceHighlights: React.FC<{ stats: ComicStats }> = ({ stats }) => {
+  const cards = [
+    stats.biggestGainer && <HighlightCard key="gain" comic={stats.biggestGainer} label="Biggest gainer" icon={TrendingUp} accent="emerald" showChange />,
+    stats.biggestLoser && <HighlightCard key="loss" comic={stats.biggestLoser} label="Biggest decline" icon={TrendingDown} accent="red" showChange />,
+    stats.highestValuedSlabbedComic && <HighlightCard key="slab" comic={stats.highestValuedSlabbedComic} label="Most valuable slabbed" icon={Award} accent="purple" />,
+    stats.highestValuedRawComic && <HighlightCard key="raw" comic={stats.highestValuedRawComic} label="Most valuable raw" icon={BookOpen} accent="blue" />,
+  ].filter(Boolean);
 
-      {/* Stat cards - shown on collection tab, or as quick-nav on stats tab */}
-      {!showDetailed && (
-        <div className={`grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-6 mb-4 sm:mb-6`}>
-          {statsCards.map((stat) => (
-            <div
-              key={stat.title}
-              className={`bg-surface-primary rounded-xl shadow-card border ${stat.borderColor} p-3 sm:p-4 hover:shadow-card-hover hover:border-slate-600 transition-all duration-200 ${stat.bgColor} ${
-                isStatsCardInteractive(stat.title) ? 'cursor-pointer' : ''
-              }`}
-              onClick={() => activateStatsCard(stat.title)}
-              onKeyDown={isStatsCardInteractive(stat.title)
-                ? (event) => handleKeyboardActivation(event, () => activateStatsCard(stat.title))
-                : undefined}
-              role={isStatsCardInteractive(stat.title) ? 'button' : undefined}
-              tabIndex={isStatsCardInteractive(stat.title) ? 0 : undefined}
-              aria-label={isStatsCardInteractive(stat.title) ? `View ${stat.title}` : undefined}
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm font-medium text-slate-400 mb-1 truncate">{stat.title}</p>
-                  <p className="text-base sm:text-lg lg:text-xl font-bold text-white truncate tabular-nums">{stat.value}</p>
-                </div>
-                <div className={`${stat.color} p-1.5 sm:p-2 rounded-lg shadow-lg self-end sm:self-auto mt-2 sm:mt-0 flex-shrink-0`}>
-                  <stat.icon size={14} className="text-white sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Performance Highlights */}
-      {showDetailed && (
-        stats.comicsWithCurrentValue > 0 ||
-        stats.highestValuedSlabbedComic ||
-        stats.highestValuedRawComic
-      ) && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Biggest Gainer */}
-          {stats.biggestGainer && (
-            <div
-              className="bg-gradient-to-br from-emerald-800/90 to-emerald-900/90 rounded-xl p-5 sm:p-6 text-white shadow-card border border-emerald-500/20 cursor-pointer hover:shadow-glow-emerald transition-all"
-              onClick={() => onViewComic?.(stats.biggestGainer!)}
-              onKeyDown={(event) => handleKeyboardActivation(event, () => onViewComic?.(stats.biggestGainer!))}
-              role="button"
-              tabIndex={0}
-              aria-label={`View biggest gainer ${stats.biggestGainer.seriesName} issue ${stats.biggestGainer.issueNumber}`}
-            >
-              <h3 className="text-sm font-semibold mb-3 flex items-center text-emerald-200 uppercase tracking-wider">
-                <TrendingUp size={16} className="mr-2" />
-                Biggest Gainer
-              </h3>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                <div>
-                  <p className="text-lg sm:text-xl font-bold">
-                    {stats.biggestGainer.seriesName} #{stats.biggestGainer.issueNumber}
-                  </p>
-                  <p className="text-emerald-100 text-sm truncate">{stats.biggestGainer.title}</p>
-                  <p className="text-xs text-emerald-100 mt-1">
-                    Grade: {stats.biggestGainer.grade} &middot; {stats.biggestGainer.isSlabbed ? 'Slabbed' : 'Raw'}
-                  </p>
-                </div>
-                <div className="text-left sm:text-right">
-                  <p className="text-xs text-emerald-100">
-                    Paid: {stats.biggestGainer.purchasePrice ? formatCurrency(stats.biggestGainer.purchasePrice) : 'N/A'}
-                  </p>
-                  <p className="text-xl font-bold tabular-nums">{formatCurrency(stats.biggestGainer.currentValue || 0)}</p>
-                  <p className="text-xs font-medium">
-                    {stats.biggestGainer.purchasePrice ?
-                      `+${formatCurrency((stats.biggestGainer.currentValue || 0) - (stats.biggestGainer.purchasePrice || 0))}
-                      ${(stats.biggestGainer.purchasePrice || 0) > 0 ? `(${formatPercentage(((stats.biggestGainer.currentValue || 0) - (stats.biggestGainer.purchasePrice || 0)) / (stats.biggestGainer.purchasePrice || 0) * 100)})` : ''}` :
-                      'Gain/Loss: N/A'
-                    }
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Biggest Loser */}
-          {stats.biggestLoser && (stats.biggestLoser.currentValue || 0) < (stats.biggestLoser.purchasePrice || 0) && (
-            <div
-              className="bg-gradient-to-br from-red-800/90 to-red-900/90 rounded-xl p-5 sm:p-6 text-white shadow-card border border-red-500/20 cursor-pointer hover:shadow-card-hover transition-all"
-              onClick={() => onViewComic?.(stats.biggestLoser!)}
-              onKeyDown={(event) => handleKeyboardActivation(event, () => onViewComic?.(stats.biggestLoser!))}
-              role="button"
-              tabIndex={0}
-              aria-label={`View biggest decline ${stats.biggestLoser.seriesName} issue ${stats.biggestLoser.issueNumber}`}
-            >
-              <h3 className="text-sm font-semibold mb-3 flex items-center text-red-200 uppercase tracking-wider">
-                <TrendingDown size={16} className="mr-2" />
-                Biggest Decline
-              </h3>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                <div>
-                  <p className="text-lg sm:text-xl font-bold">
-                    {stats.biggestLoser.seriesName} #{stats.biggestLoser.issueNumber}
-                  </p>
-                  <p className="text-red-100 text-sm truncate">{stats.biggestLoser.title}</p>
-                  <p className="text-xs text-red-100 mt-1">
-                    Grade: {stats.biggestLoser.grade} &middot; {stats.biggestLoser.isSlabbed ? 'Slabbed' : 'Raw'}
-                  </p>
-                </div>
-                <div className="text-left sm:text-right">
-                  <p className="text-xs text-red-100">
-                    Paid: {stats.biggestLoser.purchasePrice ? formatCurrency(stats.biggestLoser.purchasePrice) : 'N/A'}
-                  </p>
-                  <p className="text-xl font-bold tabular-nums">{formatCurrency(stats.biggestLoser.currentValue || 0)}</p>
-                  <p className="text-xs font-medium">
-                    {stats.biggestLoser.purchasePrice ?
-                      `${formatCurrency((stats.biggestLoser.currentValue || 0) - (stats.biggestLoser.purchasePrice || 0))}
-                      ${(stats.biggestLoser.purchasePrice || 0) > 0 ? `(${formatPercentage(((stats.biggestLoser.currentValue || 0) - (stats.biggestLoser.purchasePrice || 0)) / (stats.biggestLoser.purchasePrice || 0) * 100)})` : ''}` :
-                      'Gain/Loss: N/A'
-                    }
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Most Valuable Slabbed Comic */}
-          {stats.highestValuedSlabbedComic && (
-            <div
-              className="bg-gradient-to-br from-purple-800/90 to-indigo-900/90 rounded-xl p-5 sm:p-6 text-white shadow-card border border-purple-500/20 cursor-pointer hover:shadow-card-hover transition-all"
-              onClick={() => onViewComic?.(stats.highestValuedSlabbedComic!)}
-              onKeyDown={(event) => handleKeyboardActivation(event, () => onViewComic?.(stats.highestValuedSlabbedComic!))}
-              role="button"
-              tabIndex={0}
-              aria-label={`View most valuable slabbed comic ${stats.highestValuedSlabbedComic.seriesName} issue ${stats.highestValuedSlabbedComic.issueNumber}`}
-            >
-              <h3 className="text-sm font-semibold mb-3 flex items-center text-purple-200 uppercase tracking-wider">
-                <Award size={16} className="mr-2" />
-                Most Valuable Slabbed
-              </h3>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                <div>
-                  <p className="text-lg sm:text-xl font-bold">
-                    {stats.highestValuedSlabbedComic.seriesName} #{stats.highestValuedSlabbedComic.issueNumber}
-                  </p>
-                  <p className="text-purple-100 text-sm truncate">{stats.highestValuedSlabbedComic.title}</p>
-                  <p className="text-xs text-purple-100 mt-1">Grade: {stats.highestValuedSlabbedComic.grade}</p>
-                </div>
-                <p className="text-2xl font-bold tabular-nums">{formatCurrency(stats.highestValuedSlabbedComic.currentValue ?? stats.highestValuedSlabbedComic.purchasePrice ?? 0)}</p>
-              </div>
-            </div>
-          )}
-
-          {/* Most Valuable Raw Comic */}
-          {stats.highestValuedRawComic && (
-            <div
-              className="bg-gradient-to-br from-blue-800/90 to-cyan-900/90 rounded-xl p-5 sm:p-6 text-white shadow-card border border-blue-500/20 cursor-pointer hover:shadow-card-hover transition-all"
-              onClick={() => onViewComic?.(stats.highestValuedRawComic!)}
-              onKeyDown={(event) => handleKeyboardActivation(event, () => onViewComic?.(stats.highestValuedRawComic!))}
-              role="button"
-              tabIndex={0}
-              aria-label={`View most valuable raw comic ${stats.highestValuedRawComic.seriesName} issue ${stats.highestValuedRawComic.issueNumber}`}
-            >
-              <h3 className="text-sm font-semibold mb-3 flex items-center text-blue-200 uppercase tracking-wider">
-                <BookOpen size={16} className="mr-2" />
-                Most Valuable Raw
-              </h3>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                <div>
-                  <p className="text-lg sm:text-xl font-bold">
-                    {stats.highestValuedRawComic.seriesName} #{stats.highestValuedRawComic.issueNumber}
-                  </p>
-                  <p className="text-blue-100 text-sm truncate">{stats.highestValuedRawComic.title}</p>
-                  <p className="text-xs text-blue-100 mt-1">Grade: {stats.highestValuedRawComic.grade}</p>
-                </div>
-                <p className="text-2xl font-bold tabular-nums">{formatCurrency(stats.highestValuedRawComic.currentValue ?? stats.highestValuedRawComic.purchasePrice ?? 0)}</p>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-});
+  if (cards.length === 0) return null;
+  return <div className="grid grid-cols-1 gap-4 md:grid-cols-2">{cards}</div>;
+};

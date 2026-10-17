@@ -32,6 +32,3 @@ jobs:
 
       - name: Run the release gate
         run: npm run check
-
-      - name: Verify tracked generated files
-        run: git diff --exit-code -- public/sitemap.xml

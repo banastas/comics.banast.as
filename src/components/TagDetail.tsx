@@ -1,19 +1,20 @@
 import React, { useMemo } from 'react';
-import { Comic } from '../types/Comic';
+import { Tag } from 'lucide-react';
+import type { Comic } from '../types/Comic';
 import { DetailPageLayout } from './DetailPageLayout';
 import { SEO } from './SEO';
-import { Tag } from 'lucide-react';
-import { formatCurrency } from '../utils/formatting';
-import { BreadcrumbItem } from './Breadcrumb';
+import { SeriesBreakdown } from './SeriesBreakdown';
+import type { BreadcrumbItem } from './Breadcrumb';
 import { generateCollectionPageStructuredData } from '../utils/structured-data';
-import { handleKeyboardActivation } from '../utils/accessibility';
+import { absoluteUrl, tagPath } from '../utils/paths';
+import { SiteLink } from './SiteLink';
+import { seriesCountLabel } from './detailText';
 
 interface TagDetailProps {
   tag: string;
   tagComics: Comic[];
   onBack: () => void;
   onView: (comic: Comic) => void;
-  onViewSeries?: (seriesName: string) => void;
   onViewTag?: (tag: string) => void;
   breadcrumbItems?: BreadcrumbItem[];
 }
@@ -23,79 +24,18 @@ export const TagDetail: React.FC<TagDetailProps> = React.memo(({
   tagComics,
   onBack,
   onView,
-  onViewSeries,
-  onViewTag,
   breadcrumbItems,
 }) => {
-  const uniqueSeries = useMemo(
-    () => Array.from(new Set(tagComics.map(comic => comic.seriesName))).sort(),
-    [tagComics]
-  );
+  const uniqueSeriesCount = useMemo(() => new Set(tagComics.map(comic => comic.seriesName)).size, [tagComics]);
 
-  const relatedTags = useMemo(
-    () => Array.from(new Set(
-      tagComics.flatMap(comic => comic.tags.filter(t => t !== tag))
-    )).sort(),
-    [tagComics, tag]
-  );
+  const relatedTags = useMemo(() => {
+    const counts = new Map<string, number>();
+    tagComics.forEach(comic => comic.tags.filter(t => t !== tag).forEach(t => counts.set(t, (counts.get(t) || 0) + 1)));
+    return Array.from(counts).sort(([a, x], [b, y]) => y - x || a.localeCompare(b)).slice(0, 12);
+  }, [tagComics, tag]);
 
-  const afterDashboard = (
-    <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {uniqueSeries.length > 0 && (
-        <div>
-          <h3 className="text-lg font-semibold text-white mb-3">Series with #{tag}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {uniqueSeries.slice(0, 8).map(series => {
-              const seriesComics = tagComics.filter(comic => comic.seriesName === series);
-              const seriesCount = seriesComics.length;
-              const seriesValue = seriesComics.reduce(
-                (sum, comic) => sum + (comic.currentValue ?? comic.purchasePrice ?? 0), 0
-              );
-
-              return (
-                <div
-                  key={series}
-                  className="bg-surface-secondary/30 rounded-lg p-3 border border-slate-700 cursor-pointer hover:border-blue-500 transition-colors"
-                  onClick={() => onViewSeries?.(series)}
-                  onKeyDown={(event) => handleKeyboardActivation(event, () => onViewSeries?.(series))}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`View ${series} series`}
-                >
-                  <p className="font-medium text-white text-sm truncate">{series}</p>
-                  <p className="text-xs text-slate-400">{seriesCount} issue{seriesCount !== 1 ? 's' : ''}</p>
-                  <p className="text-xs text-green-400">{formatCurrency(seriesValue)}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {relatedTags.length > 0 && (
-        <div>
-          <h3 className="text-lg font-semibold text-white mb-3">Related Tags</h3>
-          <div className="flex flex-wrap gap-2">
-            {relatedTags.slice(0, 12).map(relatedTag => {
-              const tagCount = tagComics.filter(comic => comic.tags.includes(relatedTag)).length;
-
-              return (
-                <button
-                  key={relatedTag}
-                  onClick={() => onViewTag?.(relatedTag)}
-                  className="px-3 py-1 bg-surface-secondary/50 text-slate-300 text-sm rounded border border-slate-700 hover:border-blue-500 hover:text-blue-400 transition-colors"
-                >
-                  #{relatedTag} ({tagCount})
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-
-  const tagUrl = `https://comics.banast.as/tag/${encodeURIComponent(tag)}`;
+  const url = absoluteUrl(tagPath(tag));
+  const title = `${tag} Comics`;
 
   return (
     <DetailPageLayout
@@ -105,49 +45,55 @@ export const TagDetail: React.FC<TagDetailProps> = React.memo(({
       breadcrumbItems={breadcrumbItems}
       seo={
         <SEO
-          title={`#${tag}`}
-          description={`Browse ${tagComics.length} comics tagged with #${tag}${uniqueSeries.length > 0 ? ` across ${uniqueSeries.length} series` : ''}.`}
+          title={title}
+          description={`Browse ${tagComics.length} comics tagged ${tag}.`}
           keywords={`${tag}, comic book tag, ${tag} comics, comic collection`}
-          url={tagUrl}
-          canonical={tagUrl}
-          structuredData={generateCollectionPageStructuredData({
-            name: `#${tag}`,
-            url: tagUrl,
-            comics: tagComics,
-          })}
+          url={url}
+          canonical={url}
+          structuredData={generateCollectionPageStructuredData({ name: title, url, comics: tagComics })}
         />
       }
       icon={<Tag size={24} className="text-white" />}
-      iconBgColor="bg-blue-500"
-      title={`#${tag}`}
-      subtitle={
+      iconBgColor="bg-blue-600"
+      title={title}
+      subtitle={seriesCountLabel(tagComics.length, 'comic', uniqueSeriesCount)}
+      comicsListTitle={`Comics tagged ${tag}`}
+      afterDashboard={
         <>
-          {tagComics.length} comic{tagComics.length !== 1 ? 's' : ''} with this tag
-          {uniqueSeries.length > 0 && (
-            <span className="text-slate-400 ml-2">
-              &bull; {uniqueSeries.length} series
-            </span>
+          <SeriesBreakdown comics={tagComics} title={`Series tagged ${tag}`} maxItems={8} />
+          {relatedTags.length > 0 && (
+            <div>
+              <h3 className="mb-3 text-base font-semibold text-white">Related tags</h3>
+              <ul className="flex flex-wrap gap-2">
+                {relatedTags.map(([relatedTag, count]) => (
+                  <li key={relatedTag}>
+                    <SiteLink
+                      to={{ type: 'tag', name: relatedTag }}
+                      className="inline-block rounded border border-slate-700 bg-surface-secondary/50 px-3 py-1 text-sm text-slate-200 transition-colors hover:border-blue-400 hover:text-blue-200"
+                    >
+                      {relatedTag} <span className="text-slate-400">{count}</span>
+                    </SiteLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
         </>
       }
-      comicsListTitle={`Comics tagged with #${tag}`}
-      afterDashboard={afterDashboard}
-      listExtraInfo={(comic) => (
-        <div className="flex flex-wrap gap-1 mt-1">
+      listExtraInfo={(comic) => comic.tags.length > 0 ? (
+        <span className="flex flex-wrap gap-1">
           {comic.tags.map(comicTag => (
             <span
               key={comicTag}
-              className={`px-2 py-0.5 text-xs rounded border ${
-                comicTag === tag
-                  ? 'bg-blue-500/20 text-blue-300 border-blue-500/30'
-                  : 'bg-slate-700/20 text-slate-400 border-slate-700/30'
-              }`}
+              className={`rounded border px-2 py-0.5 ${comicTag === tag ? 'border-blue-500/30 bg-blue-500/20 text-blue-200' : 'border-slate-700/50 bg-slate-700/20 text-slate-300'}`}
             >
-              #{comicTag}
+              {comicTag}
             </span>
           ))}
-        </div>
-      )}
+        </span>
+      ) : null}
     />
   );
 });
+
+TagDetail.displayName = 'TagDetail';

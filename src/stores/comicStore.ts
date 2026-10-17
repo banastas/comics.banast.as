@@ -4,6 +4,17 @@ import { calculateComicStats } from '../utils/stats';
 import { computeTagData } from '../utils/computed-tags';
 import { parseComics } from '../validation/comic-schema';
 
+export const matchesSearch = (comic: Comic, searchTerm: string): boolean => {
+  const searchLower = searchTerm.trim().toLowerCase();
+  if (!searchLower) return true;
+  return `${comic.seriesName} #${comic.issueNumber}`.toLowerCase().includes(searchLower) ||
+    comic.title.toLowerCase().includes(searchLower) ||
+    comic.notes.toLowerCase().includes(searchLower) ||
+    comic.signedBy.toLowerCase().includes(searchLower) ||
+    comic.coverArtist.toLowerCase().includes(searchLower) ||
+    comic.storageLocation.toLowerCase() === searchLower;
+};
+
 // Helper function to apply filters and sorting
 const applyFilters = (
   comics: Comic[],
@@ -17,15 +28,7 @@ const applyFilters = (
 
   // Apply search filter
   if (filters.searchTerm && filters.searchTerm.trim() !== '') {
-    const searchLower = filters.searchTerm.trim().toLowerCase();
-    filtered = filtered.filter(comic =>
-      `${comic.seriesName} #${comic.issueNumber}`.toLowerCase().includes(searchLower) ||
-      comic.title.toLowerCase().includes(searchLower) ||
-      comic.seriesName.toLowerCase().includes(searchLower) ||
-      comic.notes.toLowerCase().includes(searchLower) ||
-      comic.signedBy.toLowerCase().includes(searchLower) ||
-      comic.coverArtist.toLowerCase().includes(searchLower)
-    );
+    filtered = filtered.filter(comic => matchesSearch(comic, filters.searchTerm));
   }
 
   // Apply series filter
@@ -73,29 +76,43 @@ const applyFilters = (
     });
   }
 
-  // Apply sorting
-  filtered.sort((a, b) => {
-    let aValue: string | number = a[sortField] as string | number;
-    let bValue: string | number = b[sortField] as string | number;
+  return sortCollection(filtered, sortField, sortDirection);
+};
 
-    // Handle special cases for sorting
-    if (sortField === 'issueNumber') {
-      aValue = Number(aValue) || 0;
-      bValue = Number(bValue) || 0;
-    } else if (sortField === 'releaseDate' || sortField === 'purchaseDate') {
-      aValue = new Date(aValue).getTime();
-      bValue = new Date(bValue).getTime();
-    } else if (typeof aValue === 'string') {
-      aValue = aValue.toLowerCase();
-      bValue = typeof bValue === 'string' ? bValue.toLowerCase() : bValue;
+type SortKey = string | number | null;
+
+const getSortKey = (comic: Comic, sortField: SortField): SortKey => {
+  const value = comic[sortField];
+  if (value === undefined || value === null || value === '') return null;
+  if (sortField === 'issueNumber') return Number(value);
+  if (sortField === 'releaseDate' || sortField === 'purchaseDate') {
+    const time = new Date(value as string).getTime();
+    return Number.isNaN(time) ? null : time;
+  }
+  if (typeof value === 'number') return Number.isNaN(value) ? null : value;
+  return String(value);
+};
+
+// Missing values always sort last so a direction change never surfaces unrecorded prices
+// or values first. Equal keys fall back to series and issue for a stable, predictable order.
+export const sortCollection = (comics: Comic[], sortField: SortField, sortDirection: SortDirection): Comic[] => {
+  const direction = sortDirection === 'asc' ? 1 : -1;
+  return [...comics].sort((a, b) => {
+    const aKey = getSortKey(a, sortField);
+    const bKey = getSortKey(b, sortField);
+    if (aKey === null || bKey === null) {
+      if (aKey !== bKey) return aKey === null ? 1 : -1;
+    } else {
+      const compared = typeof aKey === 'string' || typeof bKey === 'string'
+        ? String(aKey).localeCompare(String(bKey), 'en', { sensitivity: 'base', numeric: true })
+        : aKey - bKey;
+      if (compared !== 0) return compared * direction;
     }
-
-    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
-    return 0;
+    return a.seriesName.localeCompare(b.seriesName, 'en', { sensitivity: 'base' })
+      || a.issueNumber - b.issueNumber
+      || Number(a.isVariant) - Number(b.isVariant)
+      || a.id.localeCompare(b.id, 'en', { numeric: true });
   });
-
-  return filtered;
 };
 
 // Helper to compute derived data from comics array

@@ -1,12 +1,26 @@
 import { staticRoutePath } from './static-route-path.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
-import { getRouteEntries, siteOrigin, createComicSlug } from './site-routes.mjs';
+import { isPlaceholderCover } from './cover-placeholders.mjs';
+import { getRouteEntries, siteOrigin } from './site-routes.mjs';
+import {
+  artistStructuredData,
+  collectionPageStructuredData,
+  collectionStructuredData,
+  comicDisplayName,
+  comicStructuredData,
+  seriesStructuredData,
+} from './structured-data.mjs';
 
 const distDir = path.resolve('dist');
 const indexPath = path.join(distDir, 'index.html');
 
 const html = fs.readFileSync(indexPath, 'utf8');
+if (!html.includes('<div id="root"></div>')) {
+  // This script overwrites dist/index.html with the rendered home page, so a
+  // second run without `vite build` would reuse that page as the template.
+  throw new Error('dist/index.html is not the Vite shell; run `vite build` (or `npm run build`) before generating static pages');
+}
 const { comics, seriesNames, storageLocations, coverArtists, computedTags, entries } = getRouteEntries();
 const defaultSocialImage = `${siteOrigin}/og-image.jpg`;
 
@@ -34,81 +48,11 @@ const formatCurrency = (value = 0) => value.toLocaleString('en-US', {
   maximumFractionDigits: 0,
 });
 
+const socialImageFor = (pageComics) => pageComics
+  .map((comic) => comic.coverImageUrl)
+  .find((url) => !isPlaceholderCover(url)) || defaultSocialImage;
+
 const titleWithSuffix = (title) => title.includes('comics.banast.as') ? title : `${title} | comics.banast.as`;
-
-const collectionStructuredData = {
-  '@context': 'https://schema.org',
-  '@type': 'Collection',
-  name: 'comics.banast.as',
-  description: 'Personal comic book collection with tracking and valuation',
-  author: { '@id': 'https://banast.as/#person' },
-  numberOfItems: collectionStats.totalComics,
-  offers: {
-    '@type': 'AggregateOffer',
-    price: Math.round(collectionStats.totalValue * 100) / 100,
-    priceCurrency: 'USD',
-  },
-};
-
-const itemListStructuredData = (name, itemComics, url) => ({
-  '@context': 'https://schema.org',
-  '@type': 'CollectionPage',
-  name,
-  url,
-  mainEntity: {
-    '@type': 'ItemList',
-    numberOfItems: itemComics.length,
-    itemListElement: itemComics.slice(0, 25).map((comic, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      url: `${siteOrigin}/comic/${createComicSlug(comic)}`,
-      name: `${comic.seriesName} #${comic.issueNumber}`,
-    })),
-  },
-});
-
-const comicStructuredData = (comic, url) => ({
-  '@context': 'https://schema.org',
-  '@type': 'ComicIssue',
-  name: comic.title || `${comic.seriesName} #${comic.issueNumber}`,
-  issueNumber: comic.issueNumber,
-  datePublished: comic.releaseDate,
-  image: comic.coverImageUrl,
-  url,
-  ...(comic.coverArtist && {
-    artist: {
-      '@type': 'Person',
-      name: comic.coverArtist,
-    },
-  }),
-  ...(comic.currentValue && {
-    offers: {
-      '@type': 'Offer',
-      price: comic.currentValue,
-      priceCurrency: 'USD',
-    },
-  }),
-  ...(comic.signedBy && comic.signedBy.trim() !== '' && {
-    additionalProperty: {
-      '@type': 'PropertyValue',
-      name: 'signedBy',
-      value: comic.signedBy,
-    },
-  }),
-});
-
-const seriesStructuredData = (seriesName, seriesComics) => ({
-  '@context': 'https://schema.org',
-  '@type': 'ComicSeries',
-  name: seriesName,
-  numberOfItems: seriesComics.length,
-  offers: {
-    '@type': 'AggregateOffer',
-    lowPrice: Math.min(...seriesComics.map((comic) => comic.currentValue || 0)),
-    highPrice: Math.max(...seriesComics.map((comic) => comic.currentValue || 0)),
-    priceCurrency: 'USD',
-  },
-});
 
 const previewShell = ({ title, description, eyebrow = 'comics.banast.as', coverImageUrl, details = [] }) => `
       <main style="min-height:100vh;background:#0d1117;color:#f8fafc;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:32px;">
@@ -129,26 +73,26 @@ const previewShell = ({ title, description, eyebrow = 'comics.banast.as', coverI
       </main>`;
 
 const pageMeta = (entry) => {
-  const url = entry.loc;
+  const url = entry.canonical;
 
   switch (entry.type) {
     case 'comic': {
       const comic = entry.comic;
-      const title = `${comic.seriesName} #${comic.issueNumber}${comic.isVariant ? ' (Variant)' : ''}`;
+      const title = comicDisplayName(comic);
       const description = `${comic.seriesName} Issue #${comic.issueNumber}${comic.coverArtist ? ` - Cover art by ${comic.coverArtist}` : ''}. Grade: ${comic.grade}${comic.isSlabbed ? ' (Slabbed)' : ''}${comic.isVariant ? ' (Variant Cover)' : ''}${comic.signedBy?.trim() ? ` Signed by ${comic.signedBy}` : ''}`;
 
       return {
         title,
         description,
         keywords: `${comic.seriesName}, comic book, issue ${comic.issueNumber}, ${comic.coverArtist || 'comic'}, comic collection`,
-        image: comic.coverImageUrl || defaultSocialImage,
+        image: socialImageFor([comic]),
         type: 'article',
         url,
-        structuredData: comicStructuredData(comic, url),
+        structuredData: comicStructuredData(comic),
         fallback: previewShell({
           title,
           description,
-          coverImageUrl: comic.coverImageUrl,
+          coverImageUrl: isPlaceholderCover(comic.coverImageUrl) ? undefined : comic.coverImageUrl,
           details: [
             ['Grade', comic.grade],
             ['Current Value', formatCurrency(comic.currentValue ?? 0)],
@@ -161,9 +105,9 @@ const pageMeta = (entry) => {
     case 'series':
       return {
         title: `${entry.value} Series`,
-        description: `Browse ${entry.comics.length} comics from the ${entry.value} series in Bill's collection.`,
+        description: `Browse ${entry.comics.length} comics from the ${entry.value} series in the collection.`,
         keywords: `${entry.value}, comic book series, comic collection`,
-        image: entry.comics.find((comic) => comic.coverImageUrl)?.coverImageUrl || defaultSocialImage,
+        image: socialImageFor(entry.comics),
         type: 'website',
         url,
         structuredData: seriesStructuredData(entry.value, entry.comics),
@@ -181,16 +125,10 @@ const pageMeta = (entry) => {
         title: `${entry.value} - Cover Artist`,
         description: `Browse ${entry.comics.length} comics with cover art by ${entry.value}.`,
         keywords: `${entry.value}, comic book cover artist, comic collection`,
-        image: entry.comics.find((comic) => comic.coverImageUrl)?.coverImageUrl || defaultSocialImage,
+        image: socialImageFor(entry.comics),
         type: 'profile',
         url,
-        structuredData: {
-          '@context': 'https://schema.org',
-          '@type': 'Person',
-          name: entry.value,
-          jobTitle: 'Comic Book Cover Artist',
-          url,
-        },
+        structuredData: artistStructuredData(entry.value, url),
         fallback: previewShell({
           title: entry.value,
           description: `${entry.comics.length} comics with cover art by ${entry.value}.`,
@@ -202,10 +140,10 @@ const pageMeta = (entry) => {
         title: `${entry.value} Storage`,
         description: `Browse ${entry.comics.length} comics stored in ${entry.value}.`,
         keywords: `${entry.value}, comic storage, comic collection`,
-        image: entry.comics.find((comic) => comic.coverImageUrl)?.coverImageUrl || defaultSocialImage,
+        image: socialImageFor(entry.comics),
         type: 'website',
         url,
-        structuredData: itemListStructuredData(`${entry.value} Storage`, entry.comics, url),
+        structuredData: collectionPageStructuredData(`${entry.value} Storage`, entry.comics, url),
         fallback: previewShell({
           title: entry.value,
           description: `${entry.comics.length} comics stored in this virtual box.`,
@@ -217,10 +155,10 @@ const pageMeta = (entry) => {
         title: `${entry.value} Comics`,
         description: `Browse ${entry.comics.length} comics tagged ${entry.value}.`,
         keywords: `${entry.value}, tagged comics, comic collection`,
-        image: entry.comics.find((comic) => comic.coverImageUrl)?.coverImageUrl || defaultSocialImage,
+        image: socialImageFor(entry.comics),
         type: 'website',
         url,
-        structuredData: itemListStructuredData(`${entry.value} Comics`, entry.comics, url),
+        structuredData: collectionPageStructuredData(`${entry.value} Comics`, entry.comics, url),
         fallback: previewShell({
           title: `${entry.value} Comics`,
           description: `${entry.comics.length} comics matching this tag.`,
@@ -230,12 +168,12 @@ const pageMeta = (entry) => {
     case 'stats':
       return {
         title: 'Collection Statistics',
-        description: `Collection analytics for ${collectionStats.totalComics} comics across ${collectionStats.uniqueSeries} series.`,
+        description: `Statistics for ${collectionStats.totalComics} comics across ${collectionStats.uniqueSeries} series: value, returns, grades, series, and acquisitions.`,
         keywords: 'comic collection statistics, comic values, comic analytics',
         image: defaultSocialImage,
         type: 'website',
         url,
-        structuredData: collectionStructuredData,
+        structuredData: collectionStructuredData(collectionStats.totalComics),
         fallback: previewShell({
           title: 'Collection Statistics',
           description: `Analytics for ${collectionStats.totalComics} comics across ${collectionStats.uniqueSeries} series.`,
@@ -262,10 +200,10 @@ const pageMeta = (entry) => {
         title,
         description: `Browse ${count} ${String(title).toLowerCase()} in the collection.`,
         keywords: `${title}, comic collection`,
-        image: pageComics.find((comic) => comic.coverImageUrl)?.coverImageUrl || defaultSocialImage,
+        image: socialImageFor(pageComics),
         type: 'website',
         url,
-        structuredData: itemListStructuredData(title, pageComics, url),
+        structuredData: collectionPageStructuredData(title, pageComics, url),
         fallback: previewShell({
           title,
           description: `Browse ${count} ${String(title).toLowerCase()} in the collection.`,
@@ -277,13 +215,13 @@ const pageMeta = (entry) => {
     case 'home':
     default:
       return {
-        title: 'My Collection',
-        description: `View and manage Bill's comic book collection. ${collectionStats.totalComics} comics across ${collectionStats.uniqueSeries} series, total value: ${formatCurrency(collectionStats.totalValue)}.`,
-        keywords: 'comic book collection, comic tracker, comic book manager, comic book database, comic book organizer, comic valuation',
+        title: 'Comic Collection',
+        description: `Browse ${collectionStats.totalComics} comics across ${collectionStats.uniqueSeries} series with cover art, grades, values, variants, artists, and storage details. Current value ${formatCurrency(collectionStats.totalValue)}.`,
+        keywords: 'comic book collection, comic covers, graded comics, slabbed comics, variant covers, comic values',
         image: defaultSocialImage,
         type: 'website',
         url,
-        structuredData: collectionStructuredData,
+        structuredData: collectionStructuredData(collectionStats.totalComics),
         fallback: previewShell({
           title: 'comics.banast.as',
           description: `${collectionStats.totalComics} comics across ${collectionStats.uniqueSeries} series, with current value tracking, storage, cover artists, variants, and slabbed/raw breakdowns.`,

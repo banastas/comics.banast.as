@@ -26,7 +26,9 @@ comics.banast.as is a public React and TypeScript collection browser deployed to
 - `src/stores/comicStore.ts` is the central data and UI store.
 - `src/utils/routing.ts` owns client route parsing and URL helpers.
 - `scripts/site-routes.mjs` owns the build-time route inventory.
-- `scripts/generate-sitemap.js` writes `public/sitemap.xml`.
+- `scripts/generate-sitemap.js` writes `public/sitemap.xml` (untracked derived output; `npm run build` regenerates it).
+- `scripts/structured-data.mjs` builds static JSON-LD and must stay equivalent to `src/utils/structured-data.ts`.
+- `scripts/validate-data.mjs` fails on contract errors and prints non-failing data quality warnings from `scripts/data-warnings.mjs`.
 - `scripts/generate-static-pages.mjs` writes route-specific HTML into `dist/`.
 - `scripts/verify-static-pages.mjs` verifies the built public surface.
 
@@ -51,7 +53,7 @@ Use focused commands during development, but do not substitute them for the full
 - Put repository documentation in the root or `docs/`, not in `public/`.
 - Ensure every manifest, favicon, social image, or metadata reference points to an existing public asset.
 - Preserve keyboard behavior, visible focus, reduced-motion support, labels, and semantic controls.
-- Avoid generated `dist/` churn. Only source and intentionally tracked derived files such as `public/sitemap.xml` belong in commits.
+- Avoid generated churn. `dist/` and `public/sitemap.xml` are derived and ignored; only source files belong in commits.
 
 ## Deployment
 
