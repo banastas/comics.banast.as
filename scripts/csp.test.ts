@@ -22,6 +22,12 @@ describe('content security policy', () => {
     expect(scriptSrc).not.toContain("'unsafe-eval'");
   });
 
+  it('allows the analytics Cloudflare and Google inject on production', () => {
+    expect(csp).toMatch(/script-src [^;]*https:\/\/static\.cloudflareinsights\.com/);
+    expect(csp).toMatch(/connect-src [^;]*https:\/\/cloudflareinsights\.com/);
+    expect(csp).toMatch(/script-src [^;]*https:\/\/\*\.googletagmanager\.com/);
+  });
+
   it('permits cover images and blocks plugins and framing', () => {
     expect(csp).toMatch(/img-src [^;]*https:\/\/covers\.banast\.as/);
     expect(csp).toContain("object-src 'none'");

@@ -9,8 +9,11 @@
 # - style-src needs 'unsafe-inline' for the style attributes in generated
 #   preview HTML and the <style> block in 404.html.
 # - Google Analytics 4 hosts follow Google's published CSP guidance.
+# - Cloudflare Web Analytics is injected on the production domain only: its
+#   beacon loads from static.cloudflareinsights.com and reports to
+#   cloudflareinsights.com.
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-Ckj/M0M0nOvt1Yk/1BCFRUIeNan/EyuPWrSy7Xctvdw=' 'sha256-6ghGcPDNgBx9gi62KioiP25r5kyv8CcNfbADPpH46aY=' 'unsafe-hashes' 'sha256-1jAmyYXcRq6zFldLe/GCgIDJBiOONdXjTLgEFMDnDSM=' https://*.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://covers.banast.as https://*.google-analytics.com https://*.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; manifest-src 'self'; worker-src 'self'; frame-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-Ckj/M0M0nOvt1Yk/1BCFRUIeNan/EyuPWrSy7Xctvdw=' 'sha256-6ghGcPDNgBx9gi62KioiP25r5kyv8CcNfbADPpH46aY=' 'unsafe-hashes' 'sha256-1jAmyYXcRq6zFldLe/GCgIDJBiOONdXjTLgEFMDnDSM=' https://*.googletagmanager.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://covers.banast.as https://*.google-analytics.com https://*.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://cloudflareinsights.com; manifest-src 'self'; worker-src 'self'; frame-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests
   Cross-Origin-Opener-Policy: same-origin
   Permissions-Policy: camera=(), geolocation=(), microphone=(), payment=(), usb=()
   Referrer-Policy: strict-origin-when-cross-origin
