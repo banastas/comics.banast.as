@@ -18,6 +18,8 @@ comics.banast.as is a public React and TypeScript collection browser deployed to
 
 `src/data/comics.json` is canonical for the UI, API, sitemap, and generated pages. Preserve record IDs, public slugs, and the collection schema. Never replace or reorder collection data as part of unrelated refactoring.
 
+`scripts/sync/` writes `src/data/comics.json` from the collection's Google Sheet (see README, "Collection sync"); data commits come from that workflow, so fix data in the sheet rather than by hand.
+
 `example-comic-collection.json` is a small self-hosting example. It is not production data.
 
 ## Architecture

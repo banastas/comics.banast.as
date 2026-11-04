@@ -83,6 +83,7 @@ src/
 └── validation/          Zod collection schema
 functions/api/           Read-only Cloudflare Pages API
 scripts/                 Data, sitemap, static-page, and release checks
+scripts/sync/            Google Sheet → comics.json sync
 public/                  Icons, manifest, headers, robots, and 404 (sitemap.xml is generated here, untracked)
 docs/                    Architecture notes and repository images
 ```
@@ -98,6 +99,29 @@ npm run check
 The checks reject malformed records, duplicate IDs, duplicate public slugs, sitemap and static-page drift, missing public assets, and API incompatibilities. `npm run validate:data` also prints a non-failing WARNINGS section with record IDs for data to fix in the source app, such as purchase dates before release dates, inconsistent series or artist spellings, raw 9.8+ grades, records without any price, and placeholder covers. Do not commit credentials or private collection data. Cover images are referenced by URL and are not copied into this repository.
 
 The root `example-comic-collection.json` provides a small self-hosting example without replacing the live collection contract.
+
+## Collection sync
+
+The collection is edited in a Google Sheet (tab `comics`) and synced into `src/data/comics.json` by `scripts/sync/sync-comics.ts`. The [Sync comics from sheet](.github/workflows/sync-comics.yml) workflow runs it nightly at 07:15 UTC and on demand from the Actions tab (**Run workflow**, optionally as a dry run). When the sheet changed, the workflow runs `npm run check` and commits the data as `data: sync comics from sheet (N total, +added / -removed / ~updated)`; when nothing changed it commits nothing.
+
+The sync:
+
+- keeps each comic's ID from the sheet's `id` column, gives rows without one (blank, `TRUE` or `FALSE`) the next `comic-N`, and writes those IDs back to the sheet before saving, so a retried run never duplicates comics;
+- keeps the previous release date, purchase date and grade when the sheet leaves them blank, and changes `updatedAt` only for rows that changed;
+- refuses to publish if the sheet has more than 10% fewer comics than `comics.json`, or has duplicate or malformed IDs, and names the sheet row of any value the site schema rejects.
+
+Setup, once:
+
+1. In Google Cloud, create a service account, enable the Google Sheets API for its project, and create a JSON key.
+2. Share the sheet with the service account's email as an **Editor** (it writes new IDs back).
+3. Add the key JSON as the repository secret `GOOGLE_SERVICE_ACCOUNT_JSON`.
+4. If `main` is protected, allow GitHub Actions to push to it.
+
+To preview a sync locally:
+
+```bash
+GOOGLE_SERVICE_ACCOUNT_JSON="$(cat path/to/key.json)" node scripts/sync/sync-comics.ts --dry-run
+```
 
 ## Public API
 
