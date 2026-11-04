@@ -181,9 +181,6 @@ export const parseRoute = (route: string): { type: string; params: RouteParams }
     case 'boxes':
       // Virtual boxes listing
       break;
-    case 'csv':
-      // CSV converter
-      break;
     case 'collection':
     case 'stats':
       params.tab = type;

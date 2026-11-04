@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { BookOpen, Plus, X } from 'lucide-react';
+import { BookOpen, X } from 'lucide-react';
 import { Pagination } from './Pagination';
 import { ComicGridList } from './ComicGridList';
 import { SiteLink } from './SiteLink';
@@ -28,7 +28,6 @@ interface CollectionTabProps {
   onClearFilters: () => void;
   onPageChange: (page: number) => void;
   onItemsPerPageChange: (itemsPerPage: number) => void;
-  onShowForm: () => void;
 }
 
 const quickLinkClass = 'inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-surface-primary px-3 py-1.5 text-sm text-slate-200 transition-colors hover:border-slate-500 hover:text-white';
@@ -54,7 +53,6 @@ export const CollectionTab = ({
   onClearFilters,
   onPageChange,
   onItemsPerPageChange,
-  onShowForm,
 }: CollectionTabProps) => {
   const isFiltered = Boolean(searchTerm || activeComputedTag);
   const filteredValue = useMemo(
@@ -180,17 +178,9 @@ export const CollectionTab = ({
             {allComics.length === 0 ? 'No comics in the collection yet' : 'No comics match these filters'}
           </p>
           <p className="mb-6 px-4 text-sm text-slate-400">
-            {allComics.length === 0 ? 'Add a comic to start the collection.' : 'Try a different search or remove a filter.'}
+            {allComics.length === 0 ? 'Check back soon.' : 'Try a different search or remove a filter.'}
           </p>
-          {allComics.length === 0 ? (
-            <button
-              onClick={onShowForm}
-              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-white shadow-lg transition-colors hover:bg-blue-500"
-            >
-              <Plus size={20} aria-hidden="true" />
-              Add a comic
-            </button>
-          ) : (
+          {allComics.length > 0 && (
             <button onClick={onClearFilters} className="rounded-xl border border-slate-600 px-4 py-2 text-sm text-white hover:border-slate-400">
               Clear filters
             </button>

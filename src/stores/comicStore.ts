@@ -160,10 +160,6 @@ interface ComicStore {
   setActiveComputedTag: (tag: string | null) => void;
   getComputedTags: (comicId: string) => string[];
 
-  // Comic Actions
-  addComic: (comic: Omit<Comic, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  updateComic: (id: string, updates: Partial<Comic>) => void;
-  deleteComic: (id: string) => void;
 }
 
 const defaultFilters: FilterOptions = {
@@ -244,56 +240,6 @@ export const useComicStore = create<ComicStore>((set, get) => {
     return { activeComputedTag, filteredComics };
   }),
   getComputedTags: (comicId) => get().computedTagsMap.get(comicId) || [],
-  
-  // Comic Actions
-  addComic: (comicData) => {
-    const newComic: Comic = {
-      ...comicData,
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    set((state) => {
-      const updatedComics = [...state.comics, newComic];
-      const derived = computeDerivedData(updatedComics);
-      const filteredComics = applyFilters(updatedComics, state.filters, state.sortField, state.sortDirection, state.activeComputedTag, derived.computedTagsMap);
-      return {
-        comics: updatedComics,
-        filteredComics,
-        ...derived,
-      };
-    });
-  },
-
-  updateComic: (id, updates) => {
-    set((state) => {
-      const updatedComics = state.comics.map(comic =>
-        comic.id === id
-          ? { ...comic, ...updates, updatedAt: new Date().toISOString() }
-          : comic
-      );
-      const derived = computeDerivedData(updatedComics);
-      const filteredComics = applyFilters(updatedComics, state.filters, state.sortField, state.sortDirection, state.activeComputedTag, derived.computedTagsMap);
-      return {
-        comics: updatedComics,
-        filteredComics,
-        ...derived,
-      };
-    });
-  },
-
-  deleteComic: (id) => {
-    set((state) => {
-      const updatedComics = state.comics.filter(comic => comic.id !== id);
-      const derived = computeDerivedData(updatedComics);
-      const filteredComics = applyFilters(updatedComics, state.filters, state.sortField, state.sortDirection, state.activeComputedTag, derived.computedTagsMap);
-      return {
-        comics: updatedComics,
-        filteredComics,
-        ...derived,
-      };
-    });
-  },
   };
 });
 
