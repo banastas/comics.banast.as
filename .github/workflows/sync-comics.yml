@@ -1,0 +1,61 @@
+name: Sync comics from sheet
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Report what would change without writing to the sheet or committing
+        type: boolean
+        default: false
+  schedule:
+    # Nightly at 07:15 UTC (about 3 AM US Eastern).
+    - cron: '15 7 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-comics
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync from Google Sheet
+        id: sync
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          DRY_RUN: ${{ inputs.dry_run && '--dry-run' || '' }}
+        run: node scripts/sync/sync-comics.ts $DRY_RUN --github-output "$GITHUB_OUTPUT"
+
+      - name: Run the release gate
+        if: steps.sync.outputs.changed == 'true'
+        run: npm run check
+
+      - name: Commit collection data
+        if: steps.sync.outputs.changed == 'true'
+        env:
+          COMMIT_MESSAGE: ${{ steps.sync.outputs.message }}
+        run: |
+          git config user.name "Comic Sync"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/comics.json
+          git commit -m "$COMMIT_MESSAGE"
+          git push origin HEAD:main
