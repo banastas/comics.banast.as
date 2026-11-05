@@ -1,6 +1,7 @@
 import data from '../data/comics.json';
+import seriesData from '../data/series.json';
 import type { Comic } from '../types/Comic';
-import { parseComics } from '../validation/comic-schema';
+import { parseComics, seriesMetadataSchema, type SeriesMetadata } from '../validation/comic-schema';
 import { calculateComicStats } from './stats';
 import { comicSlug } from './comic-slug';
 import { computeTagsForComic } from './computed-tags';
@@ -13,6 +14,9 @@ import { SITE_ORIGIN } from './paths';
 export const MIN_COMICS_PER_TAG_PAGE = 5;
 
 export const comics: Comic[] = parseComics(data);
+
+/** Publisher, volume and start year per series, from the sheet's "series" tab. */
+export const seriesDetails: SeriesMetadata = seriesMetadataSchema.parse(seriesData);
 
 const uniqueSorted = (values: string[]) =>
   [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b));

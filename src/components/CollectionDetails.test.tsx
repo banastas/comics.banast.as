@@ -11,7 +11,7 @@ import { ComicListItem } from './ComicListView';
 import { ComicCard } from './ComicCard';
 import { CollectionHealth } from './CollectionHealth';
 import { KeyStats } from './Dashboard';
-import { seriesSubtitle } from './detailText';
+import { describeSeries, seriesSubtitle } from './detailText';
 import { calculateComicStats } from '../utils/stats';
 import data from '../data/comics.json';
 import type { Comic } from '../types/Comic';
@@ -125,5 +125,23 @@ describe('detail page contracts', () => {
     expect(renderToStaticMarkup(<CollectionHealth comics={[]} />)).not.toContain('NaN');
     const html = renderToStaticMarkup(<CollectionHealth comics={[{ ...base, coverImageUrl: 'https://covers.banast.as/noCover.jpg' }]} />);
     expect(html).toContain('0 of 1 · 0%');
+  });
+
+  it('shows the publisher and the date a value was recorded when known', () => {
+    const comic = { ...base, currentValue: 12, valueAsOf: '2026-11-04' };
+    const doc = parse(renderToStaticMarkup(<ComicDetail comic={comic} {...comicSeriesContext(comic, [comic])} publisher="Image" />));
+    expect(doc.body.textContent).toContain('PublisherImage');
+    expect(doc.body.textContent).toContain('as of November 4, 2026');
+
+    const plain = parse(renderToStaticMarkup(detail({ ...base, currentValue: 12 })));
+    expect(plain.body.textContent).not.toContain('Publisher');
+    expect(plain.body.textContent).not.toContain('as of');
+  });
+
+  it('describes a series from whichever details are known', () => {
+    expect(describeSeries({ publisher: 'Marvel', volume: 1, startYear: 2021 })).toBe('Marvel · Volume 1 · Since 2021');
+    expect(describeSeries({ startYear: 1992 })).toBe('Since 1992');
+    expect(describeSeries({})).toBeUndefined();
+    expect(describeSeries(undefined)).toBeUndefined();
   });
 });

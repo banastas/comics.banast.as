@@ -101,9 +101,9 @@ npm run check
 
 The checks reject malformed records, duplicate IDs, duplicate public slugs, sitemap and static-page drift, missing public assets, and API incompatibilities. `npm run validate:data` also prints a non-failing WARNINGS section with record IDs for data to fix in the source app, such as purchase dates before release dates, inconsistent series or artist spellings, raw 9.8+ grades, records without any price, and placeholder covers. Do not commit credentials or private collection data. Cover images are referenced by URL and are not copied into this repository.
 
-`src/data/series.json` holds optional per-series details keyed by the exact `seriesName`: `publisher`, `volume` and `startYear`, for example `{ "Alien (Vol 1)": { "publisher": "Marvel", "volume": 1, "startYear": 2021 } }`. It is edited by hand; validation rejects names that are not in the collection.
+Records may also carry `slug` (the permalink, frozen when the comic is first synced so later renames never change its URL), `issueLabel` (shown instead of `#<issueNumber>`, e.g. "Annual 1"), and `valueAsOf` (the date `currentValue` last changed, shown as "as of …" on the comic page). The sync fills these in; add optional `issueLabel` and `valueAsOf` columns to the sheet's `comics` tab to set them directly.
 
-Records may also carry `slug` (the permalink, frozen when the comic is first synced so later renames never change its URL), `issueLabel` (shown instead of `#<issueNumber>`, e.g. "Annual 1"), and `valueAsOf` (the date `currentValue` last changed). The sync fills these in; add optional `issueLabel` and `valueAsOf` columns to the sheet to set them directly.
+`src/data/series.json` holds optional per-series details keyed by the exact `seriesName`: `publisher`, `volume` and `startYear`. The sync writes it from the sheet's optional `series` tab (see below). Series pages show them under the title ("Marvel · Volume 1 · Since 2021"), comic pages show the publisher, and both add them to their JSON-LD. Validation rejects names that are not in the collection.
 
 The root `example-comic-collection.json` provides a small self-hosting example without replacing the live collection contract.
 
@@ -115,7 +115,8 @@ The sync:
 
 - keeps each comic's ID from the sheet's `id` column, gives rows without one (blank, `TRUE` or `FALSE`) the next `comic-N`, and writes those IDs back to the sheet before saving, so a retried run never duplicates comics;
 - keeps the previous release date, purchase date and grade when the sheet leaves them blank, and changes `updatedAt` only for rows that changed;
-- refuses to publish if the sheet has more than 10% fewer comics than `comics.json`, or has duplicate or malformed IDs, and names the sheet row of any value the site schema rejects.
+- refuses to publish if the sheet has more than 10% fewer comics than `comics.json`, or has duplicate or malformed IDs, and names the sheet row of any value the site schema rejects;
+- reads an optional `series` tab with the columns `seriesName`, `publisher`, `volume` and `startYear` into `src/data/series.json`. `seriesName` must match the comics tab exactly; blank cells are left out, unknown series are skipped with a warning, and duplicate rows or non-numeric volumes and years fail the run. Without the tab, `series.json` is left as it is.
 
 Setup, once:
 

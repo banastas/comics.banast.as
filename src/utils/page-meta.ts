@@ -10,7 +10,7 @@ import {
   generateComicStructuredData,
   generateSeriesStructuredData,
 } from './structured-data';
-import { collectionStats, seriesNames, storageLocations } from './site-data';
+import { collectionStats, seriesDetails, seriesNames, storageLocations } from './site-data';
 
 // Title, description, social image and JSON-LD for every page type. The layout
 // renders these into <head>; there is no client-side head rewriting.
@@ -72,7 +72,7 @@ export const comicMeta = (comic: Comic): PageMeta => {
     image: socialImageFor([comic]),
     type: 'article',
     canonical: absoluteUrl(comicPath(comic)),
-    structuredData: generateComicStructuredData(comic),
+    structuredData: generateComicStructuredData(comic, { publisher: seriesDetails[comic.seriesName]?.publisher }),
   };
 };
 
@@ -83,7 +83,7 @@ export const seriesMeta = (name: string, seriesComics: Comic[], path: string): P
   image: socialImageFor(seriesComics),
   type: 'website',
   canonical: absoluteUrl(path),
-  structuredData: generateSeriesStructuredData({ name, comics: seriesComics }),
+  structuredData: generateSeriesStructuredData({ name, comics: seriesComics, ...seriesDetails[name] }),
 });
 
 export const artistMeta = (name: string, artistComics: Comic[], path: string): PageMeta => ({

@@ -12,3 +12,13 @@ export const seriesSubtitle = (issueNumbers: number[]): { subtitle: string; note
     note: hasRange ? `(#${sorted[0]}–#${sorted[sorted.length - 1]})` : undefined,
   };
 };
+
+/** "Marvel · Volume 1 · Since 2021", from whichever series details are known. */
+export const describeSeries = (details: { publisher?: string; volume?: number; startYear?: number } = {}): string | undefined => {
+  const parts = [
+    details.publisher,
+    details.volume !== undefined ? `Volume ${details.volume}` : undefined,
+    details.startYear !== undefined ? `Since ${details.startYear}` : undefined,
+  ].filter(Boolean);
+  return parts.length ? parts.join(' · ') : undefined;
+};

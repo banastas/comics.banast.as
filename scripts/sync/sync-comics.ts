@@ -1,4 +1,5 @@
-// Syncs the Google Sheet "comics" tab into src/data/comics.json.
+// Syncs the Google Sheet "comics" tab into src/data/comics.json, and the
+// optional "series" tab into src/data/series.json.
 //
 //   node scripts/sync/sync-comics.ts [--dry-run] [--github-output <file>]
 //
@@ -16,12 +17,24 @@ import { comicsSchema } from '../../src/validation/comic-schema.ts';
 import { findDataWarnings, formatDataWarnings } from '../data-warnings.mjs';
 import { getAccessToken, parseServiceAccount, SheetsClient } from './google-sheets.ts';
 import { commitMessage, rowsFromValues, SyncError, transformSheet, type TransformResult } from './transform.ts';
+import { SERIES_SHEET_NAME, seriesCommitMessage, transformSeriesSheet } from './series.ts';
 
 export const SPREADSHEET_ID = '1SuoelwhnOaU8MYthyfMC5KsBegYIFO5NoWpa6PMzvRM';
 export const SHEET_NAME = 'comics';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const dataPath = path.join(rootDir, 'src/data/comics.json');
+const seriesPath = path.join(rootDir, 'src/data/series.json');
+
+/** Reads the series tab, or returns null when the sheet has no such tab yet. */
+const readSeriesTab = async (sheets: SheetsClient) => {
+  try {
+    return await sheets.getValues(SERIES_SHEET_NAME);
+  } catch (error) {
+    if (error instanceof Error && /Unable to parse range/i.test(error.message)) return null;
+    throw error;
+  }
+};
 
 /** Fails with the sheet row and field for any record the site schema rejects. */
 export const validateComics = (comics: Comic[], rowFor: (id: string) => number | undefined) => {
@@ -74,8 +87,28 @@ const main = async () => {
   result.idUpdates.forEach((update) => rowById.set(update.values[0][0], Number(update.range.match(/\d+$/)?.[0])));
   validateComics(result.comics, (id) => rowById.get(id));
 
-  const message = commitMessage(result.stats);
-  console.log(result.changed ? message : `No changes (${result.stats.total} comics).`);
+  const seriesValues = await readSeriesTab(sheets);
+  const currentSeries = fs.readFileSync(seriesPath, 'utf8');
+  let nextSeries = currentSeries;
+  let seriesCount = 0;
+  if (seriesValues) {
+    const { series, warnings: seriesWarnings } = transformSeriesSheet(
+      rowsFromValues(seriesValues).rows,
+      new Set(result.comics.map((comic) => comic.seriesName)),
+    );
+    seriesWarnings.forEach((warning) => console.log(warning));
+    seriesCount = Object.keys(series).length;
+    nextSeries = `${JSON.stringify(series, null, 2)}\n`;
+  } else {
+    console.log('No "series" tab in the sheet; series.json left unchanged.');
+  }
+  const seriesChanged = nextSeries !== currentSeries;
+
+  const message = result.changed
+    ? `${commitMessage(result.stats)}${seriesChanged ? ` and ${seriesCount} series` : ''}`
+    : seriesCommitMessage(seriesCount);
+  console.log(result.changed || seriesChanged ? message : `No changes (${result.stats.total} comics).`);
+  if (seriesChanged) console.log(`series.json: ${seriesCount} series with details`);
   describeChanges(current, result).forEach((line) => console.log(line));
   const warnings = formatDataWarnings(findDataWarnings(result.comics));
   if (warnings) console.log(warnings);
@@ -83,13 +116,16 @@ const main = async () => {
   if (dryRun) {
     result.idUpdates.forEach((update) => console.log(`would write ${update.values[0][0]} to ${update.range}`));
     console.log('Dry run: nothing written to the sheet or comics.json.');
-  } else if (result.changed) {
-    await sheets.batchUpdate(result.idUpdates);
-    fs.writeFileSync(dataPath, JSON.stringify(result.comics, null, 2));
+  } else {
+    if (result.changed) {
+      await sheets.batchUpdate(result.idUpdates);
+      fs.writeFileSync(dataPath, JSON.stringify(result.comics, null, 2));
+    }
+    if (seriesChanged) fs.writeFileSync(seriesPath, nextSeries);
   }
 
   if (args['github-output']) {
-    const changed = result.changed && !dryRun;
+    const changed = (result.changed || seriesChanged) && !dryRun;
     fs.appendFileSync(args['github-output'], `changed=${changed}\nmessage=${message}\n`);
   }
 };

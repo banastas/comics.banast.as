@@ -56,6 +56,6 @@ jobs:
         run: |
           git config user.name "Comic Sync"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/data/comics.json
+          git add src/data/comics.json src/data/series.json
           git commit -m "$COMMIT_MESSAGE"
           git push origin HEAD:main

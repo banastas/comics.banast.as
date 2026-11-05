@@ -1,7 +1,7 @@
 ---
 import DetailPage from '../../components/astro/DetailPage.astro';
-import { seriesSubtitle } from '../../components/detailText';
-import { comicsInSeries, seriesNames } from '../../utils/site-data';
+import { describeSeries, seriesSubtitle } from '../../components/detailText';
+import { comicsInSeries, seriesDetails, seriesNames } from '../../utils/site-data';
 import { seriesMeta } from '../../utils/page-meta';
 import { seriesPath } from '../../utils/paths';
 
@@ -27,6 +27,7 @@ const sortOptions = [
   title={name}
   subtitle={subtitle}
   subtitleNote={note}
+  details={describeSeries(seriesDetails[name])}
   defaultSortBy="issue"
   sortOptions={sortOptions}
   comicsListTitle="Issues"
