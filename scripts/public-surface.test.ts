@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import manifest from '../public/manifest.json';
 import { DEFAULT_IMAGE } from '../src/utils/page-meta';
+import { sitemapEntries } from '../src/utils/site-data';
 
 const publicFileExists = (src: string) => {
   if (!src.startsWith('/')) return true;
@@ -13,7 +14,7 @@ describe('public deployment surface', () => {
     const referenced = [
       ...(manifest.icons || []).map((icon) => icon.src),
       ...(manifest.screenshots || []).map((screenshot) => screenshot.src),
-      ...(manifest.shortcuts || []).flatMap((shortcut) => (shortcut.icons || []).map((icon) => icon.src)),
+      ...((manifest.shortcuts || []) as { icons?: { src: string }[] }[]).flatMap((shortcut) => (shortcut.icons || []).map((icon) => icon.src)),
     ];
 
     expect(referenced.filter((src) => !publicFileExists(src))).toEqual([]);
@@ -45,4 +46,19 @@ describe('public deployment surface', () => {
     expect(icons).toHaveLength(4);
     expect(icons.filter((src) => !publicFileExists(src))).toEqual([]);
   });
+
+  it('redirects renamed URLs to pages that exist, without shadowing a live page', () => {
+    const rules = fs.readFileSync('public/_redirects', 'utf8').split('\n')
+      .map((line) => line.trim()).filter((line) => line && !line.startsWith('#'))
+      .map((line) => line.split(/\s+/));
+    const paths = new Set(sitemapEntries().map((entry) => entry.path));
+
+    expect(rules.length).toBeGreaterThan(0);
+    rules.forEach(([from, to, status]) => {
+      expect(status).toBe('301');
+      expect(paths.has(to), `${to} is a page`).toBe(true);
+      expect(paths.has(from), `${from} is not a page`).toBe(false);
+    });
+  });
 });
+

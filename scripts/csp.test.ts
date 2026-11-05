@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-// @ts-expect-error Native ESM build integration without type declarations.
 import { decodeFileName, inlineScriptHashes } from '../integrations/static-output.mjs';
 
 const headers = fs.readFileSync(new URL('../public/_headers', import.meta.url), 'utf8');
