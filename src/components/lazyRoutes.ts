@@ -26,7 +26,6 @@ const lazyWithRetry = <T extends React.ComponentType<any>>(factory: () => Promis
     }
   });
 
-export const ComicForm = lazyWithRetry(() => import('./ComicForm').then((module) => ({ default: module.ComicForm })));
 export const ComicDetail = lazyWithRetry(() => import('./ComicDetail').then((module) => ({ default: module.ComicDetail })));
 export const SeriesDetail = lazyWithRetry(() => import('./SeriesDetail').then((module) => ({ default: module.SeriesDetail })));
 export const StorageLocationDetail = lazyWithRetry(() => import('./StorageLocationDetail').then((module) => ({ default: module.StorageLocationDetail })));

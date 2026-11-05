@@ -1,18 +1,15 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { matchesSearch, useComicStore } from './stores/comicStore';
 import { emptySelection, useRouting, type RouteSelection } from './hooks/useRouting';
 import { SEO } from './components/SEO';
 import type { Comic, SortField } from './types/Comic';
 import { debounce } from './utils/performance';
 import type { BreadcrumbItem } from './components/Breadcrumb';
-import { ErrorBoundary } from './components/ErrorBoundary';
 import { MobileControls } from './components/MobileControls';
-import { ToastContainer } from './components/Toast';
 import { getSeriesCountSummaries, getSeriesPerformance, getStorageLocationSummaries, getTopValueComics } from './utils/collection-analytics';
 import { generateCollectionStructuredData } from './utils/structured-data';
 import { AppRouteRenderer } from './components/AppRouteRenderer';
-import { LoadingSpinner, CollectionLoading } from './components/AppLoading';
-import { ComicForm } from './components/lazyRoutes';
+import { CollectionLoading } from './components/AppLoading';
 import { CollectionTab } from './components/CollectionTab';
 import { StatsTab } from './components/StatsTab';
 import { SiteHeader, type HeaderSection } from './components/SiteHeader';
@@ -33,8 +30,6 @@ function App() {
   const sortDirection = useComicStore((s) => s.sortDirection);
   const loading = useComicStore((s) => s.loading);
   const loadError = useComicStore((s) => s.loadError);
-  const addComic = useComicStore((s) => s.addComic);
-  const updateComic = useComicStore((s) => s.updateComic);
   const setFilters = useComicStore((s) => s.setFilters);
   const setSortField = useComicStore((s) => s.setSortField);
   const setSortDirection = useComicStore((s) => s.setSortDirection);
@@ -47,8 +42,6 @@ function App() {
   const activeComputedTag = useComicStore((s) => s.activeComputedTag);
   const setActiveComputedTag = useComicStore((s) => s.setActiveComputedTag);
 
-  const [showForm, setShowForm] = useState(false);
-  const [editingComic, setEditingComic] = useState<Comic | undefined>(undefined);
   const [activeTab, setActiveTab] = useState<'collection' | 'stats'>(
     () => (typeof window !== 'undefined' && window.location.pathname === '/stats' ? 'stats' : 'collection')
   );
@@ -167,21 +160,6 @@ function App() {
     });
     return counts;
   }, [allComics, computedTagCounts, computedTagsMap, filters.searchTerm]);
-
-  const handleSaveComic = (comicData: Omit<Comic, 'id' | 'createdAt' | 'updatedAt'>) => {
-    if (editingComic) {
-      updateComic(editingComic.id, comicData);
-    } else {
-      addComic(comicData);
-    }
-    setShowForm(false);
-    setEditingComic(undefined);
-  };
-
-  const handleCancelComic = useCallback(() => {
-    setShowForm(false);
-    setEditingComic(undefined);
-  }, []);
 
   const navigate = useCallback((destination: Destination) => {
     switch (destination.type) {
@@ -389,7 +367,6 @@ function App() {
             onClearFilters={clearFilters}
             onPageChange={handlePageChange}
             onItemsPerPageChange={handleItemsPerPageChange}
-            onShowForm={() => setShowForm(true)}
           />
         )}
       </main>
@@ -437,20 +414,6 @@ function App() {
           onSortDirectionChange={toggleCollectionSortDirection}
         />
 
-        <ToastContainer />
-
-        {showForm && (
-          <ErrorBoundary><React.Suspense fallback={<LoadingSpinner />}>
-            <ComicForm
-              key={editingComic?.id ?? 'new'}
-              comic={editingComic}
-              onSave={handleSaveComic}
-              onCancel={handleCancelComic}
-              allSeries={allSeries}
-              allVirtualBoxes={allVirtualBoxes}
-            />
-          </React.Suspense></ErrorBoundary>
-        )}
       </div>
     </NavigationProvider>
   );
