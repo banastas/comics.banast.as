@@ -114,6 +114,10 @@ export const tagMeta = (tag: string, tagComics: Comic[], path: string) => listin
   `${tag} Comics`, `Browse ${tagComics.length} comics tagged ${tag}.`, `${tag}, tagged comics, comic collection`, tagComics, path,
 );
 
+export const publisherMeta = (name: string, publisherComics: Comic[], path: string) => listingMeta(
+  `${name} - Publisher`, `Browse ${publisherComics.length} ${name} comics in the collection.`, `${name}, comic publisher, comic collection`, publisherComics, path,
+);
+
 export const groupMeta = (title: string, count: number, pageComics: Comic[], path: string) => listingMeta(
   title, `Browse ${count} ${title.toLowerCase()} in the collection.`, `${title}, comic collection`, pageComics, path,
 );

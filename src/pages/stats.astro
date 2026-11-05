@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { StatsTab } from '../components/StatsTab';
-import { collectionStats, comics, seriesNames, storageLocations } from '../utils/site-data';
+import { collectionStats, comics, comicsByPublisher, publishers, seriesByPublisher, seriesNames, storageLocations } from '../utils/site-data';
 import { getSeriesCountSummaries, getSeriesPerformance, getStorageLocationSummaries, getTopValueComics } from '../utils/collection-analytics';
 import { statsMeta } from '../utils/page-meta';
 ---
@@ -17,6 +17,12 @@ import { statsMeta } from '../utils/page-meta';
       seriesPerformance={getSeriesPerformance(comics)}
       seriesCountSummaries={getSeriesCountSummaries(comics)}
       storageLocationSummaries={getStorageLocationSummaries(comics)}
+      publisherSummaries={publishers
+        .map((name) => {
+          const publisherComics = comicsByPublisher(name);
+          return { name, count: publisherComics.length, seriesCount: seriesByPublisher(name).length, value: publisherComics.reduce((sum, comic) => sum + (comic.currentValue ?? 0), 0) };
+        })
+        .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))}
     />
   </main>
 </BaseLayout>

@@ -159,7 +159,11 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                 <Fact label="Purchase price">
                   {comic.purchasePrice === undefined ? <span className="text-slate-400">Not recorded</span> : formatCurrency(comic.purchasePrice)}
                 </Fact>
-                {publisher && <Fact label="Publisher">{publisher}</Fact>}
+                {publisher && (
+                  <Fact label="Publisher">
+                    <SiteLink to={{ type: 'publisher', name: publisher }} className={linkClass}>{publisher}</SiteLink>
+                  </Fact>
+                )}
                 <Fact label="Release date">{formatDateLong(comic.releaseDate)}</Fact>
                 <Fact label="Purchased">{formatDateLong(comic.purchaseDate)}</Fact>
                 {comic.coverArtist && (

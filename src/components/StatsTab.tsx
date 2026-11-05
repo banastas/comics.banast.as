@@ -21,6 +21,8 @@ interface StatsTabProps {
   seriesPerformance: SeriesPerformance[];
   seriesCountSummaries: SeriesCountSummary[];
   storageLocationSummaries: StorageLocationSummary[];
+  /** Publishers by number of comics, from the series details. */
+  publisherSummaries?: { name: string; count: number; seriesCount: number; value: number }[];
 }
 
 const panelClass = 'rounded-xl border border-slate-800 bg-surface-primary p-5 sm:p-6';
@@ -54,6 +56,7 @@ export const StatsTab = ({
   seriesPerformance,
   seriesCountSummaries,
   storageLocationSummaries,
+  publisherSummaries = [],
 }: StatsTabProps) => {
   const recentAdditions = [...allComics]
     .sort((a, b) => b.purchaseDate.localeCompare(a.purchaseDate) || b.createdAt.localeCompare(a.createdAt))
@@ -155,6 +158,26 @@ export const StatsTab = ({
             <p className="text-sm text-slate-400">No series yet.</p>
           )}
         </section>
+
+        {publisherSummaries.length > 0 && (
+          <section aria-labelledby="publishers-heading" className={panelClass}>
+            <div className="mb-4 flex items-baseline justify-between">
+              <h2 id="publishers-heading" className="text-base font-semibold text-white">Publishers</h2>
+              <span className="text-xs text-slate-400">Current value</span>
+            </div>
+            <RowList items={publisherSummaries} limit={8} render={(publisher) => (
+              <li key={publisher.name}>
+                <SiteLink to={{ type: 'publisher', name: publisher.name }} className={rowLinkClass}>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium text-white">{publisher.name}</span>
+                    <span className="block text-xs text-slate-400">{publisher.count} comics · {publisher.seriesCount} series</span>
+                  </span>
+                  <span className="shrink-0 text-sm font-semibold tabular-nums text-white">{formatWholeCurrency(publisher.value)}</span>
+                </SiteLink>
+              </li>
+            )} />
+          </section>
+        )}
 
         <section aria-labelledby="recent-heading" className={panelClass}>
           <h2 id="recent-heading" className="mb-4 text-base font-semibold text-white">Recent additions</h2>

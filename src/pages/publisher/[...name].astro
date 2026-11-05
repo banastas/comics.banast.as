@@ -1,0 +1,27 @@
+---
+import { Building2 } from 'lucide-react';
+import DetailPage from '../../components/astro/DetailPage.astro';
+import { seriesCountLabel } from '../../components/detailText';
+import { comicsByPublisher, publishers, seriesByPublisher } from '../../utils/site-data';
+import { publisherMeta } from '../../utils/page-meta';
+import { publisherPath } from '../../utils/paths';
+
+export const getStaticPaths = () => publishers.map((name) => ({ params: { name }, props: { name } }));
+
+// Astro hands back "?" and "#" in params percent-encoded; props keep the real name.
+const { name } = Astro.props as { name: string };
+const comics = comicsByPublisher(name);
+const series = seriesByPublisher(name);
+---
+<DetailPage
+  meta={publisherMeta(name, comics, publisherPath(name))}
+  source={{ kind: 'publisher', value: name, series }}
+  comics={comics}
+  breadcrumbItems={[{ label: 'Collection', href: '/' }, { label: name }]}
+  icon={Building2}
+  iconBgColor="bg-emerald-600"
+  title={name}
+  subtitle={`Publisher · ${seriesCountLabel(comics.length, 'comic', series.length)}`}
+  comicsListTitle={`Comics from ${name}`}
+  breakdown={{ title: 'Series', maxItems: 12 }}
+/>

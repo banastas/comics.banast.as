@@ -44,6 +44,14 @@ export const lastUpdated = comics.reduce<string | undefined>(
   undefined,
 );
 
+/** Publishers of series in the collection, alphabetically. */
+export const publishers = uniqueSorted(seriesNames.map((name) => seriesDetails[name]?.publisher ?? ''));
+export const seriesByPublisher = (publisher: string) => seriesNames.filter((name) => seriesDetails[name]?.publisher === publisher);
+export const comicsByPublisher = (publisher: string) => {
+  const series = new Set(seriesByPublisher(publisher));
+  return comics.filter((comic) => series.has(comic.seriesName));
+};
+
 export const comicsInSeries = (name: string) => comics.filter((comic) => comic.seriesName === name);
 export const comicsInStorage = (name: string) => comics.filter((comic) => comic.storageLocation === name);
 export const comicsByArtist = (name: string) => comics.filter((comic) => comic.coverArtist === name);
@@ -70,6 +78,7 @@ export const sitemapEntries = (): SitemapEntry[] => [
   ...seriesNames.map((name): SitemapEntry => ({ path: encoded('/series', name), changefreq: 'weekly', priority: '0.7' })),
   ...storageLocations.map((name): SitemapEntry => ({ path: encoded('/storage', name), changefreq: 'weekly', priority: '0.5' })),
   ...coverArtists.map((name): SitemapEntry => ({ path: encoded('/artist', name), changefreq: 'monthly', priority: '0.5' })),
+  ...publishers.map((name): SitemapEntry => ({ path: encoded('/publisher', name), changefreq: 'monthly', priority: '0.5' })),
   ...userTags.map((tag): SitemapEntry => ({ path: encoded('/tag', tag), changefreq: 'monthly', priority: '0.5' })),
   ...computedTags.map((tag): SitemapEntry => ({ path: encoded('/tag', tag), changefreq: 'monthly', priority: '0.5' })),
 ];

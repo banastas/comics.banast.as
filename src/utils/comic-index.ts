@@ -10,6 +10,8 @@ export const COMIC_INDEX_URL = '/data/comics.json';
 
 export type ListSource =
   | { kind: 'series' | 'artist' | 'storage' | 'tag'; value: string }
+  /** The publisher's series, from series.json (the data file has no publisher field). */
+  | { kind: 'publisher'; value: string; series: string[] }
   | { kind: 'raw' | 'slabbed' | 'variants' };
 
 export const matchesSource = (comic: Comic, source: ListSource): boolean => {
@@ -18,6 +20,7 @@ export const matchesSource = (comic: Comic, source: ListSource): boolean => {
     case 'artist': return comic.coverArtist === source.value;
     case 'storage': return comic.storageLocation === source.value;
     case 'tag': return comic.tags.includes(source.value) || computeTagsForComic(comic).includes(source.value);
+    case 'publisher': return source.series.includes(comic.seriesName);
     case 'raw': return !comic.isSlabbed;
     case 'slabbed': return comic.isSlabbed;
     case 'variants': return comic.isVariant;
