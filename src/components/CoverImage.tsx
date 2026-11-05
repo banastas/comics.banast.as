@@ -26,7 +26,9 @@ export const CoverImage: React.FC<CoverImageProps> = ({
   priority = false,
   compact = false,
 }) => {
-  const [failed, setFailed] = useState(false);
+  // 'resized' → retry with the original file → placeholder.
+  const [attempt, setAttempt] = useState<'resized' | 'original' | 'failed'>('resized');
+  const failed = attempt === 'failed';
 
   if (!hasRealCover(comic.coverImageUrl) || failed) {
     return (
@@ -48,7 +50,8 @@ export const CoverImage: React.FC<CoverImageProps> = ({
     );
   }
 
-  const { src, srcSet } = getCoverSource(comic.coverImageUrl, displayWidth);
+  const resized = getCoverSource(comic.coverImageUrl, displayWidth);
+  const { src, srcSet } = attempt === 'resized' ? resized : { src: comic.coverImageUrl, srcSet: undefined };
 
   return (
     <img
@@ -61,7 +64,7 @@ export const CoverImage: React.FC<CoverImageProps> = ({
       loading={priority ? 'eager' : 'lazy'}
       fetchPriority={priority ? 'high' : undefined}
       decoding="async"
-      onError={() => setFailed(true)}
+      onError={() => setAttempt(attempt === 'resized' && resized.src !== comic.coverImageUrl ? 'original' : 'failed')}
       className={`h-full w-full object-cover ${className}`}
     />
   );

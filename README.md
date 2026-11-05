@@ -147,7 +147,7 @@ The collection endpoint supports series, artist, and text-query filters, plus op
 
 ## Cover thumbnails
 
-Covers are served full size from `covers.banast.as`. If Cloudflare Image Transformations are enabled for the zone, build with `PUBLIC_COVER_RESIZE=cloudflare` to serve resized, modern-format thumbnails with `srcset` through `/cdn-cgi/image`. Without the variable the original files are used unchanged.
+Covers live full size on `covers.banast.as`. Cloudflare Image Transformations is enabled for the banast.as zone, so pages request resized AVIF/WebP covers through `https://covers.banast.as/cdn-cgi/image/…` at two widths (240 and 480 px) with `srcset`; a typical grid cover drops from about 160 KB to about 11 KB. Two widths keep roughly 900 covers inside the free tier's 5,000 unique transformations a month. If a resized image fails, the page falls back to the original file. Build with `PUBLIC_COVER_RESIZE=off` to serve the original files everywhere.
 
 ## Routes and SEO
 
