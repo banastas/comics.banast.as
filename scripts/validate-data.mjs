@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { findDataWarnings, formatDataWarnings } from './data-warnings.mjs';
+import { comicSlug } from '../src/utils/comic-slug.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,18 +30,7 @@ const dateFields = ['releaseDate', 'purchaseDate', 'createdAt', 'updatedAt'];
 
 const slugPattern = /^[a-z0-9][a-z0-9.-]*-\d+$/;
 
-// Mirrors src/utils/comic-slug.ts: the stored slug wins over the computed one.
-const createComicSlug = (comic) => {
-  if (comic.slug) return comic.slug;
-  const seriesSlug = comic.seriesName
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-
-  const idMatch = comic.id.match(/\d+$/);
-  const idSuffix = idMatch ? `-${idMatch[0]}` : '';
-  return `${seriesSlug}-issue-${comic.issueNumber}${comic.isVariant ? '-variant' : ''}${idSuffix}`;
-};
+const createComicSlug = comicSlug;
 
 const fail = (messages) => {
   console.error(`Data validation failed for ${dataPath}`);

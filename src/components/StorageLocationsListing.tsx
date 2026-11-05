@@ -2,44 +2,52 @@ import React, { useMemo, useState } from 'react';
 import { Archive, MapPin } from 'lucide-react';
 import type { Comic } from '../types/Comic';
 import { Breadcrumb, type BreadcrumbItem } from './Breadcrumb';
-import { SEO } from './SEO';
 import { formatCurrency, formatWholeCurrency } from '../utils/formatting';
-import { generateCollectionPageStructuredData } from '../utils/structured-data';
-import { useScrollToTop } from '../hooks/useScrollToTop';
 import { SiteLink } from './SiteLink';
 
+export interface BoxSummary {
+  name: string;
+  count: number;
+  totalValue: number;
+  averageValue: number;
+  slabbedCount: number;
+  rawCount: number;
+  averageGrade: number;
+}
+
+/** Per-box totals, computed at build time so the page never ships the collection. */
+export const summarizeBoxes = (allComics: Comic[]): BoxSummary[] => {
+  const byBox = new Map<string, Comic[]>();
+  allComics.forEach((comic) => {
+    if (!comic.storageLocation) return;
+    byBox.set(comic.storageLocation, [...(byBox.get(comic.storageLocation) ?? []), comic]);
+  });
+  return Array.from(byBox, ([name, comics]) => {
+    const valued = comics.filter((comic) => comic.currentValue !== undefined);
+    const totalValue = valued.reduce((sum, comic) => sum + (comic.currentValue ?? 0), 0);
+    return {
+      name,
+      count: comics.length,
+      totalValue,
+      averageValue: valued.length > 0 ? totalValue / valued.length : 0,
+      slabbedCount: comics.filter((comic) => comic.isSlabbed).length,
+      rawCount: comics.filter((comic) => !comic.isSlabbed).length,
+      averageGrade: comics.reduce((sum, comic) => sum + comic.grade, 0) / comics.length,
+    };
+  });
+};
+
 interface StorageLocationsListingProps {
-  allComics: Comic[];
-  onBack: () => void;
-  onViewStorageLocation: (storageLocation: string) => void;
+  boxes: BoxSummary[];
   breadcrumbItems?: BreadcrumbItem[];
 }
 
 type BoxSort = 'name' | 'totalValue' | 'avgValue' | 'grade' | 'count';
 
-export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = ({ allComics, breadcrumbItems }) => {
+export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = ({ boxes, breadcrumbItems }) => {
   const [sortBy, setSortBy] = useState<BoxSort>('name');
-  useScrollToTop();
 
-  const storageLocations = useMemo(() => {
-    const byBox = new Map<string, Comic[]>();
-    allComics.forEach((comic) => {
-      if (!comic.storageLocation) return;
-      byBox.set(comic.storageLocation, [...(byBox.get(comic.storageLocation) ?? []), comic]);
-    });
-    return Array.from(byBox, ([name, comics]) => {
-      const valued = comics.filter((comic) => comic.currentValue !== undefined);
-      const totalValue = valued.reduce((sum, comic) => sum + (comic.currentValue ?? 0), 0);
-      return {
-        name,
-        count: comics.length,
-        totalValue,
-        averageValue: valued.length > 0 ? totalValue / valued.length : 0,
-        slabbedCount: comics.filter((comic) => comic.isSlabbed).length,
-        rawCount: comics.filter((comic) => !comic.isSlabbed).length,
-        averageGrade: comics.reduce((sum, comic) => sum + comic.grade, 0) / comics.length,
-      };
-    }).sort((a, b) => {
+  const storageLocations = useMemo(() => [...boxes].sort((a, b) => {
       switch (sortBy) {
         case 'totalValue': return b.totalValue - a.totalValue;
         case 'avgValue': return b.averageValue - a.averageValue;
@@ -47,8 +55,7 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
         case 'count': return b.count - a.count;
         default: return a.name.localeCompare(b.name, 'en', { numeric: true });
       }
-    });
-  }, [allComics, sortBy]);
+  }), [boxes, sortBy]);
 
   const boxedComics = storageLocations.reduce((sum, loc) => sum + loc.count, 0);
   const totalValue = storageLocations.reduce((sum, loc) => sum + loc.totalValue, 0);
@@ -58,18 +65,6 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
 
   return (
     <main id="main-content" className="flex-1">
-      <SEO
-        title="Virtual Boxes"
-        description={`Browse ${storageLocations.length} virtual boxes in the collection.`}
-        keywords="virtual boxes, comic storage, comic collection organization"
-        url="https://comics.banast.as/boxes"
-        canonical="https://comics.banast.as/boxes"
-        structuredData={generateCollectionPageStructuredData({
-          name: 'Virtual Boxes',
-          url: 'https://comics.banast.as/boxes',
-          comics: allComics,
-        })}
-      />
 
       <div className="border-b border-slate-800 bg-surface-primary/60">
         <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-3 sm:px-6 md:min-h-16 md:flex-row md:items-center md:justify-between lg:px-8">
@@ -139,7 +134,7 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
                         </span>
                       </span>
                     </span>
-                    <span className="flex-shrink-0 text-left sm:text-right">
+                    <span className="shrink-0 text-left sm:text-right">
                       <span className="block text-xl font-bold tabular-nums text-white">{formatCurrency(location.totalValue)}</span>
                       <span className="block text-sm text-slate-400">{formatCurrency(location.averageValue)} avg</span>
                     </span>

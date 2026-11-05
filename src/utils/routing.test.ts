@@ -2,7 +2,9 @@
 import { describe, expect, it } from 'vitest';
 import comics from '../data/comics.json';
 import type { Comic } from '../types/Comic';
-import { createComicSlug, parseComicSlug, parseCurrentUrl } from './routing';
+import { computeComicSlug } from './comic-slug';
+import { buildQueryString, createComicSlug } from './routing';
+import { readViewState } from '../islands/CollectionApp';
 
 describe('comic routing slugs', () => {
   it('creates unique slugs for the synced collection data', () => {
@@ -15,45 +17,28 @@ describe('comic routing slugs', () => {
     const comic = (comics as Comic[]).find((item) => item.id === 'comic-803');
 
     expect(comic).toBeDefined();
-
-    const slug = createComicSlug(comic!);
-    const parsed = parseComicSlug(slug);
-
-    expect(slug).toBe('predator-versus-planet-of-the-apes-issue-2-803');
-    expect(parsed).toEqual({
-      seriesSlug: 'predator-versus-planet-of-the-apes',
-      issueNumber: '2',
-      isVariant: false,
-      comicId: 'comic-803',
-    });
+    expect(createComicSlug(comic!)).toBe('predator-versus-planet-of-the-apes-issue-2-803');
   });
 
-  it('parses clean URLs as the canonical routing surface', () => {
-    window.history.replaceState(null, '', '/comic/2010-issue-1-23?tab=collection');
+  it('prefers the stored slug over the computed one', () => {
+    const comic = { ...(comics as Comic[])[0], seriesName: 'Renamed Series' };
 
-    expect(parseCurrentUrl()).toEqual({
-      route: '/comic/2010-issue-1-23',
-      params: { tab: 'collection' },
-    });
-  });
-
-  it('keeps legacy hash URLs readable for old bookmarks', () => {
-    window.history.replaceState(null, '', '/#/comic/2010-issue-1-23?tab=collection');
-
-    expect(parseCurrentUrl()).toEqual({
-      route: '/comic/2010-issue-1-23',
-      params: { tab: 'collection' },
-    });
+    expect(createComicSlug(comic)).toBe(comic.slug);
+    expect(computeComicSlug(comic)).toMatch(/^renamed-series-issue-/);
   });
 });
 
-describe('defensive URL state parsing', () => {
-  it('ignores invalid view, tab, sort and direction values', () => {
-    window.history.replaceState(null, '', '/?view=wrong&tab=wrong&sort=wrong&order=wrong');
-    expect(parseCurrentUrl().params).toEqual({});
+describe('collection URL state', () => {
+  it('omits defaults and round-trips non-default values', () => {
+    expect(buildQueryString({ viewMode: 'grid', sortField: 'releaseDate', sortDirection: 'desc', page: 0 })).toBe('');
+    const query = buildQueryString({ viewMode: 'list', searchTerm: 'What If?', computedTag: 'Gem Mint', sortField: 'grade', sortDirection: 'asc', page: 2 });
+
+    expect(readViewState(`?${query}`)).toEqual({
+      searchTerm: 'What If?', tag: 'Gem Mint', sortField: 'grade', sortDirection: 'asc', viewMode: 'list', page: 2,
+    });
   });
-  it('preserves question marks in search queries and ignores ordinary anchors', () => {
-    window.history.replaceState(null, '', '/collection?search=What%20If%3F#main-content');
-    expect(parseCurrentUrl()).toEqual({route: '/collection', params: { searchTerm: 'What If?' }});
+
+  it('preserves question marks in search queries', () => {
+    expect(readViewState('?search=What%20If%3F').searchTerm).toBe('What If?');
   });
 });

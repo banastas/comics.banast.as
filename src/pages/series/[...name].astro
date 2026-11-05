@@ -1,0 +1,34 @@
+---
+import DetailPage from '../../components/astro/DetailPage.astro';
+import { seriesSubtitle } from '../../components/detailText';
+import { comicsInSeries, seriesNames } from '../../utils/site-data';
+import { seriesMeta } from '../../utils/page-meta';
+import { seriesPath } from '../../utils/paths';
+
+export const getStaticPaths = () => seriesNames.map((name) => ({ params: { name }, props: { name } }));
+
+// Astro hands back "?" and "#" in params percent-encoded; props keep the real name.
+const { name } = Astro.props as { name: string };
+const comics = comicsInSeries(name);
+const { subtitle, note } = seriesSubtitle(comics.map((comic) => comic.issueNumber));
+const sortOptions = [
+  { value: 'issue', label: 'Sort by Issue #' },
+  { value: 'grade', label: 'Sort by Grade' },
+  { value: 'value', label: 'Sort by Value' },
+  { value: 'dateDesc', label: 'Release Date: Newest' },
+  { value: 'dateAsc', label: 'Release Date: Oldest' },
+];
+---
+<DetailPage
+  meta={seriesMeta(name, comics, seriesPath(name))}
+  source={{ kind: 'series', value: name }}
+  comics={comics}
+  breadcrumbItems={[{ label: 'Collection', href: '/' }, { label: name }]}
+  title={name}
+  subtitle={subtitle}
+  subtitleNote={note}
+  defaultSortBy="issue"
+  sortOptions={sortOptions}
+  comicsListTitle="Issues"
+  showSeriesName={false}
+/>

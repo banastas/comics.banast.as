@@ -1,0 +1,100 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+
+@theme {
+  --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif;
+
+  --color-surface-base: rgb(13 17 23);
+  --color-surface-primary: rgb(22 27 34);
+  --color-surface-secondary: rgb(33 38 45);
+  --color-surface-elevated: rgb(28 33 40);
+
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+  --shadow-card-hover: 0 10px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+  --shadow-glow: 0 0 20px -5px rgb(59 130 246 / 0.3);
+  --shadow-glow-emerald: 0 0 20px -5px rgb(16 185 129 / 0.3);
+
+  --animate-fade-in: fadeIn 200ms ease-out;
+  --animate-slide-up: slideUp 300ms ease-out;
+  --animate-slide-down: slideDown 200ms ease-out;
+
+  @keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(8px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideUp {
+    0% { transform: translateY(100%); }
+    100% { transform: translateY(0); }
+  }
+  @keyframes slideDown {
+    0% { opacity: 0; transform: translateY(-10px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+}
+
+@layer base {
+  /* Tailwind 3 defaults the components were written against. */
+  *, ::after, ::before, ::backdrop, ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+  button:not(:disabled), [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--color-surface-base);
+    color: #e6edf3;
+  }
+
+  ::selection {
+    background-color: rgb(59 130 246 / 0.3);
+    color: #ffffff;
+  }
+
+  :where(a, button, input, select, textarea, [role='button']):focus-visible {
+    outline: 2px solid #60a5fa;
+    outline-offset: 3px;
+  }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--color-surface-base); }
+  ::-webkit-scrollbar-thumb { background: var(--color-surface-secondary); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgb(55 65 81); }
+  * { scrollbar-width: thin; scrollbar-color: var(--color-surface-secondary) var(--color-surface-base); }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  @media (prefers-contrast: high) {
+    .bg-gray-800 { background-color: #000000; border: 1px solid #ffffff; }
+    .text-gray-300 { color: #ffffff; }
+  }
+}
+
+/*
+ * iOS Safari zooms the visual viewport when a focused form control renders
+ * below 16px. Keep mobile controls at the native readable size. This does not
+ * disable user zoom.
+ */
+@media (max-width: 767px) {
+  input:not([type='checkbox']):not([type='radio']),
+  select,
+  textarea {
+    font-size: 1rem !important;
+  }
+}

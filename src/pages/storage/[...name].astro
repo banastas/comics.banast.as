@@ -1,0 +1,28 @@
+---
+import { MapPin } from 'lucide-react';
+import DetailPage from '../../components/astro/DetailPage.astro';
+import { seriesCountLabel } from '../../components/detailText';
+import { comicsInStorage, storageLocations } from '../../utils/site-data';
+import { storageMeta } from '../../utils/page-meta';
+import { storagePath } from '../../utils/paths';
+
+export const getStaticPaths = () => storageLocations.map((name) => ({ params: { name }, props: { name } }));
+
+// Astro hands back "?" and "#" in params percent-encoded; props keep the real name.
+const { name } = Astro.props as { name: string };
+const comics = comicsInStorage(name);
+const seriesCount = new Set(comics.map((comic) => comic.seriesName)).size;
+---
+<DetailPage
+  meta={storageMeta(name, comics, storagePath(name))}
+  section="boxes"
+  source={{ kind: 'storage', value: name }}
+  comics={comics}
+  breadcrumbItems={[{ label: 'Collection', href: '/' }, { label: 'Virtual Boxes', href: '/boxes' }, { label: name }]}
+  icon={MapPin}
+  iconBgColor="bg-orange-600"
+  title={`Box ${name}`}
+  subtitle={`Virtual box · ${seriesCountLabel(comics.length, 'comic', seriesCount)}`}
+  comicsListTitle={`Comics in ${name}`}
+  breakdown={{ title: 'Series in this box', maxItems: 12 }}
+/>

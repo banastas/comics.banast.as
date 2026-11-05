@@ -6,7 +6,7 @@ import { ComicListView } from './ComicListView';
 interface ComicGridListProps {
   comics: Comic[];
   viewMode: 'grid' | 'list';
-  onView: (comic: Comic) => void;
+  onView?: (comic: Comic) => void;
   listExtraInfo?: (comic: Comic) => React.ReactNode;
   showSeriesName?: boolean;
 }

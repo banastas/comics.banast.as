@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { ComicDetail, comicSeriesContext } from '../../components/ComicDetail';
+import { comics } from '../../utils/site-data';
+import { comicSlug, issueText } from '../../utils/comic-slug';
+import { comicMeta } from '../../utils/page-meta';
+import { seriesPath } from '../../utils/paths';
+import type { Comic } from '../../types/Comic';
+
+export const getStaticPaths = () => comics.map((comic) => ({ params: { slug: comicSlug(comic) }, props: { comic } }));
+
+const { comic } = Astro.props as { comic: Comic };
+const context = comicSeriesContext(comic, comics);
+const breadcrumbItems = [
+  { label: 'Collection', href: '/' },
+  { label: comic.seriesName, href: seriesPath(comic.seriesName) },
+  { label: `${issueText(comic)}${comic.isVariant ? ' (Variant)' : ''}` },
+];
+---
+<BaseLayout meta={comicMeta(comic)}>
+  <ComicDetail client:idle comic={comic} {...context} breadcrumbItems={breadcrumbItems} />
+</BaseLayout>

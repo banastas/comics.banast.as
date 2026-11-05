@@ -4,15 +4,14 @@ Complete scoped work fully. Search before building, preserve collection data, ad
 
 ## Project
 
-comics.banast.as is a public React and TypeScript collection browser deployed to Cloudflare Pages.
+comics.banast.as is a public comic collection browser built with Astro and deployed to Cloudflare Pages.
 
-- Vite builds the hydrated application.
-- Tailwind CSS provides styling.
-- Zustand owns application state.
+- Astro renders every page to static HTML at build time.
+- React components hydrate only where pages are interactive (`client:*` islands).
+- Tailwind CSS 4 provides styling.
 - Zod validates collection records.
-- Vitest covers application, API, accessibility, and public-surface contracts.
+- Vitest covers data contracts, islands, routing, structured data, the API, and the public surface.
 - Cloudflare Pages Functions in `functions/api/` expose read-only collection endpoints.
-- Build scripts generate clean static entry pages and the sitemap.
 
 ## Source of truth
 
@@ -24,17 +23,16 @@ comics.banast.as is a public React and TypeScript collection browser deployed to
 
 ## Architecture
 
-- `src/App.tsx` and `src/components/AppRouteRenderer.tsx` coordinate the application shell and route views.
-- `src/stores/comicStore.ts` is the central data and UI store.
-- `src/utils/routing.ts` owns client route parsing and URL helpers.
-- `scripts/site-routes.mjs` owns the build-time route inventory.
-- `scripts/generate-sitemap.js` writes `public/sitemap.xml` (untracked derived output; `npm run build` regenerates it).
-- `scripts/structured-data.mjs` builds static JSON-LD and must stay equivalent to `src/utils/structured-data.ts`.
+- `src/pages/` holds one route per page type; `src/layouts/BaseLayout.astro` renders the document head from `src/utils/page-meta.ts`.
+- `src/utils/site-data.ts` is the build-time route inventory (series, artists, boxes, tags) and builds the sitemap.
+- `src/islands/CollectionApp.tsx` owns the collection page's interactive state, kept in the URL.
+- `src/components/DetailPageLayout.tsx` is the shared detail-list island; it loads `/data/comics.json` only when a reader sorts or pages.
+- `src/utils/comic-slug.ts` builds permalinks; a stored `slug` always wins.
+- `integrations/static-output.mjs` decodes "?" and "#" in output file names and writes inline script hashes into the CSP.
 - `scripts/validate-data.mjs` fails on contract errors and prints non-failing data quality warnings from `scripts/data-warnings.mjs`.
-- `scripts/generate-static-pages.mjs` writes route-specific HTML into `dist/`.
-- `scripts/verify-static-pages.mjs` verifies the built public surface.
+- `scripts/verify-dist.mjs` verifies the built public surface.
 
-Keep client routing, generated routes, sitemap entries, metadata, and API behavior synchronized when a public URL changes.
+Keep page routes, the sitemap, metadata and API behavior synchronized when a public URL changes; `npm run verify:http` with the production sitemap proves no published URL breaks.
 
 ## Validation
 
@@ -44,7 +42,7 @@ Run the full gate for completed work:
 npm run check
 ```
 
-The gate validates data, regenerates the sitemap, typechecks all TypeScript targets, lints, runs Vitest, builds, and verifies the generated static pages.
+The gate validates data, typechecks (`astro check`, Functions, sync script), lints, runs Vitest, builds, and verifies the built site.
 
 Use focused commands during development, but do not substitute them for the full gate before completion.
 
@@ -55,8 +53,8 @@ Use focused commands during development, but do not substitute them for the full
 - Put repository documentation in the root or `docs/`, not in `public/`.
 - Ensure every manifest, favicon, social image, or metadata reference points to an existing public asset.
 - Preserve keyboard behavior, visible focus, reduced-motion support, labels, and semantic controls.
-- Avoid generated churn. `dist/` and `public/sitemap.xml` are derived and ignored; only source files belong in commits.
+- Avoid generated churn. `dist/` and `.astro/` are derived and ignored; only source files belong in commits.
 
 ## Deployment
 
-A request to inspect or improve the repository does not authorize a production deploy. When deployment is explicitly requested, run `npm run check`, deploy the Vite output together with `functions/`, and verify the live HTML, assets, API, sitemap, headers, routes, and responsive behavior.
+A request to inspect or improve the repository does not authorize a production deploy. When deployment is explicitly requested, run `npm run check`, deploy the Astro output together with `functions/`, and verify the live HTML, assets, API, sitemap, headers, routes, and responsive behavior.

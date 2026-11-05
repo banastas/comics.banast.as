@@ -1,6 +1,6 @@
 # Search and sharing contract
 
-This document describes the SEO surface that the repository build produces. The implementation is a Vite and React application with generated static entry pages, not a server-rendered framework.
+This document describes the SEO surface that the repository build produces. Astro renders every page to complete HTML at build time; React hydrates only interactive regions.
 
 ## Public URL model
 
@@ -15,40 +15,31 @@ Canonical routes use clean paths:
 - `/storage/:slug` and `/boxes`
 - `/raw`, `/slabbed`, and `/variants`
 
-`/collection` still works and gets a static entry page, but it renders the same view as `/`, so it declares `https://comics.banast.as/` as its canonical URL and is not listed in the sitemap.
+`/collection` still works and has its own page, but it renders the same view as `/`, so it declares `https://comics.banast.as/` as its canonical URL and is not listed in the sitemap.
 
-Old `/#/...` bookmarks remain compatible. A small script in `index.html` converts a legacy hash route to its clean path before the app reads the location.
+Old `/#/...` bookmarks remain compatible. A small inline script in `src/layouts/BaseLayout.astro` sends a legacy hash route to its clean path.
 
-Route creation and slug behavior live in `scripts/site-routes.mjs` and `src/utils/routing.ts`. Their tests protect uniqueness and compatibility.
+Routes come from `src/pages/` and `src/utils/site-data.ts`; permalinks from `src/utils/comic-slug.ts`, where each comic's stored `slug` keeps its URL stable across renames. Tests protect uniqueness and compatibility.
 
-## Static entry pages
+## Static pages
 
-`npm run build` performs four relevant steps:
+`npm run build` (`astro build`) writes one decoded `.html` file per public route, with `dist/index.html` for the root. Public URLs stay extensionless (`build.format: 'file'`, `trailingSlash: 'never'`). Filesystem paths use decoded names, such as `dist/series/Action Comics.html`; `integrations/static-output.mjs` decodes the `?` and `#` that Astro would otherwise leave percent-encoded. Flat HTML files avoid directory redirects that can corrupt `?`, `#`, or Unicode names.
 
-1. Typecheck the app, Cloudflare Functions, and Node scripts.
-2. Regenerate `public/sitemap.xml` from `src/data/comics.json`. The file is derived output and is not tracked in git.
-3. Build the Vite application.
-4. Generate a decoded `.html` asset per public route, with `dist/index.html` for the root.
-
-Public URLs stay unchanged and extensionless. Filesystem paths use decoded names, such as `dist/series/Action Comics.html`. Flat HTML assets avoid directory redirects that can corrupt `?`, `#`, or Unicode names. `scripts/static-route-path.mjs` owns the safe URL-to-file mapping.
-
-`scripts/generate-static-pages.mjs` replaces the generic shell with route-specific metadata and crawlable fallback content. React then hydrates the page in the browser.
-
-Every generated entry page includes:
+Every page includes:
 
 - A unique document title and description
 - A canonical URL
-- The base document's robots directive (`index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1`)
+- The robots directive `index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1`
 - Matching Open Graph and Twitter URLs
 - Open Graph and Twitter image metadata
 - JSON-LD appropriate to the route
-- Human-readable fallback content inside `#root`
+- The real page content, including the first screen of comics
 
 ## Social previews
 
-The default collection preview is `public/og-image.jpg` at 1200 by 630 pixels. It is referenced as `https://comics.banast.as/og-image.jpg` by the base document and collection-level generated pages.
+The default collection preview is `public/og-image.jpg` at 1200 by 630 pixels. It is referenced as `https://comics.banast.as/og-image.jpg` by the collection-level pages.
 
-Comic and grouped collection pages prefer a relevant cover image when one is available. Placeholder covers (`noCover.jpg`, or a bare `https://covers.banast.as/` directory URL) fall back to the default preview image. The static-page verifier ensures that any same-origin preview asset exists in the built output.
+Comic and grouped collection pages prefer a relevant cover image when one is available. Placeholder covers (`noCover.jpg`, or a bare `https://covers.banast.as/` directory URL) fall back to the default preview image. `npm run verify:dist` ensures that any same-origin preview asset exists in the built output.
 
 ## Structured data
 
@@ -63,11 +54,11 @@ The site emits these Schema.org types where appropriate:
 
 The collection is personal and nothing is for sale, so no `Offer` or `AggregateOffer` data is emitted.
 
-The client implementation lives in `src/components/SEO.tsx` and `src/utils/structured-data.ts`. Static equivalents come from `scripts/structured-data.mjs` through `scripts/generate-static-pages.mjs`, so crawlers do not need to wait for client-side metadata updates. `scripts/structured-data.test.ts` keeps both implementations equivalent.
+`src/utils/structured-data.ts` builds the JSON-LD and `src/utils/page-meta.ts` chooses it per page; the layout renders it into the HTML, so crawlers never wait for JavaScript. `scripts/structured-data.test.ts` covers the shapes.
 
 ## Sitemap and crawler policy
 
-`scripts/generate-sitemap.js` writes `public/sitemap.xml` from the same collection data and route inventory used by the application. The file is untracked derived output; `npm run build` regenerates it and Vite copies it into `dist/`. Entries carry no `<lastmod>`, because the collection sync rewrites every record's timestamps and they do not describe page changes. `scripts/sitemap.test.ts` builds the sitemap in memory and checks the count, uniqueness, clean URL format, XML escaping, and current collection coverage.
+`src/pages/sitemap.xml.ts` renders the sitemap at build time from the same route inventory as the pages (`src/utils/site-data.ts`). Entries carry no `<lastmod>`, because record timestamps describe data edits, not page changes. `scripts/sitemap.test.ts` builds the sitemap in memory and checks the count, uniqueness, clean URL format, XML escaping, and current collection coverage.
 
 `public/robots.txt` allows public pages, points to the sitemap, and excludes API, JSON, source, and dependency paths from crawling.
 
@@ -85,13 +76,13 @@ The public asset set includes:
 
 ## Analytics
 
-Google Analytics is loaded in `index.html`. Automatic page views are disabled there so the app can report clean-route navigation through `src/utils/analytics.ts` without double-counting the initial view.
+Google Analytics is loaded in `src/layouts/BaseLayout.astro` and records a page view on every page load. On the collection page, in-place URL changes (search, filters, paging) are reported through `src/utils/analytics.ts`.
 
 ## Security and error behavior
 
-`public/_headers` configures content, frame, referrer, permissions, and transport protections along with immutable caching for hashed assets.
+`public/_headers` configures content, frame, referrer, permissions, and transport protections along with immutable caching for hashed assets. Inline scripts are allowed only by hash; the build writes the hashes into the policy.
 
-`public/404.html` is a real, noindex error document. It prevents unknown Cloudflare Pages paths and missing files from falling back to a misleading HTTP 200 application shell.
+`src/pages/404.astro` renders a real, noindex error document. It prevents unknown Cloudflare Pages paths and missing files from falling back to a misleading HTTP 200 application shell.
 
 ## Verification
 
@@ -101,9 +92,9 @@ Run the complete release gate:
 npm run check
 ```
 
-The gate validates data, refreshes the sitemap, typechecks, lints, tests, builds, and verifies every generated page. `scripts/verify-static-pages.mjs` checks canonical URLs, robots metadata, social metadata, JSON-LD validity and allowed properties, built assets, sitemap coverage in `dist/sitemap.xml`, fallback content, security files, and the custom 404.
+The gate validates data, typechecks, lints, tests, builds, and verifies the build. `scripts/verify-dist.mjs` reads `dist/sitemap.xml` and checks every listed page's canonical URL, robots, social metadata, rendered heading, JSON-LD validity and allowed properties, and assets, plus `/collection`, the custom 404, `/data/comics.json`, and that every inline script hash is in the CSP.
 
-Run `npm run verify:http -- <origin>` against a Cloudflare Pages local preview to check all public routes, canonical metadata, a real HTTP 404, and collection/API agreement. Run it again against production after an authorized deployment.
+Run `npm run verify:http -- <origin> [sitemap]` against a Cloudflare Pages local preview to check every sitemap URL, canonical metadata, a real HTTP 404, and collection/API agreement. Pass `https://comics.banast.as/sitemap.xml` as the sitemap to prove the build serves every URL production already publishes. Run it again against production after an authorized deployment.
 
 For a deployed release, also verify:
 
@@ -112,7 +103,3 @@ For a deployed release, also verify:
 - An unknown path returns the custom 404 behavior.
 - `/api/comics/stats` reflects the same deployed collection.
 - Search Console and social-card debuggers can fetch the public site.
-
-## Current limitation
-
-Generated routes ship complete metadata and crawlable fallback content, but the interactive UI still hydrates as a React SPA. A full framework migration could consolidate static generation and client routing later. The decision record and acceptance criteria are in [docs/ssr-migration-prd.md](docs/ssr-migration-prd.md).

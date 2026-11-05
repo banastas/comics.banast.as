@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import manifest from '../public/manifest.json';
+import { DEFAULT_IMAGE } from '../src/utils/page-meta';
 
 const publicFileExists = (src: string) => {
   if (!src.startsWith('/')) return true;
@@ -24,22 +25,20 @@ describe('public deployment surface', () => {
   });
 
   it('ships a real 404 page and no test source files', () => {
-    expect(fs.existsSync('public/404.html')).toBe(true);
+    expect(fs.existsSync('src/pages/404.astro')).toBe(true);
     expect(fs.readdirSync('public').filter((file) => /\.test\.[cm]?[jt]sx?$/.test(file))).toEqual([]);
   });
 
   it('does not advertise missing same-origin social images', () => {
-    const html = fs.readFileSync('index.html', 'utf8');
-    const images = [...html.matchAll(/<(?:meta property="og:image"|meta name="twitter:image") content="([^"]+)"/g)]
-      .map((match) => match[1]);
-
-    expect(images).toHaveLength(2);
-    expect(images.every((image) => !image.startsWith('https://comics.banast.as/') || publicFileExists(new URL(image).pathname))).toBe(true);
-    expect(new Set(images)).toEqual(new Set(['https://comics.banast.as/og-image.jpg']));
+    const html = fs.readFileSync('src/layouts/BaseLayout.astro', 'utf8');
+    expect(html).toContain('<meta property="og:image" content={image} />');
+    expect(html).toContain('<meta name="twitter:image" content={image} />');
+    expect(DEFAULT_IMAGE).toBe('https://comics.banast.as/og-image.jpg');
+    expect(publicFileExists(new URL(DEFAULT_IMAGE).pathname)).toBe(true);
   });
 
   it('ships every browser icon referenced by the base document', () => {
-    const html = fs.readFileSync('index.html', 'utf8');
+    const html = fs.readFileSync('src/layouts/BaseLayout.astro', 'utf8');
     const icons = [...html.matchAll(/<link rel="(?:icon|apple-touch-icon)"[^>]*href="([^"]+)"/g)]
       .map((match) => match[1]);
 

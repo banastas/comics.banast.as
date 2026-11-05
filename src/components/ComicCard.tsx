@@ -23,7 +23,7 @@ export const GradeBadge: React.FC<{ comic: Pick<Comic, 'grade' | 'isSlabbed'>; s
 
 interface ComicCardProps {
   comic: Comic;
-  onView: (comic: Comic) => void;
+  onView?: (comic: Comic) => void;
   showSeriesName?: boolean;
   priority?: boolean;
 }
@@ -35,9 +35,9 @@ export const ComicCard: React.FC<ComicCardProps> = React.memo(({ comic, onView, 
   return (
     <AppLink
       href={comicPath(comic)}
-      onNavigate={() => onView(comic)}
+      onNavigate={onView ? () => onView(comic) : undefined}
       aria-label={comicAccessibleName(comic)}
-      className="group flex w-full flex-col overflow-hidden rounded-xl border border-slate-800 bg-surface-primary shadow-card transition-colors duration-200 hover:border-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-base"
+      className="group flex w-full flex-col overflow-hidden rounded-xl border border-slate-800 bg-surface-primary shadow-card transition-colors duration-200 hover:border-slate-500 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-base"
     >
       <div className="relative aspect-[2/3] overflow-hidden bg-surface-secondary">
         <CoverImage
@@ -50,12 +50,12 @@ export const ComicCard: React.FC<ComicCardProps> = React.memo(({ comic, onView, 
         />
 
         <div className="absolute left-1.5 top-1.5 flex flex-col items-start gap-1 sm:left-2 sm:top-2">
-          {comic.isSlabbed && <span className="rounded-md bg-purple-600 px-1.5 py-0.5 text-[10px] font-medium text-white shadow sm:text-xs">Slabbed</span>}
-          {comic.signedBy.trim() && <span className="rounded-md bg-rose-600 px-1.5 py-0.5 text-[10px] font-medium text-white shadow sm:text-xs">Signed</span>}
+          {comic.isSlabbed && <span className="rounded-md bg-purple-600 px-1.5 py-0.5 text-[10px] font-medium text-white shadow-sm sm:text-xs">Slabbed</span>}
+          {comic.signedBy.trim() && <span className="rounded-md bg-rose-600 px-1.5 py-0.5 text-[10px] font-medium text-white shadow-sm sm:text-xs">Signed</span>}
         </div>
         <div className="absolute bottom-1.5 left-1.5 flex flex-col items-start gap-1 sm:bottom-2 sm:left-2">
-          {comic.isVariant && <span className="rounded-md bg-orange-600 px-1.5 py-0.5 text-[10px] font-medium text-white shadow sm:text-xs">Variant</span>}
-          {comic.isGraphicNovel && <span className="rounded-md bg-emerald-700 px-1.5 py-0.5 text-[10px] font-medium text-white shadow sm:text-xs">GN</span>}
+          {comic.isVariant && <span className="rounded-md bg-orange-600 px-1.5 py-0.5 text-[10px] font-medium text-white shadow-sm sm:text-xs">Variant</span>}
+          {comic.isGraphicNovel && <span className="rounded-md bg-emerald-700 px-1.5 py-0.5 text-[10px] font-medium text-white shadow-sm sm:text-xs">GN</span>}
         </div>
       </div>
 

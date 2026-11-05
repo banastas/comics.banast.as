@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+
 import { BookOpen, X } from 'lucide-react';
 import { Pagination } from './Pagination';
 import { ComicGridList } from './ComicGridList';
@@ -8,9 +8,12 @@ import { formatWholeCurrency } from '../utils/formatting';
 
 interface CollectionTabProps {
   stats: ComicStats;
-  allComics: Comic[];
-  filteredComics: Comic[];
+  /** Matching comics and their total current value. */
+  filteredCount: number;
+  filteredValue: number;
   paginatedComics: Comic[];
+  /** True while the full collection is loading for a filtered, sorted or paged view. */
+  loading?: boolean;
   viewMode: 'grid' | 'list';
   currentPage: number;
   itemsPerPage: number;
@@ -22,7 +25,7 @@ interface CollectionTabProps {
   tagCounts: Map<string, number>;
   activeComputedTag: string | null;
   searchTerm: string;
-  onViewComic: (comic: Comic) => void;
+  onViewComic?: (comic: Comic) => void;
   onSetActiveComputedTag: (tag: string | null) => void;
   onClearSearch: () => void;
   onClearFilters: () => void;
@@ -34,9 +37,10 @@ const quickLinkClass = 'inline-flex items-center gap-1.5 rounded-lg border borde
 
 export const CollectionTab = ({
   stats,
-  allComics,
-  filteredComics,
+  filteredCount,
+  filteredValue,
   paginatedComics,
+  loading = false,
   viewMode,
   currentPage,
   itemsPerPage,
@@ -55,16 +59,12 @@ export const CollectionTab = ({
   onItemsPerPageChange,
 }: CollectionTabProps) => {
   const isFiltered = Boolean(searchTerm || activeComputedTag);
-  const filteredValue = useMemo(
-    () => filteredComics.reduce((sum, comic) => sum + (comic.currentValue ?? 0), 0),
-    [filteredComics],
-  );
   const visibleTags = allComputedTags
     .filter((tag) => tag === activeComputedTag || (tagCounts.get(tag) || 0) > 0)
     .filter((tag) => tag === activeComputedTag || isFiltered || (tagCounts.get(tag) || 0) >= 5)
     .slice(0, 12);
   const firstShown = currentPage * itemsPerPage + 1;
-  const lastShown = Math.min((currentPage + 1) * itemsPerPage, filteredComics.length);
+  const lastShown = Math.min((currentPage + 1) * itemsPerPage, filteredCount);
 
   return (
     <div className="animate-fade-in space-y-4 pt-5 sm:space-y-5 sm:pt-7">
@@ -74,7 +74,7 @@ export const CollectionTab = ({
           <p className="mt-1 text-sm text-slate-300 sm:text-base">
             {isFiltered ? (
               <>
-                <span className="font-semibold text-white">{filteredComics.length.toLocaleString('en-US')}</span> of {stats.totalComics.toLocaleString('en-US')} comics match
+                <span className="font-semibold text-white">{filteredCount.toLocaleString('en-US')}</span> of {stats.totalComics.toLocaleString('en-US')} comics match
                 {' · '}<span className="font-semibold text-white">{formatWholeCurrency(filteredValue)}</span> current value
               </>
             ) : (
@@ -149,11 +149,11 @@ export const CollectionTab = ({
         </div>
       )}
 
-      {filteredComics.length > 0 && (
+      {!loading && filteredCount > 0 && (
         <div className="flex flex-col items-center justify-between gap-3 md:flex-row">
           <div className="flex flex-wrap items-center justify-center gap-3">
             <span role="status" className="text-sm text-slate-300">
-              Showing {firstShown.toLocaleString('en-US')}–{lastShown.toLocaleString('en-US')} of {filteredComics.length.toLocaleString('en-US')}
+              Showing {firstShown.toLocaleString('en-US')}–{lastShown.toLocaleString('en-US')} of {filteredCount.toLocaleString('en-US')}
             </span>
             <select
               value={itemsPerPage}
@@ -171,16 +171,23 @@ export const CollectionTab = ({
       )}
 
       <h2 className="sr-only">Comics</h2>
-      {filteredComics.length === 0 ? (
+      {loading ? (
+        <div className="flex justify-center py-24" role="status">
+          <div className="text-center">
+            <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-400 border-t-transparent" aria-hidden="true"></div>
+            <p className="text-slate-400">Loading the collection…</p>
+          </div>
+        </div>
+      ) : filteredCount === 0 ? (
         <div className="py-12 text-center sm:py-16">
           <BookOpen size={48} className="mx-auto mb-4 text-slate-500" aria-hidden="true" />
           <p className="mb-2 text-lg font-medium text-white">
-            {allComics.length === 0 ? 'No comics in the collection yet' : 'No comics match these filters'}
+            {stats.totalComics === 0 ? 'No comics in the collection yet' : 'No comics match these filters'}
           </p>
           <p className="mb-6 px-4 text-sm text-slate-400">
-            {allComics.length === 0 ? 'Check back soon.' : 'Try a different search or remove a filter.'}
+            {stats.totalComics === 0 ? 'Check back soon.' : 'Try a different search or remove a filter.'}
           </p>
-          {allComics.length > 0 && (
+          {stats.totalComics > 0 && (
             <button onClick={onClearFilters} className="rounded-xl border border-slate-600 px-4 py-2 text-sm text-white hover:border-slate-400">
               Clear filters
             </button>

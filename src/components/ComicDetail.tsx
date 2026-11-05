@@ -1,29 +1,24 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { ChevronLeft, ChevronRight, Maximize2, PenTool } from 'lucide-react';
 import type { Comic } from '../types/Comic';
-import { SEO } from './SEO';
-import { generateComicStructuredData } from '../utils/structured-data';
 import { formatComicLabel, formatCurrency, formatDateLong, formatValueChange, getValueChange } from '../utils/formatting';
-import { useScrollToTop } from '../hooks/useScrollToTop';
 import { Breadcrumb, type BreadcrumbItem } from './Breadcrumb';
-import { absoluteUrl, comicPath } from '../utils/paths';
 import { hasRealCover } from '../utils/covers';
 import { SiteLink } from './SiteLink';
 import { CoverImage } from './CoverImage';
 import { coverAltText } from '../utils/comic-labels';
-import { issuePhrase, issueText } from '../utils/comic-slug';
+import { issueText } from '../utils/comic-slug';
 import { ComicCard, GradeBadge } from './ComicCard';
 import { CoverLightbox } from './CoverLightbox';
 
 interface ComicDetailProps {
   comic: Comic;
-  allComics: Comic[];
-  onBack: () => void;
-  onView: (comic: Comic) => void;
-  onViewSeries?: (seriesName: string) => void;
-  onViewStorageLocation?: (storageLocation: string) => void;
-  onViewCoverArtist?: (coverArtist: string) => void;
-  onViewTag?: (tag: string) => void;
+  /** Neighbors in the series, from comicSeriesContext(). */
+  previous?: Comic;
+  next?: Comic;
+  related: Comic[];
+  seriesCount: number;
+  onView?: (comic: Comic) => void;
   breadcrumbItems?: BreadcrumbItem[];
 }
 
@@ -31,6 +26,23 @@ const RELATED_LIMIT = 6;
 
 const byIssue = (a: Comic, b: Comic) =>
   a.issueNumber - b.issueNumber || Number(a.isVariant) - Number(b.isVariant) || a.id.localeCompare(b.id, 'en', { numeric: true });
+
+/** The previous and next issues and the nearest issues by number, computed at build time. */
+export const comicSeriesContext = (comic: Comic, allComics: Comic[]) => {
+  const seriesComics = allComics.filter((c) => c.seriesName === comic.seriesName).sort(byIssue);
+  const position = seriesComics.findIndex((c) => c.id === comic.id);
+  const related = seriesComics
+    .filter((c) => c.id !== comic.id)
+    .sort((a, b) => Math.abs(a.issueNumber - comic.issueNumber) - Math.abs(b.issueNumber - comic.issueNumber) || byIssue(a, b))
+    .slice(0, RELATED_LIMIT)
+    .sort(byIssue);
+  return {
+    previous: position > 0 ? seriesComics[position - 1] : undefined,
+    next: position >= 0 && position < seriesComics.length - 1 ? seriesComics[position + 1] : undefined,
+    related,
+    seriesCount: seriesComics.length,
+  };
+};
 
 const Fact: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
   <div>
@@ -43,62 +55,22 @@ const linkClass = 'text-blue-300 underline-offset-2 hover:text-blue-200 hover:un
 
 export const ComicDetail: React.FC<ComicDetailProps> = ({
   comic,
-  allComics,
+  previous,
+  next,
+  related: relatedComics,
+  seriesCount,
   onView,
   breadcrumbItems,
 }) => {
   const [showCover, setShowCover] = useState(false);
   const closeCover = useCallback(() => setShowCover(false), []);
-  useScrollToTop();
-
-  const seriesComics = useMemo(
-    () => allComics.filter(c => c.seriesName === comic.seriesName).sort(byIssue),
-    [allComics, comic.seriesName]
-  );
-  const position = seriesComics.findIndex(c => c.id === comic.id);
-  const previous = position > 0 ? seriesComics[position - 1] : undefined;
-  const next = position >= 0 && position < seriesComics.length - 1 ? seriesComics[position + 1] : undefined;
-
-  // The nearest issues by number, excluding this record.
-  const relatedComics = useMemo(
-    () => seriesComics
-      .filter(c => c.id !== comic.id)
-      .sort((a, b) => Math.abs(a.issueNumber - comic.issueNumber) - Math.abs(b.issueNumber - comic.issueNumber) || byIssue(a, b))
-      .slice(0, RELATED_LIMIT)
-      .sort(byIssue),
-    [seriesComics, comic.id, comic.issueNumber]
-  );
 
   const change = getValueChange(comic.purchasePrice, comic.currentValue);
-  const label = formatComicLabel(comic);
-  const url = absoluteUrl(comicPath(comic));
   const realCover = hasRealCover(comic.coverImageUrl);
   const signedBy = comic.signedBy.trim();
 
   return (
     <main id="main-content" className="flex-1">
-      <SEO
-        title={label}
-        description={`${comic.seriesName} ${issuePhrase(comic)}${comic.coverArtist ? ` - Cover art by ${comic.coverArtist}` : ''}. Grade: ${comic.grade}${comic.isSlabbed ? ' (Slabbed)' : ''}${comic.isVariant ? ' (Variant Cover)' : ''}${signedBy ? ` Signed by ${signedBy}` : ''}`}
-        keywords={`${comic.seriesName}, comic book, issue ${comic.issueNumber}, ${comic.coverArtist || 'comic'}, ${comic.isSlabbed ? 'slabbed comic, graded comic,' : ''} ${comic.isVariant ? 'variant cover,' : ''} comic collection`}
-        image={realCover ? comic.coverImageUrl : undefined}
-        url={url}
-        type="article"
-        structuredData={generateComicStructuredData({
-          id: comic.id,
-          title: comic.title,
-          seriesName: comic.seriesName,
-          issueNumber: comic.issueNumber,
-          releaseDate: comic.releaseDate,
-          coverImageUrl: comic.coverImageUrl,
-          coverArtist: comic.coverArtist,
-          currentValue: comic.currentValue,
-          grade: comic.grade,
-          signedBy: comic.signedBy,
-          isVariant: comic.isVariant,
-        })}
-        canonical={url}
-      />
 
       <div className="border-b border-slate-800 bg-surface-primary/60">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-6 md:min-h-16 lg:px-8">
@@ -123,7 +95,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
       <div className="mx-auto max-w-7xl space-y-6 px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
         <article className="rounded-xl border border-slate-800 bg-surface-primary p-4 sm:p-6">
           <div className="flex flex-col gap-6 md:flex-row md:gap-8">
-            <div className="mx-auto w-full max-w-[280px] flex-shrink-0 md:mx-0 md:w-64 lg:w-72">
+            <div className="mx-auto w-full max-w-[280px] shrink-0 md:mx-0 md:w-64 lg:w-72">
               {realCover ? (
                 <button
                   type="button"
@@ -204,7 +176,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                   <ul className="flex flex-wrap gap-2">
                     {comic.tags.map((tag) => (
                       <li key={tag}>
-                        <SiteLink to={{ type: 'tag', name: tag }} className="inline-block rounded border border-blue-500/30 bg-blue-500/15 px-3 py-1 text-sm text-blue-200 transition-colors hover:bg-blue-500/25">
+                        <SiteLink to={{ type: 'tag', name: tag }} className="inline-block rounded-sm border border-blue-500/30 bg-blue-500/15 px-3 py-1 text-sm text-blue-200 transition-colors hover:bg-blue-500/25">
                           {tag}
                         </SiteLink>
                       </li>
@@ -228,7 +200,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
             <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
               <h2 id="related-heading" className="text-lg font-semibold text-white">More from {comic.seriesName}</h2>
               <SiteLink to={{ type: 'series', name: comic.seriesName }} className={`text-sm ${linkClass}`}>
-                View all {seriesComics.length} in the series
+                View all {seriesCount} in the series
               </SiteLink>
             </div>
             <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">

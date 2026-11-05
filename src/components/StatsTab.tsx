@@ -21,21 +21,28 @@ interface StatsTabProps {
   seriesPerformance: SeriesPerformance[];
   seriesCountSummaries: SeriesCountSummary[];
   storageLocationSummaries: StorageLocationSummary[];
-  showAllSeriesPerf: boolean;
-  showAllSeriesCount: boolean;
-  onToggleSeriesPerf: () => void;
-  onToggleSeriesCount: () => void;
-  onViewComic: (comic: Comic) => void;
 }
 
 const panelClass = 'rounded-xl border border-slate-800 bg-surface-primary p-5 sm:p-6';
 const rowLinkClass = 'flex items-center justify-between gap-3 rounded-lg p-2.5 transition-colors hover:bg-surface-secondary/60';
 
-const ShowMoreButton: React.FC<{ expanded: boolean; total: number; onClick: () => void }> = ({ expanded, total, onClick }) => (
-  <button onClick={onClick} aria-expanded={expanded} className="w-full py-2 text-center text-sm text-blue-300 transition-colors hover:text-blue-200">
-    {expanded ? 'Show fewer' : `Show all ${total}`}
-  </button>
-);
+/** The first `limit` rows, with the rest behind a native disclosure that works without JavaScript. */
+function RowList<T>({ items, limit, render }: { items: T[]; limit: number; render: (item: T) => React.ReactNode }) {
+  return (
+    <>
+      <ul className="space-y-1">{items.slice(0, limit).map(render)}</ul>
+      {items.length > limit && (
+        <details className="group">
+          <summary className="w-full cursor-pointer list-none py-2 text-center text-sm text-blue-300 transition-colors hover:text-blue-200 [&::-webkit-details-marker]:hidden">
+            <span className="group-open:hidden">Show all {items.length}</span>
+            <span className="hidden group-open:inline">Show fewer</span>
+          </summary>
+          <ul className="space-y-1">{items.slice(limit).map(render)}</ul>
+        </details>
+      )}
+    </>
+  );
+}
 
 export const StatsTab = ({
   stats,
@@ -47,10 +54,6 @@ export const StatsTab = ({
   seriesPerformance,
   seriesCountSummaries,
   storageLocationSummaries,
-  showAllSeriesPerf,
-  showAllSeriesCount,
-  onToggleSeriesPerf,
-  onToggleSeriesCount,
 }: StatsTabProps) => {
   const recentAdditions = [...allComics]
     .sort((a, b) => b.purchaseDate.localeCompare(a.purchaseDate) || b.createdAt.localeCompare(a.createdAt))
@@ -90,7 +93,7 @@ export const StatsTab = ({
               <li key={comic.id}>
                 <SiteLink to={{ type: 'comic', comic }} className={`${rowLinkClass} justify-start sm:gap-4`}>
                   <span className="w-7 text-right text-lg font-bold tabular-nums text-slate-400">{i + 1}</span>
-                  <span className="h-11 w-8 flex-shrink-0 overflow-hidden rounded bg-surface-secondary">
+                  <span className="h-11 w-8 shrink-0 overflow-hidden rounded-sm bg-surface-secondary">
                     <CoverImage comic={comic} displayWidth={32} sizes="32px" decorative compact />
                   </span>
                   <span className="min-w-0 flex-1">
@@ -110,15 +113,14 @@ export const StatsTab = ({
           <section aria-labelledby="series-performance-heading" className={panelClass}>
             <h2 id="series-performance-heading" className="text-base font-semibold text-white">Series performance</h2>
             <p className="mb-4 mt-1 text-xs text-slate-400">Return on comics with both a recorded price and current value, largest change first.</p>
-            <ul className="space-y-1">
-              {seriesPerformance.slice(0, showAllSeriesPerf ? undefined : 8).map((series) => (
+            <RowList items={seriesPerformance} limit={8} render={(series) => (
                 <li key={series.name}>
                   <SiteLink to={{ type: 'series', name: series.name }} className={rowLinkClass}>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-medium text-white">{series.name}</span>
                       <span className="block text-xs text-slate-400">Based on {series.countWithKnownReturn} of {series.count} comics</span>
                     </span>
-                    <span className="flex-shrink-0 text-right">
+                    <span className="shrink-0 text-right">
                       <span className="block text-sm font-semibold tabular-nums text-white">{formatWholeCurrency(series.currentValue)}</span>
                       <span className={`block text-xs font-medium tabular-nums ${series.gainLoss >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                         {series.gainLoss >= 0 ? '+' : '-'}{formatCurrency(Math.abs(series.gainLoss))} ({formatPercentage(series.gainLossPercentage)})
@@ -126,9 +128,7 @@ export const StatsTab = ({
                     </span>
                   </SiteLink>
                 </li>
-              ))}
-            </ul>
-            {seriesPerformance.length > 8 && <ShowMoreButton expanded={showAllSeriesPerf} total={seriesPerformance.length} onClick={onToggleSeriesPerf} />}
+            )} />
           </section>
         )}
 
@@ -139,20 +139,17 @@ export const StatsTab = ({
           </div>
           {seriesCountSummaries.length > 0 ? (
             <>
-              <ul className="space-y-1">
-                {seriesCountSummaries.slice(0, showAllSeriesCount ? undefined : 10).map((series) => (
+              <RowList items={seriesCountSummaries} limit={10} render={(series) => (
                   <li key={series.name}>
                     <SiteLink to={{ type: 'series', name: series.name }} className={rowLinkClass}>
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm font-medium text-white">{series.name}</span>
                         <span className="block text-xs text-slate-400">{series.count} comics</span>
                       </span>
-                      <span className="flex-shrink-0 text-sm font-semibold tabular-nums text-white">{formatWholeCurrency(series.value)}</span>
+                      <span className="shrink-0 text-sm font-semibold tabular-nums text-white">{formatWholeCurrency(series.value)}</span>
                     </SiteLink>
                   </li>
-                ))}
-              </ul>
-              {seriesCountSummaries.length > 10 && <ShowMoreButton expanded={showAllSeriesCount} total={seriesCountSummaries.length} onClick={onToggleSeriesCount} />}
+              )} />
             </>
           ) : (
             <p className="text-sm text-slate-400">No series yet.</p>
@@ -172,7 +169,7 @@ export const StatsTab = ({
                         Purchased {formatDate(comic.purchaseDate)}{comic.coverArtist ? ` · ${comic.coverArtist}` : ''}
                       </span>
                     </span>
-                    <span className="flex-shrink-0 text-right">
+                    <span className="shrink-0 text-right">
                       <span className="block text-sm font-semibold tabular-nums text-white">
                         {comic.purchasePrice === undefined ? <span className="text-xs font-normal text-slate-400">Price not recorded</span> : `Paid ${formatCurrency(comic.purchasePrice)}`}
                       </span>
@@ -203,7 +200,7 @@ export const StatsTab = ({
                       <span className="block truncate text-sm font-medium text-white">{location.name}</span>
                       <span className="block text-xs text-slate-400">{location.count} comics</span>
                     </span>
-                    <span className="flex-shrink-0 text-sm font-semibold tabular-nums text-white">{formatCurrency(location.value)}</span>
+                    <span className="shrink-0 text-sm font-semibold tabular-nums text-white">{formatCurrency(location.value)}</span>
                   </SiteLink>
                 </li>
               ))}

@@ -2,7 +2,8 @@ import React from 'react';
 
 type AppLinkProps = Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'onClick'> & {
   href: string;
-  onNavigate: () => void;
+  /** Handles plain clicks in place; without it the link navigates normally. */
+  onNavigate?: () => void;
 };
 
 // A real link (crawlable, middle-click and cmd-click open a new tab, "Copy link" works)
@@ -21,7 +22,7 @@ export const AppLink = React.forwardRef<HTMLAnchorElement, AppLinkProps>(({ href
     ref={ref}
     href={href}
     onClick={(event) => {
-      if (!isPlainLeftClick(event)) return;
+      if (!onNavigate || !isPlainLeftClick(event)) return;
       event.preventDefault();
       onNavigate();
     }}

@@ -1,0 +1,23 @@
+---
+import { BookOpen } from 'lucide-react';
+import DetailPage from '../components/astro/DetailPage.astro';
+import { seriesCountLabel } from '../components/detailText';
+import { comics as allComics } from '../utils/site-data';
+import { groupMeta } from '../utils/page-meta';
+
+const comics = allComics.filter((comic) => !comic.isSlabbed);
+const seriesCount = new Set(comics.map((comic) => comic.seriesName)).size;
+---
+<DetailPage
+  meta={groupMeta('Raw Comics', comics.length, comics, '/raw')}
+  source={{ kind: 'raw' }}
+  comics={comics}
+  breadcrumbItems={[{ label: 'Collection', href: '/' }, { label: 'Raw Comics' }]}
+  icon={BookOpen}
+  iconBgColor="bg-indigo-600"
+  title="Raw Comics"
+  subtitle={seriesCountLabel(comics.length, 'raw comic', seriesCount)}
+  defaultSortBy="series"
+  comicsListTitle="Raw comics"
+  breakdown={{ title: 'Raw comics by series', maxItems: 8 }}
+/>

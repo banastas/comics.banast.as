@@ -1,19 +1,19 @@
 # Static asset headers. Pages Functions (functions/api/*) do not receive these
 # rules; their security and cache headers are set in functions/_shared/http.ts.
 #
-# Content-Security-Policy notes (keep in sync with index.html):
-# - script-src hashes cover the two static inline scripts in index.html (the
-#   legacy hash-route bridge and the gtag bootstrap) plus, via 'unsafe-hashes',
-#   the font preload onload handler. Any byte change to those snippets changes
-#   the hash: rebuild and recompute from dist/index.html.
-# - style-src needs 'unsafe-inline' for the style attributes in generated
-#   preview HTML and the <style> block in 404.html.
+# Content-Security-Policy notes:
+# - script-src allows inline scripts by hash. The build replaces the
+#   placeholder token in script-src with the hashes of every inline script in the
+#   generated pages (integrations/static-output.mjs), so edits never need a
+#   hand-computed hash.
+# - style-src needs 'unsafe-inline' for Astro's island styles and React style
+#   attributes. Fonts are self-hosted.
 # - Google Analytics 4 hosts follow Google's published CSP guidance.
 # - Cloudflare Web Analytics is injected on the production domain only: its
 #   beacon loads from static.cloudflareinsights.com and reports to
 #   cloudflareinsights.com.
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-Ckj/M0M0nOvt1Yk/1BCFRUIeNan/EyuPWrSy7Xctvdw=' 'sha256-6ghGcPDNgBx9gi62KioiP25r5kyv8CcNfbADPpH46aY=' 'unsafe-hashes' 'sha256-1jAmyYXcRq6zFldLe/GCgIDJBiOONdXjTLgEFMDnDSM=' https://*.googletagmanager.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://covers.banast.as https://*.google-analytics.com https://*.googletagmanager.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://cloudflareinsights.com; manifest-src 'self'; worker-src 'self'; frame-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' '__INLINE_SCRIPT_HASHES__' https://*.googletagmanager.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://covers.banast.as https://*.google-analytics.com https://*.googletagmanager.com; font-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://cloudflareinsights.com; manifest-src 'self'; worker-src 'self'; frame-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests
   Cross-Origin-Opener-Policy: same-origin
   Permissions-Policy: camera=(), geolocation=(), microphone=(), payment=(), usb=()
   Referrer-Policy: strict-origin-when-cross-origin
@@ -22,8 +22,12 @@
   X-Frame-Options: DENY
 
 # Fingerprinted build output never changes at a given URL.
-/assets/*
+/_astro/*
   Cache-Control: public, max-age=31536000, immutable
+
+# The collection data file changes with every sync.
+/data/*
+  Cache-Control: public, max-age=300
 
 # Crawler files change on deploy; keep them short-lived. HTML keeps the
 # Cloudflare Pages default (revalidate on every request).

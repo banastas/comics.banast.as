@@ -1,0 +1,27 @@
+---
+import { Palette } from 'lucide-react';
+import DetailPage from '../../components/astro/DetailPage.astro';
+import { seriesCountLabel } from '../../components/detailText';
+import { comicsByArtist, coverArtists } from '../../utils/site-data';
+import { artistMeta } from '../../utils/page-meta';
+import { artistPath } from '../../utils/paths';
+
+export const getStaticPaths = () => coverArtists.map((name) => ({ params: { name }, props: { name } }));
+
+// Astro hands back "?" and "#" in params percent-encoded; props keep the real name.
+const { name } = Astro.props as { name: string };
+const comics = comicsByArtist(name);
+const seriesCount = new Set(comics.map((comic) => comic.seriesName)).size;
+---
+<DetailPage
+  meta={artistMeta(name, comics, artistPath(name))}
+  source={{ kind: 'artist', value: name }}
+  comics={comics}
+  breadcrumbItems={[{ label: 'Collection', href: '/' }, { label: name }]}
+  icon={Palette}
+  iconBgColor="bg-purple-600"
+  title={name}
+  subtitle={`Cover artist · ${seriesCountLabel(comics.length, 'cover', seriesCount)}`}
+  comicsListTitle={`Covers by ${name}`}
+  breakdown={{ title: 'Series', maxItems: 12 }}
+/>

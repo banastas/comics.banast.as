@@ -21,6 +21,11 @@ interface SiteHeaderProps {
   sortDirection: 'asc' | 'desc';
   onToggleSortDirection: () => void;
   onOpenMobileControls: () => void;
+  /**
+   * Off the collection page the search form submits to the collection
+   * (`/?search=…`) instead of filtering in place.
+   */
+  submitToCollection?: boolean;
 }
 
 const SearchField: React.FC<{
@@ -30,12 +35,20 @@ const SearchField: React.FC<{
   onClear: () => void;
   autoFocus?: boolean;
   className?: string;
-}> = ({ id, value, onChange, onClear, autoFocus, className = '' }) => (
-  <form role="search" className={`relative ${className}`} onSubmit={(event) => event.preventDefault()}>
+  submitToCollection?: boolean;
+}> = ({ id, value, onChange, onClear, autoFocus, className = '', submitToCollection = false }) => (
+  <form
+    role="search"
+    action="/"
+    method="get"
+    className={`relative ${className}`}
+    onSubmit={(event) => { if (!submitToCollection || !value.trim()) event.preventDefault(); }}
+  >
     <label htmlFor={id} className="sr-only">Search comics</label>
     <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
     <input
       id={id}
+      name="search"
       type="search"
       placeholder="Search titles, artists, notes…"
       value={value}
@@ -44,13 +57,13 @@ const SearchField: React.FC<{
       autoFocus={autoFocus}
       aria-label="Search comics"
       enterKeyHint="search"
-      className="w-full rounded-xl border border-slate-700 bg-surface-secondary py-2 pl-9 pr-10 text-base text-white placeholder-slate-400 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 md:text-sm [&::-webkit-search-cancel-button]:hidden"
+      className="w-full rounded-xl border border-slate-700 bg-surface-secondary py-2 pl-9 pr-10 text-base text-white placeholder-slate-400 transition-colors focus:border-blue-500 focus:outline-hidden focus:ring-2 focus:ring-blue-400/50 md:text-sm [&::-webkit-search-cancel-button]:hidden"
     />
     {value && (
       <button
         type="button"
         onClick={onClear}
-        className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-slate-400 transition-colors hover:text-white"
+        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-sm p-1 text-slate-400 transition-colors hover:text-white"
         aria-label="Clear search"
       >
         <X size={14} />
@@ -73,6 +86,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
   sortDirection,
   onToggleSortDirection,
   onOpenMobileControls,
+  submitToCollection = false,
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(Boolean(searchInput));
@@ -95,7 +109,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
     }`}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-14 items-center justify-between gap-3 sm:h-16">
-          <SiteLink to={{ type: 'collection' }} className="group flex min-w-0 flex-shrink-0 items-center gap-2 sm:gap-3" aria-label="comics.banast.as home">
+          <SiteLink to={{ type: 'collection' }} className="group flex min-w-0 shrink-0 items-center gap-2 sm:gap-3" aria-label="comics.banast.as home">
             <span className="rounded-lg bg-blue-600 p-1.5 shadow-lg transition-colors group-hover:bg-blue-500 sm:p-2">
               <BookOpen size={20} className="text-white" aria-hidden="true" />
             </span>
@@ -110,6 +124,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
             value={searchInput}
             onChange={onSearchChange}
             onClear={onClearSearch}
+            submitToCollection={submitToCollection}
             className="mx-2 hidden max-w-md flex-1 md:block"
           />
 
@@ -186,6 +201,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
             onChange={onSearchChange}
             onClear={() => { onClearSearch(); setShowMobileSearch(false); }}
             autoFocus={!searchInput}
+            submitToCollection={submitToCollection}
           />
         </div>
       )}

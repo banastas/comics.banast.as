@@ -1,25 +1,20 @@
-import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { describe, expect, it } from 'vitest';
+// @ts-expect-error Native ESM build integration without type declarations.
+import { decodeFileName, inlineScriptHashes } from '../integrations/static-output.mjs';
 
-const indexHtml = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-const headers = readFileSync(new URL('../public/_headers', import.meta.url), 'utf8');
+const headers = fs.readFileSync(new URL('../public/_headers', import.meta.url), 'utf8');
 const csp = headers.match(/Content-Security-Policy: (.+)/)?.[1] ?? '';
-const sha256 = (source: string) => `'sha256-${createHash('sha256').update(source).digest('base64')}'`;
 
 describe('content security policy', () => {
-  it('allows every inline script and handler in index.html by hash, without unsafe-inline scripts', () => {
+  it('allows inline scripts only by hashes the build fills in, never unsafe-inline', () => {
     const scriptSrc = csp.match(/script-src ([^;]+)/)?.[1] ?? '';
-    const inlineScripts = [...indexHtml.matchAll(/<script(?![^>]*\bsrc=)(?![^>]*application\/ld\+json)[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
-    const handlers = [...indexHtml.matchAll(/\son[a-z]+="([^"]*)"/g)].map((m) => m[1]);
-
-    expect(inlineScripts.length).toBeGreaterThan(0);
-    for (const source of [...inlineScripts, ...handlers]) {
-      expect(scriptSrc, `missing hash for: ${source.trim().slice(0, 60)}`).toContain(sha256(source));
-    }
-    if (handlers.length > 0) expect(scriptSrc).toContain("'unsafe-hashes'");
+    expect(scriptSrc).toContain("'__INLINE_SCRIPT_HASHES__'");
     expect(scriptSrc).not.toContain("'unsafe-inline'");
     expect(scriptSrc).not.toContain("'unsafe-eval'");
+    expect(scriptSrc).not.toContain("'unsafe-hashes'");
   });
 
   it('allows the analytics Cloudflare and Google inject on production', () => {
@@ -28,9 +23,29 @@ describe('content security policy', () => {
     expect(csp).toMatch(/script-src [^;]*https:\/\/\*\.googletagmanager\.com/);
   });
 
-  it('permits cover images and blocks plugins and framing', () => {
+  it('permits cover images, self-hosted fonts only, and blocks plugins and framing', () => {
     expect(csp).toMatch(/img-src [^;]*https:\/\/covers\.banast\.as/);
+    expect(csp).toContain("font-src 'self';");
     expect(csp).toContain("object-src 'none'");
     expect(csp).toContain("frame-ancestors 'none'");
+  });
+
+  it('hashes inline scripts but not JSON-LD or external scripts', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'csp-'));
+    const file = path.join(dir, 'page.html');
+    fs.writeFileSync(file, '<script>a()</script><script src="/x.js"></script><script type="application/ld+json">{}</script><script type="module">b()</script>');
+    expect(inlineScriptHashes([file])).toEqual([
+      "'sha256-qVpDBgj7bpq5hMAcGp3AOc79J3Y1Z4HvySTwKrWDoy4='",
+      "'sha256-cf242PFc/kb7xD0Qzhsmd9vvRkc+cWFmbi+k+YvtdKc='",
+    ].sort());
+    fs.rmSync(dir, { recursive: true });
+  });
+});
+
+describe('built file names', () => {
+  it('decodes "?" and "#" but keeps "/" and "%" escaped', () => {
+    expect(decodeFileName('Aliens: What If...%3F.html')).toBe('Aliens: What If...?.html');
+    expect(decodeFileName('Special: %23Ashcan.html')).toBe('Special: #Ashcan.html');
+    expect(decodeFileName('a%2Fb%25c.html')).toBe('a%2Fb%25c.html');
   });
 });
