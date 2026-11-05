@@ -11,7 +11,9 @@ export const siteOrigin = 'https://comics.banast.as';
 
 export const readComics = () => JSON.parse(fs.readFileSync(comicsPath, 'utf8'));
 
+// Mirrors src/utils/comic-slug.ts: the stored slug wins over the computed one.
 export const createComicSlug = (comic) => {
+  if (comic.slug) return comic.slug;
   const seriesSlug = comic.seriesName
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')

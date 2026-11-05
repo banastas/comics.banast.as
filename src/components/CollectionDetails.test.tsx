@@ -13,7 +13,8 @@ import { SeriesDetail } from './SeriesDetail';
 import { calculateComicStats } from '../utils/stats';
 import data from '../data/comics.json';
 import type { Comic } from '../types/Comic';
-const base = data[0] as Comic;
+// Fixtures vary IDs and series, so they compute their slugs instead of reusing the real record's.
+const base = { ...(data[0] as Comic), slug: undefined };
 const noop = () => {};
 const parse = (html: string) => new DOMParser().parseFromString(html, 'text/html');
 
@@ -42,6 +43,13 @@ describe('detail page contracts', () => {
     expect(doc.querySelector('h1')?.textContent).toBe('Spawn #85');
     expect(doc.body.textContent).not.toContain('Added to Collection');
     expect(doc.body.textContent).not.toContain('Last Updated');
+  });
+
+  it('shows the issue label in place of the issue number when one is set', () => {
+    const comic = { ...base, seriesName: 'Spawn', issueNumber: 1, issueLabel: 'Annual 1', isVariant: false };
+    const doc = parse(renderToStaticMarkup(<ComicDetail comic={comic} allComics={[comic]} onBack={noop} onView={noop} />));
+    expect(doc.querySelector('h1')?.textContent).toBe('Spawn Annual 1');
+    expect(doc.body.textContent).not.toContain('#1');
   });
 
   it('links related issues with real hrefs and shows values rather than an invented $0 cost', () => {

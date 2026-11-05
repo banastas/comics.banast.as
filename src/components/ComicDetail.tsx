@@ -11,6 +11,7 @@ import { hasRealCover } from '../utils/covers';
 import { SiteLink } from './SiteLink';
 import { CoverImage } from './CoverImage';
 import { coverAltText } from '../utils/comic-labels';
+import { issuePhrase, issueText } from '../utils/comic-slug';
 import { ComicCard, GradeBadge } from './ComicCard';
 import { CoverLightbox } from './CoverLightbox';
 
@@ -78,7 +79,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
     <main id="main-content" className="flex-1">
       <SEO
         title={label}
-        description={`${comic.seriesName} Issue #${comic.issueNumber}${comic.coverArtist ? ` - Cover art by ${comic.coverArtist}` : ''}. Grade: ${comic.grade}${comic.isSlabbed ? ' (Slabbed)' : ''}${comic.isVariant ? ' (Variant Cover)' : ''}${signedBy ? ` Signed by ${signedBy}` : ''}`}
+        description={`${comic.seriesName} ${issuePhrase(comic)}${comic.coverArtist ? ` - Cover art by ${comic.coverArtist}` : ''}. Grade: ${comic.grade}${comic.isSlabbed ? ' (Slabbed)' : ''}${comic.isVariant ? ' (Variant Cover)' : ''}${signedBy ? ` Signed by ${signedBy}` : ''}`}
         keywords={`${comic.seriesName}, comic book, issue ${comic.issueNumber}, ${comic.coverArtist || 'comic'}, ${comic.isSlabbed ? 'slabbed comic, graded comic,' : ''} ${comic.isVariant ? 'variant cover,' : ''} comic collection`}
         image={realCover ? comic.coverImageUrl : undefined}
         url={url}
@@ -106,12 +107,12 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
             <nav aria-label="Issues in this series" className="flex gap-2 text-sm">
               {previous ? (
                 <SiteLink to={{ type: 'comic', comic: previous }} className="flex items-center gap-1 rounded-lg border border-slate-700 px-2.5 py-1.5 text-slate-200 hover:border-slate-500" aria-label={`Previous: ${formatComicLabel(previous)}`}>
-                  <ChevronLeft size={16} aria-hidden="true" />#{previous.issueNumber}{previous.isVariant ? ' var.' : ''}
+                  <ChevronLeft size={16} aria-hidden="true" />{issueText(previous)}{previous.isVariant ? ' var.' : ''}
                 </SiteLink>
               ) : <span />}
               {next && (
                 <SiteLink to={{ type: 'comic', comic: next }} className="flex items-center gap-1 rounded-lg border border-slate-700 px-2.5 py-1.5 text-slate-200 hover:border-slate-500" aria-label={`Next: ${formatComicLabel(next)}`}>
-                  #{next.issueNumber}{next.isVariant ? ' var.' : ''}<ChevronRight size={16} aria-hidden="true" />
+                  {issueText(next)}{next.isVariant ? ' var.' : ''}<ChevronRight size={16} aria-hidden="true" />
                 </SiteLink>
               )}
             </nav>
@@ -145,7 +146,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
             <div className="min-w-0 flex-1">
               <h1 className="text-2xl font-bold leading-tight text-white sm:text-3xl">
                 <SiteLink to={{ type: 'series', name: comic.seriesName }} className="hover:text-blue-200">{comic.seriesName}</SiteLink>
-                {' '}#{comic.issueNumber}
+                {' '}{issueText(comic)}
               </h1>
               {comic.title && comic.title !== comic.seriesName && <p className="mt-1 text-lg text-slate-300">{comic.title}</p>}
 

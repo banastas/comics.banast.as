@@ -1,5 +1,6 @@
 import data from '../../src/data/comics.json';
 import type { Comic } from '../../src/types/Comic';
+import { comicSlug } from '../../src/utils/comic-slug';
 import { errorResponse, internalError, jsonResponse, methodNotAllowed, preflightResponse } from '../_shared/http';
 
 const comics = data as Comic[];
@@ -25,6 +26,11 @@ function shape(c: Comic) {
     isVariant: c.isVariant,
     isGraphicNovel: c.isGraphicNovel,
     isSlabbed: c.isSlabbed,
+    // Added November 2026; every field above is unchanged.
+    slug: comicSlug(c),
+    url: `https://comics.banast.as/comic/${comicSlug(c)}`,
+    issueLabel: c.issueLabel ?? null,
+    valueAsOf: c.valueAsOf ?? null,
   };
 }
 

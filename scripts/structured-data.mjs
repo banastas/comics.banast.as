@@ -19,7 +19,11 @@ const sortComics = (comics) => [...comics].sort((a, b) => (
   || compareText(a.id, b.id)
 ));
 
-export const comicDisplayName = (comic) => `${comic.seriesName} #${comic.issueNumber}${comic.isVariant ? ' (Variant)' : ''}`;
+// Mirrors issueText/issuePhrase in src/utils/comic-slug.ts.
+export const issueText = (comic) => comic.issueLabel?.trim() || `#${comic.issueNumber}`;
+export const issuePhrase = (comic) => comic.issueLabel?.trim() || `Issue #${comic.issueNumber}`;
+
+export const comicDisplayName = (comic) => `${comic.seriesName} ${issueText(comic)}${comic.isVariant ? ' (Variant)' : ''}`;
 
 const comicUrl = (comic) => `${siteOrigin}/comic/${createComicSlug(comic)}`;
 const seriesUrl = (seriesName) => `${siteOrigin}/series/${encodeURIComponent(seriesName)}`;

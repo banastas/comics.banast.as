@@ -98,6 +98,10 @@ npm run check
 
 The checks reject malformed records, duplicate IDs, duplicate public slugs, sitemap and static-page drift, missing public assets, and API incompatibilities. `npm run validate:data` also prints a non-failing WARNINGS section with record IDs for data to fix in the source app, such as purchase dates before release dates, inconsistent series or artist spellings, raw 9.8+ grades, records without any price, and placeholder covers. Do not commit credentials or private collection data. Cover images are referenced by URL and are not copied into this repository.
 
+`src/data/series.json` holds optional per-series details keyed by the exact `seriesName`: `publisher`, `volume` and `startYear`, for example `{ "Alien (Vol 1)": { "publisher": "Marvel", "volume": 1, "startYear": 2021 } }`. It is edited by hand; validation rejects names that are not in the collection.
+
+Records may also carry `slug` (the permalink, frozen when the comic is first synced so later renames never change its URL), `issueLabel` (shown instead of `#<issueNumber>`, e.g. "Annual 1"), and `valueAsOf` (the date `currentValue` last changed). The sync fills these in; add optional `issueLabel` and `valueAsOf` columns to the sheet to set them directly.
+
 The root `example-comic-collection.json` provides a small self-hosting example without replacing the live collection contract.
 
 ## Collection sync
@@ -135,7 +139,7 @@ Cloudflare Pages Functions expose read-only JSON endpoints:
 - `GET /api/comics/stats`
 - `HEAD` and `OPTIONS` on both endpoints
 
-The collection endpoint supports series, artist, and text-query filters, plus optional `limit` (1–1000) and `offset` pagination applied after filtering. Responses include `count` (records in this response), `total` (matching records), `offset`, `limit`, and `comics`; without pagination parameters every matching record is returned. Invalid parameters return a JSON 400, and other methods return 405. Both endpoints return CORS, security, and short-lived cache headers for read-only clients.
+The collection endpoint supports series, artist, and text-query filters, plus optional `limit` (1–1000) and `offset` pagination applied after filtering. Responses include `count` (records in this response), `total` (matching records), `offset`, `limit`, and `comics`; without pagination parameters every matching record is returned. Each comic also carries its permalink `slug` and `url`, plus `issueLabel` and `valueAsOf` (both `null` when not set). Invalid parameters return a JSON 400, and other methods return 405. Both endpoints return CORS, security, and short-lived cache headers for read-only clients.
 
 ## Cover thumbnails
 

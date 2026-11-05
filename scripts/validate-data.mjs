@@ -27,7 +27,11 @@ const requiredNumberFields = ['issueNumber', 'grade'];
 const optionalNumberFields = ['purchasePrice', 'currentValue'];
 const dateFields = ['releaseDate', 'purchaseDate', 'createdAt', 'updatedAt'];
 
+const slugPattern = /^[a-z0-9][a-z0-9.-]*-\d+$/;
+
+// Mirrors src/utils/comic-slug.ts: the stored slug wins over the computed one.
 const createComicSlug = (comic) => {
+  if (comic.slug) return comic.slug;
   const seriesSlug = comic.seriesName
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
@@ -117,6 +121,14 @@ if (!Array.isArray(comics)) {
       typeof comic.isVariant === 'boolean'
     ) {
       const slug = createComicSlug(comic);
+      if (comic.slug !== undefined) {
+        const idNumber = comic.id.match(/\d+$/)?.[0];
+        if (typeof comic.slug !== 'string' || !slugPattern.test(comic.slug)) {
+          errors.push(`${label}.slug must be lowercase words joined by hyphens: ${comic.slug}`);
+        } else if (idNumber && !comic.slug.endsWith(`-${idNumber}`)) {
+          errors.push(`${label}.slug must end with the ID number -${idNumber}: ${comic.slug}`);
+        }
+      }
       const existing = slugs.get(slug);
       if (existing) {
         errors.push(`${label} slug duplicates ${existing}: ${slug}`);
@@ -124,6 +136,29 @@ if (!Array.isArray(comics)) {
       slugs.set(slug, comic.id);
     }
   });
+
+  const seriesPath = path.join(__dirname, '../src/data/series.json');
+  if (fs.existsSync(seriesPath)) {
+    const seriesNames = new Set(comics.map((comic) => comic?.seriesName));
+    const series = JSON.parse(fs.readFileSync(seriesPath, 'utf8'));
+    if (!series || typeof series !== 'object' || Array.isArray(series)) {
+      errors.push('src/data/series.json must be an object keyed by series name');
+    } else {
+      Object.entries(series).forEach(([name, details]) => {
+        if (!seriesNames.has(name)) errors.push(`series.json "${name}" does not match any seriesName in comics.json`);
+        if (!details || typeof details !== 'object' || Array.isArray(details)) {
+          errors.push(`series.json "${name}" must be an object`);
+          return;
+        }
+        Object.entries(details).forEach(([key, value]) => {
+          const valid = (key === 'publisher' && typeof value === 'string' && value.trim() !== '')
+            || (key === 'volume' && Number.isInteger(value) && value > 0)
+            || (key === 'startYear' && Number.isInteger(value) && value >= 1900 && value <= 2100);
+          if (!valid) errors.push(`series.json "${name}".${key} is not a valid publisher, volume or startYear`);
+        });
+      });
+    }
+  }
 
   if (errors.length > 0) {
     fail(errors);

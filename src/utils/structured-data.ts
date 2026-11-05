@@ -1,4 +1,5 @@
 import { createComicSlug } from './routing';
+import { issueText } from './comic-slug';
 import type { Comic } from '../types/Comic';
 
 // Client JSON-LD. scripts/structured-data.mjs produces the same shapes for the
@@ -32,8 +33,8 @@ const sortComics = <T extends ListedComic>(comics: T[]) => [...comics].sort((a, 
   || compareText(a.id, b.id)
 ));
 
-const comicDisplayName = (comic: { seriesName: string; issueNumber: string | number; isVariant: boolean }) => (
-  `${comic.seriesName} #${comic.issueNumber}${comic.isVariant ? ' (Variant)' : ''}`
+const comicDisplayName = (comic: { seriesName: string; issueNumber: string | number; issueLabel?: string; isVariant: boolean }) => (
+  `${comic.seriesName} ${issueText(comic)}${comic.isVariant ? ' (Variant)' : ''}`
 );
 
 const comicUrl = (comic: Parameters<typeof createComicSlug>[0]) => (

@@ -14,5 +14,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["functions/**/*.ts", "functions/**/*.d.ts", "src/types/**/*.ts"]
+  "include": ["functions/**/*.ts", "functions/**/*.d.ts", "src/types/**/*.ts", "src/utils/comic-slug.ts"]
 }
