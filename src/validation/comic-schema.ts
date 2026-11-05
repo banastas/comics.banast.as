@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { COMIC_SLUG_PATTERN } from '../utils/comic-slug.ts';
 
 // The site's Content-Security-Policy forbids eval; skip Zod's `new Function` JIT probe.
 z.config({ jitless: true });
@@ -24,8 +25,23 @@ export const comicSchema = z.object({
   isGraphicNovel: z.boolean(),
   createdAt: z.string(),
   updatedAt: z.string(),
+  slug: z.string().regex(COMIC_SLUG_PATTERN).optional(),
+  issueLabel: z.string().trim().min(1).optional(),
+  valueAsOf: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 });
 
 export const comicsSchema = z.array(comicSchema);
 
 export const parseComics = (data: unknown) => comicsSchema.parse(data);
+
+/** Optional per-series details in src/data/series.json, keyed by the exact seriesName. */
+export const seriesMetadataSchema = z.record(
+  z.string().min(1),
+  z.strictObject({
+    publisher: z.string().trim().min(1).optional(),
+    volume: z.number().int().positive().optional(),
+    startYear: z.number().int().min(1900).max(2100).optional(),
+  }),
+);
+
+export type SeriesMetadata = z.infer<typeof seriesMetadataSchema>;

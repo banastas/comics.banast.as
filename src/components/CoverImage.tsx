@@ -3,6 +3,7 @@ import { BookOpen } from 'lucide-react';
 import type { Comic } from '../types/Comic';
 import { getCoverSource, hasRealCover } from '../utils/covers';
 import { coverAltText } from '../utils/comic-labels';
+import { issueText } from '../utils/comic-slug';
 
 interface CoverImageProps {
   comic: Pick<Comic, 'coverImageUrl' | 'seriesName' | 'issueNumber' | 'isVariant' | 'coverArtist'>;
@@ -32,14 +33,14 @@ export const CoverImage: React.FC<CoverImageProps> = ({
       <div
         className={`flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-slate-800 to-slate-900 p-2 text-center ${className}`}
         role={decorative ? undefined : 'img'}
-        aria-label={decorative ? undefined : `${comic.seriesName} #${comic.issueNumber}: cover not available`}
+        aria-label={decorative ? undefined : `${comic.seriesName} ${issueText(comic)}: cover not available`}
         aria-hidden={decorative || undefined}
       >
         <BookOpen size={compact ? 16 : 28} className="text-slate-500" aria-hidden="true" />
         {!compact && (
           <>
             <span className="line-clamp-3 text-xs font-semibold leading-snug text-slate-300">{comic.seriesName}</span>
-            <span className="text-xs text-slate-400">#{comic.issueNumber}</span>
+            <span className="text-xs text-slate-400">{issueText(comic)}</span>
             <span className="text-[10px] uppercase tracking-wide text-slate-500">Cover coming soon</span>
           </>
         )}

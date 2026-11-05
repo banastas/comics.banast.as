@@ -1,3 +1,4 @@
+import { issueText } from './comic-slug';
 export const formatCurrency = (amount: number): string => {
   if (isNaN(amount) || !isFinite(amount)) {
     return '$0.00';
@@ -87,5 +88,5 @@ export const formatValueChange = (change: ValueChange): string => {
     : `${amount} (${formatPercentage(change.percentage)})`;
 };
 
-export const formatComicLabel = (comic: { seriesName: string; issueNumber: number; isVariant?: boolean }): string =>
-  `${comic.seriesName} #${comic.issueNumber}${comic.isVariant ? ' (Variant)' : ''}`;
+export const formatComicLabel = (comic: { seriesName: string; issueNumber: number; issueLabel?: string; isVariant?: boolean }): string =>
+  `${comic.seriesName} ${issueText(comic)}${comic.isVariant ? ' (Variant)' : ''}`;

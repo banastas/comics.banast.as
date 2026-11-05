@@ -3,6 +3,7 @@ import { TrendingDown, TrendingUp } from 'lucide-react';
 import type { Comic } from '../types/Comic';
 import { formatCurrency, getCalendarYear, getValueChange } from '../utils/formatting';
 import { comicAccessibleName } from '../utils/comic-labels';
+import { issueText } from '../utils/comic-slug';
 import { comicPath } from '../utils/paths';
 import { AppLink } from './AppLink';
 import { CoverImage } from './CoverImage';
@@ -62,11 +63,11 @@ export const ComicCard: React.FC<ComicCardProps> = React.memo(({ comic, onView, 
         {showSeriesName ? (
           <>
             <h3 className="mb-0.5 line-clamp-2 text-sm font-semibold leading-snug text-white">{comic.seriesName}</h3>
-            <p className="text-xs text-slate-400">#{comic.issueNumber} · {getCalendarYear(comic.releaseDate)}</p>
+            <p className="text-xs text-slate-400">{issueText(comic)} · {getCalendarYear(comic.releaseDate)}</p>
           </>
         ) : (
           <h3 className="text-sm font-semibold text-white">
-            #{comic.issueNumber} <span className="font-normal text-slate-400">· {getCalendarYear(comic.releaseDate)}</span>
+            {issueText(comic)} <span className="font-normal text-slate-400">· {getCalendarYear(comic.releaseDate)}</span>
           </h3>
         )}
         <p className="mb-2 truncate text-xs text-slate-400" title={comic.coverArtist || undefined}>

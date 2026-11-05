@@ -19,6 +19,12 @@ export interface Comic {
   isGraphicNovel: boolean;
   createdAt: string;
   updatedAt: string;
+  /** Permalink slug frozen when the comic was first published; see utils/comic-slug.ts. */
+  slug?: string;
+  /** Display text for the issue when "#<issueNumber>" is not right, e.g. "Annual 1" or "½". */
+  issueLabel?: string;
+  /** Date (YYYY-MM-DD) currentValue was last set. */
+  valueAsOf?: string;
 }
 
 export interface ComicStats {

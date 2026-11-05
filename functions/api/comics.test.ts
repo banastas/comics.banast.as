@@ -78,6 +78,19 @@ describe('/api/comics', () => {
     );
   });
 
+  it('adds the permalink, issue label and value date to every record', async () => {
+    const response = await getComics(contextFor(COMICS_URL));
+    const body = await response.json() as { comics: Record<string, unknown>[] };
+
+    body.comics.forEach((comic, index) => {
+      const source = allComics[index];
+      expect(comic.slug).toBe(source.slug);
+      expect(comic.url).toBe(`https://comics.banast.as/comic/${source.slug}`);
+      expect(comic.issueLabel).toBe(source.issueLabel ?? null);
+      expect(comic.valueAsOf).toBe(source.valueAsOf ?? null);
+    });
+  });
+
   it('returns every record in source order when no pagination is requested', async () => {
     const response = await getComics(contextFor(COMICS_URL));
     const body = await response.json() as ComicsBody;

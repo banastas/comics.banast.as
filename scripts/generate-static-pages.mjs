@@ -8,6 +8,7 @@ import {
   collectionPageStructuredData,
   collectionStructuredData,
   comicDisplayName,
+  issuePhrase,
   comicStructuredData,
   seriesStructuredData,
 } from './structured-data.mjs';
@@ -79,7 +80,7 @@ const pageMeta = (entry) => {
     case 'comic': {
       const comic = entry.comic;
       const title = comicDisplayName(comic);
-      const description = `${comic.seriesName} Issue #${comic.issueNumber}${comic.coverArtist ? ` - Cover art by ${comic.coverArtist}` : ''}. Grade: ${comic.grade}${comic.isSlabbed ? ' (Slabbed)' : ''}${comic.isVariant ? ' (Variant Cover)' : ''}${comic.signedBy?.trim() ? ` Signed by ${comic.signedBy}` : ''}`;
+      const description = `${comic.seriesName} ${issuePhrase(comic)}${comic.coverArtist ? ` - Cover art by ${comic.coverArtist}` : ''}. Grade: ${comic.grade}${comic.isSlabbed ? ' (Slabbed)' : ''}${comic.isVariant ? ' (Variant Cover)' : ''}${comic.signedBy?.trim() ? ` Signed by ${comic.signedBy}` : ''}`;
 
       return {
         title,

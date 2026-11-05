@@ -5,6 +5,7 @@ import { comicPath } from '../utils/paths';
 import { AppLink } from './AppLink';
 import { GradeBadge } from './ComicCard';
 import { comicAccessibleName } from '../utils/comic-labels';
+import { issueText } from '../utils/comic-slug';
 import { CoverImage } from './CoverImage';
 
 interface ComicListItemProps {
@@ -31,7 +32,7 @@ export const ComicListItem: React.FC<ComicListItemProps> = React.memo(({ comic, 
 
         <div className="min-w-0 flex-1">
           <div className="mb-0.5 flex flex-wrap items-center gap-1.5">
-            <h3 className="truncate text-sm font-semibold text-white sm:text-base">{comic.seriesName} #{comic.issueNumber}</h3>
+            <h3 className="truncate text-sm font-semibold text-white sm:text-base">{comic.seriesName} {issueText(comic)}</h3>
             {comic.isSlabbed && <span className="rounded-md border border-purple-500/30 bg-purple-500/15 px-1.5 py-0.5 text-[10px] text-purple-200 sm:text-xs">Slabbed</span>}
             {comic.isVariant && <span className="rounded-md border border-orange-500/30 bg-orange-500/15 px-1.5 py-0.5 text-[10px] text-orange-200 sm:text-xs">Variant</span>}
             {comic.isGraphicNovel && <span className="rounded-md border border-emerald-500/30 bg-emerald-500/15 px-1.5 py-0.5 text-[10px] text-emerald-200 sm:text-xs">GN</span>}

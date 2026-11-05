@@ -9,8 +9,14 @@
 // Fields the sheet leaves blank keep their previous value from comics.json instead
 // of being set to "today"/"now" on every sync; updatedAt only changes when the row
 // changed.
+//
+// Additions since the port: each comic keeps the permalink slug it was first
+// published with (computed once for new rows), an optional "issueLabel" column
+// overrides "#<issueNumber>" for display, and valueAsOf records when currentValue
+// last changed (or comes from an optional "valueAsOf" column).
 
 import type { Comic } from '../../src/types/Comic.ts';
+import { computeComicSlug } from '../../src/utils/comic-slug.ts';
 import type { CellValue } from './google-sheets.ts';
 
 /** Refuse to publish if the sheet suddenly has more than 10% fewer comics. */
@@ -163,7 +169,10 @@ export const transformSheet = ({ header, rows, current, sheetName, now: nowDate 
   // ---- Build comics ----
   const now = nowDate.toISOString();
   const today = now.split('T')[0];
-  const strip = (comic: Partial<Comic>) => JSON.stringify({ ...comic, updatedAt: undefined });
+  // Compare records independent of key order, ignoring updatedAt.
+  const strip = (comic: Partial<Comic>) => JSON.stringify(
+    Object.fromEntries(Object.entries(comic).filter(([key]) => key !== 'updatedAt').sort(([a], [b]) => a.localeCompare(b))),
+  );
 
   const comics = dataRows.map((row) => {
     const id = safeString(row.id);
@@ -193,6 +202,12 @@ export const transformSheet = ({ header, rows, current, sheetName, now: nowDate 
     const currentValue = parseCurrency(row.currentValue);
     if (purchasePrice !== undefined) comic.purchasePrice = purchasePrice;
     if (currentValue !== undefined) comic.currentValue = currentValue;
+    comic.slug = prev.slug || computeComicSlug(comic);
+    const issueLabel = safeString(row.issueLabel);
+    if (issueLabel) comic.issueLabel = issueLabel;
+    const valueAsOf = parseDate(row.valueAsOf)
+      ?? (currentValue !== undefined && currentValue !== prev.currentValue ? today : prev.valueAsOf);
+    if (valueAsOf && currentValue !== undefined) comic.valueAsOf = valueAsOf;
     // Only bump updatedAt when something other than updatedAt changed.
     if (!prev.id || strip(prev) !== strip(comic)) comic.updatedAt = now;
     return comic;

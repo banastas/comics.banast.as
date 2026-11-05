@@ -60,6 +60,7 @@ const record = (rowNumber: number, overrides: Partial<Comic> = {}): Comic => ({
   isSlabbed: false,
   purchasePrice: 4.99,
   currentValue: 6,
+  slug: `alien-issue-${rowNumber}-${rowNumber - 1}`,
   ...overrides,
 });
 
@@ -160,6 +161,37 @@ describe('transformSheet', () => {
   it('requires an id column header', () => {
     expect(() => transformSheet({ header: HEADER.slice(0, -1), rows: [sheetRow(2)], current: [record(2)], sheetName: 'comics', now: NOW }))
       .toThrow(/no "id" column/);
+  });
+});
+
+describe('transformSheet slugs, issue labels and value dates', () => {
+  it('keeps the published slug when the series is renamed', () => {
+    const result = run([sheetRow(2, { seriesName: 'Aliens' })], [record(2)]);
+    expect(result.comics[0]).toMatchObject({ seriesName: 'Aliens', slug: 'alien-issue-2-1' });
+  });
+
+  it('gives a new row the computed slug', () => {
+    const result = run([sheetRow(2), sheetRow(3, { id: '', seriesName: 'Action Comics', issueNumber: 687, isVariant: true })], [record(2)]);
+    expect(result.comics.find((comic) => comic.id === 'comic-2')?.slug).toBe('action-comics-issue-687-variant-2');
+  });
+
+  it('uses the optional issueLabel column', () => {
+    const result = run([sheetRow(2, { issueLabel: ' Annual 1 ' }), sheetRow(3, { issueLabel: '' })], [record(2), record(3)]);
+    expect(result.comics[0].issueLabel).toBe('Annual 1');
+    expect(result.comics[1]).not.toHaveProperty('issueLabel');
+  });
+
+  it('dates a changed value, keeps the date of an unchanged one, and adds none on its own', () => {
+    const current = [record(2, { valueAsOf: '2026-01-15' }), record(3), record(4)];
+    const result = run([sheetRow(2), sheetRow(3), sheetRow(4, { currentValue: 12 })], current);
+    expect(result.comics.map((comic) => comic.valueAsOf)).toEqual(['2026-01-15', undefined, '2026-11-04']);
+    expect(result.stats.updated).toBe(1);
+  });
+
+  it('prefers a valueAsOf column and drops the date when the value is cleared', () => {
+    const result = run([sheetRow(2, { valueAsOf: '2026-03-01' }), sheetRow(3, { currentValue: '' })], [record(2), record(3, { valueAsOf: '2026-01-15' })]);
+    expect(result.comics[0].valueAsOf).toBe('2026-03-01');
+    expect(result.comics[1]).not.toHaveProperty('valueAsOf');
   });
 });
 

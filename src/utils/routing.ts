@@ -1,8 +1,7 @@
 import type { Comic, SortField } from '../types/Comic';
+import { comicSlug, type ComicSlugInput } from './comic-slug';
 
-export type ComicSlugInput = Pick<Comic, 'id' | 'seriesName' | 'isVariant'> & {
-  issueNumber: string | number;
-};
+export type { ComicSlugInput };
 
 // URL path constants
 export const ROUTES = {
@@ -205,25 +204,8 @@ export const navigateToUrl = (url: string, replace = false): void => {
   window.dispatchEvent(new CustomEvent('urlchange', { detail: { url } }));
 };
 
-// Helper function to create SEO-friendly slug
-export const createComicSlug = (comic: ComicSlugInput): string => {
-  // Create slug from series name and issue number
-  const seriesSlug = comic.seriesName
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric with hyphens
-    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
-
-  const issueSlug = `issue-${comic.issueNumber}`;
-
-  // Add variant suffix if it's a variant cover
-  const variantSlug = comic.isVariant ? '-variant' : '';
-
-  // Extract the numeric ID from comic.id (e.g., "comic-728" -> "728")
-  const idMatch = comic.id.match(/\d+$/);
-  const idSuffix = idMatch ? `-${idMatch[0]}` : '';
-
-  return `${seriesSlug}-${issueSlug}${variantSlug}${idSuffix}`;
-};
+// Stored permalink slug, falling back to the computed one (see utils/comic-slug.ts).
+export const createComicSlug = (comic: ComicSlugInput): string => comicSlug(comic);
 
 // Helper function to parse comic slug back to search parameters
 export const parseComicSlug = (slug: string): { seriesSlug: string; issueNumber: string; isVariant: boolean; comicId?: string } => {
