@@ -25,7 +25,7 @@ interface StatsTabProps {
   publisherSummaries?: { name: string; count: number; seriesCount: number; value: number }[];
 }
 
-const panelClass = 'rounded-xl border border-slate-800 bg-surface-primary p-5 sm:p-6';
+const panelClass = 'rounded-lg panel bg-surface-primary p-5 sm:p-6';
 const rowLinkClass = 'flex items-center justify-between gap-3 rounded-lg p-2.5 transition-colors hover:bg-surface-secondary/60';
 
 /** The first `limit` rows, with the rest behind a native disclosure that works without JavaScript. */

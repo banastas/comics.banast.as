@@ -120,7 +120,7 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = ({
       />
 
       <div className="mx-auto max-w-7xl space-y-6 px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
-        <section className="rounded-xl border border-slate-800 bg-surface-primary p-4 sm:p-6">
+        <section className="rounded-lg panel bg-surface-primary p-4 sm:p-6">
           <div className="mb-5 flex min-w-0 items-center gap-3">
             {/* Astro passes an empty icon slot when a page has none; pages with an icon set its color. */}
             {icon && iconBgColor && <div className={`shrink-0 rounded-lg p-3 ${iconBgColor}`} aria-hidden="true">{icon}</div>}
@@ -132,7 +132,7 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = ({
           <KeyStats stats={stats} />
         </section>
 
-        <section ref={listRef} aria-labelledby="detail-comics-heading" aria-busy={loading} className="scroll-mt-32 rounded-xl border border-slate-800 bg-surface-primary p-3 sm:p-6">
+        <section ref={listRef} aria-labelledby="detail-comics-heading" aria-busy={loading} className="scroll-mt-32 rounded-lg panel bg-surface-primary p-3 sm:p-6">
           <h2 id="detail-comics-heading" className="mb-3 text-lg font-semibold text-white">{comicsListTitle}</h2>
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <p role="status" className="text-sm text-slate-300">
@@ -149,7 +149,7 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = ({
         </section>
 
         {(hasHighlights || afterDashboard) && (
-          <section aria-labelledby="detail-highlights-heading" className="space-y-6 rounded-xl border border-slate-800 bg-surface-primary p-4 sm:p-6">
+          <section aria-labelledby="detail-highlights-heading" className="space-y-6 rounded-lg panel bg-surface-primary p-4 sm:p-6">
             <h2 id="detail-highlights-heading" className="text-lg font-semibold text-white">Highlights</h2>
             <PerformanceHighlights stats={stats} />
             {afterDashboard}

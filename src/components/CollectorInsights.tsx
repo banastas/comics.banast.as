@@ -120,7 +120,7 @@ export const CollectorInsights: React.FC<CollectorInsightsProps> = ({ comics }) 
   }, [comics]);
 
   return (
-    <div className="bg-surface-primary rounded-xl border border-slate-800 p-5 sm:p-6">
+    <div className="rounded-lg panel bg-surface-primary p-5 sm:p-6">
       <h2 className="text-base font-semibold text-white mb-4">Insights</h2>
       <div className="space-y-3">
         {insights.map((insight, i) => (

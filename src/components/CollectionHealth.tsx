@@ -22,7 +22,7 @@ export const CollectionHealth: React.FC<CollectionHealthProps> = ({ comics }) =>
   ], [comics]);
 
   return (
-    <section aria-labelledby="completeness-heading" className="rounded-xl border border-slate-800 bg-surface-primary p-5 sm:p-6">
+    <section aria-labelledby="completeness-heading" className="rounded-lg panel bg-surface-primary p-5 sm:p-6">
       <h2 id="completeness-heading" className="text-base font-semibold text-white">Record completeness</h2>
       <p className="mb-5 mt-1 text-xs text-slate-400">How many comics have each detail recorded.</p>
       <dl className="space-y-3">

@@ -96,14 +96,14 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
       </div>
 
       <div className="mx-auto max-w-7xl space-y-6 px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
-        <article className="rounded-xl border border-slate-800 bg-surface-primary p-4 sm:p-6">
+        <article className="rounded-lg panel bg-surface-primary p-4 sm:p-6">
           <div className="flex flex-col gap-6 md:flex-row md:gap-8">
             <div className="mx-auto w-full max-w-[280px] shrink-0 md:mx-0 md:w-64 lg:w-72">
               {realCover ? (
                 <button
                   type="button"
                   onClick={() => setShowCover(true)}
-                  className="group relative block aspect-[2/3] w-full overflow-hidden rounded-lg border border-slate-700 bg-surface-secondary shadow-xl"
+                  className="group relative block aspect-[2/3] w-full overflow-hidden rounded-md border-2 border-black bg-surface-secondary shadow-panel"
                   aria-label={`Enlarge cover: ${coverAltText(comic)}`}
                 >
                   <CoverImage comic={comic} displayWidth={288} sizes="(max-width: 768px) 280px, 288px" decorative priority />
@@ -112,7 +112,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                   </span>
                 </button>
               ) : (
-                <div className="aspect-[2/3] w-full overflow-hidden rounded-lg border border-slate-700">
+                <div className="aspect-[2/3] w-full overflow-hidden rounded-md border-2 border-black shadow-panel">
                   <CoverImage comic={comic} displayWidth={288} />
                 </div>
               )}
@@ -205,7 +205,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
         </article>
 
         {relatedComics.length > 0 && (
-          <section aria-labelledby="related-heading" className="rounded-xl border border-slate-800 bg-surface-primary p-4 sm:p-6">
+          <section aria-labelledby="related-heading" className="rounded-lg panel bg-surface-primary p-4 sm:p-6">
             <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
               <h2 id="related-heading" className="text-lg font-semibold text-white">More from {comic.seriesName}</h2>
               <SiteLink to={{ type: 'series', name: comic.seriesName }} className={`text-sm ${linkClass}`}>

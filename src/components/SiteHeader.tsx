@@ -104,18 +104,18 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
   ];
 
   return (
-    <header className={`sticky top-0 z-30 border-b bg-surface-primary/95 backdrop-blur-md transition-shadow duration-200 ${
-      isScrolled ? 'border-slate-700/60 shadow-lg shadow-black/20' : 'border-slate-800'
+    <header className={`halftone sticky top-0 z-30 border-b-2 border-black bg-surface-primary/95 backdrop-blur-md transition-shadow duration-200 ${
+      isScrolled ? 'shadow-lg shadow-black/40' : ''
     }`}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-14 items-center justify-between gap-3 sm:h-16">
           <SiteLink to={{ type: 'collection' }} className="group flex min-w-0 shrink-0 items-center gap-2 sm:gap-3" aria-label="comics.banast.as home">
-            <span className="rounded-lg bg-blue-600 p-1.5 shadow-lg transition-colors group-hover:bg-blue-500 sm:p-2">
-              <BookOpen size={20} className="text-white" aria-hidden="true" />
-            </span>
-            <span className="min-w-0">
-              <span className="block truncate text-base font-bold text-white sm:text-lg">comics.banast.as</span>
-              <span className="hidden text-xs text-slate-400 sm:block">{totalComics.toLocaleString('en-US')} comics</span>
+            <img src="/favicon.svg" alt="" width={40} height={40} className="h-9 w-9 shrink-0 transition-transform group-hover:-rotate-6 sm:h-10 sm:w-10" />
+            <span className="min-w-0 leading-none">
+              <span className="block font-display text-2xl font-extrabold uppercase italic tracking-wide text-paper sm:text-[1.7rem]">
+                Comics<span className="text-blue-500">.</span><span className="text-sm font-bold normal-case not-italic tracking-normal text-slate-400">banast.as</span>
+              </span>
+              <span className="mt-0.5 hidden text-xs text-slate-400 sm:block">{totalComics.toLocaleString('en-US')} comics</span>
             </span>
           </SiteLink>
 
@@ -153,7 +153,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
                   <div className="flex overflow-hidden rounded-xl border border-slate-700" role="group" aria-label="Layout">
                     <button
                       onClick={() => onViewModeChange('grid')}
-                      className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-surface-secondary hover:text-white'}`}
+                      className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-blue-600 text-ink' : 'text-slate-300 hover:bg-surface-secondary hover:text-white'}`}
                       aria-label="Grid view"
                       aria-pressed={viewMode === 'grid'}
                     >
@@ -161,7 +161,7 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
                     </button>
                     <button
                       onClick={() => onViewModeChange('list')}
-                      className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-surface-secondary hover:text-white'}`}
+                      className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-blue-600 text-ink' : 'text-slate-300 hover:bg-surface-secondary hover:text-white'}`}
                       aria-label="List view"
                       aria-pressed={viewMode === 'list'}
                     >

@@ -1,14 +1,51 @@
 @import "tailwindcss";
 @import "@fontsource-variable/inter";
+@import "@fontsource/barlow-condensed/700.css";
+@import "@fontsource/barlow-condensed/800-italic.css";
 
 @theme {
   --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif;
+  /* Comic-cover lettering for the wordmark and headings. */
+  --font-display: 'Barlow Condensed', 'Arial Narrow', system-ui, sans-serif;
 
-  --color-surface-base: rgb(13 17 23);
-  --color-surface-primary: rgb(22 27 34);
-  --color-surface-secondary: rgb(33 38 45);
-  --color-surface-elevated: rgb(28 33 40);
+  /* Comic print palette: ink, paper and process yellow/red. */
+  --color-ink: #0d0c0b;
+  --color-paper: #f2ede3;
+  --color-print-red: #e8432e;
 
+  --color-surface-base: #0d0c0b;
+  --color-surface-primary: #161513;
+  --color-surface-secondary: #22201d;
+  --color-surface-elevated: #1c1b18;
+
+  /* Warm neutrals replace Tailwind's slate (used for body text, borders and muted copy). */
+  --color-slate-50: #faf7f0;
+  --color-slate-100: #f2ede3;
+  --color-slate-200: #e3ddd1;
+  --color-slate-300: #cbc4b6;
+  --color-slate-400: #a29b8f;
+  --color-slate-500: #7b756d;
+  --color-slate-600: #59544e;
+  --color-slate-700: #3b3834;
+  --color-slate-800: #282622;
+  --color-slate-900: #191816;
+  --color-slate-950: #0f0e0d;
+
+  /* Process yellow replaces blue as the single accent (links, actions, active states, focus). */
+  --color-blue-50: #fffbea;
+  --color-blue-100: #fff3c4;
+  --color-blue-200: #ffe58a;
+  --color-blue-300: #ffd84d;
+  --color-blue-400: #ffcd26;
+  --color-blue-500: #ffc928;
+  --color-blue-600: #f5b800;
+  --color-blue-700: #c99400;
+  --color-blue-800: #8f6a00;
+  --color-blue-900: #5c4400;
+  --color-blue-950: #2e2200;
+
+  --shadow-panel: 4px 4px 0 0 #3d1810;
+  --shadow-panel-hover: 6px 6px 0 0 var(--color-print-red);
   --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
   --shadow-card-hover: 0 10px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.3);
   --shadow-glow: 0 0 20px -5px rgb(59 130 246 / 0.3);
@@ -51,16 +88,25 @@
 
   body {
     background-color: var(--color-surface-base);
-    color: #e6edf3;
+    color: var(--color-paper);
+  }
+
+  /* Display lettering for page and section headings; small eyebrow labels (text-xs) keep Inter. */
+  h1, h2:not(.text-xs) {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-style: italic;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
   }
 
   ::selection {
-    background-color: rgb(59 130 246 / 0.3);
-    color: #ffffff;
+    background-color: var(--color-blue-500);
+    color: var(--color-ink);
   }
 
   :where(a, button, input, select, textarea, [role='button']):focus-visible {
-    outline: 2px solid #60a5fa;
+    outline: 2px solid var(--color-blue-400);
     outline-offset: 3px;
   }
 
@@ -84,6 +130,18 @@
     .bg-gray-800 { background-color: #000000; border: 1px solid #ffffff; }
     .text-gray-300 { color: #ffffff; }
   }
+}
+
+/* Ben-Day dots: a faint print texture for the header and page titles. */
+@utility halftone {
+  background-image: radial-gradient(circle at center, rgb(232 67 46 / 0.16) 1.2px, transparent 1.6px);
+  background-size: 9px 9px;
+}
+
+/* Comic-panel framing: a solid ink edge with a hard offset shadow. */
+@utility panel {
+  border: 2px solid #000;
+  box-shadow: var(--shadow-panel);
 }
 
 /*
