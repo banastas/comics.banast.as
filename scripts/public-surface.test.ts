@@ -13,7 +13,7 @@ describe('public deployment surface', () => {
     const referenced = [
       ...(manifest.icons || []).map((icon) => icon.src),
       ...(manifest.screenshots || []).map((screenshot) => screenshot.src),
-      ...(manifest.shortcuts || []).flatMap((shortcut) => (shortcut.icons || []).map((icon) => icon.src)),
+      ...((manifest.shortcuts || []) as { icons?: { src: string }[] }[]).flatMap((shortcut) => (shortcut.icons || []).map((icon) => icon.src)),
     ];
 
     expect(referenced.filter((src) => !publicFileExists(src))).toEqual([]);

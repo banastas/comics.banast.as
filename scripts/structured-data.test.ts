@@ -8,7 +8,6 @@ import {
   generateComicStructuredData,
   generateSeriesStructuredData,
 } from '../src/utils/structured-data';
-// @ts-expect-error Build utilities are native ESM shared with Node scripts.
 import { isPlaceholderCover } from './cover-placeholders.mjs';
 
 const data = comics as Comic[];

@@ -8,7 +8,6 @@ import {
   normalizeArtistName,
   normalizeSeriesName,
   repeatedLeadingWord,
-  // @ts-expect-error Build utilities are native ESM shared with Node scripts.
 } from './data-warnings.mjs';
 
 const base: Comic = {
