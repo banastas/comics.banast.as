@@ -15,7 +15,7 @@ _Live collection overview captured September 1, 2026._
 - Browse the collection as a cover grid or compact list.
 - Search titles, series, artists, notes, and signatures.
 - Sort and filter by release date, issue number, grade, price, value, condition, and variant status.
-- Explore dedicated pages for comics, series, cover artists, computed tags, storage boxes, raw comics, slabbed comics, and variants.
+- Explore dedicated pages for comics, series, publishers, cover artists, computed tags, storage boxes, raw comics, slabbed comics, and variants.
 - Review acquisition, grade, value, and collection-health analytics.
 - Share clean canonical URLs while preserving old hash-route bookmarks.
 - Consume the same checked-in collection through read-only Cloudflare Pages Functions.
@@ -103,7 +103,7 @@ The checks reject malformed records, duplicate IDs, duplicate public slugs, site
 
 Records may also carry `slug` (the permalink, frozen when the comic is first synced so later renames never change its URL), `issueLabel` (shown instead of `#<issueNumber>`, e.g. "Annual 1"), and `valueAsOf` (the date `currentValue` last changed, shown as "as of …" on the comic page). The sync fills these in; add optional `issueLabel` and `valueAsOf` columns to the sheet's `comics` tab to set them directly.
 
-`src/data/series.json` holds optional per-series details keyed by the exact `seriesName`: `publisher`, `volume` and `startYear`. The sync writes it from the sheet's optional `series` tab (see below). Series pages show them under the title ("Marvel · Volume 1 · Since 2021"), comic pages show the publisher, and both add them to their JSON-LD. Validation rejects names that are not in the collection.
+`src/data/series.json` holds optional per-series details keyed by the exact `seriesName`: `publisher`, `volume` and `startYear`. The sync writes it from the sheet's optional `series` tab (see below). Series pages show them under the title ("Marvel · Volume 1 · Since 2021"), comic pages show the publisher, and both add them to their JSON-LD. Each publisher gets a page (`/publisher/Marvel`) listing its comics and series, linked from series and comic pages and from the Publishers panel on the statistics page. Validation rejects names that are not in the collection.
 
 The root `example-comic-collection.json` provides a small self-hosting example without replacing the live collection contract.
 
@@ -157,6 +157,7 @@ Canonical routes include:
 - `/comic/:slug`
 - `/series/:slug`
 - `/artist/:slug`
+- `/publisher/:slug`
 - `/tag/:slug`
 - `/storage/:slug` and `/boxes`
 - `/raw`, `/slabbed`, and `/variants`

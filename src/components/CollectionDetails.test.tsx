@@ -131,6 +131,7 @@ describe('detail page contracts', () => {
     const comic = { ...base, currentValue: 12, valueAsOf: '2026-11-04' };
     const doc = parse(renderToStaticMarkup(<ComicDetail comic={comic} {...comicSeriesContext(comic, [comic])} publisher="Image" />));
     expect(doc.body.textContent).toContain('PublisherImage');
+    expect(doc.querySelector('a[href="/publisher/Image"]')?.textContent).toBe('Image');
     expect(doc.body.textContent).toContain('as of November 4, 2026');
 
     const plain = parse(renderToStaticMarkup(detail({ ...base, currentValue: 12 })));

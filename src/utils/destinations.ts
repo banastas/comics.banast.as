@@ -1,5 +1,5 @@
 import type { Comic } from '../types/Comic';
-import { artistPath, comicPath, seriesPath, storagePath, tagPath } from './paths';
+import { artistPath, comicPath, publisherPath, seriesPath, storagePath, tagPath } from './paths';
 
 export type Destination =
   | { type: 'comic'; comic: Comic }
@@ -7,6 +7,7 @@ export type Destination =
   | { type: 'artist'; name: string }
   | { type: 'storage'; name: string }
   | { type: 'tag'; name: string }
+  | { type: 'publisher'; name: string }
   | { type: 'collection' | 'stats' | 'raw' | 'slabbed' | 'variants' | 'boxes' };
 
 export const destinationHref = (destination: Destination): string => {
@@ -16,6 +17,7 @@ export const destinationHref = (destination: Destination): string => {
     case 'artist': return artistPath(destination.name);
     case 'storage': return storagePath(destination.name);
     case 'tag': return tagPath(destination.name);
+    case 'publisher': return publisherPath(destination.name);
     case 'collection': return '/';
     default: return `/${destination.type}`;
   }

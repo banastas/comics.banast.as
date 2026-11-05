@@ -9,5 +9,6 @@ export const seriesPath = (seriesName: string): string => `/series/${encodeURICo
 export const artistPath = (coverArtist: string): string => `/artist/${encodeURIComponent(coverArtist)}`;
 export const storagePath = (storageLocation: string): string => `/storage/${encodeURIComponent(storageLocation)}`;
 export const tagPath = (tag: string): string => `/tag/${encodeURIComponent(tag)}`;
+export const publisherPath = (publisher: string): string => `/publisher/${encodeURIComponent(publisher)}`;
 
 export const absoluteUrl = (path: string): string => `${SITE_ORIGIN}${path === '/' ? '/' : path}`;

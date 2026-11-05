@@ -11,6 +11,7 @@ Canonical routes use clean paths:
 - `/comic/:slug`
 - `/series/:slug`
 - `/artist/:slug`
+- `/publisher/:slug`
 - `/tag/:slug`
 - `/storage/:slug` and `/boxes`
 - `/raw`, `/slabbed`, and `/variants`
