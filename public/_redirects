@@ -1,0 +1,8 @@
+# Permanent redirects for renamed public URLs. Comic pages keep their original slug,
+# but series pages are named after the series, so a rename needs an entry here.
+# Paths are URL-encoded exactly as the sitemap writes them.
+
+/series/Rick%20And%20Morty%20The%20End /series/Rick%20and%20Morty%20The%20End 301
+/series/Rick%20And%20Morty%20Forever /series/Rick%20and%20Morty%20Forever 301
+/series/Rick%20And%20Morty%20Presents%3A%20The%20Science%20Of%20Summer /series/Rick%20and%20Morty%20Presents%3A%20The%20Science%20of%20Summer 301
+/series/The%20The%20Department%20Of%20Truth /series/The%20Department%20Of%20Truth 301
