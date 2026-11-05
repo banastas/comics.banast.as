@@ -1,4 +1,4 @@
-import { Comic } from '../types/Comic';
+import type { Comic } from '../types/Comic';
 
 export type DetailSortField = 'series' | 'issue' | 'grade' | 'value' | 'date' | 'dateDesc' | 'dateAsc';
 

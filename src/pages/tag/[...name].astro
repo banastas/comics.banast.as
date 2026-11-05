@@ -1,0 +1,31 @@
+---
+import { Tag } from 'lucide-react';
+import DetailPage from '../../components/astro/DetailPage.astro';
+import { seriesCountLabel } from '../../components/detailText';
+import { comicsWithTag, computedTags, userTags } from '../../utils/site-data';
+import { tagMeta } from '../../utils/page-meta';
+import { tagPath } from '../../utils/paths';
+
+export const getStaticPaths = () => [...new Set([...userTags, ...computedTags])].map((name) => ({ params: { name }, props: { name } }));
+
+// Astro hands back "?" and "#" in params percent-encoded; props keep the real name.
+const { name: tag } = Astro.props as { name: string };
+const comics = comicsWithTag(tag);
+const seriesCount = new Set(comics.map((comic) => comic.seriesName)).size;
+const counts = new Map<string, number>();
+comics.forEach((comic) => comic.tags.filter((t) => t !== tag).forEach((t) => counts.set(t, (counts.get(t) ?? 0) + 1)));
+const relatedTags = [...counts].sort(([a, x], [b, y]) => y - x || a.localeCompare(b)).slice(0, 12);
+---
+<DetailPage
+  meta={tagMeta(tag, comics, tagPath(tag))}
+  source={{ kind: 'tag', value: tag }}
+  comics={comics}
+  breadcrumbItems={[{ label: 'Collection', href: '/' }, { label: tag }]}
+  icon={Tag}
+  iconBgColor="bg-blue-600"
+  title={`${tag} Comics`}
+  subtitle={seriesCountLabel(comics.length, 'comic', seriesCount)}
+  comicsListTitle={`Comics tagged ${tag}`}
+  breakdown={{ title: `Series tagged ${tag}`, maxItems: 8 }}
+  relatedTags={relatedTags}
+/>

@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CollectionApp, { DEFAULT_ITEMS_PER_PAGE } from '../../islands/CollectionApp';
+import { applyFilters, defaultFilters } from '../../utils/collection-filter';
+import { computeTagData } from '../../utils/computed-tags';
+import { DEFAULT_SORT_DIRECTION, DEFAULT_SORT_FIELD } from '../../utils/routing';
+import { collectionStats, comics, storageLocations } from '../../utils/site-data';
+import { homeMeta } from '../../utils/page-meta';
+
+const { computedTagsMap, computedTagCounts, allComputedTags } = computeTagData(comics);
+const firstPage = applyFilters(comics, defaultFilters, DEFAULT_SORT_FIELD, DEFAULT_SORT_DIRECTION, null, computedTagsMap)
+  .slice(0, DEFAULT_ITEMS_PER_PAGE);
+---
+<BaseLayout meta={homeMeta()} header={false}>
+  <CollectionApp
+    client:load
+    stats={collectionStats}
+    variantsCount={comics.filter((comic) => comic.isVariant).length}
+    boxesCount={storageLocations.length}
+    computedTags={allComputedTags}
+    tagCounts={Object.fromEntries(computedTagCounts)}
+    firstPage={firstPage}
+  />
+</BaseLayout>

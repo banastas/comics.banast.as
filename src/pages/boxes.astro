@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { StorageLocationsListing, summarizeBoxes } from '../components/StorageLocationsListing';
+import { comics } from '../utils/site-data';
+import { boxesMeta } from '../utils/page-meta';
+---
+<BaseLayout meta={boxesMeta(comics)} section="boxes">
+  <StorageLocationsListing
+    client:idle
+    boxes={summarizeBoxes(comics)}
+    breadcrumbItems={[{ label: 'Collection', href: '/' }, { label: 'Virtual Boxes' }]}
+  />
+</BaseLayout>

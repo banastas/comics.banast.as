@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Comic } from '../types/Comic';
+import type { Comic } from '../types/Comic';
 
 interface GradeDistributionProps {
   comics: Comic[];
@@ -30,7 +30,7 @@ export const GradeDistribution: React.FC<GradeDistributionProps> = ({ comics }) 
       <div className="space-y-3">
         {distribution.map((bucket) => (
           <div key={bucket.label} className="flex items-center gap-3">
-            <span className="text-xs text-slate-400 w-20 text-right font-mono flex-shrink-0">
+            <span className="text-xs text-slate-400 w-20 text-right font-mono shrink-0">
               {bucket.label}
             </span>
             <div className="flex-1 h-6 bg-surface-secondary rounded-md overflow-hidden">
@@ -39,7 +39,7 @@ export const GradeDistribution: React.FC<GradeDistributionProps> = ({ comics }) 
                 style={{ width: `${Math.max(bucket.percentage, bucket.count > 0 ? 2 : 0)}%` }}
               />
             </div>
-            <span className="text-xs text-slate-300 w-10 text-right font-mono flex-shrink-0 tabular-nums">
+            <span className="text-xs text-slate-300 w-10 text-right font-mono shrink-0 tabular-nums">
               {bucket.count}
             </span>
           </div>

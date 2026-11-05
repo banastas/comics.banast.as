@@ -10,7 +10,7 @@ import { CoverImage } from './CoverImage';
 
 interface ComicListItemProps {
   comic: Comic;
-  onView: (comic: Comic) => void;
+  onView?: (comic: Comic) => void;
   extraInfo?: React.ReactNode;
 }
 
@@ -22,11 +22,11 @@ export const ComicListItem: React.FC<ComicListItemProps> = React.memo(({ comic, 
     <li>
       <AppLink
         href={comicPath(comic)}
-        onNavigate={() => onView(comic)}
+        onNavigate={onView ? () => onView(comic) : undefined}
         aria-label={comicAccessibleName(comic)}
-        className="flex items-center gap-3 rounded-xl border border-slate-800 bg-surface-primary p-3 transition-colors hover:border-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 sm:gap-4 sm:p-4"
+        className="flex items-center gap-3 rounded-xl border border-slate-800 bg-surface-primary p-3 transition-colors hover:border-slate-500 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-400 sm:gap-4 sm:p-4"
       >
-        <div className="h-14 w-10 flex-shrink-0 overflow-hidden rounded-md bg-surface-secondary sm:h-16 sm:w-11">
+        <div className="h-14 w-10 shrink-0 overflow-hidden rounded-md bg-surface-secondary sm:h-16 sm:w-11">
           <CoverImage comic={comic} displayWidth={48} sizes="48px" decorative compact />
         </div>
 
@@ -46,11 +46,11 @@ export const ComicListItem: React.FC<ComicListItemProps> = React.memo(({ comic, 
           {extraInfo && <div className="mt-1 text-xs text-slate-400">{extraInfo}</div>}
         </div>
 
-        <div className="hidden w-20 flex-shrink-0 justify-end sm:flex">
+        <div className="hidden w-20 shrink-0 justify-end sm:flex">
           <GradeBadge comic={comic} />
         </div>
 
-        <div className="min-w-[88px] flex-shrink-0 text-right">
+        <div className="min-w-[88px] shrink-0 text-right">
           <p className="text-sm font-semibold tabular-nums text-white">
             {value === undefined ? <span className="text-xs font-normal text-slate-400">No value</span> : formatCurrency(value)}
           </p>
@@ -73,14 +73,14 @@ ComicListItem.displayName = 'ComicListItem';
 
 interface ComicListViewProps {
   comics: Comic[];
-  onView: (comic: Comic) => void;
+  onView?: (comic: Comic) => void;
   extraInfo?: (comic: Comic) => React.ReactNode;
 }
 
 export const ComicListView: React.FC<ComicListViewProps> = React.memo(({ comics, onView, extraInfo }) => (
   <div>
     <div className="mb-1 hidden items-center gap-4 px-4 py-2 text-xs font-medium uppercase tracking-wider text-slate-400 sm:flex" aria-hidden="true">
-      <div className="w-11 flex-shrink-0" />
+      <div className="w-11 shrink-0" />
       <div className="flex-1">Comic</div>
       <div className="w-20 text-right">Grade</div>
       <div className="min-w-[88px] text-right">Value</div>

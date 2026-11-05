@@ -1,0 +1,76 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { DetailPageLayout, firstDetailPage } from '../DetailPageLayout';
+import { SeriesBreakdown } from '../SeriesBreakdown';
+import { SiteLink } from '../SiteLink';
+import type { HeaderSection } from '../SiteHeader';
+import type { BreadcrumbItem } from '../Breadcrumb';
+import type { Comic } from '../../types/Comic';
+import type { ListSource } from '../../utils/comic-index';
+import type { DetailSortField } from '../../utils/sorting';
+import type { PageMeta } from '../../utils/page-meta';
+import { calculateComicStats } from '../../utils/stats';
+
+interface Props {
+  meta: PageMeta;
+  section?: HeaderSection;
+  source: ListSource;
+  comics: Comic[];
+  breadcrumbItems: BreadcrumbItem[];
+  icon?: any;
+  iconBgColor?: string;
+  title: string;
+  subtitle: string;
+  subtitleNote?: string;
+  defaultSortBy?: DetailSortField;
+  sortOptions?: { value: string; label: string }[];
+  comicsListTitle: string;
+  showSeriesName?: boolean;
+  breakdown?: { title: string; maxItems: number; itemLabel?: string };
+  relatedTags?: [string, number][];
+}
+
+const {
+  meta, section = null, source, comics, breadcrumbItems, icon: Icon, iconBgColor, title, subtitle, subtitleNote,
+  defaultSortBy = 'series', sortOptions, comicsListTitle, showSeriesName, breakdown, relatedTags = [],
+} = Astro.props;
+const hasAfter = Boolean(breakdown || relatedTags.length);
+---
+<BaseLayout meta={meta} section={section}>
+  <DetailPageLayout
+    client:idle
+    source={source}
+    firstPage={firstDetailPage(comics, defaultSortBy)}
+    total={comics.length}
+    stats={calculateComicStats(comics)}
+    breadcrumbItems={breadcrumbItems}
+    iconBgColor={iconBgColor}
+    title={title}
+    defaultSortBy={defaultSortBy}
+    sortOptions={sortOptions}
+    comicsListTitle={comicsListTitle}
+    showSeriesName={showSeriesName}
+  >
+    {Icon && <Icon slot="icon" size={24} className="text-white" />}
+    <span slot="subtitle">{subtitle}{subtitleNote && <span class="ml-2 text-slate-400">{subtitleNote}</span>}</span>
+    {hasAfter && (
+      <div slot="afterDashboard" class="space-y-6">
+        {breakdown && <SeriesBreakdown comics={comics} title={breakdown.title} maxItems={breakdown.maxItems} itemLabel={breakdown.itemLabel} />}
+        {relatedTags.length > 0 && (
+          <div>
+            <h3 class="mb-3 text-base font-semibold text-white">Related tags</h3>
+            <ul class="flex flex-wrap gap-2">
+              {relatedTags.map(([tag, count]) => (
+                <li>
+                  <SiteLink to={{ type: 'tag', name: tag }} className="inline-block rounded-sm border border-slate-700 bg-surface-secondary/50 px-3 py-1 text-sm text-slate-200 transition-colors hover:border-blue-400 hover:text-blue-200">
+                    {tag} <span class="text-slate-400">{count}</span>
+                  </SiteLink>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    )}
+  </DetailPageLayout>
+</BaseLayout>

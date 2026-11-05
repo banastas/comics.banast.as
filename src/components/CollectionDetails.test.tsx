@@ -1,36 +1,59 @@
 // @vitest-environment jsdom
+import { act } from 'react';
+import { createRoot } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { DetailPageLayout } from './DetailPageLayout';
-import { ComicDetail } from './ComicDetail';
+import { ComicDetail, comicSeriesContext } from './ComicDetail';
 import { AcquisitionTimeline } from './AcquisitionTimeline';
 import { buildAcquisitionTimeline } from '../utils/acquisition-timeline';
 import { ComicListItem } from './ComicListView';
 import { ComicCard } from './ComicCard';
 import { CollectionHealth } from './CollectionHealth';
 import { KeyStats } from './Dashboard';
-import { SeriesDetail } from './SeriesDetail';
+import { seriesSubtitle } from './detailText';
 import { calculateComicStats } from '../utils/stats';
 import data from '../data/comics.json';
 import type { Comic } from '../types/Comic';
 // Fixtures vary IDs and series, so they compute their slugs instead of reusing the real record's.
 const base = { ...(data[0] as Comic), slug: undefined };
 const noop = () => {};
+const detail = (comic: Comic, allComics: Comic[] = [comic]) => (
+  <ComicDetail comic={comic} {...comicSeriesContext(comic, allComics)} onView={noop} />
+);
+const layoutProps = (comics: Comic[]) => ({
+  source: { kind: 'variants' as const },
+  firstPage: comics,
+  total: comics.length,
+  stats: calculateComicStats(comics),
+  breadcrumbItems: [{ label: 'Collection', href: '/' }, { label: 'Variants' }],
+  title: 'Variants',
+  subtitle: '1 comic',
+  comicsListTitle: 'Comics',
+});
 const parse = (html: string) => new DOMParser().parseFromString(html, 'text/html');
 
 describe('detail page contracts', () => {
-  it('respects the selected list view and renders comics before aggregate highlights', () => {
-    window.history.replaceState(null, '', '/variants?view=list');
+  it('renders comics before aggregate highlights and applies ?view=list after hydration', async () => {
     const comics = [{ ...base, isVariant: true, purchasePrice: 1, currentValue: 3 }];
-    const doc = parse(renderToStaticMarkup(<DetailPageLayout comics={comics} onBack={noop} onView={noop} icon={null} iconBgColor="" title="Variants" subtitle="1 comic" comicsListTitle="Comics" />));
-    expect(doc.querySelector('[aria-label="List view"]')?.getAttribute('aria-pressed')).toBe('true');
+    const doc = parse(renderToStaticMarkup(<DetailPageLayout {...layoutProps(comics)} />));
     expect(doc.querySelector('main')).not.toBeNull();
     const headings = [...doc.querySelectorAll('h2')].map((h) => h.textContent);
     expect(headings.indexOf('Comics')).toBeLessThan(headings.indexOf('Highlights'));
+
+    vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true);
+    window.history.replaceState(null, '', '/variants?view=list');
+    const container = document.createElement('div');
+    const root = createRoot(container);
+    await act(async () => root.render(<DetailPageLayout {...layoutProps(comics)} />));
+    expect(container.querySelector('[aria-label="List view"]')?.getAttribute('aria-pressed')).toBe('true');
+    await act(async () => root.unmount());
+    window.history.replaceState(null, '', '/');
+    vi.unstubAllGlobals();
   });
 
   it('does not display an invented free purchase or gain on a comic with unknown cost', () => {
-    const html = renderToStaticMarkup(<ComicDetail comic={{ ...base, purchasePrice: undefined, currentValue: 450 }} allComics={[]} onBack={noop} onView={noop} />);
+    const html = renderToStaticMarkup(detail({ ...base, purchasePrice: undefined, currentValue: 450 }, []));
     expect(html).toContain('Not recorded');
     expect(html).not.toContain('+$450');
     const row = renderToStaticMarkup(<ComicListItem comic={{ ...base, purchasePrice: undefined, currentValue: 450 }} onView={noop} />);
@@ -39,7 +62,7 @@ describe('detail page contracts', () => {
 
   it('names the comic page after the series and issue, without internal record dates', () => {
     const comic = { ...base, seriesName: 'Spawn', issueNumber: 85, isVariant: false };
-    const doc = parse(renderToStaticMarkup(<ComicDetail comic={comic} allComics={[comic]} onBack={noop} onView={noop} />));
+    const doc = parse(renderToStaticMarkup(detail(comic)));
     expect(doc.querySelector('h1')?.textContent).toBe('Spawn #85');
     expect(doc.body.textContent).not.toContain('Added to Collection');
     expect(doc.body.textContent).not.toContain('Last Updated');
@@ -47,14 +70,14 @@ describe('detail page contracts', () => {
 
   it('shows the issue label in place of the issue number when one is set', () => {
     const comic = { ...base, seriesName: 'Spawn', issueNumber: 1, issueLabel: 'Annual 1', isVariant: false };
-    const doc = parse(renderToStaticMarkup(<ComicDetail comic={comic} allComics={[comic]} onBack={noop} onView={noop} />));
+    const doc = parse(renderToStaticMarkup(detail(comic)));
     expect(doc.querySelector('h1')?.textContent).toBe('Spawn Annual 1');
     expect(doc.body.textContent).not.toContain('#1');
   });
 
   it('links related issues with real hrefs and shows values rather than an invented $0 cost', () => {
     const series = [1, 2, 3].map((issueNumber) => ({ ...base, id: `comic-${900 + issueNumber}`, seriesName: 'Test Series', issueNumber, purchasePrice: undefined, currentValue: 4 }));
-    const doc = parse(renderToStaticMarkup(<ComicDetail comic={series[1]} allComics={series} onBack={noop} onView={noop} />));
+    const doc = parse(renderToStaticMarkup(detail(series[1], series)));
     const hrefs = [...doc.querySelectorAll('a[href^="/comic/"]')].map((a) => a.getAttribute('href'));
     expect(hrefs).toContain('/comic/test-series-issue-1-901');
     expect(hrefs).toContain('/comic/test-series-issue-3-903');
@@ -70,9 +93,8 @@ describe('detail page contracts', () => {
   });
 
   it('does not print a stray 0 for series that include issue #0', () => {
-    const comics = [{ ...base, issueNumber: 0, seriesName: 'Zero' }];
-    const html = renderToStaticMarkup(<SeriesDetail seriesName="Zero" seriesComics={comics} onBack={noop} onView={noop} />);
-    expect(parse(html).querySelector('h1 + p')?.textContent).toBe('1 issue in the collection');
+    expect(seriesSubtitle([0])).toEqual({ subtitle: '1 issue in the collection', note: undefined });
+    expect(seriesSubtitle([3, 0, 1])).toEqual({ subtitle: '3 issues in the collection', note: '(#0–#3)' });
   });
 
   it('hides headline returns when too few comics have recorded costs', () => {

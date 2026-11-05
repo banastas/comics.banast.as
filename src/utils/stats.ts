@@ -1,4 +1,4 @@
-import { Comic, ComicStats } from '../types/Comic';
+import type { Comic, ComicStats } from '../types/Comic';
 
 export const calculateComicStats = (comics: Comic[]): ComicStats => {
   const comicsWithCurrentValue = comics.filter(comic => comic.currentValue !== undefined);

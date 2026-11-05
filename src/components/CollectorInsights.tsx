@@ -125,7 +125,7 @@ export const CollectorInsights: React.FC<CollectorInsightsProps> = ({ comics }) 
       <div className="space-y-3">
         {insights.map((insight, i) => (
           <div key={i} className="flex items-start gap-3">
-            <insight.icon size={16} className={`${insight.color} flex-shrink-0 mt-0.5`} aria-hidden="true" />
+            <insight.icon size={16} className={`${insight.color} shrink-0 mt-0.5`} aria-hidden="true" />
             <p className="text-sm text-slate-300 leading-relaxed">{insight.text}</p>
           </div>
         ))}

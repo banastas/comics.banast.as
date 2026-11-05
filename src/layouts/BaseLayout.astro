@@ -1,0 +1,83 @@
+---
+import '../styles/global.css';
+import PageHeader from '../islands/PageHeader';
+import { SiteFooter } from '../components/SiteFooter';
+import type { HeaderSection } from '../components/SiteHeader';
+import { DEFAULT_DESCRIPTION, DEFAULT_IMAGE, fullTitle, type PageMeta } from '../utils/page-meta';
+import { INDEXABLE_ROBOTS, NOINDEX_ROBOTS } from '../utils/seo';
+import { collectionStats, lastUpdated } from '../utils/site-data';
+
+interface Props {
+  meta: PageMeta;
+  /** Highlighted header tab. */
+  section?: HeaderSection;
+  /** The collection page renders its own interactive header. */
+  header?: boolean;
+}
+
+const { meta, section = null, header = true } = Astro.props;
+const title = fullTitle(meta.title);
+const description = meta.description || DEFAULT_DESCRIPTION;
+const image = meta.image || DEFAULT_IMAGE;
+const url = meta.canonical ?? new URL(Astro.url.pathname, Astro.site).href;
+const structuredData = meta.structuredData ? JSON.stringify(meta.structuredData).replace(/</g, '\\u003c') : null;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="keywords" content={meta.keywords} />
+    <meta name="author" content="banastas" />
+    <meta name="theme-color" content="#0d1117" />
+    <meta name="robots" content={meta.canonical ? INDEXABLE_ROBOTS : NOINDEX_ROBOTS} />
+    {meta.canonical && <link rel="canonical" href={meta.canonical} />}
+
+    <meta property="og:type" content={meta.type} />
+    <meta property="og:url" content={url} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={image} />
+    <meta property="og:site_name" content="comics.banast.as" />
+    <meta property="og:locale" content="en_US" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={url} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+    <meta name="twitter:creator" content="@banastas" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <link rel="preconnect" href="https://www.googletagmanager.com" />
+    <link rel="preconnect" href="https://covers.banast.as" />
+
+    <!-- Old links used hash routes (/#/comic/…); send them to the real page. -->
+    <script is:inline>if (location.hash.indexOf('#/') === 0) location.replace(location.hash.slice(1));</script>
+
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-ZDMFMRZTBZ"></script>
+    <script is:inline>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-ZDMFMRZTBZ');</script>
+
+    {structuredData && <script type="application/ld+json" set:html={structuredData} />}
+  </head>
+  <body>
+    <div class="flex min-h-screen flex-col bg-surface-base">
+      <a
+        href="#main-content"
+        class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-blue-600 focus:px-4 focus:py-2 focus:text-white"
+      >
+        Skip to content
+      </a>
+      {header && <PageHeader client:idle section={section} totalComics={collectionStats.totalComics} />}
+      <slot />
+      <SiteFooter lastUpdated={lastUpdated} />
+    </div>
+  </body>
+</html>

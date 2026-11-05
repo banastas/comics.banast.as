@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { StatsTab } from '../components/StatsTab';
+import { collectionStats, comics, seriesNames, storageLocations } from '../utils/site-data';
+import { getSeriesCountSummaries, getSeriesPerformance, getStorageLocationSummaries, getTopValueComics } from '../utils/collection-analytics';
+import { statsMeta } from '../utils/page-meta';
+---
+<BaseLayout meta={statsMeta()} section="stats">
+  <main id="main-content" class="mx-auto w-full max-w-7xl flex-1 px-4 pb-8 sm:px-6 lg:px-8">
+    <StatsTab
+      stats={collectionStats}
+      allComics={comics}
+      allSeriesCount={seriesNames.length}
+      allVirtualBoxesCount={storageLocations.length}
+      variantsCount={comics.filter((comic) => comic.isVariant).length}
+      top10Comics={getTopValueComics(comics, 10)}
+      seriesPerformance={getSeriesPerformance(comics)}
+      seriesCountSummaries={getSeriesCountSummaries(comics)}
+      storageLocationSummaries={getStorageLocationSummaries(comics)}
+    />
+  </main>
+</BaseLayout>
