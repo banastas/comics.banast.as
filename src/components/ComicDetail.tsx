@@ -103,7 +103,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowCover(true)}
-                  className="group relative block aspect-[2/3] w-full overflow-hidden rounded-lg border border-slate-700 bg-surface-secondary shadow-xl"
+                  className="group relative block aspect-[2/3] w-full overflow-hidden rounded-md border-2 border-black bg-surface-secondary shadow-panel"
                   aria-label={`Enlarge cover: ${coverAltText(comic)}`}
                 >
                   <CoverImage comic={comic} displayWidth={288} sizes="(max-width: 768px) 280px, 288px" decorative priority />
@@ -112,7 +112,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                   </span>
                 </button>
               ) : (
-                <div className="aspect-[2/3] w-full overflow-hidden rounded-lg border border-slate-700">
+                <div className="aspect-[2/3] w-full overflow-hidden rounded-md border-2 border-black shadow-panel">
                   <CoverImage comic={comic} displayWidth={288} />
                 </div>
               )}

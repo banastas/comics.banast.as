@@ -118,7 +118,7 @@ const HighlightCard: React.FC<{
   return (
     <SiteLink
       to={{ type: 'comic', comic }}
-      className={`block rounded-xl border border-l-4 border-slate-800 bg-surface-primary p-5 transition-colors hover:border-slate-600 ${accents[accent].split(' ')[0]}`}
+      className={`block rounded-lg border-2 border-l-4 border-black bg-surface-primary p-5 shadow-panel transition-shadow hover:shadow-panel-hover ${accents[accent].split(' ')[0]}`}
     >
       <p className={`mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider ${accents[accent].split(' ')[1]}`}>
         <Icon size={15} aria-hidden="true" />
