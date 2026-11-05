@@ -1,1 +1,741 @@
-{}
+{
+  "2010": {
+    "publisher": "Marvel",
+    "startYear": 1985
+  },
+  "Action Comics": {
+    "publisher": "DC",
+    "startYear": 1938
+  },
+  "Adventures of Superman": {
+    "publisher": "DC",
+    "startYear": 1987
+  },
+  "Alien (Vol 1)": {
+    "publisher": "Marvel",
+    "volume": 1,
+    "startYear": 2021
+  },
+  "Alien (Vol 2)": {
+    "publisher": "Marvel",
+    "volume": 2,
+    "startYear": 2022
+  },
+  "Alien (Vol 3)": {
+    "publisher": "Marvel",
+    "volume": 3,
+    "startYear": 2023
+  },
+  "Alien (Vol 4)": {
+    "publisher": "Marvel",
+    "volume": 4,
+    "startYear": 2023
+  },
+  "Alien 3 [Alien³]": {
+    "publisher": "Dark Horse",
+    "startYear": 1992
+  },
+  "Alien Annual": {
+    "publisher": "Marvel",
+    "startYear": 2023
+  },
+  "Alien Armageddon: 1944": {
+    "publisher": "Dren Productions",
+    "startYear": 2024
+  },
+  "Alien Books Horror Pulp Stories": {
+    "publisher": "Alien Books",
+    "startYear": 2023
+  },
+  "Alien King Killer": {
+    "publisher": "Marvel",
+    "startYear": 2026
+  },
+  "Alien vs Captain America": {
+    "publisher": "Marvel",
+    "startYear": 2025
+  },
+  "Alien vs X-Men": {
+    "publisher": "Marvel",
+    "startYear": 2026
+  },
+  "Alien: Black, White & Blood": {
+    "publisher": "Marvel",
+    "startYear": 2024
+  },
+  "Alien: Paradiso": {
+    "publisher": "Marvel",
+    "startYear": 2024
+  },
+  "Alien: Romulus": {
+    "publisher": "Marvel",
+    "startYear": 2024
+  },
+  "Alien: The Illustrated Story": {
+    "publisher": "Titan",
+    "startYear": 2012
+  },
+  "Aliens / Predator: The Deadliest of the Species": {
+    "publisher": "Dark Horse",
+    "startYear": 1993
+  },
+  "Aliens Defiance": {
+    "publisher": "Dark Horse",
+    "startYear": 2016
+  },
+  "Aliens vs. Avengers": {
+    "publisher": "Marvel",
+    "startYear": 2024
+  },
+  "Aliens: Aftermath": {
+    "publisher": "Marvel",
+    "startYear": 2021
+  },
+  "Aliens: Colonial Marines": {
+    "publisher": "Dark Horse",
+    "startYear": 1993
+  },
+  "Aliens: Earth War": {
+    "publisher": "Dark Horse",
+    "startYear": 1990
+  },
+  "Aliens: Labyrinth": {
+    "publisher": "Dark Horse",
+    "startYear": 1993
+  },
+  "Aliens: Newt's Tale": {
+    "publisher": "Dark Horse",
+    "startYear": 1992
+  },
+  "Aliens: Stronghold": {
+    "publisher": "Dark Horse",
+    "startYear": 1994
+  },
+  "Aliens: What If...?": {
+    "publisher": "Marvel",
+    "startYear": 2024
+  },
+  "Alpha Flight": {
+    "publisher": "Marvel",
+    "startYear": 1983
+  },
+  "Amazing Spider-Man": {
+    "publisher": "Marvel",
+    "startYear": 1963
+  },
+  "Avengers": {
+    "publisher": "Marvel",
+    "startYear": 1963
+  },
+  "Avengers Spotlight": {
+    "publisher": "Marvel"
+  },
+  "Avengers West Coast": {
+    "publisher": "Marvel"
+  },
+  "Avengers: Twilight": {
+    "publisher": "Marvel",
+    "startYear": 2024
+  },
+  "Bartman": {
+    "publisher": "Bongo",
+    "startYear": 1993
+  },
+  "Batman": {
+    "publisher": "DC",
+    "startYear": 1940
+  },
+  "Batman and Other DC Classics": {
+    "publisher": "DC",
+    "startYear": 1989
+  },
+  "Batman: Movie Adaptation": {
+    "publisher": "DC",
+    "startYear": 1989
+  },
+  "Battletide II": {
+    "publisher": "Marvel UK",
+    "startYear": 1993
+  },
+  "Beavis and Butt-Head": {
+    "publisher": "Marvel",
+    "startYear": 1994
+  },
+  "Bettie Page": {
+    "publisher": "Dynamite",
+    "startYear": 2023
+  },
+  "Bill & Ted's Excellent Comic Book": {
+    "publisher": "Marvel",
+    "startYear": 1991
+  },
+  "Black Axe": {
+    "publisher": "Marvel UK",
+    "startYear": 1993
+  },
+  "Blade Runner 2039": {
+    "publisher": "Titan",
+    "startYear": 2022
+  },
+  "Bloodshot": {
+    "publisher": "Valiant",
+    "startYear": 1993
+  },
+  "Blue Book": {
+    "publisher": "Dark Horse",
+    "startYear": 2023
+  },
+  "Blue Book: 1947": {
+    "publisher": "Dark Horse",
+    "startYear": 2024
+  },
+  "Cable": {
+    "publisher": "Marvel",
+    "startYear": 1993
+  },
+  "Cain": {
+    "publisher": "Harris",
+    "startYear": 1993
+  },
+  "Captain America": {
+    "publisher": "Marvel",
+    "startYear": 1968
+  },
+  "Captain Atom": {
+    "publisher": "DC",
+    "startYear": 1987
+  },
+  "Cosmic Odyssey": {
+    "publisher": "DC",
+    "startYear": 1988
+  },
+  "Daredevil": {
+    "publisher": "Marvel",
+    "startYear": 1964
+  },
+  "Darker Image": {
+    "publisher": "Image",
+    "startYear": 1993
+  },
+  "Deadpool": {
+    "publisher": "Marvel",
+    "startYear": 2024
+  },
+  "Death 3": {
+    "publisher": "Marvel UK",
+    "startYear": 1993
+  },
+  "Deathblow": {
+    "publisher": "Image",
+    "startYear": 1993
+  },
+  "Deathmate": {
+    "startYear": 1993
+  },
+  "Detective Comics": {
+    "publisher": "DC",
+    "startYear": 1937
+  },
+  "Doctor Strange, Sorcerer Supreme": {
+    "publisher": "Marvel",
+    "startYear": 1988
+  },
+  "Doom 2099": {
+    "publisher": "Marvel",
+    "startYear": 1993
+  },
+  "EC Classics": {
+    "publisher": "Russ Cochran",
+    "startYear": 1985
+  },
+  "Fantastic Four": {
+    "publisher": "Marvel",
+    "volume": 1,
+    "startYear": 1961
+  },
+  "Feud": {
+    "publisher": "Epic",
+    "startYear": 1993
+  },
+  "First Wave Jordan Radcliffe": {
+    "publisher": "Andromeda",
+    "startYear": 2001
+  },
+  "Flash": {
+    "publisher": "DC",
+    "volume": 2,
+    "startYear": 1987
+  },
+  "Fred Hembeck Destroys the Marvel Universe": {
+    "publisher": "Marvel",
+    "startYear": 1989
+  },
+  "G.I. Joe and the Transformers": {
+    "publisher": "Marvel",
+    "startYear": 1987
+  },
+  "G.I. Joe European Missions": {
+    "publisher": "Marvel",
+    "startYear": 1988
+  },
+  "G.I. Joe, A Real American Hero": {
+    "publisher": "Marvel",
+    "startYear": 1982
+  },
+  "Gambit": {
+    "publisher": "Marvel",
+    "startYear": 1993
+  },
+  "Ghost Rider": {
+    "publisher": "Marvel",
+    "startYear": 1990
+  },
+  "Ghost Rider; Wolverine; Punisher: Hearts of Darkness": {
+    "publisher": "Marvel",
+    "startYear": 1991
+  },
+  "Homage Studios Swimsuit Special: #Ashcan": {
+    "publisher": "Image"
+  },
+  "Howard Chaykin's American Flagg": {
+    "publisher": "First",
+    "startYear": 1988
+  },
+  "Image Firsts: w0rldtr33": {
+    "publisher": "Image",
+    "startYear": 2024
+  },
+  "Iron Man": {
+    "publisher": "Marvel",
+    "volume": 1,
+    "startYear": 1968
+  },
+  "Itchy & Scratchy Comics": {
+    "publisher": "Bongo",
+    "startYear": 1993
+  },
+  "Jurassic Park": {
+    "publisher": "Topps",
+    "startYear": 1993
+  },
+  "Jurassic Park: Raptor": {
+    "publisher": "Topps",
+    "startYear": 1993
+  },
+  "Knight Terrors": {
+    "publisher": "DC",
+    "startYear": 2023
+  },
+  "Last Starfighter Vol 2": {
+    "publisher": "Mad Cave",
+    "volume": 2,
+    "startYear": 2026
+  },
+  "M.A.S.K. Vol 3": {
+    "publisher": "Image",
+    "volume": 3,
+    "startYear": 2026
+  },
+  "Marvel Comics Presents": {
+    "publisher": "Marvel",
+    "volume": 1,
+    "startYear": 1988
+  },
+  "Marvel Movie Showcase": {
+    "publisher": "Marvel",
+    "startYear": 1982
+  },
+  "Marvel Tales": {
+    "publisher": "Marvel",
+    "startYear": 1964
+  },
+  "Marvel Two-In-One": {
+    "publisher": "Marvel",
+    "volume": 1,
+    "startYear": 1974
+  },
+  "Masters of the Universe": {
+    "publisher": "Star Comics",
+    "startYear": 1986
+  },
+  "Miles Morales: Spider-Man": {
+    "publisher": "Marvel",
+    "startYear": 2022
+  },
+  "Money Shot: Comes Again": {
+    "publisher": "Vault",
+    "startYear": 2023
+  },
+  "Night People": {
+    "publisher": "Oni Press",
+    "startYear": 2024
+  },
+  "Nightmask": {
+    "publisher": "Marvel",
+    "startYear": 1986
+  },
+  "Penthouse Comics": {
+    "publisher": "Penthouse",
+    "startYear": 2024
+  },
+  "Penthouse Comics Vol 2": {
+    "publisher": "Penthouse",
+    "volume": 2,
+    "startYear": 2025
+  },
+  "Plastic Man": {
+    "publisher": "DC",
+    "startYear": 1988
+  },
+  "Predator": {
+    "publisher": "Marvel",
+    "startYear": 2023
+  },
+  "Predator (2022)": {
+    "publisher": "Marvel",
+    "startYear": 2022
+  },
+  "Predator 2": {
+    "publisher": "Dark Horse",
+    "startYear": 1991
+  },
+  "Predator Badlands": {
+    "publisher": "Marvel",
+    "startYear": 2025
+  },
+  "Predator Bloodshed": {
+    "publisher": "Marvel",
+    "startYear": 2026
+  },
+  "Predator Kills The Marvel Universe": {
+    "publisher": "Marvel",
+    "startYear": 2025
+  },
+  "Predator Versus Planet Of The Apes": {
+    "publisher": "Marvel",
+    "startYear": 2026
+  },
+  "Predator vs Punisher": {
+    "publisher": "Marvel",
+    "startYear": 2026
+  },
+  "Predator vs Wolverine": {
+    "publisher": "Marvel",
+    "startYear": 2023
+  },
+  "Predator vs. Spider-Man": {
+    "publisher": "Marvel",
+    "startYear": 2025
+  },
+  "Predator: Black, White & Blood": {
+    "publisher": "Marvel",
+    "startYear": 2025
+  },
+  "Predator: The Last Hunt": {
+    "publisher": "Marvel",
+    "startYear": 2024
+  },
+  "Punisher 2099": {
+    "publisher": "Marvel",
+    "startYear": 1993
+  },
+  "Radioactive Man": {
+    "publisher": "Bongo",
+    "startYear": 1993
+  },
+  "Raiders of the Lost Ark": {
+    "publisher": "Marvel",
+    "startYear": 1981
+  },
+  "Ravage 2099": {
+    "publisher": "Marvel",
+    "startYear": 1992
+  },
+  "Red Book I": {
+    "publisher": "Dark Horse",
+    "startYear": 2025
+  },
+  "Rick and Morty": {
+    "publisher": "Oni Press",
+    "startYear": 2023
+  },
+  "Rick and Morty 10th Anniversary Special": {
+    "publisher": "Oni Press",
+    "startYear": 2024
+  },
+  "Rick And Morty Forever": {
+    "publisher": "Oni Press",
+    "startYear": 2026
+  },
+  "Rick and Morty Presents: Fricky Friday": {
+    "publisher": "Oni Press",
+    "startYear": 2023
+  },
+  "Rick and Morty Presents: Maximum Crescendo": {
+    "publisher": "Oni Press",
+    "startYear": 2024
+  },
+  "Rick and Morty Presents: Rick in a Box": {
+    "publisher": "Oni Press",
+    "startYear": 2023
+  },
+  "Rick And Morty Presents: The Science Of Summer": {
+    "publisher": "Oni Press",
+    "startYear": 2023
+  },
+  "Rick And Morty The End": {
+    "publisher": "Oni Press",
+    "startYear": 2025
+  },
+  "Rick and Morty vs. The Universe": {
+    "publisher": "Oni Press",
+    "startYear": 2025
+  },
+  "Rick and Morty vs. The Universe: Beth, 'Til Death": {
+    "publisher": "Oni Press",
+    "startYear": 2025
+  },
+  "Rick and Morty vs. The Universe: Summer of Love": {
+    "publisher": "Oni Press",
+    "startYear": 2025
+  },
+  "Rick and Morty: Heart of Rickness": {
+    "publisher": "Oni Press",
+    "startYear": 2023
+  },
+  "Rick and Morty: Super Spring Break Special": {
+    "publisher": "Oni Press",
+    "startYear": 2024
+  },
+  "Silver Surfer": {
+    "publisher": "Marvel",
+    "volume": 3,
+    "startYear": 1987
+  },
+  "Simpsons Comics": {
+    "publisher": "Bongo",
+    "startYear": 1993
+  },
+  "Simpsons Comics and Stories": {
+    "publisher": "Welsh Publishing Group",
+    "startYear": 1993
+  },
+  "Spawn": {
+    "publisher": "Image",
+    "startYear": 1992
+  },
+  "Spawn Annual \"Spawn Blood & Shadows\"": {
+    "publisher": "Image",
+    "startYear": 1999
+  },
+  "Spawn: The Undead": {
+    "publisher": "Image",
+    "startYear": 1999
+  },
+  "Spectregraph": {
+    "publisher": "DSTLRY",
+    "startYear": 2024
+  },
+  "Spider-Man": {
+    "publisher": "Marvel",
+    "startYear": 1990
+  },
+  "Spider-Man 2099": {
+    "publisher": "Marvel",
+    "volume": 1,
+    "startYear": 1992
+  },
+  "Star Brand": {
+    "publisher": "Marvel",
+    "startYear": 1986
+  },
+  "Star Trek: Deep Space Nine": {
+    "publisher": "Malibu",
+    "startYear": 1993
+  },
+  "Star Trek: The Next Generation": {
+    "publisher": "DC",
+    "startYear": 1989
+  },
+  "Star Wars": {
+    "publisher": "Marvel",
+    "startYear": 1977
+  },
+  "Star Wars: Tales of the Jedi": {
+    "publisher": "Dark Horse",
+    "startYear": 1993
+  },
+  "Strange Tales": {
+    "publisher": "Marvel",
+    "volume": 1,
+    "startYear": 1951
+  },
+  "Superman": {
+    "publisher": "DC",
+    "volume": 2,
+    "startYear": 1987
+  },
+  "Superman: The Man of Steel": {
+    "publisher": "DC",
+    "startYear": 1991
+  },
+  "Thanos": {
+    "publisher": "Marvel",
+    "startYear": 2023
+  },
+  "The 'Nam": {
+    "publisher": "Marvel",
+    "startYear": 1986
+  },
+  "The Department Of Truth": {
+    "publisher": "Image",
+    "startYear": 2020
+  },
+  "The Incredible Hulk": {
+    "publisher": "Marvel",
+    "startYear": 1962
+  },
+  "The Infinity War": {
+    "publisher": "Marvel",
+    "startYear": 1992
+  },
+  "The Last Starfighter": {
+    "publisher": "Marvel",
+    "startYear": 1984
+  },
+  "The Maxx": {
+    "publisher": "Image",
+    "startYear": 1993
+  },
+  "The Mighty Thor": {
+    "publisher": "Marvel",
+    "volume": 1,
+    "startYear": 1966
+  },
+  "The Mutant Misadventures of Cloak and Dagger": {
+    "publisher": "Marvel",
+    "startYear": 1988
+  },
+  "The New Mutants": {
+    "publisher": "Marvel",
+    "volume": 1,
+    "startYear": 1983
+  },
+  "The Punisher": {
+    "publisher": "Marvel",
+    "volume": 2,
+    "startYear": 1987
+  },
+  "The Punisher War Journal": {
+    "publisher": "Marvel",
+    "volume": 1,
+    "startYear": 1988
+  },
+  "The Punisher: War Zone": {
+    "publisher": "Marvel",
+    "volume": 1,
+    "startYear": 1992
+  },
+  "The Punisher: War Zone Annual": {
+    "publisher": "Marvel",
+    "startYear": 1993
+  },
+  "The Ren & Stimpy Show": {
+    "publisher": "Marvel",
+    "startYear": 1992
+  },
+  "The Saga of Swamp Thing": {
+    "publisher": "DC",
+    "startYear": 1982
+  },
+  "The Spectacular Spider-Man": {
+    "publisher": "Marvel",
+    "volume": 1,
+    "startYear": 1976
+  },
+  "The Thing": {
+    "publisher": "Marvel",
+    "volume": 1,
+    "startYear": 1983
+  },
+  "Thunderstrike": {
+    "publisher": "Marvel",
+    "startYear": 1993
+  },
+  "Trencher": {
+    "publisher": "Image",
+    "startYear": 1993
+  },
+  "U.S.Agent": {
+    "publisher": "Marvel",
+    "startYear": 1993
+  },
+  "Vampirella": {
+    "publisher": "Harris"
+  },
+  "Venom: Lethal Protector": {
+    "publisher": "Marvel",
+    "startYear": 1993
+  },
+  "w0rldtr33": {
+    "publisher": "Image",
+    "startYear": 2023
+  },
+  "Warriors of Plasm": {
+    "publisher": "Defiant",
+    "startYear": 1993
+  },
+  "WildCATs": {
+    "publisher": "Image",
+    "volume": 1,
+    "startYear": 1992
+  },
+  "William Gibson's Alien 3": {
+    "publisher": "Dark Horse",
+    "startYear": 2018
+  },
+  "Wolverine": {
+    "publisher": "Marvel",
+    "volume": 2,
+    "startYear": 1988
+  },
+  "Wolverine and the Punisher: Damaging Evidence": {
+    "publisher": "Marvel",
+    "startYear": 1993
+  },
+  "Wonder Woman": {
+    "publisher": "DC",
+    "volume": 2,
+    "startYear": 1987
+  },
+  "Worlds Unknown": {
+    "publisher": "Marvel",
+    "startYear": 1973
+  },
+  "X-Files Vol 4": {
+    "publisher": "Dynamite",
+    "volume": 4,
+    "startYear": 2026
+  },
+  "X-Men '97": {
+    "publisher": "Marvel",
+    "startYear": 2024
+  },
+  "X-Men 2099": {
+    "publisher": "Marvel",
+    "startYear": 1993
+  },
+  "X-Men Adventures": {
+    "publisher": "Marvel",
+    "volume": 1,
+    "startYear": 1992
+  },
+  "X-Men Collector's Edition [Pizza Hut]": {
+    "publisher": "Marvel",
+    "startYear": 1993
+  },
+  "X-Men: Survival Guide to the Mansion": {
+    "publisher": "Marvel",
+    "startYear": 1993
+  }
+}
