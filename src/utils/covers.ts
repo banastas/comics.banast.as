@@ -6,9 +6,9 @@ export const hasRealCover = (url: string | undefined): url is string =>
   Boolean(url && url.trim() !== '' && !PLACEHOLDER_COVER_PATTERNS.some((pattern) => pattern.test(url)));
 
 // Covers are full-size JPEGs (~400 KB). When Cloudflare Image Transformations are enabled for the
-// site's zone, set VITE_COVER_RESIZE=cloudflare at build time to serve resized, modern-format
+// site's zone, set PUBLIC_COVER_RESIZE=cloudflare at build time to serve resized, modern-format
 // thumbnails through /cdn-cgi/image. Without it the original file is used unchanged.
-const resizeEnabled = import.meta.env.VITE_COVER_RESIZE === 'cloudflare';
+const resizeEnabled = import.meta.env.PUBLIC_COVER_RESIZE === 'cloudflare';
 const THUMBNAIL_WIDTHS = [160, 240, 360, 480, 720];
 
 const resizedUrl = (url: string, width: number): string =>

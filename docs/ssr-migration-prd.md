@@ -5,7 +5,7 @@
 - **Version:** 1.0
 - **Date:** 2026-04-17
 - **Author:** Bill Anastas (@banastas)
-- **Status:** Phase 1 shipped; a full framework migration remains optional
+- **Status:** Complete (November 2026): the site is built with Astro and React islands
 
 ## Executive Summary
 

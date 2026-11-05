@@ -122,7 +122,8 @@ export const DetailPageLayout: React.FC<DetailPageLayoutProps> = ({
       <div className="mx-auto max-w-7xl space-y-6 px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
         <section className="rounded-xl border border-slate-800 bg-surface-primary p-4 sm:p-6">
           <div className="mb-5 flex min-w-0 items-center gap-3">
-            {icon && <div className={`shrink-0 rounded-lg p-3 ${iconBgColor}`} aria-hidden="true">{icon}</div>}
+            {/* Astro passes an empty icon slot when a page has none; pages with an icon set its color. */}
+            {icon && iconBgColor && <div className={`shrink-0 rounded-lg p-3 ${iconBgColor}`} aria-hidden="true">{icon}</div>}
             <div className="min-w-0">
               <h1 className="break-words text-2xl font-bold text-white sm:text-3xl">{title}</h1>
               <p className="mt-1 text-slate-300">{subtitle}</p>
