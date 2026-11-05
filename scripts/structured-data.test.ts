@@ -85,4 +85,15 @@ describe('structured data', () => {
 
     expect(generateArtistStructuredData({ name: 'Todd McFarlane', url })).toMatchObject({ '@type': 'Person', name: 'Todd McFarlane', url });
   });
+
+  it('adds the publisher and start year from series details when known', () => {
+    const comic = data[0];
+    expect(generateComicStructuredData(comic, { publisher: 'Marvel' })).toMatchObject({ publisher: { '@type': 'Organization', name: 'Marvel' } });
+    expect(generateComicStructuredData(comic)).not.toHaveProperty('publisher');
+
+    const series = generateSeriesStructuredData({ name: comic.seriesName, comics: [comic], publisher: 'Marvel', startYear: 2021 });
+    expect(series).toMatchObject({ publisher: { '@type': 'Organization', name: 'Marvel' }, startDate: '2021' });
+    expect(generateSeriesStructuredData({ name: comic.seriesName, comics: [comic] })).not.toHaveProperty('startDate');
+  });
 });
+

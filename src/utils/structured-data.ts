@@ -63,7 +63,7 @@ export function generateComicStructuredData(comic: {
   grade?: number;
   signedBy?: string;
   isVariant: boolean;
-}) {
+}, series: { publisher?: string } = {}) {
   const coverArtist = comic.coverArtist?.trim();
   const description = copyDescription(comic);
 
@@ -80,6 +80,7 @@ export function generateComicStructuredData(comic: {
       name: comic.seriesName,
       url: seriesUrl(comic.seriesName),
     },
+    ...(series.publisher && { publisher: { '@type': 'Organization', name: series.publisher } }),
     ...(coverArtist && {
       artist: {
         '@type': 'Person',
@@ -97,12 +98,16 @@ export function generateSeriesStructuredData(series: {
   name: string;
   comics: Comic[];
   totalValue?: number;
+  publisher?: string;
+  startYear?: number;
 }) {
   return {
     '@context': 'https://schema.org',
     '@type': 'ComicSeries',
     name: series.name,
     url: seriesUrl(series.name),
+    ...(series.publisher && { publisher: { '@type': 'Organization', name: series.publisher } }),
+    ...(series.startYear && { startDate: String(series.startYear) }),
     hasPart: sortComics(series.comics).slice(0, MAX_LISTED_COMICS).map((comic) => ({
       '@type': 'ComicIssue',
       name: comicDisplayName(comic),

@@ -18,6 +18,8 @@ interface ComicDetailProps {
   next?: Comic;
   related: Comic[];
   seriesCount: number;
+  /** From the series details, when known. */
+  publisher?: string;
   onView?: (comic: Comic) => void;
   breadcrumbItems?: BreadcrumbItem[];
 }
@@ -59,6 +61,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
   next,
   related: relatedComics,
   seriesCount,
+  publisher,
   onView,
   breadcrumbItems,
 }) => {
@@ -146,6 +149,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                   {comic.currentValue === undefined ? <span className="text-slate-400">Not recorded</span> : (
                     <>
                       <span className="text-lg">{formatCurrency(comic.currentValue)}</span>
+                      {comic.valueAsOf && <span className="block text-xs text-slate-400">as of {formatDateLong(comic.valueAsOf)}</span>}
                       {change && change.trend !== 'flat' && (
                         <span className={`block text-xs ${change.trend === 'up' ? 'text-emerald-400' : 'text-red-400'}`}>{formatValueChange(change)} since purchase</span>
                       )}
@@ -155,6 +159,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
                 <Fact label="Purchase price">
                   {comic.purchasePrice === undefined ? <span className="text-slate-400">Not recorded</span> : formatCurrency(comic.purchasePrice)}
                 </Fact>
+                {publisher && <Fact label="Publisher">{publisher}</Fact>}
                 <Fact label="Release date">{formatDateLong(comic.releaseDate)}</Fact>
                 <Fact label="Purchased">{formatDateLong(comic.purchaseDate)}</Fact>
                 {comic.coverArtist && (

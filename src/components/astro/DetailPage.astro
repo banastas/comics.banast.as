@@ -22,6 +22,8 @@ interface Props {
   title: string;
   subtitle: string;
   subtitleNote?: string;
+  /** A second subtitle line, e.g. publisher, volume and start year. */
+  details?: string;
   defaultSortBy?: DetailSortField;
   sortOptions?: { value: string; label: string }[];
   comicsListTitle: string;
@@ -31,7 +33,7 @@ interface Props {
 }
 
 const {
-  meta, section = null, source, comics, breadcrumbItems, icon: Icon, iconBgColor, title, subtitle, subtitleNote,
+  meta, section = null, source, comics, breadcrumbItems, icon: Icon, iconBgColor, title, subtitle, subtitleNote, details,
   defaultSortBy = 'series', sortOptions, comicsListTitle, showSeriesName, breakdown, relatedTags = [],
 } = Astro.props;
 const hasAfter = Boolean(breakdown || relatedTags.length);
@@ -52,7 +54,7 @@ const hasAfter = Boolean(breakdown || relatedTags.length);
     showSeriesName={showSeriesName}
   >
     {Icon && <Icon slot="icon" size={24} className="text-white" />}
-    <span slot="subtitle">{subtitle}{subtitleNote && <span class="ml-2 text-slate-400">{subtitleNote}</span>}</span>
+    <span slot="subtitle">{subtitle}{subtitleNote && <span class="ml-2 text-slate-400">{subtitleNote}</span>}{details && <span class="mt-1 block text-sm text-slate-400">{details}</span>}</span>
     {hasAfter && (
       <div slot="afterDashboard" class="space-y-6">
         {breakdown && <SeriesBreakdown comics={comics} title={breakdown.title} maxItems={breakdown.maxItems} itemLabel={breakdown.itemLabel} />}

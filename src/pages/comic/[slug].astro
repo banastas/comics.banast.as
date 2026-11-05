@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { ComicDetail, comicSeriesContext } from '../../components/ComicDetail';
-import { comics } from '../../utils/site-data';
+import { comics, seriesDetails } from '../../utils/site-data';
 import { comicSlug, issueText } from '../../utils/comic-slug';
 import { comicMeta } from '../../utils/page-meta';
 import { seriesPath } from '../../utils/paths';
@@ -18,5 +18,5 @@ const breadcrumbItems = [
 ];
 ---
 <BaseLayout meta={comicMeta(comic)}>
-  <ComicDetail client:idle comic={comic} {...context} breadcrumbItems={breadcrumbItems} />
+  <ComicDetail client:idle comic={comic} {...context} publisher={seriesDetails[comic.seriesName]?.publisher} breadcrumbItems={breadcrumbItems} />
 </BaseLayout>
