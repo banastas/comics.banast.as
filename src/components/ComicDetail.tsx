@@ -96,7 +96,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
       </div>
 
       <div className="mx-auto max-w-7xl space-y-6 px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
-        <article className="rounded-xl border border-slate-800 bg-surface-primary p-4 sm:p-6">
+        <article className="rounded-lg panel bg-surface-primary p-4 sm:p-6">
           <div className="flex flex-col gap-6 md:flex-row md:gap-8">
             <div className="mx-auto w-full max-w-[280px] shrink-0 md:mx-0 md:w-64 lg:w-72">
               {realCover ? (
@@ -205,7 +205,7 @@ export const ComicDetail: React.FC<ComicDetailProps> = ({
         </article>
 
         {relatedComics.length > 0 && (
-          <section aria-labelledby="related-heading" className="rounded-xl border border-slate-800 bg-surface-primary p-4 sm:p-6">
+          <section aria-labelledby="related-heading" className="rounded-lg panel bg-surface-primary p-4 sm:p-6">
             <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
               <h2 id="related-heading" className="text-lg font-semibold text-white">More from {comic.seriesName}</h2>
               <SiteLink to={{ type: 'series', name: comic.seriesName }} className={`text-sm ${linkClass}`}>

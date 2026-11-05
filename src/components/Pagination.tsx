@@ -30,7 +30,7 @@ export const Pagination = ({ currentPage, totalPages, onPageChange, label = 'Col
                     onClick={() => onPageChange(pageNum)}
                     className={`px-2 sm:px-3 py-1.5 rounded-xl text-sm transition-colors ${
                       currentPage === pageNum
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-blue-600 text-ink'
                         : 'bg-surface-secondary text-slate-300 hover:bg-surface-elevated hover:text-white'
                     }`}
                     aria-current={currentPage === pageNum ? 'page' : undefined}

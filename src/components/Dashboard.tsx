@@ -57,7 +57,7 @@ export const KeyStats: React.FC<{ stats: ComicStats }> = ({ stats }) => (
 /** Headline numbers for the statistics page. */
 export const PortfolioOverview: React.FC<{ stats: ComicStats; variantsCount: number }> = ({ stats, variantsCount }) => {
   return (
-    <section aria-labelledby="portfolio-heading" className="rounded-xl border border-slate-800 bg-surface-primary p-5 sm:p-8">
+    <section aria-labelledby="portfolio-heading" className="rounded-lg panel bg-surface-primary p-5 sm:p-8">
       <h2 id="portfolio-heading" className="mb-4 text-xs font-medium uppercase tracking-wider text-slate-400">Portfolio overview</h2>
       <dl className="mb-6 grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 sm:gap-8 lg:grid-cols-3">
         <div>

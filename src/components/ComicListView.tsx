@@ -24,7 +24,7 @@ export const ComicListItem: React.FC<ComicListItemProps> = React.memo(({ comic, 
         href={comicPath(comic)}
         onNavigate={onView ? () => onView(comic) : undefined}
         aria-label={comicAccessibleName(comic)}
-        className="flex items-center gap-3 rounded-xl border border-slate-800 bg-surface-primary p-3 transition-colors hover:border-slate-500 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-400 sm:gap-4 sm:p-4"
+        className="flex items-center gap-3 rounded-lg panel bg-surface-primary p-3 transition-colors hover:border-slate-500 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-400 sm:gap-4 sm:p-4"
       >
         <div className="h-14 w-10 shrink-0 overflow-hidden rounded-md bg-surface-secondary sm:h-16 sm:w-11">
           <CoverImage comic={comic} displayWidth={48} sizes="48px" decorative compact />

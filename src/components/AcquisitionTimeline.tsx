@@ -17,7 +17,7 @@ export const AcquisitionTimeline: React.FC<AcquisitionTimelineProps> = ({ comics
   const barAreaHeight = 140;
 
   return (
-    <section aria-labelledby="timeline-heading" className="rounded-xl border border-slate-800 bg-surface-primary p-5 sm:p-6">
+    <section aria-labelledby="timeline-heading" className="rounded-lg panel bg-surface-primary p-5 sm:p-6">
       <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2">
         <h2 id="timeline-heading" className="text-base font-semibold text-white">Acquisitions</h2>
         <p className="text-xs text-slate-400">

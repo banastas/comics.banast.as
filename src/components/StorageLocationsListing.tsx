@@ -85,7 +85,7 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
       </div>
 
       <div className="mx-auto max-w-7xl space-y-6 px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
-        <section className="rounded-xl border border-slate-800 bg-surface-primary p-4 sm:p-6">
+        <section className="rounded-lg panel bg-surface-primary p-4 sm:p-6">
           <div className="mb-5 flex items-center gap-3">
             <div className="rounded-lg bg-orange-600 p-3" aria-hidden="true"><MapPin size={24} className="text-white" /></div>
             <div>
@@ -108,7 +108,7 @@ export const StorageLocationsListing: React.FC<StorageLocationsListingProps> = (
           </dl>
         </section>
 
-        <section aria-labelledby="boxes-heading" className="rounded-xl border border-slate-800 bg-surface-primary p-3 sm:p-6">
+        <section aria-labelledby="boxes-heading" className="rounded-lg panel bg-surface-primary p-3 sm:p-6">
           <h2 id="boxes-heading" className="mb-4 text-lg font-semibold text-white">All boxes</h2>
           {storageLocations.length > 0 ? (
             <ul className="space-y-3">

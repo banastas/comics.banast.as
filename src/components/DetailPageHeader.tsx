@@ -50,7 +50,7 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
             <button
               onClick={() => onViewModeChange('grid')}
               className={`p-2 rounded-l-lg transition-colors ${
-                viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:text-white'
+                viewMode === 'grid' ? 'bg-blue-600 text-ink' : 'text-slate-300 hover:text-white'
               }`}
               aria-label="Grid view"
               aria-pressed={viewMode === 'grid'}
@@ -60,7 +60,7 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
             <button
               onClick={() => onViewModeChange('list')}
               className={`p-2 rounded-r-lg transition-colors ${
-                viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:text-white'
+                viewMode === 'list' ? 'bg-blue-600 text-ink' : 'text-slate-300 hover:text-white'
               }`}
               aria-label="List view"
               aria-pressed={viewMode === 'list'}
